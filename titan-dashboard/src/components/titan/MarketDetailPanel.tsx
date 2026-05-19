@@ -155,12 +155,14 @@ function ChartsSection({
   return (
     <section id="market-charts">
       <h3 className="mb-4 text-[10px] font-semibold uppercase tracking-[0.2em] text-stone-500">
-        Charts · COT & price
+        Grafy · TradingView nahoře, COT indikátor dole
       </h3>
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="flex flex-col gap-4">
+        <TradingViewChart market={market} selectionKey={market.symbol} />
+
         <div className="flex min-h-[400px] flex-col rounded-xl border border-titan-line/70 bg-titan-black/40 p-3">
           <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-stone-600">
-            Historical net positioning
+            COT · historické net pozice
           </p>
           <div className="min-h-[340px] flex-1">
             {loading ? (
@@ -226,7 +228,6 @@ function ChartsSection({
             )}
           </div>
         </div>
-        <TradingViewChart market={market} selectionKey={market.symbol} />
       </div>
     </section>
   );

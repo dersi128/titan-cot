@@ -22,12 +22,12 @@ const GUIDE_ITEMS = [
     body: "Retail často kontrární k commercials. Divergence = commercials a fondy se týden pohybují opačně (institucionální napětí).",
   },
   {
-    title: "Graf COT (žlutá / modrá / růžová)",
-    body: "Historie čistých net pozic: commercials, non-commercials (fondy), retail. CFTC Legacy Futures Only.",
+    title: "TradingView (nahoře)",
+    body: "Cenový graf futures — musí sedět symbol pod názvem (např. CME:6A1! pro AUD). Není to Apple ani akcie, pokud widget načte správně.",
   },
   {
-    title: "TradingView",
-    body: "Cenový graf futures stejného trhu — kontext ceny vedle positioning bias. Otevření v TV = plná platforma.",
+    title: "COT indikátor (dole)",
+    body: "Historie čistých net pozic: žlutá = commercials, modrá = fondy, růžová = retail. CFTC Legacy Futures Only.",
   },
 ] as const;
 

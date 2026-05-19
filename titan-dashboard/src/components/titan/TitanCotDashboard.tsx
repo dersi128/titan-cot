@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   getDefaultSelectedMarket,
   INSTITUTIONAL_MARKETS,
@@ -18,6 +18,11 @@ const MAPPING_PAYLOAD = INSTITUTIONAL_MARKETS.map((m) => ({ futuresSymbol: m.sym
 
 type DashboardView = "overview" | "market";
 
+function lockPageScroll(lock: boolean) {
+  document.documentElement.style.overflow = lock ? "hidden" : "";
+  document.body.style.overflow = lock ? "hidden" : "";
+}
+
 export function TitanCotDashboard() {
   const [view, setView] = useState<DashboardView>("overview");
   const [selectedMarket, setSelectedMarket] = useState<InstitutionalMarket>(() => getDefaultSelectedMarket());
@@ -25,6 +30,7 @@ export function TitanCotDashboard() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [globalError, setGlobalError] = useState<string | null>(null);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
+  const marketScrollRef = useRef<HTMLDivElement>(null);
 
   const openMarket = useCallback((market: InstitutionalMarket) => {
     setSelectedMarket(market);
@@ -34,6 +40,22 @@ export function TitanCotDashboard() {
   const backToOverview = useCallback(() => {
     setView("overview");
   }, []);
+
+  useEffect(() => {
+    if (typeof history !== "undefined" && "scrollRestoration" in history) {
+      history.scrollRestoration = "manual";
+    }
+  }, []);
+
+  useEffect(() => {
+    if (view === "market") {
+      lockPageScroll(true);
+      marketScrollRef.current?.scrollTo(0, 0);
+    } else {
+      lockPageScroll(false);
+    }
+    return () => lockPageScroll(false);
+  }, [view, selectedMarket.symbol]);
 
   useEffect(() => {
     let cancelled = false;
@@ -78,7 +100,7 @@ export function TitanCotDashboard() {
 
   return (
     <div className="titan-page-bg min-h-screen">
-      <header className="titan-header-bar sticky top-0 z-20">
+      <header className="titan-header-bar sticky top-0 z-30 shrink-0">
         <div className="mx-auto flex max-w-[1600px] flex-col gap-5 px-4 py-5 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-start gap-4">
             {isMarketView ? (
@@ -86,7 +108,7 @@ export function TitanCotDashboard() {
                 type="button"
                 onClick={backToOverview}
                 className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-titan-line/90 bg-titan-panel text-stone-400 transition-colors hover:border-titan-gold/35 hover:text-titan-goldBright"
-                aria-label="Back to all markets"
+                aria-label="Zpět na všechny trhy"
               >
                 ←
               </button>
@@ -109,8 +131,8 @@ export function TitanCotDashboard() {
               </h1>
               <p className="mt-1 max-w-lg text-sm leading-relaxed text-stone-500">
                 {isMarketView
-                  ? `${selectedMarket.subtitle} · CFTC positioning & price chart`
-                  : "Institutional positioning · CFTC Legacy Futures · Select a market"}
+                  ? `${selectedMarket.subtitle} · CFTC + TradingView`
+                  : "Vyber trh — otevře se samostatná stránka (bez scrollu dolů)"}
               </p>
             </div>
           </div>
@@ -132,62 +154,53 @@ export function TitanCotDashboard() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-[1600px] px-4 py-8">
-        {globalError ? (
-          <div className="mb-6 rounded-xl border border-rose-500/30 bg-rose-950/25 px-4 py-3 text-sm text-rose-200/90 backdrop-blur-sm">
-            <strong className="font-medium text-rose-300">Connection:</strong> {globalError} — start the COT API (
-            <code className="rounded bg-titan-elevated px-1.5 py-0.5 font-mono text-xs">cot-data-module</code>).
+      {globalError && view === "overview" ? (
+        <div className="mx-auto max-w-[1600px] px-4 pt-6">
+          <div className="rounded-xl border border-rose-500/30 bg-rose-950/25 px-4 py-3 text-sm text-rose-200/90 backdrop-blur-sm">
+            <strong className="font-medium text-rose-300">Connection:</strong> {globalError}
           </div>
-        ) : null}
+        </div>
+      ) : null}
 
-        {view === "overview" ? (
-          <div key="overview" className="space-y-6">
-            <p className="text-sm leading-relaxed text-stone-500">
-              Klikni na trh ve scanneru nebo heatmapě — otevře se jeho stránka s průvodcem, COT daty a
-              TradingView grafem. Stránka se neposouvá dolů, jen se přepne pohled.
-            </p>
-            <GlobalCotScanner
-              rows={rows}
-              selectedMarket={selectedMarket}
-              onSelectMarket={openMarket}
-            />
-            <CotHeatmap
-              markets={INSTITUTIONAL_MARKETS}
-              bundle={bundle}
-              selectedMarket={selectedMarket}
-              onSelectMarket={openMarket}
-            />
-          </div>
-        ) : (
-          <div key={`market-${selectedSymbol}`}>
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-              <button
-                type="button"
-                onClick={backToOverview}
-                className="inline-flex items-center gap-2 rounded-lg border border-titan-line/90 bg-titan-panel px-4 py-2 text-sm font-medium text-stone-300 transition-colors hover:border-titan-gold/30 hover:text-titan-goldBright"
-              >
-                ← All markets
-              </button>
-              <p className="text-[11px] text-stone-600">Bias only, not execution</p>
-            </div>
+      {view === "overview" ? (
+        <main className="mx-auto max-w-[1600px] space-y-6 px-4 py-8">
+          <GlobalCotScanner rows={rows} selectedMarket={selectedMarket} onSelectMarket={openMarket} />
+          <CotHeatmap
+            markets={INSTITUTIONAL_MARKETS}
+            bundle={bundle}
+            selectedMarket={selectedMarket}
+            onSelectMarket={openMarket}
+          />
+        </main>
+      ) : (
+        <div
+          ref={marketScrollRef}
+          className="fixed inset-x-0 bottom-0 top-[var(--titan-header-offset,5.5rem)] z-20 overflow-y-auto overflow-x-hidden bg-titan-black titan-page-bg"
+        >
+          <main className="mx-auto max-w-[1600px] px-4 py-6 pb-12">
+            {globalError ? (
+              <div className="mb-4 rounded-xl border border-rose-500/30 bg-rose-950/25 px-4 py-3 text-sm text-rose-200/90">
+                {globalError}
+              </div>
+            ) : null}
             <MarketDetailPanel
+              key={selectedSymbol}
               market={selectedMarket}
               data={selectedData}
               loading={loadingDetail}
               error={detailError && !selectedData ? detailError : null}
             />
-          </div>
-        )}
-      </main>
+          </main>
+        </div>
+      )}
 
-      <footer className="border-t border-titan-line/60 py-10 text-center">
-        <p className="text-[11px] text-stone-600">
-          TITAN COT — Smart money context only · Bias only, not execution
-        </p>
-        <p className="mt-1 text-[10px] text-stone-700">
-          Past positioning does not predict future prices
-        </p>
-      </footer>
+      {view === "overview" ? (
+        <footer className="border-t border-titan-line/60 py-10 text-center">
+          <p className="text-[11px] text-stone-600">
+            TITAN COT — Bias only, not execution
+          </p>
+        </footer>
+      ) : null}
     </div>
   );
 }

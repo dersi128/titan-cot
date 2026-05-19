@@ -31,6 +31,13 @@
   .titan-header-bar {
     @apply border-b border-titan-line/80 bg-titan-void/80 backdrop-blur-xl;
     box-shadow: 0 1px 0 0 rgba(212, 175, 55, 0.04);
+    --titan-header-offset: 5.75rem;
+  }
+
+  @media (min-width: 1024px) {
+    .titan-header-bar {
+      --titan-header-offset: 6.25rem;
+    }
   }
 
   .titan-scanner-row-active {
