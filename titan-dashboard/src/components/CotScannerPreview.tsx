@@ -59,8 +59,8 @@ export function CotScannerPreview({ rows, activeSymbol, onSelectMarket, onOpenFu
 }
 
 function heatClass(score: number): "bull" | "bear" | "neutral" {
-  if (score >= 60) return "bull";
-  if (score <= -60) return "bear";
+  if (score >= 40) return "bull";
+  if (score <= -40) return "bear";
   return "neutral";
 }
 

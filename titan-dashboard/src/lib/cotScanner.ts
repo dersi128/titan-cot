@@ -126,11 +126,11 @@ export function filterCotRows(rows: CotPlatformRow[], filter: CotScannerFilter):
 
     switch (filter) {
       case "bullish":
-        return r.cotScore >= 60;
+        return r.cotScore >= 40;
       case "bearish":
-        return r.cotScore <= -60;
+        return r.cotScore <= -40;
       case "neutral":
-        return r.cotScore > -60 && r.cotScore < 60;
+        return r.cotScore > -40 && r.cotScore < 40;
       case "divergence":
         return r.nonCommDivergence !== "none";
       case "retail_extreme":

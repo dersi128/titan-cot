@@ -1,4 +1,11 @@
-export type CotVerdict = "A+ LONG" | "B LONG" | "NEUTRAL" | "B SHORT" | "A+ SHORT";
+export type CotVerdict =
+  | "A+ INSTITUTIONAL LONG"
+  | "B LONG"
+  | "WEAK LONG"
+  | "NEUTRAL"
+  | "WEAK SHORT"
+  | "B SHORT"
+  | "A+ INSTITUTIONAL SHORT";
 
 export type CotHistoryPoint = {
   reportDate: string;
@@ -43,6 +50,7 @@ export type CotDashboardData = {
   };
   cotScore: number;
   cotVerdict: CotVerdict;
+  marketPhase?: string;
   plainEnglishExplanation: string;
   history: CotHistoryPoint[];
 };

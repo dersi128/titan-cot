@@ -4,16 +4,15 @@ import { buildLegacyFuturesWhereClause, getCotMarketMapping, type CotMarketMappi
 import {
   buildPlainEnglishExplanation,
   calculateCotIndex,
-  computeCotScore,
   getCommercialBias,
   getInstitutionalDivergence,
   getRetailContrarianSignal,
-  scoreToCotVerdict,
   type CommercialBias,
   type CotVerdict,
   type InstitutionalDivergence,
   type RetailContrarian,
 } from "./cotLogicEngine.js";
+import { computeUnifiedCotScore } from "./titanCotScoringCore.js";
 
 const CFTC_LEGACY_FUTURES_ONLY_URL =
   "https://publicreporting.cftc.gov/resource/6dca-aqww.json";
@@ -61,6 +60,8 @@ export type CotDashboardOutput = {
   };
   cotScore: number;
   cotVerdict: CotVerdict;
+  /** Textual market phase from unified scoring. */
+  marketPhase: string;
   plainEnglishExplanation: string;
   /** Full fetched weekly series for charts (oldest → newest). */
   history: CotHistoryPoint[];
@@ -224,16 +225,35 @@ function buildDashboardOutput(series: NetSeriesPoint[], mapping: CotMarketMappin
     retail.index52w,
   );
 
-  const engineInput = {
-    commercials: { ...commercials, weeklyChange: commercialWeekly },
-    nonCommercials: { ...nonCommercials, weeklyChange: nonCommWeekly },
-    retail: { ...retail, weeklyChange: retailWeekly },
-    commercialBias,
-    nonCommercialDivergence,
-  };
+  const history = series.map((point) => ({
+    reportDate: point.reportDate,
+    commercialNet: point.commercialNet,
+    nonCommercialNet: point.nonCommercialNet,
+    retailNet: point.retailNet,
+  }));
 
-  const cotScore = computeCotScore(engineInput);
-  const cotVerdict = scoreToCotVerdict(cotScore);
+  const scoring = computeUnifiedCotScore({
+    commercials: {
+      index26w: commercials.index26w,
+      index52w: commercials.index52w,
+      weeklyChange: commercialWeekly,
+      delta4w: commercials.delta4w,
+      delta13w: commercials.delta13w,
+      bias: commercialBias,
+    },
+    nonCommercials: {
+      weeklyChange: nonCommWeekly,
+      divergence: nonCommercialDivergence,
+    },
+    retail: {
+      index26w: retail.index26w,
+      index52w: retail.index52w,
+      contrarianSignal: retailSignal,
+    },
+    history,
+  });
+
+  const { score: cotScore, verdict: cotVerdict, marketPhase } = scoring;
 
   const plainEnglishExplanation = buildPlainEnglishExplanation({
     marketLabel: mapping.displayName,
@@ -242,8 +262,7 @@ function buildDashboardOutput(series: NetSeriesPoint[], mapping: CotMarketMappin
     commercialBias,
     retailContrarian: retailSignal,
     nonCommercialDivergence,
-    cotScore,
-    cotVerdict,
+    result: scoring,
   });
 
   return {
@@ -269,13 +288,9 @@ function buildDashboardOutput(series: NetSeriesPoint[], mapping: CotMarketMappin
     },
     cotScore,
     cotVerdict,
+    marketPhase,
     plainEnglishExplanation,
-    history: series.map((point) => ({
-      reportDate: point.reportDate,
-      commercialNet: point.commercialNet,
-      nonCommercialNet: point.nonCommercialNet,
-      retailNet: point.retailNet,
-    })),
+    history,
   };
 }
 
