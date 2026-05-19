@@ -15,7 +15,6 @@ export const csMessages: Messages = {
     backMarkets: "Zpět na všechny trhy",
     marketDetail: "Detail trhu",
     institutionalCot: "INSTITUTIONAL COT",
-    overviewSub: "Býk vs. medvěd · institucionální positioning · smart money",
     heroBadge: "AI COT engine aktivní",
     cftcTv: "CFTC + TradingView",
     marketsLive: "{{count}} trhů live",

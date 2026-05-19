@@ -167,7 +167,6 @@ export function TitanCotDashboard() {
                 </div>
                 <div className="text-center">
                   <h1 className="titan-hero-title">{t("header.institutionalCot")}</h1>
-                  <p className="mt-2 text-sm text-titan-muted md:text-base">{t("header.overviewSub")}</p>
                 </div>
                 <div className="flex flex-wrap items-center justify-center gap-3 lg:justify-end">
                   <LanguageSwitcher />

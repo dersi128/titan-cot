@@ -13,7 +13,6 @@ export const enMessages = {
     backMarkets: "Back to all markets",
     marketDetail: "Market detail",
     institutionalCot: "INSTITUTIONAL COT",
-    overviewSub: "Bull vs Bear · Institutional positioning · Smart Money Intelligence",
     heroBadge: "AI COT Engine Active",
     cftcTv: "CFTC + TradingView",
     marketsLive: "{{count}} markets live",
