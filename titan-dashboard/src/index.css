@@ -632,6 +632,232 @@
   .titan-engine-card--neutral {
     border-color: rgba(120, 113, 108, 0.35);
   }
+
+  .titan-positioning-terminal__vignette {
+    background:
+      radial-gradient(ellipse 90% 60% at 50% -10%, rgba(212, 175, 55, 0.09), transparent 55%),
+      radial-gradient(ellipse 50% 40% at 100% 50%, rgba(59, 130, 246, 0.04), transparent 50%);
+    pointer-events: none;
+  }
+
+  .titan-terminal-section__label {
+    @apply font-display text-[10px] font-semibold uppercase tracking-[0.34em] text-stone-500;
+  }
+
+  .titan-terminal-grid {
+    @apply grid gap-3;
+  }
+
+  .titan-terminal-grid--3 {
+    @apply md:grid-cols-2 xl:grid-cols-3;
+  }
+
+  .titan-terminal-card {
+    @apply relative overflow-hidden rounded-2xl p-5 backdrop-blur-xl transition-all duration-500;
+    background: linear-gradient(160deg, rgba(18, 20, 28, 0.82), rgba(6, 7, 10, 0.94));
+    animation: fadeUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .titan-terminal-card__border {
+    @apply pointer-events-none absolute inset-0 rounded-2xl;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .titan-terminal-card__glow {
+    @apply pointer-events-none absolute -inset-px rounded-2xl opacity-60;
+    background: radial-gradient(ellipse 80% 50% at 50% 0%, var(--terminal-accent, rgba(212, 175, 55, 0.12)), transparent 70%);
+  }
+
+  .titan-terminal-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 24px 48px -28px rgba(0, 0, 0, 0.95), 0 0 40px -16px var(--terminal-accent-soft, rgba(212, 175, 55, 0.2));
+  }
+
+  .titan-terminal-card--red {
+    --terminal-accent: rgba(255, 77, 109, 0.2);
+    --terminal-accent-soft: rgba(255, 77, 109, 0.25);
+  }
+
+  .titan-terminal-card--red .titan-terminal-card__border {
+    border-color: rgba(255, 77, 109, 0.28);
+  }
+
+  .titan-terminal-card--green {
+    --terminal-accent: rgba(0, 208, 132, 0.18);
+    --terminal-accent-soft: rgba(0, 208, 132, 0.22);
+  }
+
+  .titan-terminal-card--green .titan-terminal-card__border {
+    border-color: rgba(0, 208, 132, 0.28);
+  }
+
+  .titan-terminal-card--blue {
+    --terminal-accent: rgba(96, 165, 250, 0.16);
+    --terminal-accent-soft: rgba(96, 165, 250, 0.22);
+  }
+
+  .titan-terminal-card--blue .titan-terminal-card__border {
+    border-color: rgba(96, 165, 250, 0.28);
+  }
+
+  .titan-terminal-card--purple {
+    --terminal-accent: rgba(167, 139, 250, 0.16);
+    --terminal-accent-soft: rgba(167, 139, 250, 0.22);
+  }
+
+  .titan-terminal-card--purple .titan-terminal-card__border {
+    border-color: rgba(167, 139, 250, 0.28);
+  }
+
+  .titan-terminal-card--gold {
+    --terminal-accent: rgba(212, 175, 55, 0.18);
+    --terminal-accent-soft: rgba(212, 175, 55, 0.24);
+  }
+
+  .titan-terminal-card--gold .titan-terminal-card__border {
+    border-color: rgba(212, 175, 55, 0.32);
+  }
+
+  .titan-terminal-card__head {
+    @apply mb-4 flex items-center gap-3;
+  }
+
+  .titan-terminal-card__icon {
+    @apply inline-flex h-9 w-9 items-center justify-center rounded-lg text-titan-goldBright;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .titan-terminal-card__title {
+    @apply text-[10px] font-semibold uppercase tracking-[0.2em] text-stone-400;
+  }
+
+  .titan-terminal-metric {
+    @apply font-mono text-3xl font-semibold tabular-nums text-white;
+  }
+
+  .titan-terminal-metric__sub {
+    @apply text-base font-normal text-stone-600;
+  }
+
+  .titan-terminal-state {
+    @apply mt-1 text-sm font-semibold;
+  }
+
+  .titan-terminal-state--bear {
+    color: rgba(255, 120, 140, 0.95);
+  }
+
+  .titan-terminal-state--bull {
+    color: rgba(0, 208, 132, 0.95);
+  }
+
+  .titan-terminal-state--neutral {
+    @apply text-stone-300;
+  }
+
+  .titan-terminal-headline {
+    @apply text-lg font-semibold tracking-tight text-white;
+  }
+
+  .titan-terminal-kicker {
+    @apply text-[9px] font-semibold uppercase tracking-[0.16em] text-stone-600;
+  }
+
+  .titan-terminal-spark {
+    @apply shrink-0 opacity-80;
+  }
+
+  .titan-terminal-spark--bear {
+    color: rgba(255, 77, 109, 0.85);
+  }
+
+  .titan-terminal-spark--bull {
+    color: rgba(0, 208, 132, 0.85);
+  }
+
+  .titan-terminal-spark--gold {
+    color: rgba(212, 175, 55, 0.85);
+  }
+
+  .titan-engine-meter--bear .titan-engine-meter__fill {
+    background: linear-gradient(90deg, rgba(80, 20, 35, 0.9), rgba(255, 77, 109, 0.85));
+  }
+
+  .titan-engine-meter--bull .titan-engine-meter__fill {
+    background: linear-gradient(90deg, rgba(0, 80, 55, 0.8), rgba(0, 208, 132, 0.85));
+  }
+
+  .titan-delta-table th {
+    @apply pb-2 text-[9px] font-semibold uppercase tracking-wider text-stone-600;
+  }
+
+  .titan-delta-table td {
+    @apply border-t border-white/[0.04] py-2.5 text-sm;
+  }
+
+  .titan-terminal-check {
+    @apply flex items-start gap-2.5 text-[11px] leading-snug text-stone-500;
+  }
+
+  .titan-terminal-check__box {
+    @apply mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border border-stone-700 bg-black/40 transition-all duration-300;
+  }
+
+  .titan-terminal-check--on .titan-terminal-check__box {
+    @apply border-emerald-500/60 bg-emerald-500/15 text-emerald-400;
+    box-shadow: 0 0 12px rgba(0, 208, 132, 0.35);
+    animation: checkPop 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .titan-terminal-check--on {
+    @apply text-stone-300;
+  }
+
+  @keyframes checkPop {
+    0% {
+      transform: scale(0.85);
+    }
+    60% {
+      transform: scale(1.08);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .titan-terminal-mini-stat {
+    @apply rounded-lg border border-white/[0.06] bg-black/25 p-2.5;
+  }
+
+  .titan-regime-segments {
+    @apply grid grid-cols-2 gap-1 rounded-xl border border-white/[0.06] bg-black/30 p-1;
+  }
+
+  .titan-regime-segments__btn {
+    @apply rounded-lg px-2 py-2 text-center text-[9px] font-semibold uppercase tracking-wide text-stone-600 transition-colors;
+  }
+
+  .titan-regime-segments__btn.is-active {
+    @apply bg-sky-500/20 text-sky-200;
+    box-shadow: inset 0 0 0 1px rgba(96, 165, 250, 0.35);
+  }
+
+  .titan-legend-dot {
+    @apply inline-block h-1.5 w-1.5 rounded-full;
+  }
+
+  .titan-legend-dot--comm {
+    background: #00d084;
+  }
+
+  .titan-legend-dot--retail {
+    background: #d4af37;
+  }
+
+  .titan-legend-dot--flow {
+    background: #60a5fa;
+  }
 }
 
 @layer utilities {

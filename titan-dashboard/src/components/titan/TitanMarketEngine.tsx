@@ -3,10 +3,11 @@ import type { CotDashboardData } from "../../types";
 import type { InstitutionalMarket } from "../../config/institutionalMarkets";
 import {
   evaluateTitanPositioning,
+  retailPositioningLabel,
   type CommercialZoneId,
-  type DivergenceStateId,
-  type MarketRegimeId,
-  type ReversalStateId,
+  type DeltaFlowRow,
+  type DeltaFlowTrend,
+  type TitanPositioningRead,
 } from "../../lib/titanCommercialIndex";
 import { useTitanI18n } from "../../i18n";
 
@@ -15,6 +16,15 @@ type TitanMarketEngineProps = {
   data: CotDashboardData | null;
   loading: boolean;
 };
+
+function fmtNet(n: number): string {
+  return n.toLocaleString(undefined, { maximumFractionDigits: 0 });
+}
+
+function fmtDelta(n: number): string {
+  const abs = Math.abs(n).toLocaleString(undefined, { maximumFractionDigits: 0 });
+  return n > 0 ? `+${abs}` : n < 0 ? `−${abs}` : "0";
+}
 
 function IconBuilding() {
   return (
@@ -35,6 +45,14 @@ function IconCrowd() {
   );
 }
 
+function IconFlow() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden>
+      <path d="M5 18V6M12 18V10M19 18v-8" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function IconReversal() {
   return (
     <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden>
@@ -46,8 +64,8 @@ function IconReversal() {
 function IconDivergence() {
   return (
     <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden>
-      <path d="M5 18V9M12 18V5M19 18v-7" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" />
-      <path d="M5 9l7-4 7 3" stroke="currentColor" strokeWidth="1" opacity="0.45" strokeDasharray="2 2" />
+      <path d="M7 16l5-9 5 9M4 8h16" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" opacity="0.5" />
+      <path d="M8 18c2-3 6-3 8 0M8 6c2 3 6 3 8 0" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
     </svg>
   );
 }
@@ -61,16 +79,40 @@ function IconRegime() {
   );
 }
 
-function RangeBar({ value, glow }: { value: number; glow: number }) {
+function MiniSparkline({ values, tone }: { values: number[]; tone: "bear" | "bull" | "gold" }) {
+  if (values.length < 2) return null;
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const span = max - min || 1;
+  const w = 72;
+  const h = 22;
+  const pts = values
+    .map((v, i) => {
+      const x = (i / (values.length - 1)) * w;
+      const y = h - ((v - min) / span) * (h - 4) - 2;
+      return `${x},${y}`;
+    })
+    .join(" ");
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} className={`titan-terminal-spark titan-terminal-spark--${tone}`} aria-hidden>
+      <polyline points={pts} fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function RangeBar({ value, glow, tone }: { value: number; glow: number; tone?: "bear" | "bull" | "gold" }) {
   const pct = Math.max(0, Math.min(100, value));
   const glowAlpha = Math.min(1, glow / 100);
   return (
-    <div className="titan-engine-meter titan-engine-meter--range" style={{ "--zone-glow": glowAlpha } as CSSProperties}>
-      <div className="titan-engine-meter__track">
+    <div
+      className={`titan-engine-meter titan-engine-meter--range titan-engine-meter--${tone ?? "gold"}`}
+      style={{ "--zone-glow": glowAlpha } as CSSProperties}
+    >
+      <div className="titan-engine-meter__track relative">
         <span className="titan-engine-meter__fill" style={{ width: `${pct}%` }} />
         <span className="titan-engine-meter__marker" style={{ left: `${pct}%` }} aria-hidden />
       </div>
-      <div className="mt-1 flex justify-between font-mono text-[9px] text-stone-600">
+      <div className="mt-1.5 flex justify-between font-mono text-[9px] text-stone-600">
         <span>0</span>
         <span>50</span>
         <span>100</span>
@@ -79,79 +121,254 @@ function RangeBar({ value, glow }: { value: number; glow: number }) {
   );
 }
 
-function EngineCard({
+function TerminalCard({
+  accent,
   icon,
   title,
-  metric,
-  metricSub,
-  stateLabel,
-  viz,
-  description,
-  tone = "gold",
-  delayMs = 0,
+  children,
+  footer,
+  className = "",
 }: {
+  accent: "red" | "green" | "blue" | "gold" | "purple";
   icon: ReactNode;
   title: string;
-  metric: string;
-  metricSub?: string;
-  stateLabel: string;
-  viz: ReactNode;
-  description: string;
-  tone?: "gold" | "bull" | "bear" | "neutral" | "warn";
-  delayMs?: number;
+  children: ReactNode;
+  footer?: ReactNode;
+  className?: string;
 }) {
-  const toneClass =
-    tone === "bull"
-      ? "titan-engine-card--bull"
-      : tone === "bear"
-        ? "titan-engine-card--bear"
-        : tone === "warn"
-          ? "titan-engine-card--warn"
-          : tone === "neutral"
-            ? "titan-engine-card--neutral"
-            : "";
-
   return (
-    <article className={`titan-engine-card group ${toneClass}`} style={{ animationDelay: `${delayMs}ms` }}>
-      <div className="titan-engine-card__shine" aria-hidden />
-      <div className="flex items-start justify-between gap-3">
-        <span className="titan-engine-card__icon">{icon}</span>
-        <div className="text-right">
-          <p className="font-mono text-xl font-semibold tabular-nums text-white">{metric}</p>
-          {metricSub ? <p className="font-mono text-[10px] text-stone-500">{metricSub}</p> : null}
-        </div>
-      </div>
-      <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-titan-gold/90">{title}</p>
-      <p className="mt-1 text-sm font-medium text-stone-200">{stateLabel}</p>
-      <div className="mt-3">{viz}</div>
-      <p className="mt-3 text-[12px] leading-snug text-stone-500">{description}</p>
+    <article className={`titan-terminal-card titan-terminal-card--${accent} ${className}`}>
+      <div className="titan-terminal-card__border" aria-hidden />
+      <div className="titan-terminal-card__glow" aria-hidden />
+      <header className="titan-terminal-card__head">
+        <span className="titan-terminal-card__icon">{icon}</span>
+        <p className="titan-terminal-card__title">{title}</p>
+      </header>
+      <div className="titan-terminal-card__body">{children}</div>
+      {footer ? <footer className="titan-terminal-card__foot">{footer}</footer> : null}
     </article>
   );
 }
 
-function zoneTone(zone: CommercialZoneId): "bull" | "bear" | "gold" | "neutral" {
+function CheckItem({ checked, label }: { checked: boolean; label: string }) {
+  return (
+    <li className={`titan-terminal-check ${checked ? "titan-terminal-check--on" : ""}`}>
+      <span className="titan-terminal-check__box" aria-hidden>
+        {checked ? (
+          <svg viewBox="0 0 16 16" className="h-3.5 w-3.5">
+            <path d="M3 8.5l3 3 7-8" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        ) : null}
+      </span>
+      <span>{label}</span>
+    </li>
+  );
+}
+
+function trendArrow(trend: DeltaFlowTrend): string {
+  if (trend === "accelerating_up") return "↑";
+  if (trend === "accelerating_down") return "↓";
+  return "→";
+}
+
+function DeltaFlowTable({ rows, t }: { rows: DeltaFlowRow[]; t: (k: string) => string }) {
+  return (
+    <table className="titan-delta-table w-full text-left">
+      <thead>
+        <tr>
+          <th>{t("positioning.delta.timeframe")}</th>
+          <th>{t("positioning.delta.delta")}</th>
+          <th>{t("positioning.delta.trend")}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row) => (
+          <tr key={row.label}>
+            <td className="font-mono text-stone-400">{row.label}</td>
+            <td className={`font-mono tabular-nums ${row.delta < 0 ? "text-rose-400/95" : row.delta > 0 ? "text-emerald-400/95" : "text-stone-400"}`}>
+              {fmtDelta(row.delta)}
+            </td>
+            <td className="text-[11px] text-stone-500">
+              {trendArrow(row.trend)} {t(`positioning.delta.trend_${row.trend}`)}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+function commercialStateKey(zone: CommercialZoneId): string {
+  return `positioning.commercialState.${zone}`;
+}
+
+function zoneAccent(zone: CommercialZoneId): "bear" | "bull" | "neutral" {
   if (zone === "extreme_long" || zone === "strong_long" || zone === "bullish") return "bull";
   if (zone === "extreme_short" || zone === "strong_short" || zone === "bearish") return "bear";
   return "neutral";
 }
 
-function reversalTone(state: ReversalStateId): "gold" | "bull" | "bear" | "warn" | "neutral" {
-  if (state === "confirmed_top" || state === "potential_top") return "bear";
-  if (state === "confirmed_bottom" || state === "potential_bottom") return "bull";
-  return "neutral";
+function weekLabel(reportDate: string): string {
+  const d = new Date(reportDate);
+  if (Number.isNaN(d.getTime())) return reportDate;
+  const one = new Date(d.getFullYear(), 0, 1);
+  const week = Math.ceil(((d.getTime() - one.getTime()) / 86400000 + one.getDay() + 1) / 7);
+  return `W${week} ${d.getFullYear()}`;
 }
 
-function divergenceTone(state: DivergenceStateId): "gold" | "bull" | "bear" | "neutral" {
-  if (state === "bearish") return "bear";
-  if (state === "bullish") return "bull";
-  return "neutral";
+function PositioningContext({
+  read,
+  t,
+}: {
+  read: TitanPositioningRead;
+  t: (k: string) => string;
+}) {
+  const commTone = zoneAccent(read.commercialZone);
+  const retailTone = zoneAccent(read.retailZone);
+
+  return (
+    <div className="titan-terminal-section">
+      <h3 className="titan-terminal-section__label">{t("positioning.sections.context")}</h3>
+      <div className="titan-terminal-grid titan-terminal-grid--3 mt-4">
+        <TerminalCard accent={commTone === "bear" ? "red" : commTone === "bull" ? "green" : "gold"} icon={<IconBuilding />} title={t("positioning.cards.commercial.title")}>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="titan-terminal-metric">
+                {Math.round(read.commercialIndex)}
+                <span className="titan-terminal-metric__sub"> / 100</span>
+              </p>
+              <p className={`titan-terminal-state titan-terminal-state--${commTone}`}>{t(commercialStateKey(read.commercialZone))}</p>
+            </div>
+            <MiniSparkline values={read.commercialSparkline} tone={commTone === "bear" ? "bear" : commTone === "bull" ? "bull" : "gold"} />
+          </div>
+          <p className="mt-3 text-[12px] leading-snug text-stone-500">{t("positioning.cards.commercial.desc")}</p>
+          <div className="mt-4">
+            <RangeBar value={read.commercialIndex} glow={read.commercialGlow} tone={commTone === "bear" ? "bear" : commTone === "bull" ? "bull" : "gold"} />
+          </div>
+          <footer className="mt-4 grid gap-2 border-t border-white/[0.06] pt-3 sm:grid-cols-2">
+            <div>
+              <p className="titan-terminal-kicker">{t("positioning.persistence")}</p>
+              <p className="font-mono text-[11px] text-stone-300">
+                {read.commercialPersistenceWeeks > 0
+                  ? t("positioning.persistenceWeeks").replace("{{count}}", String(read.commercialPersistenceWeeks))
+                  : t("positioning.persistenceNone")}
+              </p>
+            </div>
+            <div>
+              <p className="titan-terminal-kicker">{t("positioning.range26w")}</p>
+              <p className="font-mono text-[10px] leading-relaxed text-stone-500">
+                {fmtNet(read.commercialRange26w.min)} → {fmtNet(read.commercialRange26w.max)}
+              </p>
+            </div>
+          </footer>
+        </TerminalCard>
+
+        <TerminalCard accent={retailTone === "bull" ? "green" : retailTone === "bear" ? "red" : "gold"} icon={<IconCrowd />} title={t("positioning.cards.retail.title")}>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="titan-terminal-metric">
+                {Math.round(read.retailIndex)}
+                <span className="titan-terminal-metric__sub"> / 100</span>
+              </p>
+              <p className={`titan-terminal-state titan-terminal-state--${retailTone}`}>
+                {t(`positioning.retailState.${retailPositioningLabel(read.retailZone)}`)}
+              </p>
+            </div>
+            <MiniSparkline values={read.retailSparkline} tone={retailTone === "bull" ? "bull" : retailTone === "bear" ? "bear" : "gold"} />
+          </div>
+          <p className="mt-3 text-[12px] leading-snug text-stone-500">{t("positioning.cards.retail.desc")}</p>
+          <div className="mt-4">
+            <RangeBar value={read.retailIndex} glow={read.commercialGlow} tone={retailTone === "bull" ? "bull" : retailTone === "bear" ? "bear" : "gold"} />
+          </div>
+          <footer className="mt-4 grid gap-2 border-t border-white/[0.06] pt-3 sm:grid-cols-2">
+            <div>
+              <p className="titan-terminal-kicker">{t("positioning.persistence")}</p>
+              <p className="font-mono text-[11px] text-stone-300">
+                {read.retailPersistenceWeeks > 0
+                  ? t("positioning.persistenceWeeks").replace("{{count}}", String(read.retailPersistenceWeeks))
+                  : t("positioning.persistenceNone")}
+              </p>
+            </div>
+            <div>
+              <p className="titan-terminal-kicker">{t("positioning.range26w")}</p>
+              <p className="font-mono text-[10px] leading-relaxed text-stone-500">
+                {fmtNet(read.retailRange26w.min)} → {fmtNet(read.retailRange26w.max)}
+              </p>
+            </div>
+          </footer>
+        </TerminalCard>
+
+        <TerminalCard accent="blue" icon={<IconFlow />} title={t("positioning.cards.delta.title")}>
+          <DeltaFlowTable rows={read.deltaFlow} t={t} />
+          <p className="mt-4 text-[12px] leading-snug text-stone-500">{t("positioning.cards.delta.desc")}</p>
+        </TerminalCard>
+      </div>
+    </div>
+  );
 }
 
-function regimeTone(state: MarketRegimeId): "gold" | "bull" | "bear" | "neutral" {
-  if (state === "accumulation") return "bull";
-  if (state === "distribution") return "bear";
-  if (state === "trend") return "gold";
-  return "neutral";
+function SignalEngine({ read, t }: { read: TitanPositioningRead; t: (k: string) => string }) {
+  const revHeadline =
+    read.reversal !== "none"
+      ? t(`positioning.reversal.${read.reversal}`)
+      : read.extremePositioning
+        ? t("positioning.reversal.extremeNoCross")
+        : t("positioning.reversal.none");
+
+  const revSub =
+    read.extremePositioning && read.reversal === "none"
+      ? t("positioning.reversal.extremeSub")
+      : t(`positioning.reversal.hint.${read.reversal}`);
+
+  return (
+    <div className="titan-terminal-section mt-8 md:mt-10">
+      <h3 className="titan-terminal-section__label">{t("positioning.sections.signal")}</h3>
+      <div className="titan-terminal-grid titan-terminal-grid--3 mt-4">
+        <TerminalCard accent="gold" icon={<IconReversal />} title={t("positioning.cards.reversal.title")}>
+          <p className="titan-terminal-headline">{revHeadline}</p>
+          <p className="mt-2 text-sm text-titan-gold/85">{revSub}</p>
+          <ul className="mt-5 space-y-2.5">
+            <CheckItem checked={read.checklist.crossBelow75} label={t("positioning.checklist.crossBelow75")} />
+            <CheckItem checked={read.checklist.crossAbove25} label={t("positioning.checklist.crossAbove25")} />
+            <CheckItem checked={read.checklist.retailContrarian} label={t("positioning.checklist.retailContrarian")} />
+            <CheckItem checked={read.checklist.divergenceOptional} label={t("positioning.checklist.divergenceOptional")} />
+          </ul>
+        </TerminalCard>
+
+        <TerminalCard accent="purple" icon={<IconDivergence />} title={t("positioning.cards.divergence.title")}>
+          <p className="titan-terminal-headline">{t(`positioning.divergence.headline.${read.divergence}`)}</p>
+          <p className="mt-2 text-sm text-stone-400">{t(`positioning.divergence.hint.${read.divergence}`)}</p>
+          <div className="mt-5 grid grid-cols-2 gap-2">
+            <div className="titan-terminal-mini-stat">
+              <p className="titan-terminal-kicker">{t("positioning.divergence.priceAction")}</p>
+              <p className="mt-1 text-[11px] font-medium text-stone-300">
+                {t(`positioning.divergence.price.${read.divergenceContext.priceLabel}`)}
+              </p>
+            </div>
+            <div className="titan-terminal-mini-stat">
+              <p className="titan-terminal-kicker">{t("positioning.divergence.commercialNet")}</p>
+              <p className="mt-1 text-[11px] font-medium text-stone-300">
+                {t(`positioning.divergence.net.${read.divergenceContext.commercialNetLabel}`)}
+              </p>
+            </div>
+          </div>
+        </TerminalCard>
+
+        <TerminalCard accent="blue" icon={<IconRegime />} title={t("positioning.cards.regime.title")}>
+          <p className="titan-terminal-headline">{t(`positioning.regime.${read.regime}`)}</p>
+          <p className="mt-2 text-sm text-stone-400">{t(`positioning.regime.hint.${read.regime}`)}</p>
+          <div className="titan-regime-segments mt-5" role="group" aria-label={t("positioning.cards.regime.title")}>
+            {(["accumulation", "distribution", "range", "trend"] as const).map((r) => (
+              <span key={r} className={`titan-regime-segments__btn ${read.regime === r ? "is-active" : ""}`}>
+                {t(`positioning.regime.${r}`)}
+              </span>
+            ))}
+          </div>
+          <p className="mt-4 text-[11px] leading-snug text-stone-600">{t("positioning.regime.footer")}</p>
+        </TerminalCard>
+      </div>
+    </div>
+  );
 }
 
 export function TitanMarketEngine({ market: _market, data, loading }: TitanMarketEngineProps) {
@@ -159,119 +376,70 @@ export function TitanMarketEngine({ market: _market, data, loading }: TitanMarke
   const read = data ? evaluateTitanPositioning(data) : null;
 
   return (
-    <section className="titan-market-engine relative px-5 py-6 md:px-7 md:py-8">
+    <section className="titan-market-engine titan-positioning-terminal relative px-5 py-6 md:px-7 md:py-10">
       <div className="titan-market-engine__backdrop pointer-events-none absolute inset-0" aria-hidden />
+      <div className="titan-positioning-terminal__vignette pointer-events-none absolute inset-0" aria-hidden />
 
-      <header className="relative mb-6 md:mb-8">
-        <p className="font-display text-[11px] font-semibold uppercase tracking-[0.32em] text-titan-gold">
-          {t("positioning.eyebrow")}
-        </p>
-        <h2 className="mt-2 font-display text-xl font-semibold tracking-tight text-white md:text-2xl">
-          {t("positioning.subtitle")}
-        </h2>
-        <p className="mt-2 max-w-2xl text-sm text-stone-500">{t("positioning.disclaimer")}</p>
+      <header className="relative mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div>
+          <p className="font-display text-[10px] font-semibold uppercase tracking-[0.38em] text-titan-gold/90">
+            {t("positioning.eyebrow")}
+          </p>
+          <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight text-white md:text-[1.65rem]">
+            {t("positioning.terminalTitle")}
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-stone-500">{t("positioning.disclaimer")}</p>
+        </div>
+        {data?.reportDate ? (
+          <p className="shrink-0 font-mono text-[10px] uppercase tracking-wider text-stone-600">
+            {t("positioning.lastUpdate")} {data.reportDate} ({weekLabel(data.reportDate)})
+          </p>
+        ) : null}
       </header>
 
       {loading ? (
-        <div className="relative grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="titan-engine-card h-44 animate-pulse bg-white/[0.03]" />
-          ))}
+        <div className="relative space-y-8">
+          <div className="titan-terminal-grid titan-terminal-grid--3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="titan-terminal-card h-56 animate-pulse bg-white/[0.03]" />
+            ))}
+          </div>
+          <div className="titan-terminal-grid titan-terminal-grid--3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="titan-terminal-card h-52 animate-pulse bg-white/[0.03]" />
+            ))}
+          </div>
         </div>
       ) : !read ? (
         <p className="relative text-sm text-stone-500">{t("positioning.unavailable")}</p>
       ) : (
-        <div className="relative grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          <EngineCard
-            icon={<IconBuilding />}
-            title={t("positioning.cards.commercial.title")}
-            metric={`${Math.round(read.commercialIndex)}`}
-            metricSub="/ 100"
-            stateLabel={t(`positioning.zones.${read.commercialZone}`)}
-            viz={<RangeBar value={read.commercialIndex} glow={read.commercialGlow} />}
-            description={t("positioning.cards.commercial.desc")}
-            tone={zoneTone(read.commercialZone)}
-            delayMs={0}
-          />
-          <EngineCard
-            icon={<IconCrowd />}
-            title={t("positioning.cards.retail.title")}
-            metric={`${Math.round(read.retailIndex)}`}
-            metricSub="/ 100"
-            stateLabel={t(`positioning.zones.${read.retailZone}`)}
-            viz={<RangeBar value={read.retailIndex} glow={commercialGlowFromZone(read.retailZone)} />}
-            description={t("positioning.cards.retail.desc")}
-            tone="neutral"
-            delayMs={40}
-          />
-          <EngineCard
-            icon={<IconReversal />}
-            title={t("positioning.cards.reversal.title")}
-            metric={t(`positioning.reversal.${read.reversal}`)}
-            stateLabel={
-              read.smTurnDown
-                ? t("positioning.reversal.signalDown")
-                : read.smTurnUp
-                  ? t("positioning.reversal.signalUp")
-                  : t("positioning.reversal.signalNone")
-            }
-            viz={
-              <div className="flex gap-2 text-[10px] uppercase tracking-wider">
-                <span className={read.retailConfirmsTop || read.retailConfirmsBottom ? "text-emerald-400/90" : "text-stone-600"}>
-                  {t("positioning.retailConfirm")}{" "}
-                  {read.retailConfirmsTop || read.retailConfirmsBottom ? "✓" : "—"}
-                </span>
-              </div>
-            }
-            description={t(`positioning.reversal.hint.${read.reversal}`)}
-            tone={reversalTone(read.reversal)}
-            delayMs={80}
-          />
-          <EngineCard
-            icon={<IconDivergence />}
-            title={t("positioning.cards.divergence.title")}
-            metric={t(`positioning.divergence.${read.divergence}`)}
-            stateLabel={t("positioning.cards.divergence.stateLabel")}
-            viz={
-              <p className="font-mono text-[11px] text-stone-500">
-                {read.divergence === "unavailable" ? t("positioning.divergence.note") : "COT net · 26W"}
+        <div className="relative">
+          <PositioningContext read={read} t={t} />
+          <SignalEngine read={read} t={t} />
+          <footer className="titan-terminal-footer mt-8 grid gap-4 border-t border-white/[0.06] pt-6 md:grid-cols-[1fr_auto_1fr] md:items-start">
+            <div className="titan-terminal-note">
+              <p className="titan-terminal-kicker text-titan-gold/80">{t("positioning.footer.important")}</p>
+              <p className="mt-1 text-[12px] leading-snug text-stone-500">{t("positioning.footer.note")}</p>
+            </div>
+            <ul className="flex flex-wrap justify-center gap-4 text-[10px] uppercase tracking-wider text-stone-600">
+              <li className="flex items-center gap-1.5">
+                <span className="titan-legend-dot titan-legend-dot--comm" /> {t("positioning.legend.commercial")}
+              </li>
+              <li className="flex items-center gap-1.5">
+                <span className="titan-legend-dot titan-legend-dot--retail" /> {t("positioning.legend.retail")}
+              </li>
+              <li className="flex items-center gap-1.5">
+                <span className="titan-legend-dot titan-legend-dot--flow" /> {t("positioning.legend.flow")}
+              </li>
+            </ul>
+            {data?.reportDate ? (
+              <p className="text-right font-mono text-[10px] uppercase tracking-wider text-stone-600">
+                {t("positioning.footer.currentWeek")} {weekLabel(data.reportDate)}
               </p>
-            }
-            description={t(`positioning.divergence.hint.${read.divergence}`)}
-            tone={divergenceTone(read.divergence)}
-            delayMs={120}
-          />
-          <EngineCard
-            icon={<IconRegime />}
-            title={t("positioning.cards.regime.title")}
-            metric={t(`positioning.regime.${read.regime}`)}
-            stateLabel={t("positioning.cards.regime.stateLabel")}
-            viz={
-              <div className="grid grid-cols-4 gap-1">
-                {(["accumulation", "distribution", "range", "trend"] as const).map((r) => (
-                  <span
-                    key={r}
-                    className={`rounded px-1 py-1 text-center text-[8px] font-semibold uppercase tracking-wide ${
-                      read.regime === r ? "bg-titan-gold/20 text-titan-goldBright" : "bg-white/5 text-stone-600"
-                    }`}
-                  >
-                    {t(`positioning.regime.${r}`).slice(0, 4)}
-                  </span>
-                ))}
-              </div>
-            }
-            description={t(`positioning.regime.hint.${read.regime}`)}
-            tone={regimeTone(read.regime)}
-            delayMs={160}
-          />
+            ) : null}
+          </footer>
         </div>
       )}
     </section>
   );
-}
-
-function commercialGlowFromZone(zone: CommercialZoneId): number {
-  if (zone === "extreme_long" || zone === "extreme_short") return 88;
-  if (zone === "strong_long" || zone === "strong_short") return 70;
-  return 40;
 }

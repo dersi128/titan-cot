@@ -122,11 +122,62 @@ export const enMessages = {
   },
   positioning: {
     eyebrow: "INSTITUTIONAL POSITIONING",
+    terminalTitle: "TITAN COT Dashboard",
     subtitle: "Commercial & retail · 26-week COT index",
     disclaimer:
       "Same logic as the TITAN TradingView indicator. Positioning context only — not a trade signal or forecast.",
+    lastUpdate: "Last update",
     unavailable: "COT data unavailable for this market.",
     retailConfirm: "Retail confirm",
+    sections: {
+      context: "Positioning context",
+      signal: "Signal engine",
+    },
+    persistence: "Persistence",
+    persistenceWeeks: "{{count}} weeks in extreme zone",
+    persistenceNone: "Not in extreme zone",
+    range26w: "26W range (net)",
+    checklist: {
+      crossBelow75: "Commercial index crossed below 75 (top)",
+      crossAbove25: "Commercial index crossed above 25 (bottom)",
+      retailContrarian: "Retail contrarian confirmation",
+      divergenceOptional: "Optional divergence confirmation",
+    },
+    commercialState: {
+      extreme_short: "Extreme Short Positioning",
+      strong_short: "Strong Short Positioning",
+      bearish: "Bearish Positioning",
+      neutral: "Neutral Positioning",
+      bullish: "Bullish Positioning",
+      strong_long: "Strong Long Positioning",
+      extreme_long: "Extreme Long Positioning",
+    },
+    retailState: {
+      heavily_long: "Retail Heavily Net Long",
+      heavily_short: "Retail Heavily Net Short",
+      net_long: "Retail Net Long",
+      net_short: "Retail Net Short",
+      neutral: "Retail Neutral",
+    },
+    delta: {
+      timeframe: "Timeframe",
+      delta: "Delta",
+      trend: "Trend",
+      trend_accelerating_up: "Accelerating",
+      trend_accelerating_down: "Accelerating",
+      trend_steady: "Steady",
+      trend_flat: "Flat",
+    },
+    footer: {
+      important: "Important",
+      note: "Positioning context only. Not an entry signal. Commercials are primary; retail is contrarian confirmation.",
+      currentWeek: "Current week",
+    },
+    legend: {
+      commercial: "Commercials",
+      retail: "Retail",
+      flow: "Delta flow",
+    },
     zones: {
       extreme_short: "Extreme Short",
       strong_short: "Strong Short",
@@ -158,7 +209,26 @@ export const enMessages = {
       bearish: "Bearish divergence",
       bullish: "Bullish divergence",
       unavailable: "N/A",
+      priceAction: "Price action",
+      commercialNet: "Commercial net",
       note: "Price feed not linked — COT net vs index only",
+      headline: {
+        none: "No meaningful divergence",
+        bearish: "Bearish divergence",
+        bullish: "Bullish divergence",
+        unavailable: "Divergence N/A",
+      },
+      price: {
+        unavailable: "Price feed not linked",
+        aligned_high: "—",
+        aligned_low: "—",
+        aligned_mid: "—",
+      },
+      net: {
+        new_high: "Making new highs (26W net)",
+        new_low: "Making new lows (26W net)",
+        mid_range: "Within 26W range",
+      },
       hint: {
         none: "No COT positioning divergence on the 26-week window.",
         bearish: "Net near 26W high while commercial index rolls over.",
@@ -171,6 +241,7 @@ export const enMessages = {
       distribution: "Distribution",
       range: "Range",
       trend: "Trend",
+      footer: "Flow context from commercial 1W / 4W deltas — not a forecast.",
       hint: {
         accumulation: "Commercial flow adding length over 1W and 4W.",
         distribution: "Commercial flow reducing length over 1W and 4W.",
@@ -186,6 +257,10 @@ export const enMessages = {
       retail: {
         title: "Retail Index",
         desc: "Small-trader positioning — contrarian confirmation only, never primary.",
+      },
+      delta: {
+        title: "Delta Flow",
+        desc: "Commercial net change by timeframe. Acceleration vs prior period average.",
       },
       reversal: {
         title: "Reversal State",
