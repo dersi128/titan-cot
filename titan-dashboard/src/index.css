@@ -81,7 +81,7 @@
 }
 
 .titan-market-surface {
-  animation: titan-market-surface 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: titan-market-surface 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @media (prefers-reduced-motion: reduce) {

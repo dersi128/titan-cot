@@ -44,7 +44,7 @@ export default {
         },
       },
       animation: {
-        "fade-up": "fadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards",
+        "fade-up": "fadeUp 0.4s cubic-bezier(0.22, 1, 0.36, 1)",
         "pulse-soft": "pulseSoft 3s ease-in-out infinite",
         shimmer: "shimmer 2.5s linear infinite",
       },

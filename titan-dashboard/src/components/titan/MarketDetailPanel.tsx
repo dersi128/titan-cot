@@ -59,7 +59,7 @@ export function MarketDetailPanel({ market, data, loading, error }: MarketDetail
       />
 
       <div className="space-y-8 p-5 md:p-6">
-        <div key={market.symbol} className="titan-market-surface">
+        <div key={market.symbol}>
           <AiVerdictPanel variant="embedded" market={market} data={data} loading={loading} />
         </div>
 

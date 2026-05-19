@@ -29,12 +29,12 @@ export function TitanCotDashboard() {
   const openMarket = useCallback((market: InstitutionalMarket) => {
     setSelectedMarket(market);
     setView("market");
-    window.scrollTo({ top: 0, behavior: "instant" });
+    window.scrollTo(0, 0);
   }, []);
 
   const backToOverview = useCallback(() => {
     setView("overview");
-    window.scrollTo({ top: 0, behavior: "instant" });
+    window.scrollTo(0, 0);
   }, []);
 
   useEffect(() => {
@@ -143,7 +143,7 @@ export function TitanCotDashboard() {
         ) : null}
 
         {view === "overview" ? (
-          <div className="space-y-6 animate-fade-up">
+          <div key="overview" className="space-y-6">
             <p className="text-sm text-stone-500">
               Click a market in the scanner or heatmap to open its{" "}
               <span className="text-stone-400">COT detail</span> and{" "}
@@ -162,7 +162,7 @@ export function TitanCotDashboard() {
             />
           </div>
         ) : (
-          <div key={selectedSymbol} className="titan-market-surface animate-fade-up">
+          <div key={`market-${selectedSymbol}`}>
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <button
                 type="button"

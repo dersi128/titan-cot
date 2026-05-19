@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import type { InstitutionalMarket } from "../../config/institutionalMarkets";
 import { buildTradingViewEmbedUrl } from "../../lib/tradingViewEmbed";
 import { futuresToTradingViewSymbol, tradingViewChartUrl } from "../../lib/tradingViewSymbols";
@@ -9,12 +9,20 @@ type TradingViewChartProps = {
 };
 
 export function TradingViewChart({ market, selectionKey }: TradingViewChartProps) {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const tvSymbol = futuresToTradingViewSymbol(market.symbol);
   const embedUrl = useMemo(() => buildTradingViewEmbedUrl(tvSymbol), [tvSymbol]);
 
+  useEffect(() => {
+    return () => {
+      const frame = iframeRef.current;
+      if (frame) frame.src = "about:blank";
+    };
+  }, []);
+
   return (
     <section
-      className="flex min-h-[420px] flex-col overflow-hidden rounded-xl border border-titan-line/70 bg-titan-black/50"
+      className="flex min-h-[420px] flex-col overflow-hidden rounded-xl border border-titan-line/70 bg-titan-panel"
       aria-label={`TradingView chart for ${market.shortLabel}`}
     >
       <header className="flex flex-wrap items-center justify-between gap-2 border-b border-titan-line/70 px-4 py-3">
@@ -36,10 +44,11 @@ export function TradingViewChart({ market, selectionKey }: TradingViewChartProps
         </a>
       </header>
       <iframe
+        ref={iframeRef}
         key={selectionKey}
         title={`TradingView ${market.shortLabel}`}
         src={embedUrl}
-        className="min-h-[380px] w-full flex-1 border-0 bg-titan-black/30"
+        className="min-h-[380px] w-full flex-1 border-0 bg-titan-panel"
         allowFullScreen
         loading="lazy"
         referrerPolicy="no-referrer-when-downgrade"
