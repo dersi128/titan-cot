@@ -52,8 +52,7 @@ export function TitanMarketIcon({ market, size = "md", score }: TitanMarketIconP
   const sentiment = marketIconSentiment(score);
   const theme = getMarketIconTheme(market.category);
   const Glyph = resolveMarketGlyph(market);
-  const pngUrl = marketIconPngUrl(market.id);
-  const [usePng, setUsePng] = useState(true);
+  const pngUrl = getBundledMarketIconUrl(market.id);
 
   const frameClass = theme.frame === "shield" ? "titan-market-icon--shield" : "titan-market-icon--circle";
   const style = {
