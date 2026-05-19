@@ -139,6 +139,7 @@ export const csMessages: Messages = {
     persistenceWeeks: "{{count}} týdnů v extrému",
     persistenceNone: "Mimo extrémní zónu",
     range26w: "26T rozsah (net)",
+    trajectory: "12T vývoj indexu · škála 0–100",
     checklist: {
       crossBelow75: "Commercial index prorazil pod 75 (top)",
       crossAbove25: "Commercial index prorazil nad 25 (bottom)",

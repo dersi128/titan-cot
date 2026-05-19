@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from "react";
+import { useId, type CSSProperties, type ReactNode } from "react";
 import type { CotDashboardData } from "../../types";
 import type { InstitutionalMarket } from "../../config/institutionalMarkets";
 import {
@@ -79,24 +79,71 @@ function IconRegime() {
   );
 }
 
-function MiniSparkline({ values, tone }: { values: number[]; tone: "bear" | "bull" | "gold" }) {
+function clampIdx(v: number): number {
+  return Math.max(0, Math.min(100, v));
+}
+
+/** Smooth institutional index path — fixed 0–100 scale (not min/max window). */
+function IndexTrajectoryChart({
+  values,
+  tone,
+  label,
+}: {
+  values: number[];
+  tone: "bear" | "bull" | "gold";
+  label: string;
+}) {
+  const uid = useId().replace(/:/g, "");
+
   if (values.length < 2) return null;
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  const span = max - min || 1;
-  const w = 72;
-  const h = 22;
-  const pts = values
-    .map((v, i) => {
-      const x = (i / (values.length - 1)) * w;
-      const y = h - ((v - min) / span) * (h - 4) - 2;
-      return `${x},${y}`;
+
+  const w = 320;
+  const h = 52;
+  const padX = 6;
+  const padY = 5;
+  const plotW = w - padX * 2;
+  const plotH = h - padY * 2;
+
+  const coords = values.map((v, i) => ({
+    x: padX + (i / (values.length - 1)) * plotW,
+    y: padY + (1 - clampIdx(v) / 100) * plotH,
+  }));
+
+  const linePath = coords
+    .map((p, i) => {
+      if (i === 0) return `M ${p.x} ${p.y}`;
+      const prev = coords[i - 1]!;
+      const cx = (prev.x + p.x) / 2;
+      return `Q ${cx} ${prev.y} ${p.x} ${p.y}`;
     })
     .join(" ");
+
+  const last = coords[coords.length - 1]!;
+  const first = coords[0]!;
+  const areaPath = `${linePath} L ${last.x} ${h - padY} L ${first.x} ${h - padY} Z`;
+
+  const y25 = padY + (1 - 25 / 100) * plotH;
+  const y75 = padY + (1 - 75 / 100) * plotH;
+  const gradId = `titan-traj-${tone}-${uid}`;
+
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className={`titan-terminal-spark titan-terminal-spark--${tone}`} aria-hidden>
-      <polyline points={pts} fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
+    <div className={`titan-index-trajectory titan-index-trajectory--${tone}`}>
+      <p className="titan-index-trajectory__label">{label}</p>
+      <svg viewBox={`0 0 ${w} ${h}`} className="titan-index-trajectory__svg" preserveAspectRatio="none" aria-hidden>
+        <defs>
+          <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="currentColor" stopOpacity="0.28" />
+            <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <line x1={padX} y1={y75} x2={w - padX} y2={y75} className="titan-index-trajectory__guide" />
+        <line x1={padX} y1={y25} x2={w - padX} y2={y25} className="titan-index-trajectory__guide" />
+        <path d={areaPath} fill={`url(#${gradId})`} className="titan-index-trajectory__area" />
+        <path d={linePath} fill="none" className="titan-index-trajectory__line" />
+        <circle cx={last.x} cy={last.y} r="3.2" className="titan-index-trajectory__dot" />
+        <circle cx={last.x} cy={last.y} r="6" className="titan-index-trajectory__dot-halo" />
+      </svg>
+    </div>
   );
 }
 
@@ -231,19 +278,23 @@ function PositioningContext({
       <h3 className="titan-terminal-section__label">{t("positioning.sections.context")}</h3>
       <div className="titan-terminal-grid titan-terminal-grid--3 mt-4">
         <TerminalCard accent={commTone === "bear" ? "red" : commTone === "bull" ? "green" : "gold"} icon={<IconBuilding />} title={t("positioning.cards.commercial.title")}>
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="titan-terminal-metric">
-                {Math.round(read.commercialIndex)}
-                <span className="titan-terminal-metric__sub"> / 100</span>
-              </p>
-              <p className={`titan-terminal-state titan-terminal-state--${commTone}`}>{t(commercialStateKey(read.commercialZone))}</p>
-            </div>
-            <MiniSparkline values={read.commercialSparkline} tone={commTone === "bear" ? "bear" : commTone === "bull" ? "bull" : "gold"} />
+          <div>
+            <p className="titan-terminal-metric">
+              {Math.round(read.commercialIndex)}
+              <span className="titan-terminal-metric__sub"> / 100</span>
+            </p>
+            <p className={`titan-terminal-state titan-terminal-state--${commTone}`}>{t(commercialStateKey(read.commercialZone))}</p>
           </div>
           <p className="mt-3 text-[12px] leading-snug text-stone-500">{t("positioning.cards.commercial.desc")}</p>
           <div className="mt-4">
             <RangeBar value={read.commercialIndex} glow={read.commercialGlow} tone={commTone === "bear" ? "bear" : commTone === "bull" ? "bull" : "gold"} />
+          </div>
+          <div className="mt-3">
+            <IndexTrajectoryChart
+              values={read.commercialSparkline}
+              tone={commTone === "bear" ? "bear" : commTone === "bull" ? "bull" : "gold"}
+              label={t("positioning.trajectory")}
+            />
           </div>
           <footer className="mt-4 grid gap-2 border-t border-white/[0.06] pt-3 sm:grid-cols-2">
             <div>
@@ -264,21 +315,25 @@ function PositioningContext({
         </TerminalCard>
 
         <TerminalCard accent={retailTone === "bull" ? "green" : retailTone === "bear" ? "red" : "gold"} icon={<IconCrowd />} title={t("positioning.cards.retail.title")}>
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="titan-terminal-metric">
-                {Math.round(read.retailIndex)}
-                <span className="titan-terminal-metric__sub"> / 100</span>
-              </p>
-              <p className={`titan-terminal-state titan-terminal-state--${retailTone}`}>
-                {t(`positioning.retailState.${retailPositioningLabel(read.retailZone)}`)}
-              </p>
-            </div>
-            <MiniSparkline values={read.retailSparkline} tone={retailTone === "bull" ? "bull" : retailTone === "bear" ? "bear" : "gold"} />
+          <div>
+            <p className="titan-terminal-metric">
+              {Math.round(read.retailIndex)}
+              <span className="titan-terminal-metric__sub"> / 100</span>
+            </p>
+            <p className={`titan-terminal-state titan-terminal-state--${retailTone}`}>
+              {t(`positioning.retailState.${retailPositioningLabel(read.retailZone)}`)}
+            </p>
           </div>
           <p className="mt-3 text-[12px] leading-snug text-stone-500">{t("positioning.cards.retail.desc")}</p>
           <div className="mt-4">
             <RangeBar value={read.retailIndex} glow={read.commercialGlow} tone={retailTone === "bull" ? "bull" : retailTone === "bear" ? "bear" : "gold"} />
+          </div>
+          <div className="mt-3">
+            <IndexTrajectoryChart
+              values={read.retailSparkline}
+              tone={retailTone === "bull" ? "bull" : retailTone === "bear" ? "bear" : "gold"}
+              label={t("positioning.trajectory")}
+            />
           </div>
           <footer className="mt-4 grid gap-2 border-t border-white/[0.06] pt-3 sm:grid-cols-2">
             <div>

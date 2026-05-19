@@ -764,20 +764,52 @@
     @apply text-[9px] font-semibold uppercase tracking-[0.16em] text-stone-600;
   }
 
-  .titan-terminal-spark {
-    @apply shrink-0 opacity-80;
+  .titan-index-trajectory {
+    @apply overflow-hidden rounded-xl border border-white/[0.05] px-2 pb-1 pt-2;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.15));
   }
 
-  .titan-terminal-spark--bear {
-    color: rgba(255, 77, 109, 0.85);
+  .titan-index-trajectory__label {
+    @apply mb-1.5 px-1 text-[9px] font-semibold uppercase tracking-[0.14em] text-stone-600;
   }
 
-  .titan-terminal-spark--bull {
-    color: rgba(0, 208, 132, 0.85);
+  .titan-index-trajectory__svg {
+    @apply block h-11 w-full;
   }
 
-  .titan-terminal-spark--gold {
-    color: rgba(212, 175, 55, 0.85);
+  .titan-index-trajectory--bear {
+    color: rgba(255, 100, 120, 0.9);
+  }
+
+  .titan-index-trajectory--bull {
+    color: rgba(0, 208, 132, 0.9);
+  }
+
+  .titan-index-trajectory--gold {
+    color: rgba(212, 175, 55, 0.88);
+  }
+
+  .titan-index-trajectory__guide {
+    stroke: rgba(255, 255, 255, 0.06);
+    stroke-width: 1;
+    stroke-dasharray: 3 4;
+  }
+
+  .titan-index-trajectory__line {
+    stroke: currentColor;
+    stroke-width: 1.25;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 4px color-mix(in srgb, currentColor 45%, transparent));
+  }
+
+  .titan-index-trajectory__dot {
+    fill: currentColor;
+  }
+
+  .titan-index-trajectory__dot-halo {
+    fill: currentColor;
+    opacity: 0.18;
   }
 
   .titan-engine-meter--bear .titan-engine-meter__fill {

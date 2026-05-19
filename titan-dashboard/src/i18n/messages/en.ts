@@ -137,6 +137,7 @@ export const enMessages = {
     persistenceWeeks: "{{count}} weeks in extreme zone",
     persistenceNone: "Not in extreme zone",
     range26w: "26W range (net)",
+    trajectory: "12-week index path · scale 0–100",
     checklist: {
       crossBelow75: "Commercial index crossed below 75 (top)",
       crossAbove25: "Commercial index crossed above 25 (bottom)",
