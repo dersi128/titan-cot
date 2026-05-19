@@ -171,16 +171,41 @@
   }
 
   .titan-market-icon__photo {
-    @apply h-[72%] w-[72%] object-contain;
-    filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.65)) drop-shadow(0 0 12px var(--icon-glow));
+    @apply block h-full w-full object-cover;
+    object-position: center 28%;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5));
+  }
+
+  /* Custom PNG tiles — jedna velikost pro všechny (AUD, EUR, …) */
+  .titan-market-icon--photo {
+    @apply overflow-hidden rounded-xl border-0;
+    flex: 0 0 auto;
+    background: #050508;
+    box-shadow:
+      0 0 0 1px rgba(var(--icon-accent), 0.35),
+      0 4px 16px -4px rgba(0, 0, 0, 0.85),
+      0 0 20px -8px var(--icon-glow);
+  }
+
+  .titan-market-icon--photo .titan-market-icon__content {
+    @apply absolute inset-0 flex;
+    filter: none;
+  }
+
+  .titan-market-icon--photo.titan-market-icon--sm {
+    @apply h-11 w-11;
+  }
+
+  .titan-market-icon--photo.titan-market-icon--md {
+    @apply h-12 w-12;
+  }
+
+  .titan-market-icon--photo.titan-market-icon--lg {
+    @apply h-14 w-14;
   }
 
   .titan-market-icon--shield .titan-market-icon__content {
     transform: translateY(-4%);
-  }
-
-  .titan-market-icon--shield .titan-market-icon__photo {
-    @apply h-[58%] w-[58%];
   }
 
   .titan-market-icon--bull {
@@ -376,6 +401,14 @@
   .titan-hero-title {
     @apply font-display text-3xl font-bold tracking-[0.12em] text-white md:text-4xl;
     text-shadow: 0 0 40px rgba(212, 175, 55, 0.15);
+  }
+
+  .titan-scanner-icon-slot .titan-market-icon {
+    @apply m-0;
+  }
+
+  .titan-scanner-icon-slot .titan-market-icon--photo {
+    @apply h-12 w-12;
   }
 
   .titan-scanner-table-wrap {

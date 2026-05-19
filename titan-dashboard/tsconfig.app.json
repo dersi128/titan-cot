@@ -16,7 +16,8 @@
     "jsx": "react-jsx",
 
     "strict": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "resolveJsonModule": true
   },
   "include": ["src"]
 }

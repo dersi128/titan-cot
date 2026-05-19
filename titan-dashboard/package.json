@@ -8,6 +8,7 @@
   },
   "scripts": {
     "brand:sync": "node scripts/sync-brand-assets.mjs",
+    "icons:check": "node scripts/validate-market-icons.mjs",
     "icons:sync": "node scripts/sync-market-icons.mjs",
     "dev": "npm run brand:sync && npm run icons:sync && vite",
     "build": "npm run brand:sync && npm run icons:sync && vite build",

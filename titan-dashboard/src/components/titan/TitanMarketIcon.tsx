@@ -3,7 +3,7 @@ import type { InstitutionalMarket } from "../../config/institutionalMarkets";
 import { resolveMarketGlyph } from "./marketIcons/resolveMarketGlyph";
 import { marketIconSentiment, type MarketIconSentiment } from "./marketIcons/marketIconSentiment";
 import { getMarketIconTheme } from "./marketIcons/marketIconTheme";
-import { getBundledMarketIconUrl } from "../../lib/marketIconAssets";
+import { getMarketIconUrl } from "../../lib/marketIconAssets";
 
 const SENTIMENT_CLASS: Record<MarketIconSentiment, string> = {
   bull: "titan-market-icon--bull",
@@ -52,9 +52,15 @@ export function TitanMarketIcon({ market, size = "md", score }: TitanMarketIconP
   const sentiment = marketIconSentiment(score);
   const theme = getMarketIconTheme(market.category);
   const Glyph = resolveMarketGlyph(market);
-  const pngUrl = getBundledMarketIconUrl(market.id);
+  const pngUrl = getMarketIconUrl(market.id);
+  const usePhoto = Boolean(pngUrl);
 
-  const frameClass = theme.frame === "shield" ? "titan-market-icon--shield" : "titan-market-icon--circle";
+  const frameClass = usePhoto
+    ? "titan-market-icon--circle titan-market-icon--photo"
+    : theme.frame === "shield"
+      ? "titan-market-icon--shield"
+      : "titan-market-icon--circle";
+
   const style = {
     "--icon-accent": theme.accent,
     "--icon-glow": theme.glow,
@@ -67,15 +73,15 @@ export function TitanMarketIcon({ market, size = "md", score }: TitanMarketIconP
       style={style}
       title={market.subtitle}
     >
-      {theme.frame === "shield" ? <ShieldFrame ring={theme.ring} /> : null}
-      <span className="titan-market-icon__ring-outer" aria-hidden />
-      <span className="titan-market-icon__ring-inner" aria-hidden />
-      <span className="titan-market-icon__shimmer" aria-hidden />
-      <span className="titan-market-icon__glass" aria-hidden />
-      <span className="titan-market-icon__glow" aria-hidden />
+      {!usePhoto && theme.frame === "shield" ? <ShieldFrame ring={theme.ring} /> : null}
+      {!usePhoto ? <span className="titan-market-icon__ring-outer" aria-hidden /> : null}
+      {!usePhoto ? <span className="titan-market-icon__ring-inner" aria-hidden /> : null}
+      {!usePhoto ? <span className="titan-market-icon__shimmer" aria-hidden /> : null}
+      {!usePhoto ? <span className="titan-market-icon__glass" aria-hidden /> : null}
+      {!usePhoto ? <span className="titan-market-icon__glow" aria-hidden /> : null}
       <span className={`titan-market-icon__content ${theme.glyph}`}>
         {pngUrl ? (
-          <img src={pngUrl} alt="" className="titan-market-icon__photo" decoding="async" />
+          <img src={pngUrl} alt="" className="titan-market-icon__photo" decoding="async" draggable={false} />
         ) : (
           <Glyph className={GLYPH_SIZE[size]} />
         )}

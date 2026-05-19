@@ -1,20 +1,26 @@
-/** Bundled market PNGs — run `npm run icons:sync` after adding files to public/markets/icons/ */
+import iconIds from "../generated/market-icons.json";
+
+/** Bundled PNGs (after `npm run icons:sync`) */
 const modules = import.meta.glob<string>("../assets/markets/icons/*.png", {
   eager: true,
   import: "default",
 });
 
-const BY_ID = new Map<string, string>();
+const BUNDLED = new Map<string, string>();
+const AVAILABLE = new Set(iconIds.map((id) => id.toUpperCase()));
 
 for (const [path, url] of Object.entries(modules)) {
   const match = path.match(/\/([^/]+)\.png$/i);
-  if (match) BY_ID.set(match[1].toUpperCase(), url);
+  if (match) BUNDLED.set(match[1].toUpperCase(), url);
 }
 
-export function getBundledMarketIconUrl(marketId: string): string | undefined {
-  return BY_ID.get(marketId.toUpperCase());
+/** Bundled URL first, else static file from public/markets/icons (Vercel) */
+export function getMarketIconUrl(marketId: string): string | undefined {
+  const id = marketId.toUpperCase();
+  if (!AVAILABLE.has(id)) return undefined;
+  return BUNDLED.get(id) ?? `/markets/icons/${id}.png`;
 }
 
-export function hasBundledMarketIcon(marketId: string): boolean {
-  return BY_ID.has(marketId.toUpperCase());
+export function hasMarketIcon(marketId: string): boolean {
+  return AVAILABLE.has(marketId.toUpperCase());
 }
