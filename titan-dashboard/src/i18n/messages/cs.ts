@@ -110,6 +110,48 @@ export const csMessages: Messages = {
     persistenceBear: "Medvědí",
     persistenceWeeks: "persistence · {{weeks}}t",
   },
+  engine: {
+    eyebrow: "TITAN AI MARKET ENGINE",
+    subtitle: "Jak TITAN čte institucionální flow",
+    regime: "Režim trhu",
+    bias: "Institucionální bias",
+    unavailable: "COT data pro tento trh nejsou k dispozici.",
+    aiNarrativeTitle: "AI INSTITUCIONÁLNÍ ANALÝZA",
+    aiNarrativeSub: "Rozpad skóre a syntéza positioning",
+    aiNarrative: "AI syntéza",
+    badges: {
+      live: "Live data",
+      cftc: "CFTC verified",
+      ai: "AI analyzed",
+    },
+    cards: {
+      score: {
+        title: "TITAN Score",
+        desc: "Institucionální směrový bias.",
+      },
+      comm: {
+        title: "Commercial Index",
+        desc: "Extrémní komerční positioning.",
+      },
+      retail: {
+        title: "Retail Divergence",
+        desc: "Retail proti institucím.",
+      },
+      delta: {
+        title: "Delta Flow",
+        desc: "Momentum komerční pozice.",
+      },
+      tv: {
+        title: "COT Overlay",
+        desc: "TradingView futures kontext.",
+      },
+      cot: {
+        title: "Position Structure",
+        metric: "COMMERCIALS",
+        desc: "Čistá institucionální pozice.",
+      },
+    },
+  },
   guide: {
     title: "Průvodce · {{market}}",
     heading: "Co je co a jak to funguje",

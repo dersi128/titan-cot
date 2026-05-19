@@ -108,6 +108,48 @@ export const enMessages = {
     persistenceBear: "Bearish",
     persistenceWeeks: "persistence · {{weeks}}w",
   },
+  engine: {
+    eyebrow: "TITAN AI MARKET ENGINE",
+    subtitle: "How TITAN Reads Institutional Flow",
+    regime: "Market regime",
+    bias: "Institutional bias",
+    unavailable: "COT data unavailable for this market.",
+    aiNarrativeTitle: "AI INSTITUTIONAL ANALYSIS",
+    aiNarrativeSub: "Score decomposition & positioning synthesis",
+    aiNarrative: "AI synthesis",
+    badges: {
+      live: "Live data",
+      cftc: "CFTC verified",
+      ai: "AI analyzed",
+    },
+    cards: {
+      score: {
+        title: "TITAN Score",
+        desc: "Institutional directional bias.",
+      },
+      comm: {
+        title: "Commercial Index",
+        desc: "Extreme commercial positioning.",
+      },
+      retail: {
+        title: "Retail Divergence",
+        desc: "Retail moving opposite institutions.",
+      },
+      delta: {
+        title: "Delta Flow",
+        desc: "Commercial positioning momentum.",
+      },
+      tv: {
+        title: "COT Overlay",
+        desc: "TradingView futures context.",
+      },
+      cot: {
+        title: "Position Structure",
+        metric: "COMMERCIALS",
+        desc: "Net institutional positioning.",
+      },
+    },
+  },
   guide: {
     title: "Guide · {{market}}",
     heading: "What everything means",
