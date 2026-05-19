@@ -95,5 +95,7 @@
   .titan-market-surface,
   .animate-fade-up {
     animation: none;
+    opacity: 1;
+    transform: none;
   }
 }

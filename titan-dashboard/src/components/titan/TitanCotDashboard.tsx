@@ -19,8 +19,13 @@ const MAPPING_PAYLOAD = INSTITUTIONAL_MARKETS.map((m) => ({ futuresSymbol: m.sym
 type DashboardView = "overview" | "market";
 
 function lockPageScroll(lock: boolean) {
-  document.documentElement.style.overflow = lock ? "hidden" : "";
-  document.body.style.overflow = lock ? "hidden" : "";
+  const value = lock ? "hidden" : "";
+  document.documentElement.style.overflow = value;
+  document.body.style.overflow = value;
+  if (!lock) {
+    document.documentElement.style.removeProperty("overflow");
+    document.body.style.removeProperty("overflow");
+  }
 }
 
 export function TitanCotDashboard() {
@@ -39,6 +44,10 @@ export function TitanCotDashboard() {
 
   const backToOverview = useCallback(() => {
     setView("overview");
+    lockPageScroll(false);
+    requestAnimationFrame(() => {
+      window.scrollTo(0, 0);
+    });
   }, []);
 
   useEffect(() => {
@@ -167,17 +176,21 @@ export function TitanCotDashboard() {
         </div>
       ) : null}
 
-      {view === "overview" ? (
-        <main className="mx-auto max-w-[1600px] space-y-6 px-4 py-8">
-          <GlobalCotScanner rows={rows} selectedMarket={selectedMarket} onSelectMarket={openMarket} />
-          <CotHeatmap
-            markets={INSTITUTIONAL_MARKETS}
-            bundle={bundle}
-            selectedMarket={selectedMarket}
-            onSelectMarket={openMarket}
-          />
-        </main>
-      ) : (
+      <main
+        className="mx-auto max-w-[1600px] space-y-6 px-4 py-8"
+        hidden={view !== "overview"}
+        aria-hidden={view !== "overview"}
+      >
+        <GlobalCotScanner rows={rows} selectedMarket={selectedMarket} onSelectMarket={openMarket} />
+        <CotHeatmap
+          markets={INSTITUTIONAL_MARKETS}
+          bundle={bundle}
+          selectedMarket={selectedMarket}
+          onSelectMarket={openMarket}
+        />
+      </main>
+
+      {view === "market" ? (
         <div
           ref={marketScrollRef}
           className="fixed inset-x-0 bottom-0 top-[var(--titan-header-offset,5.5rem)] z-20 overflow-y-auto overflow-x-hidden bg-titan-black titan-page-bg"
@@ -197,15 +210,15 @@ export function TitanCotDashboard() {
             />
           </main>
         </div>
-      )}
-
-      {view === "overview" ? (
-        <footer className="border-t border-titan-line/60 py-10 text-center">
-          <p className="text-[11px] text-stone-600">
-            TITAN COT — Bias only, not execution
-          </p>
-        </footer>
       ) : null}
+
+      <footer
+        className="border-t border-titan-line/60 py-10 text-center"
+        hidden={view !== "overview"}
+        aria-hidden={view !== "overview"}
+      >
+        <p className="text-[11px] text-stone-600">TITAN COT — Bias only, not execution</p>
+      </footer>
     </div>
   );
 }
