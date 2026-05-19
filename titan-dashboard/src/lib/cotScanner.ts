@@ -40,6 +40,8 @@ export type CotScannerSortMode =
   | "bearish_strength"
   | "weekly_change_abs";
 
+type ActiveFilter = Exclude<CotScannerFilter, "all">;
+
 export function buildCotPlatformRows(
   markets: CotMarketWithCategory[],
   bundle: Record<string, CotDashboardData>,
@@ -118,29 +120,43 @@ export function buildCotPlatformRows(
   });
 }
 
-export function filterCotRows(rows: CotPlatformRow[], filter: CotScannerFilter): CotPlatformRow[] {
-  if (filter === "all") return rows;
+function rowMatchesActiveFilter(row: CotPlatformRow, filter: ActiveFilter): boolean {
+  if (row.status !== "live" || row.cotScore === null) {
+    return false;
+  }
 
-  return rows.filter((r) => {
-    if (r.status !== "live" || r.cotScore === null) return false;
+  const score = row.cotScore;
 
-    switch (filter) {
-      case "bullish":
-        return r.cotScore >= 40;
-      case "bearish":
-        return r.cotScore <= -40;
-      case "neutral":
-        return r.cotScore > -40 && r.cotScore < 40;
-      case "divergence":
-        return r.nonCommDivergence !== "none";
-      case "retail_extreme":
-        return (r.retail26w ?? 50) > 80 || (r.retail26w ?? 50) < 20;
-      case "commercial_extreme":
-        return (r.commercials26w ?? 50) > 80 || (r.commercials26w ?? 50) < 20;
-      default:
-        return true;
+  switch (filter) {
+    case "bullish":
+      return score >= 40;
+    case "bearish":
+      return score <= -40;
+    case "neutral":
+      return score > -40 && score < 40;
+    case "divergence":
+      return row.nonCommDivergence !== "none";
+    case "retail_extreme": {
+      const r = row.retail26w ?? 50;
+      return r > 80 || r < 20;
     }
-  });
+    case "commercial_extreme": {
+      const c = row.commercials26w ?? 50;
+      return c > 80 || c < 20;
+    }
+    default: {
+      const _exhaustive: never = filter;
+      return _exhaustive;
+    }
+  }
+}
+
+export function filterCotRows(rows: CotPlatformRow[], filter: CotScannerFilter): CotPlatformRow[] {
+  if (filter === "all") {
+    return rows;
+  }
+
+  return rows.filter((row) => rowMatchesActiveFilter(row, filter));
 }
 
 export function sortCotRows(rows: CotPlatformRow[], mode: CotScannerSortMode): CotPlatformRow[] {
