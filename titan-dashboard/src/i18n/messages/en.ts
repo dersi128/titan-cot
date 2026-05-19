@@ -12,8 +12,9 @@ export const enMessages = {
   header: {
     backMarkets: "Back to all markets",
     marketDetail: "Market detail",
-    institutionalCot: "Institutional COT",
-    overviewSub: "Bull vs bear · 26W bias · pick a market for detail",
+    institutionalCot: "INSTITUTIONAL COT",
+    overviewSub: "Bull vs Bear · Institutional positioning · Smart Money Intelligence",
+    heroBadge: "AI COT Engine Active",
     cftcTv: "CFTC + TradingView",
     marketsLive: "{{count}} markets live",
     report: "Report",
@@ -156,6 +157,26 @@ export const enMessages = {
     trendDistribution: "distribution",
     trendFlat: "flat",
   },
+  rail: {
+    eyebrow: "Institutional context",
+    sub: "Macro & smart-money overlays (visual layer)",
+    aiRegime: "AI market regime",
+    aiRegimeValue: "Risk-on tilt",
+    aiRegimeSub: "26W commercial-led bias",
+    smartMoney: "Markets live",
+    smartMoneySub: "CFTC legacy futures connected",
+    dominance: "Commercial dominance",
+    dominanceSub: "Extreme 26W positioning share",
+    macroRisk: "Macro risk monitor",
+    macroRiskValue: "Moderate",
+    macroRiskSub: "Vol + rates composite (UI)",
+    dxy: "Dollar index strength",
+    dxySub: "USD pressure context",
+    pressure: "Smart money pressure",
+    pressureSub: "Institutional flow intensity gauge",
+    aiLive: "AI LIVE",
+  },
+  footerNote: "Data derived from CFTC COT reports · Legacy futures only · Not financial advice",
 } as const;
 
 export type Messages = typeof enMessages;

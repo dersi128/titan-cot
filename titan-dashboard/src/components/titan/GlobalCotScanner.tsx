@@ -4,12 +4,14 @@ import {
   computeTitanDashboardScore,
   resolveTitanVerdict,
   scoreHeatClass,
+  scoreRowAccentClass,
   verdictAccentClass,
   type PositioningTrend,
   type TitanBiasVerdict,
 } from "../../lib/titanCotScore";
 import type { InstitutionalMarket } from "../../config/institutionalMarkets";
 import { useTitanI18n } from "../../i18n";
+import { TitanMarketIcon } from "./TitanMarketIcon";
 import { TitanPanel, TitanPanelHeader, TitanScoreBar } from "./ui/TitanPrimitives";
 
 export type ScannerRowModel = {
@@ -36,9 +38,9 @@ function trendLabel(trend: PositioningTrend, tr: (key: string) => string): strin
 }
 
 function trendPillClass(t: PositioningTrend): string {
-  if (t === "accumulation") return "bg-emerald-500/12 text-emerald-300 border-emerald-500/25";
-  if (t === "distribution") return "bg-rose-500/12 text-rose-300 border-rose-500/25";
-  return "bg-stone-500/8 text-stone-500 border-stone-600/35";
+  if (t === "accumulation") return "titan-flow-pill--accumulation";
+  if (t === "distribution") return "titan-flow-pill--distribution";
+  return "titan-flow-pill--flat";
 }
 
 export function buildScannerRows(
@@ -89,33 +91,37 @@ export function GlobalCotScanner({ rows, selectedMarket, onSelectMarket }: Globa
   const sorted = [...rows].sort((a, b) => Math.abs(b.score) - Math.abs(a.score));
 
   return (
-    <TitanPanel>
-      <TitanPanelHeader
-        eyebrow={t("scanner.eyebrow")}
-        description={
-          <>
-            {t("scanner.marketsSorted", { count: rows.length })}{" "}
-            <span className="text-stone-600">{t("scanner.legacyOnly")}</span>
-          </>
-        }
-      />
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[780px] text-left text-sm">
-          <thead className="sticky top-0 z-[1] bg-titan-panel/95 backdrop-blur-sm">
-            <tr className="border-b border-titan-line text-[10px] font-semibold uppercase tracking-wider text-stone-500">
-              <th className="px-5 py-3.5">{t("scanner.colMarket")}</th>
-              <th className="px-3 py-3.5 text-right">{t("scanner.colScore")}</th>
-              <th className="hidden px-3 py-3.5 md:table-cell">{t("scanner.colBiasBar")}</th>
-              <th className="px-3 py-3.5">{t("scanner.colVerdict")}</th>
-              <th className="px-3 py-3.5 text-right">{t("scanner.colComm26")}</th>
-              <th className="px-3 py-3.5 text-right">{t("scanner.colRetail26")}</th>
-              <th className="px-5 py-3.5">{t("scanner.colFlow")}</th>
+    <TitanPanel className="animate-fade-up overflow-hidden p-0">
+      <div className="border-b border-white/[0.06] px-6 py-5">
+        <TitanPanelHeader
+          eyebrow={t("scanner.eyebrow")}
+          description={
+            <>
+              {t("scanner.marketsSorted", { count: rows.length })}{" "}
+              <span className="text-titan-muted">{t("scanner.legacyOnly")}</span>
+            </>
+          }
+        />
+      </div>
+      <div className="titan-scanner-table-wrap">
+        <table className="titan-scanner-table w-full min-w-[900px] text-left text-sm">
+          <thead>
+            <tr>
+              <th className="px-6">{t("scanner.colMarket")}</th>
+              <th className="text-right">{t("scanner.colScore")}</th>
+              <th className="hidden md:table-cell">{t("scanner.colBiasBar")}</th>
+              <th>{t("scanner.colVerdict")}</th>
+              <th className="text-right">{t("scanner.colComm26")}</th>
+              <th className="text-right">{t("scanner.colRetail26")}</th>
+              <th className="px-6">{t("scanner.colFlow")}</th>
             </tr>
           </thead>
           <tbody>
             {sorted.map((row) => {
               const active = row.market.symbol === selectedMarket.symbol;
               const disabled = row.status !== "live";
+              const rowClass = row.status === "live" ? scoreRowAccentClass(row.score) : "";
+
               return (
                 <tr
                   key={row.market.id}
@@ -129,48 +135,51 @@ export function GlobalCotScanner({ rows, selectedMarket, onSelectMarket }: Globa
                       onSelectMarket(row.market);
                     }
                   }}
-                  className={`border-b border-titan-line/50 transition-colors duration-200 last:border-0 ${
-                    disabled ? "opacity-45" : "cursor-pointer hover:bg-titan-elevated/40"
+                  className={`titan-scanner-row ${rowClass} ${
+                    disabled ? "titan-scanner-row--disabled opacity-40" : "cursor-pointer"
                   } ${active ? "titan-scanner-row-active" : ""}`}
                   onClick={() => !disabled && onSelectMarket(row.market)}
                 >
-                  <td className="px-5 py-3.5">
-                    <div className="flex flex-col gap-0.5">
-                      <span className="font-semibold text-stone-100">{row.market.shortLabel}</span>
-                      <span className="text-[11px] text-stone-500">
-                        {messages.category[row.market.category]} · {row.market.subtitle}
-                      </span>
-                      {row.status === "error" ? (
-                        <span className="text-[10px] text-rose-400/90">{row.errorMessage}</span>
-                      ) : null}
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <TitanMarketIcon market={row.market} />
+                      <div className="min-w-0">
+                        <span className="font-display text-base font-semibold tracking-wide text-white">
+                          {row.market.shortLabel}
+                        </span>
+                        <p className="mt-0.5 text-[11px] text-titan-muted">
+                          {messages.category[row.market.category]} · {row.market.subtitle}
+                        </p>
+                        {row.status === "error" ? (
+                          <p className="mt-1 text-[10px] text-titan-bear/90">{row.errorMessage}</p>
+                        ) : null}
+                      </div>
                     </div>
                   </td>
-                  <td
-                    className={`px-3 py-3.5 text-right font-mono text-base font-semibold tabular-nums ${scoreHeatClass(row.score)}`}
-                  >
+                  <td className={`px-4 py-4 text-right font-mono text-2xl font-bold tabular-nums ${scoreHeatClass(row.score)}`}>
                     {row.status === "live" ? row.score : "—"}
                   </td>
-                  <td className="hidden w-36 px-3 py-3.5 md:table-cell">
+                  <td className="hidden w-40 px-4 py-4 md:table-cell">
                     {row.status === "live" ? <TitanScoreBar score={row.score} /> : "—"}
                   </td>
-                  <td className={`px-3 py-3.5 text-xs font-medium leading-snug ${verdictAccentClass(row.verdict)}`}>
+                  <td className={`max-w-[200px] px-4 py-4 text-[11px] font-semibold uppercase leading-snug tracking-wide ${verdictAccentClass(row.verdict)}`}>
                     {row.status === "live" ? row.verdict : "—"}
                   </td>
-                  <td className="px-3 py-3.5 text-right font-mono tabular-nums text-stone-300">
+                  <td className="px-4 py-4 text-right font-mono text-base tabular-nums text-titan-text">
                     {row.comm26 !== null ? row.comm26.toFixed(0) : "—"}
                   </td>
-                  <td className="px-3 py-3.5 text-right font-mono tabular-nums text-stone-300">
+                  <td className="px-4 py-4 text-right font-mono text-base tabular-nums text-titan-text">
                     {row.retail26 !== null ? row.retail26.toFixed(0) : "—"}
                   </td>
-                  <td className="px-5 py-3.5">
+                  <td className="px-6 py-4">
                     {row.status === "live" ? (
                       <span
-                        className={`inline-flex rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${trendPillClass(row.trend)}`}
+                        className={`inline-flex rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${trendPillClass(row.trend)}`}
                       >
                         {trendLabel(row.trend, t)}
                       </span>
                     ) : (
-                      <span className="text-stone-600">—</span>
+                      <span className="text-titan-muted">—</span>
                     )}
                   </td>
                 </tr>

@@ -4,42 +4,37 @@ import { useTitanI18n } from "../i18n";
 type TitanLogoProps = {
   className?: string;
   title?: string;
-  /** Show wordmark beside icon (header lockup). */
   showWordmark?: boolean;
 };
 
 export function TitanLogo({ className, title = "TITAN COT", showWordmark = false }: TitanLogoProps) {
+  const { t } = useTitanI18n();
   const uid = useId().replace(/:/g, "");
   const gold = `titan-gold-${uid}`;
-  const bull = `titan-bull-${uid}`;
-  const bear = `titan-bear-${uid}`;
+  const goldDeep = `titan-gold-deep-${uid}`;
   const glow = `titan-glow-${uid}`;
 
   const icon = (
     <svg
-      className={showWordmark ? `h-12 w-12 shrink-0 ${className ?? ""}` : className}
-      viewBox="0 0 64 64"
-      width={64}
-      height={64}
+      className={showWordmark ? `h-14 w-14 shrink-0 drop-shadow-glow ${className ?? ""}` : className}
+      viewBox="0 0 72 80"
+      width={72}
+      height={80}
       role="img"
       aria-label={showWordmark ? undefined : title}
     >
       <defs>
         <linearGradient id={gold} x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#f5e6a8" />
-          <stop offset="45%" stopColor="#d4af37" />
-          <stop offset="100%" stopColor="#6b5a2e" />
+          <stop offset="0%" stopColor="#fff4c4" />
+          <stop offset="40%" stopColor="#d4af37" />
+          <stop offset="100%" stopColor="#6b5520" />
         </linearGradient>
-        <linearGradient id={bull} x1="0%" y1="50%" x2="100%" y2="50%">
-          <stop offset="0%" stopColor="#064e3b" />
-          <stop offset="100%" stopColor="#34d399" />
+        <linearGradient id={goldDeep} x1="50%" y1="0%" x2="50%" y2="100%">
+          <stop offset="0%" stopColor="#1a1a22" />
+          <stop offset="100%" stopColor="#050508" />
         </linearGradient>
-        <linearGradient id={bear} x1="100%" y1="50%" x2="0%" y2="50%">
-          <stop offset="0%" stopColor="#7f1d1d" />
-          <stop offset="100%" stopColor="#fb7185" />
-        </linearGradient>
-        <filter id={glow} x="-30%" y="-30%" width="160%" height="160%">
-          <feGaussianBlur stdDeviation="1.2" result="b" />
+        <filter id={glow} x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="2" result="b" />
           <feMerge>
             <feMergeNode in="b" />
             <feMergeNode in="SourceGraphic" />
@@ -47,65 +42,29 @@ export function TitanLogo({ className, title = "TITAN COT", showWordmark = false
         </filter>
       </defs>
 
-      {/* Outer ring */}
-      <circle
-        cx="32"
-        cy="32"
-        r="29"
-        fill="#08080c"
-        stroke={`url(#${gold})`}
-        strokeWidth="1.5"
-        filter={`url(#${glow})`}
-      />
-      <circle cx="32" cy="32" r="25.5" fill="none" stroke={`url(#${gold})`} strokeWidth="0.5" opacity="0.35" />
-
-      {/* Split arena */}
-      <path d="M32 8 L32 56" stroke={`url(#${gold})`} strokeWidth="0.75" opacity="0.25" />
-      <path d="M8 32 L56 32" stroke={`url(#${gold})`} strokeWidth="0.5" opacity="0.12" />
-
-      {/* Bull silhouette — left */}
-      <g fill={`url(#${bull})`} opacity="0.95">
-        <path d="M10 38c8-14 22-22 38-20 6 10 4 24-6 32-8 6-18 8-26 4 2-6-2-12-6-16z" />
-        <path d="M14 28c-2-10 8-18 18-20 4 8 2 18-4 24-6-4-10-2-14-4z" />
-        <path
-          d="M8 26c-4-6 0-14 8-16 3 5 2 11-2 16"
-          stroke="#f0d060"
-          strokeWidth="1.2"
-          fill="none"
-          strokeLinecap="round"
-          opacity="0.6"
-        />
-        <circle cx="16" cy="30" r="1.5" fill="#f0d060" />
-      </g>
-
-      {/* Bear silhouette — right */}
-      <g fill={`url(#${bear})`} opacity="0.95">
-        <path d="M54 38c-8-14-22-22-38-20-6 10-4 24 6 32 8 6 18 8 26 4-2-6 2-12 6-16z" />
-        <path d="M50 28c2-10-8-18-18-20-4 8-2 18 4 24 6-4 10-2 14-4z" />
-        <path
-          d="M56 26c4-6 0-14-8-16-3 5-2 11 2 16"
-          stroke="#fda4af"
-          strokeWidth="1.2"
-          fill="none"
-          strokeLinecap="round"
-          opacity="0.55"
-        />
-        <circle cx="48" cy="30" r="1.5" fill="#fda4af" />
-      </g>
-
-      {/* Center T monogram */}
+      {/* Crown */}
       <path
-        d="M24 22h16v4H30v14h-4V26h-6v-4z"
+        d="M20 14 L26 22 L32 12 L36 20 L40 12 L46 22 L52 14 L48 26 L24 26 Z"
         fill={`url(#${gold})`}
+        opacity="0.95"
         filter={`url(#${glow})`}
       />
 
-      {/* Clash diamond */}
+      {/* Shield */}
       <path
-        d="M32 18l2 4 4 2-4 2-2 4-2-4-4-2 4-2 2-4z"
-        fill="#f0d060"
-        opacity="0.85"
+        d="M36 28 L58 38 V54 C58 64 48 72 36 76 C24 72 14 64 14 54 V38 Z"
+        fill={`url(#${goldDeep})`}
+        stroke={`url(#${gold})`}
+        strokeWidth="2"
+        filter={`url(#${glow})`}
       />
+
+      {/* T monogram */}
+      <path d="M28 42 H44 V46 H38 V62 H34 V46 H28 V42 Z" fill={`url(#${gold})`} />
+
+      {/* Inner accent lines */}
+      <path d="M36 32 V70" stroke={`url(#${gold})`} strokeWidth="0.5" opacity="0.2" />
+      <path d="M22 48 H50" stroke={`url(#${gold})`} strokeWidth="0.5" opacity="0.12" />
     </svg>
   );
 
@@ -114,13 +73,15 @@ export function TitanLogo({ className, title = "TITAN COT", showWordmark = false
   }
 
   return (
-    <div className={`flex items-center gap-3.5 ${className ?? ""}`}>
+    <div className={`flex items-center gap-4 ${className ?? ""}`}>
       {icon}
       <div className="min-w-0 leading-none">
-        <p className="font-display text-[10px] font-semibold uppercase tracking-[0.38em] text-titan-gold">
+        <p className="font-display text-sm font-bold uppercase tracking-[0.42em] text-titan-goldBright">
           TITAN
         </p>
-        <p className="mt-0.5 font-display text-sm font-medium tracking-wide text-stone-400">{t("brand.tagline")}</p>
+        <p className="mt-1 font-sans text-[11px] font-medium uppercase tracking-[0.28em] text-titan-muted">
+          {t("brand.tagline")}
+        </p>
       </div>
     </div>
   );

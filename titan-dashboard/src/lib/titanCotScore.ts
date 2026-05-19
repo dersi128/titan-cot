@@ -86,9 +86,15 @@ export function verdictAccentClass(verdict: TitanBiasVerdict): string {
 }
 
 export function scoreHeatClass(score: number): string {
-  if (score >= 65) return "text-emerald-400";
-  if (score >= 40) return "text-emerald-300/85";
-  if (score <= -65) return "text-rose-400";
-  if (score <= -40) return "text-rose-300/85";
-  return "text-stone-300";
+  if (score >= 65) return "titan-score-glow-bull";
+  if (score >= 40) return "text-titan-bull/90";
+  if (score <= -65) return "titan-score-glow-bear";
+  if (score <= -40) return "text-titan-bear/90";
+  return "text-titan-text";
+}
+
+export function scoreRowAccentClass(score: number): string {
+  if (score >= 75) return "titan-scanner-row--strong-bull";
+  if (score <= -75) return "titan-scanner-row--strong-bear";
+  return "";
 }

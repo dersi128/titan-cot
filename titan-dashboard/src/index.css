@@ -7,22 +7,30 @@
     scroll-behavior: auto;
   }
   body {
-    @apply bg-titan-black font-sans text-stone-300 antialiased;
+    @apply bg-titan-black font-sans text-titan-text antialiased;
   }
   ::selection {
-    @apply bg-titan-gold/25 text-stone-100;
+    @apply bg-titan-gold/25 text-white;
   }
 }
 
 @layer components {
   .titan-glass {
-    @apply border border-titan-line/80 shadow-card backdrop-blur-2xl;
-    background-color: rgb(12 12 16 / 0.82);
+    @apply rounded-2xl border border-white/[0.06] shadow-card backdrop-blur-2xl;
+    background: rgba(15, 15, 20, 0.75);
     box-shadow:
-      inset 0 1px 0 0 rgba(240, 208, 96, 0.09),
-      inset 0 -1px 0 0 rgba(0, 0, 0, 0.35),
-      0 0 0 1px rgba(212, 175, 55, 0.06),
-      0 28px 72px -32px rgba(0, 0, 0, 0.88);
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.08),
+      inset 0 -1px 0 0 rgba(0, 0, 0, 0.4),
+      0 0 0 1px rgba(212, 175, 55, 0.05),
+      0 32px 80px -36px rgba(0, 0, 0, 0.92);
+  }
+
+  .titan-glass-premium {
+    @apply rounded-2xl border border-white/[0.06] backdrop-blur-xl;
+    background: linear-gradient(145deg, rgba(20, 22, 30, 0.88), rgba(10, 12, 18, 0.72));
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      0 16px 48px -24px rgba(0, 0, 0, 0.85);
   }
 
   .titan-page-bg {
@@ -30,29 +38,52 @@
     isolation: isolate;
   }
 
-  .titan-bull-bear-backdrop__art {
+  .titan-institutional-backdrop__map {
     position: absolute;
-    inset: -8%;
-    width: 116%;
-    height: 116%;
-    opacity: 0.42;
-    filter: saturate(1.05) contrast(1.08);
+    inset: 0;
+    opacity: 0.22;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 600'%3E%3Cg fill='%23d4af37' fill-opacity='0.35'%3E%3Ccircle cx='180' cy='140' r='2'/%3E%3Ccircle cx='220' cy='160' r='1.5'/%3E%3Ccircle cx='260' cy='130' r='2'/%3E%3Ccircle cx='300' cy='150' r='1.5'/%3E%3Ccircle cx='340' cy='170' r='2'/%3E%3Ccircle cx='400' cy='155' r='1.5'/%3E%3Ccircle cx='450' cy='140' r='2'/%3E%3Ccircle cx='520' cy='165' r='2'/%3E%3Ccircle cx='580' cy='150' r='1.5'/%3E%3Ccircle cx='640' cy='175' r='2'/%3E%3Ccircle cx='700' cy='160' r='1.5'/%3E%3Ccircle cx='760' cy='145' r='2'/%3E%3Ccircle cx='820' cy='170' r='2'/%3E%3Ccircle cx='880' cy='155' r='1.5'/%3E%3Ccircle cx='940' cy='165' r='2'/%3E%3Ccircle cx='200' cy='280' r='2'/%3E%3Ccircle cx='280' cy='300' r='1.5'/%3E%3Ccircle cx='360' cy='290' r='2'/%3E%3Ccircle cx='440' cy='310' r='2'/%3E%3Ccircle cx='520' cy='295' r='1.5'/%3E%3Ccircle cx='600' cy='320' r='2'/%3E%3Ccircle cx='680' cy='305' r='1.5'/%3E%3Ccircle cx='760' cy='330' r='2'/%3E%3Ccircle cx='840' cy='315' r='2'/%3E%3Ccircle cx='920' cy='340' r='1.5'/%3E%3Ccircle cx='240' cy='400' r='2'/%3E%3Ccircle cx='320' cy='420' r='1.5'/%3E%3Ccircle cx='400' cy='410' r='2'/%3E%3Ccircle cx='480' cy='430' r='2'/%3E%3Ccircle cx='560' cy='415' r='1.5'/%3E%3Ccircle cx='640' cy='440' r='2'/%3E%3Ccircle cx='720' cy='425' r='1.5'/%3E%3Ccircle cx='800' cy='450' r='2'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: cover;
+    background-position: center;
+    filter: blur(0.3px);
   }
 
-  .titan-bull-bear-backdrop__veil {
+  .titan-institutional-backdrop__mesh {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(212, 175, 55, 0.12), transparent 55%);
+  }
+
+  .titan-institutional-backdrop__rays {
+    position: absolute;
+    inset: -20% -10%;
+    background: linear-gradient(
+      115deg,
+      transparent 30%,
+      rgba(212, 175, 55, 0.07) 45%,
+      rgba(212, 175, 55, 0.14) 50%,
+      rgba(212, 175, 55, 0.06) 55%,
+      transparent 70%
+    );
+    animation: rayShift 14s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  .titan-institutional-backdrop__particles {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(212, 175, 55, 0.35) 1px, transparent 1px);
+    background-size: 48px 48px;
+    opacity: 0.12;
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 20%, transparent 75%);
+  }
+
+  .titan-institutional-backdrop__veil {
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(ellipse 70% 55% at 50% 42%, transparent 0%, rgba(2, 2, 3, 0.55) 55%, rgba(2, 2, 3, 0.92) 100%),
-      linear-gradient(180deg, rgba(2, 2, 3, 0.75) 0%, rgba(2, 2, 3, 0.35) 35%, rgba(2, 2, 3, 0.88) 100%);
-  }
-
-  .titan-bull-bear-backdrop__grain {
-    position: absolute;
-    inset: 0;
-    opacity: 0.04;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    mix-blend-mode: overlay;
+      radial-gradient(ellipse 90% 70% at 50% 35%, transparent 0%, rgba(5, 5, 5, 0.5) 55%, rgba(5, 5, 5, 0.94) 100%),
+      linear-gradient(180deg, rgba(5, 5, 5, 0.4) 0%, rgba(5, 5, 5, 0.92) 100%);
   }
 
   .titan-content-layer {
@@ -60,22 +91,95 @@
   }
 
   .titan-header-bar {
-    @apply border-b border-titan-gold/10 bg-titan-void/70 backdrop-blur-2xl;
-    box-shadow:
-      0 1px 0 0 rgba(212, 175, 55, 0.08),
-      0 12px 40px -20px rgba(0, 0, 0, 0.65);
-    --titan-header-offset: 5.75rem;
+    @apply border-b border-white/[0.06] backdrop-blur-2xl;
+    background: linear-gradient(180deg, rgba(11, 15, 20, 0.92), rgba(11, 15, 20, 0.65));
+    box-shadow: 0 1px 0 rgba(212, 175, 55, 0.1);
+    --titan-header-offset: 7.5rem;
   }
 
   @media (min-width: 1024px) {
     .titan-header-bar {
-      --titan-header-offset: 6.25rem;
+      --titan-header-offset: 8.5rem;
     }
   }
 
+  .titan-hero-title {
+    @apply font-display text-3xl font-bold tracking-[0.12em] text-white md:text-4xl;
+    text-shadow: 0 0 40px rgba(212, 175, 55, 0.15);
+  }
+
+  .titan-scanner-table-wrap {
+    @apply overflow-x-auto rounded-b-2xl;
+  }
+
+  .titan-scanner-table thead th {
+    @apply border-b border-white/[0.06] bg-titan-void/90 px-4 py-4 text-[10px] font-semibold uppercase tracking-[0.18em] text-titan-muted backdrop-blur-md;
+  }
+
+  .titan-scanner-row {
+    @apply border-b border-white/[0.04] transition-all duration-300;
+  }
+
+  .titan-scanner-row:hover:not(.titan-scanner-row--disabled) {
+    background: linear-gradient(90deg, rgba(212, 175, 55, 0.08), transparent 55%);
+    box-shadow: inset 2px 0 0 rgba(212, 175, 55, 0.5);
+  }
+
   .titan-scanner-row-active {
-    @apply bg-gradient-to-r from-titan-gold/[0.14] via-titan-gold/[0.06] to-transparent;
-    box-shadow: inset 3px 0 0 0 rgba(212, 175, 55, 0.95);
+    background: linear-gradient(90deg, rgba(212, 175, 55, 0.14), rgba(212, 175, 55, 0.02) 60%);
+    box-shadow:
+      inset 3px 0 0 rgba(212, 175, 55, 0.95),
+      0 0 32px -12px rgba(212, 175, 55, 0.25);
+  }
+
+  .titan-scanner-row--strong-bull {
+    box-shadow: inset 0 0 0 1px rgba(0, 208, 132, 0.12);
+  }
+
+  .titan-scanner-row--strong-bear {
+    box-shadow: inset 0 0 0 1px rgba(255, 77, 109, 0.12);
+  }
+
+  .titan-score-glow-bull {
+    color: #00d084;
+    text-shadow: 0 0 24px rgba(0, 208, 132, 0.55);
+  }
+
+  .titan-score-glow-bear {
+    color: #ff4d6d;
+    text-shadow: 0 0 24px rgba(255, 77, 109, 0.55);
+  }
+
+  .titan-flow-pill--accumulation {
+    @apply border border-titan-bull/35 bg-titan-bull/10 text-emerald-300;
+    box-shadow: 0 0 20px -8px rgba(0, 208, 132, 0.5);
+  }
+
+  .titan-flow-pill--distribution {
+    @apply border border-titan-bear/35 bg-titan-bear/10 text-rose-300;
+    box-shadow: 0 0 20px -8px rgba(255, 77, 109, 0.5);
+  }
+
+  .titan-flow-pill--flat {
+    @apply border border-white/10 bg-white/5 text-titan-muted;
+  }
+
+  .titan-ai-pill {
+    @apply inline-flex items-center rounded-full border border-titan-gold/30 bg-titan-gold/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-titan-goldBright;
+  }
+
+  .titan-pressure-bar {
+    background: linear-gradient(90deg, #00d084, #d4af37);
+    animation: pressure 2.5s ease-in-out infinite;
+  }
+
+  .titan-rail-card {
+    @apply titan-glass-premium transition-transform duration-300 hover:-translate-y-0.5;
+  }
+
+  .titan-live-pill-premium {
+    @apply inline-flex items-center gap-2 rounded-full border border-titan-bull/30 bg-titan-bull/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-300;
+    box-shadow: 0 0 28px -8px rgba(0, 208, 132, 0.45);
   }
 }
 
@@ -85,10 +189,9 @@
   }
 }
 
-/* Custom scrollbar */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #3f3f46 #0c0c10;
+  scrollbar-color: #2a3140 #050505;
 }
 
 ::-webkit-scrollbar {
@@ -97,38 +200,20 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #0c0c10;
+  background: #050505;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #3f3f46;
+  background: #2a3140;
   border-radius: 4px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #52525b;
-}
-
-@keyframes titan-market-surface {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.titan-market-surface {
-  animation: titan-market-surface 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .titan-market-surface,
-  .animate-fade-up {
-    animation: none;
-    opacity: 1;
-    transform: none;
+  .titan-institutional-backdrop__rays,
+  .titan-pressure-bar,
+  .animate-fade-up,
+  .animate-float,
+  .animate-ray {
+    animation: none !important;
   }
 }
