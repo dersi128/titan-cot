@@ -2,6 +2,7 @@ import type { CotDashboardData } from "../../types";
 import { computeTitanDashboardScore, scoreHeatClass } from "../../lib/titanCotScore";
 import type { InstitutionalMarket } from "../../config/institutionalMarkets";
 import { useTitanI18n } from "../../i18n";
+import { TitanMarketIcon } from "./TitanMarketIcon";
 import { TitanPanel, TitanPanelHeader } from "./ui/TitanPrimitives";
 
 type CotHeatmapProps = {
@@ -81,7 +82,10 @@ export function CotHeatmap({ markets, bundle, selectedMarket, onSelectMarket }: 
                   : ""
               } ${data ? "hover:border-titan-gold/35 hover:shadow-card active:scale-[0.99]" : "cursor-not-allowed opacity-35"}`}
             >
-              <span className="font-display text-sm font-semibold text-stone-100">{m.shortLabel}</span>
+              <div className="flex items-center gap-2.5">
+                <TitanMarketIcon market={m} size="sm" />
+                <span className="font-display text-sm font-semibold text-stone-100">{m.shortLabel}</span>
+              </div>
               <span className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-stone-500">
                 {m.symbol}
               </span>

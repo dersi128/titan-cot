@@ -1,27 +1,71 @@
 import type { InstitutionalMarket } from "../../config/institutionalMarkets";
+import { resolveMarketGlyph } from "./marketIcons/resolveMarketGlyph";
 
-const CATEGORY_STYLES: Record<
+const CATEGORY_THEME: Record<
   InstitutionalMarket["category"],
-  { ring: string; bg: string; letter: string }
+  { shell: string; glyph: string; glow: string }
 > = {
-  forex: { ring: "ring-sky-400/40", bg: "bg-sky-500/15", letter: "text-sky-300" },
-  metals: { ring: "ring-titan-gold/45", bg: "bg-titan-gold/12", letter: "text-titan-goldBright" },
-  energy: { ring: "ring-orange-400/35", bg: "bg-orange-500/12", letter: "text-orange-300" },
-  grains: { ring: "ring-amber-400/35", bg: "bg-amber-500/12", letter: "text-amber-200" },
-  softs: { ring: "ring-lime-400/30", bg: "bg-lime-500/10", letter: "text-lime-200" },
-  livestock: { ring: "ring-rose-400/30", bg: "bg-rose-500/10", letter: "text-rose-200" },
-  indices: { ring: "ring-violet-400/35", bg: "bg-violet-500/12", letter: "text-violet-200" },
+  forex: {
+    shell: "from-sky-950/90 via-sky-900/40 to-titan-black/80",
+    glyph: "text-sky-200",
+    glow: "bg-sky-400/25",
+  },
+  metals: {
+    shell: "from-amber-950/95 via-titan-gold/20 to-titan-black/80",
+    glyph: "text-titan-goldBright",
+    glow: "bg-titan-gold/30",
+  },
+  energy: {
+    shell: "from-orange-950/90 via-orange-900/35 to-titan-black/80",
+    glyph: "text-orange-200",
+    glow: "bg-orange-400/25",
+  },
+  grains: {
+    shell: "from-amber-950/85 via-amber-900/30 to-titan-black/80",
+    glyph: "text-amber-100",
+    glow: "bg-amber-400/22",
+  },
+  softs: {
+    shell: "from-lime-950/80 via-lime-900/25 to-titan-black/80",
+    glyph: "text-lime-200",
+    glow: "bg-lime-400/20",
+  },
+  livestock: {
+    shell: "from-rose-950/85 via-rose-900/30 to-titan-black/80",
+    glyph: "text-rose-200",
+    glow: "bg-rose-400/22",
+  },
+  indices: {
+    shell: "from-violet-950/90 via-violet-900/35 to-titan-black/80",
+    glyph: "text-violet-200",
+    glow: "bg-violet-400/25",
+  },
 };
 
-export function TitanMarketIcon({ market }: { market: InstitutionalMarket }) {
-  const style = CATEGORY_STYLES[market.category];
-  const letter = market.shortLabel.slice(0, 2).toUpperCase();
+type TitanMarketIconProps = {
+  market: InstitutionalMarket;
+  size?: "sm" | "md" | "lg";
+};
+
+const SIZE_CLASS = {
+  sm: "titan-market-icon--sm",
+  md: "titan-market-icon--md",
+  lg: "titan-market-icon--lg",
+} as const;
+
+export function TitanMarketIcon({ market, size = "md" }: TitanMarketIconProps) {
+  const theme = CATEGORY_THEME[market.category];
+  const Glyph = resolveMarketGlyph(market);
 
   return (
     <span
-      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/[0.06] text-[10px] font-bold tracking-tight ring-1 ${style.ring} ${style.bg} ${style.letter}`}
+      className={`titan-market-icon ${SIZE_CLASS[size]} bg-gradient-to-br ${theme.shell}`}
+      title={market.subtitle}
     >
-      {letter}
+      <span className={`titan-market-icon__glow ${theme.glow}`} aria-hidden />
+      <span className={`titan-market-icon__glyph ${theme.glyph}`}>
+        <Glyph className="h-[1.125rem] w-[1.125rem] md:h-5 md:w-5" />
+      </span>
     </span>
   );
 }
