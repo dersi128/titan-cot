@@ -122,7 +122,7 @@ export function filterCotRows(rows: CotPlatformRow[], filter: CotScannerFilter):
   if (filter === "all") return rows;
 
   return rows.filter((r) => {
-    if (r.status !== "live" || r.cotScore === null) return filter === "all";
+    if (r.status !== "live" || r.cotScore === null) return false;
 
     switch (filter) {
       case "bullish":
