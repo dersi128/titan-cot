@@ -33,9 +33,11 @@ for (const ent of entries) {
   const dest = path.join(destDir, `${id}.png`);
   fs.copyFileSync(srcFile, dest);
   const canonicalPublic = path.join(srcDir, `${id}.png`);
-  if (ent.name.toUpperCase() !== `${id}.PNG` && !fs.existsSync(canonicalPublic)) {
+  if (ent.name !== `${id}.png`) {
     fs.copyFileSync(srcFile, canonicalPublic);
-    console.log(`[icons:sync] public alias copy → ${id}.png`);
+    if (ent.name.toUpperCase() !== `${id}.PNG`) {
+      console.log(`[icons:sync] public canonical → ${id}.png (from ${ent.name})`);
+    }
   }
   syncedIds.push(id);
   const note = alias ? ` ← ${ent.name} (alias ${from})` : "";

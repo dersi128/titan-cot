@@ -168,8 +168,12 @@ export function GlyphWheat({ className }: GlyphProps) {
 export function GlyphCoffee({ className }: GlyphProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path d="M8.5 10.5h7.5v5.5a3.8 3.8 0 01-7.5 0v-5.5z" {...S} />
-      <path d="M16 11.5h1.6a2 2 0 010 4H16M10 7V5.5M14 7V5.5" {...S} />
+      <ellipse cx="12" cy="14" rx="4.2" ry="1.4" {...S} opacity="0.45" />
+      <path d="M9.5 9.5c.8-2 2.2-3 2.5-3s1.7 1 2.5 3" {...S} />
+      <path d="M8.2 10.2c1.2-.6 2.4-.9 3.8-.9s2.6.3 3.8.9" {...S} opacity="0.7" />
+      <circle cx="10.5" cy="11.8" r="1.1" fill="currentColor" opacity="0.35" />
+      <circle cx="13.8" cy="12.4" r="1" fill="currentColor" opacity="0.35" />
+      <circle cx="12" cy="13.6" r="0.95" fill="currentColor" opacity="0.35" />
     </svg>
   );
 }
