@@ -36,7 +36,12 @@ export function TitanCotDashboard() {
       skipScrollOnMountRef.current = false;
       return;
     }
-    marketDetailAnchorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const charts = document.getElementById("market-charts");
+    if (charts) {
+      charts.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      marketDetailAnchorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   }, [selectedSymbol]);
 
   useEffect(() => {

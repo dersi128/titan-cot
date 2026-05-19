@@ -11,6 +11,7 @@ import {
 import type { CotDashboardData } from "../../types";
 import type { InstitutionalMarket } from "../../config/institutionalMarkets";
 import { AiVerdictPanel } from "./AiVerdictPanel";
+import { TradingViewChart } from "./TradingViewChart";
 import { TitanMetricCard, TitanPanel, TitanPanelHeader } from "./ui/TitanPrimitives";
 
 type MarketDetailPanelProps = {
@@ -123,76 +124,107 @@ export function MarketDetailPanel({ market, data, loading, error }: MarketDetail
               </div>
             </section>
 
-            <section>
-              <h3 className="mb-4 text-[10px] font-semibold uppercase tracking-[0.2em] text-stone-500">
-                Historical net positioning
-              </h3>
-              <div
-                key={market.symbol}
-                className="h-[400px] w-full min-w-0 rounded-xl border border-titan-line/70 bg-titan-black/40 p-3"
-              >
-                {trimmed.length >= 2 ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={trimmed} margin={{ top: 12, right: 16, left: 4, bottom: 4 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(37,37,45,0.6)" vertical={false} />
-                      <XAxis
-                        dataKey="reportDate"
-                        tick={{ fill: "#78716c", fontSize: 9, fontFamily: "JetBrains Mono" }}
-                        tickLine={false}
-                        axisLine={{ stroke: "rgba(37,37,45,0.8)" }}
-                        interval="preserveStartEnd"
-                        angle={-28}
-                        textAnchor="end"
-                        height={52}
-                      />
-                      <YAxis
-                        tick={{ fill: "#78716c", fontSize: 10, fontFamily: "JetBrains Mono" }}
-                        tickLine={false}
-                        axisLine={{ stroke: "rgba(37,37,45,0.8)" }}
-                        tickFormatter={(v) => `${Math.round(v / 1000)}k`}
-                      />
-                      <Tooltip contentStyle={CHART_TOOLTIP_STYLE} labelStyle={{ color: "#a8a29e" }} />
-                      <Legend wrapperStyle={{ fontSize: 11, paddingTop: 8 }} />
-                      <Line
-                        type="monotone"
-                        dataKey="commercialNet"
-                        name="Commercial"
-                        stroke="#d4af37"
-                        strokeWidth={2.25}
-                        dot={false}
-                        activeDot={{ r: 4, fill: "#f0d060" }}
-                        animationDuration={500}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="nonCommercialNet"
-                        name="Non-commercial"
-                        stroke="#38bdf8"
-                        strokeWidth={1.75}
-                        dot={false}
-                        animationDuration={500}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="retailNet"
-                        name="Retail"
-                        stroke="#f472b6"
-                        strokeWidth={1.75}
-                        dot={false}
-                        animationDuration={500}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <p className="flex h-full items-center justify-center text-sm text-stone-500">
-                    Not enough history for chart.
-                  </p>
-                )}
-              </div>
-            </section>
           </>
         ) : null}
+
+        <ChartsSection market={market} trimmed={trimmed} loading={loading} />
       </div>
     </TitanPanel>
+  );
+}
+
+type CotChartPoint = {
+  reportDate: string;
+  commercialNet: number;
+  nonCommercialNet: number;
+  retailNet: number;
+};
+
+function ChartsSection({
+  market,
+  trimmed,
+  loading,
+}: {
+  market: InstitutionalMarket;
+  trimmed: CotChartPoint[];
+  loading: boolean;
+}) {
+  return (
+    <section id="market-charts" className="scroll-mt-28">
+      <h3 className="mb-4 text-[10px] font-semibold uppercase tracking-[0.2em] text-stone-500">
+        Charts · COT & price
+      </h3>
+      <div className="grid gap-4 xl:grid-cols-2">
+        <div className="flex min-h-[400px] flex-col rounded-xl border border-titan-line/70 bg-titan-black/40 p-3">
+          <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-stone-600">
+            Historical net positioning
+          </p>
+          <div className="min-h-[340px] flex-1">
+            {loading ? (
+              <p className="flex h-full items-center justify-center text-sm text-stone-500 animate-pulse-soft">
+                Loading CFTC history…
+              </p>
+            ) : trimmed.length >= 2 ? (
+              <ResponsiveContainer width="100%" height="100%" minHeight={340}>
+                <LineChart data={trimmed} margin={{ top: 12, right: 16, left: 4, bottom: 4 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(37,37,45,0.6)" vertical={false} />
+                  <XAxis
+                    dataKey="reportDate"
+                    tick={{ fill: "#78716c", fontSize: 9, fontFamily: "JetBrains Mono" }}
+                    tickLine={false}
+                    axisLine={{ stroke: "rgba(37,37,45,0.8)" }}
+                    interval="preserveStartEnd"
+                    angle={-28}
+                    textAnchor="end"
+                    height={52}
+                  />
+                  <YAxis
+                    tick={{ fill: "#78716c", fontSize: 10, fontFamily: "JetBrains Mono" }}
+                    tickLine={false}
+                    axisLine={{ stroke: "rgba(37,37,45,0.8)" }}
+                    tickFormatter={(v) => `${Math.round(Number(v) / 1000)}k`}
+                  />
+                  <Tooltip contentStyle={CHART_TOOLTIP_STYLE} labelStyle={{ color: "#a8a29e" }} />
+                  <Legend wrapperStyle={{ fontSize: 11, paddingTop: 8 }} />
+                  <Line
+                    type="monotone"
+                    dataKey="commercialNet"
+                    name="Commercial"
+                    stroke="#d4af37"
+                    strokeWidth={2.25}
+                    dot={false}
+                    activeDot={{ r: 4, fill: "#f0d060" }}
+                    animationDuration={500}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="nonCommercialNet"
+                    name="Non-commercial"
+                    stroke="#38bdf8"
+                    strokeWidth={1.75}
+                    dot={false}
+                    animationDuration={500}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="retailNet"
+                    name="Retail"
+                    stroke="#f472b6"
+                    strokeWidth={1.75}
+                    dot={false}
+                    animationDuration={500}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <p className="flex h-full items-center justify-center text-sm text-stone-500">
+                Not enough history for chart.
+              </p>
+            )}
+          </div>
+        </div>
+        <TradingViewChart market={market} selectionKey={market.symbol} />
+      </div>
+    </section>
   );
 }
