@@ -7,7 +7,7 @@ export const enMessages = {
   brand: {
     tagline: "COT Intelligence",
     disclaimerShort: "Bias only, not execution",
-    footer: "TITAN COT — Bias only, not execution · Bull vs Bear",
+    footer: "TITAN COT — Bias only, not execution",
   },
   header: {
     backMarkets: "Back to all markets",
@@ -28,7 +28,7 @@ export const enMessages = {
       "Cannot reach API ({{target}}). Set VITE_COT_API_URL=https://titan-cot.onrender.com on Vercel, or deploy vercel.json proxy.",
   },
   scanner: {
-    eyebrow: "Global COT Scanner · Bull vs Bear",
+    eyebrow: "Global COT Scanner",
     marketsSorted: "{{count}} markets · sorted by conviction ·",
     legacyOnly: "Legacy futures only",
     colMarket: "Market",

@@ -9,7 +9,7 @@ export const csMessages: Messages = {
   brand: {
     tagline: "COT Intelligence",
     disclaimerShort: "Bias only, not execution",
-    footer: "TITAN COT — Bias only, not execution · Býk vs. medvěd",
+    footer: "TITAN COT — pouze bias, ne exekuce",
   },
   header: {
     backMarkets: "Zpět na všechny trhy",
@@ -30,7 +30,7 @@ export const csMessages: Messages = {
       "Nelze se připojit k API ({{target}}). Na Vercelu nastav VITE_COT_API_URL=https://titan-cot.onrender.com nebo nasaď vercel.json proxy.",
   },
   scanner: {
-    eyebrow: "Globální COT scanner · Býk vs. medvěd",
+    eyebrow: "Globální COT scanner",
     marketsSorted: "{{count}} trhů · řazeno podle conviction ·",
     legacyOnly: "pouze Legacy futures",
     colMarket: "Trh",
