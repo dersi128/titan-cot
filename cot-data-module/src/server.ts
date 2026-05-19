@@ -47,7 +47,9 @@ app.get("/api/cot/gold", asyncHandler(async (_request, response) => {
 }));
 
 app.get("/api/cot/:symbol", asyncHandler(async (request, response) => {
-  const mapping = getCotMarketMapping(request.params.symbol);
+  const symbolRaw = request.params.symbol;
+  const symbol = Array.isArray(symbolRaw) ? symbolRaw[0] : symbolRaw;
+  const mapping = getCotMarketMapping(symbol);
 
   if (!mapping) {
     response.status(404).json({
