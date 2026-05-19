@@ -10,6 +10,7 @@ import {
 import type { InstitutionalMarket } from "../../config/institutionalMarkets";
 import { translateApiLabel, translateTrend, useTitanI18n } from "../../i18n";
 import { TitanBadge, TitanScoreGauge } from "./ui/TitanPrimitives";
+import { TitanBiasEngine } from "./TitanBiasEngine";
 
 type AiVerdictPanelProps = {
   market: InstitutionalMarket;
@@ -156,17 +157,7 @@ export function AiVerdictPanel({ market, data, loading, variant = "standalone" }
   );
 
   if (isInsights) {
-    return (
-      <div className="titan-verdict-insights overflow-hidden rounded-2xl border border-titan-gold/15 bg-titan-black/30 backdrop-blur-xl">
-        <header className="border-b border-white/[0.06] px-5 py-4">
-          <h3 className="font-display text-[10px] font-semibold uppercase tracking-[0.28em] text-titan-gold">
-            {t("engine.aiNarrativeTitle")}
-          </h3>
-          <p className="mt-1 text-xs text-stone-500">{t("engine.aiNarrativeSub")}</p>
-        </header>
-        {body}
-      </div>
-    );
+    return <TitanBiasEngine market={market} data={data} loading={loading} />;
   }
 
   if (isEmbedded) {
