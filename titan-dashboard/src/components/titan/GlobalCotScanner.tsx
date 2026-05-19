@@ -89,7 +89,7 @@ export function GlobalCotScanner({ rows, selectedMarket, onSelectMarket }: Globa
   return (
     <TitanPanel>
       <TitanPanelHeader
-        eyebrow="Global COT Scanner"
+        eyebrow="Global COT Scanner · Bull vs Bear"
         description={
           <>
             {rows.length} markets · sorted by conviction ·{" "}

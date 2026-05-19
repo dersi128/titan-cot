@@ -3,58 +3,124 @@ import { useId } from "react";
 type TitanLogoProps = {
   className?: string;
   title?: string;
+  /** Show wordmark beside icon (header lockup). */
+  showWordmark?: boolean;
 };
 
-export function TitanLogo({ className, title = "TITAN" }: TitanLogoProps) {
+export function TitanLogo({ className, title = "TITAN COT", showWordmark = false }: TitanLogoProps) {
   const uid = useId().replace(/:/g, "");
-  const gradId = `titan-grad-${uid}`;
-  const glowId = `titan-glow-${uid}`;
+  const gold = `titan-gold-${uid}`;
+  const bull = `titan-bull-${uid}`;
+  const bear = `titan-bear-${uid}`;
+  const glow = `titan-glow-${uid}`;
 
-  return (
+  const icon = (
     <svg
-      className={className}
-      viewBox="0 0 56 56"
-      width={56}
-      height={56}
+      className={showWordmark ? `h-12 w-12 shrink-0 ${className ?? ""}` : className}
+      viewBox="0 0 64 64"
+      width={64}
+      height={64}
       role="img"
-      aria-label={title}
+      aria-label={showWordmark ? undefined : title}
     >
       <defs>
-        <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#fcee0a" />
-          <stop offset="45%" stopColor="#ff006e" />
-          <stop offset="100%" stopColor="#00e5ff" />
+        <linearGradient id={gold} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#f5e6a8" />
+          <stop offset="45%" stopColor="#d4af37" />
+          <stop offset="100%" stopColor="#6b5a2e" />
         </linearGradient>
-        <filter id={glowId} x="-40%" y="-40%" width="180%" height="180%">
-          <feGaussianBlur stdDeviation="0.8" result="b" />
+        <linearGradient id={bull} x1="0%" y1="50%" x2="100%" y2="50%">
+          <stop offset="0%" stopColor="#064e3b" />
+          <stop offset="100%" stopColor="#34d399" />
+        </linearGradient>
+        <linearGradient id={bear} x1="100%" y1="50%" x2="0%" y2="50%">
+          <stop offset="0%" stopColor="#7f1d1d" />
+          <stop offset="100%" stopColor="#fb7185" />
+        </linearGradient>
+        <filter id={glow} x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="1.2" result="b" />
           <feMerge>
             <feMergeNode in="b" />
             <feMergeNode in="SourceGraphic" />
           </feMerge>
         </filter>
       </defs>
-      <path
-        d="M28 3 L51 15.5 V40.5 L28 53 L5 40.5 V15.5 Z"
-        fill="rgba(12,6,18,0.94)"
-        stroke={`url(#${gradId})`}
-        strokeWidth="1.25"
-        filter={`url(#${glowId})`}
+
+      {/* Outer ring */}
+      <circle
+        cx="32"
+        cy="32"
+        r="29"
+        fill="#08080c"
+        stroke={`url(#${gold})`}
+        strokeWidth="1.5"
+        filter={`url(#${glow})`}
       />
+      <circle cx="32" cy="32" r="25.5" fill="none" stroke={`url(#${gold})`} strokeWidth="0.5" opacity="0.35" />
+
+      {/* Split arena */}
+      <path d="M32 8 L32 56" stroke={`url(#${gold})`} strokeWidth="0.75" opacity="0.25" />
+      <path d="M8 32 L56 32" stroke={`url(#${gold})`} strokeWidth="0.5" opacity="0.12" />
+
+      {/* Bull silhouette — left */}
+      <g fill={`url(#${bull})`} opacity="0.95">
+        <path d="M10 38c8-14 22-22 38-20 6 10 4 24-6 32-8 6-18 8-26 4 2-6-2-12-6-16z" />
+        <path d="M14 28c-2-10 8-18 18-20 4 8 2 18-4 24-6-4-10-2-14-4z" />
+        <path
+          d="M8 26c-4-6 0-14 8-16 3 5 2 11-2 16"
+          stroke="#f0d060"
+          strokeWidth="1.2"
+          fill="none"
+          strokeLinecap="round"
+          opacity="0.6"
+        />
+        <circle cx="16" cy="30" r="1.5" fill="#f0d060" />
+      </g>
+
+      {/* Bear silhouette — right */}
+      <g fill={`url(#${bear})`} opacity="0.95">
+        <path d="M54 38c-8-14-22-22-38-20-6 10-4 24 6 32 8 6 18 8 26 4-2-6 2-12 6-16z" />
+        <path d="M50 28c2-10-8-18-18-20-4 8-2 18 4 24 6-4 10-2 14-4z" />
+        <path
+          d="M56 26c4-6 0-14-8-16-3 5-2 11 2 16"
+          stroke="#fda4af"
+          strokeWidth="1.2"
+          fill="none"
+          strokeLinecap="round"
+          opacity="0.55"
+        />
+        <circle cx="48" cy="30" r="1.5" fill="#fda4af" />
+      </g>
+
+      {/* Center T monogram */}
       <path
-        d="M12 12 H20 M36 12 H44 M12 44 H20 M36 44 H44"
-        stroke={`url(#${gradId})`}
-        strokeWidth="1"
-        strokeLinecap="square"
-        opacity={0.85}
+        d="M24 22h16v4H30v14h-4V26h-6v-4z"
+        fill={`url(#${gold})`}
+        filter={`url(#${glow})`}
       />
+
+      {/* Clash diamond */}
       <path
-        d="M17 20 H39 M28 20 V38"
-        stroke={`url(#${gradId})`}
-        strokeWidth="3.2"
-        strokeLinecap="square"
-        filter={`url(#${glowId})`}
+        d="M32 18l2 4 4 2-4 2-2 4-2-4-4-2 4-2 2-4z"
+        fill="#f0d060"
+        opacity="0.85"
       />
-      <circle cx="28" cy="41" r="2" fill="#fcee0a" opacity={0.95} />
     </svg>
+  );
+
+  if (!showWordmark) {
+    return icon;
+  }
+
+  return (
+    <div className={`flex items-center gap-3.5 ${className ?? ""}`}>
+      {icon}
+      <div className="min-w-0 leading-none">
+        <p className="font-display text-[10px] font-semibold uppercase tracking-[0.38em] text-titan-gold">
+          TITAN
+        </p>
+        <p className="mt-0.5 font-display text-sm font-medium tracking-wide text-stone-400">COT Intelligence</p>
+      </div>
+    </div>
   );
 }

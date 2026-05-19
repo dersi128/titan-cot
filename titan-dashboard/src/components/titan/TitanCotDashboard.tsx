@@ -6,6 +6,7 @@ import {
 } from "../../config/institutionalMarkets";
 import { describeCotApiTarget, loadAllMappedCotData } from "../../data/cotData";
 import type { CotDashboardData } from "../../types";
+import { TitanBullBearBackdrop } from "../TitanBullBearBackdrop";
 import { TitanLogo } from "../TitanLogo";
 import { buildScannerRows, GlobalCotScanner } from "./GlobalCotScanner";
 import { CotHeatmap } from "./CotHeatmap";
@@ -114,6 +115,8 @@ export function TitanCotDashboard() {
 
   return (
     <div className="titan-page-bg min-h-screen">
+      <TitanBullBearBackdrop />
+      <div className="titan-content-layer min-h-screen">
       <header className="titan-header-bar sticky top-0 z-30 shrink-0">
         <div className="mx-auto flex max-w-[1600px] flex-col gap-5 px-4 py-5 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-start gap-4">
@@ -121,39 +124,42 @@ export function TitanCotDashboard() {
               <button
                 type="button"
                 onClick={backToOverview}
-                className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-titan-line/90 bg-titan-panel text-stone-400 transition-colors hover:border-titan-gold/35 hover:text-titan-goldBright"
+                className="mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-titan-gold/20 bg-titan-panel/90 text-lg text-titan-goldBright shadow-card transition-all hover:border-titan-gold/45 hover:bg-titan-elevated/80"
                 aria-label="Zpět na všechny trhy"
               >
                 ←
               </button>
             ) : (
-              <TitanLogo className="h-12 w-12 shrink-0 drop-shadow-glow" />
+              <TitanLogo showWordmark className="drop-shadow-glow" />
             )}
-            <div>
-              <p className="font-display text-[10px] font-semibold uppercase tracking-[0.32em] text-titan-gold">
-                TITAN
-              </p>
-              <h1 className="font-display text-2xl font-bold tracking-tight text-stone-50 md:text-[1.75rem]">
-                {isMarketView ? (
-                  <>
-                    {selectedMarket.shortLabel}{" "}
-                    <span className="text-titan-goldDim">{selectedMarket.symbol}</span>
-                  </>
-                ) : (
-                  "COT Dashboard"
-                )}
-              </h1>
-              <p className="mt-1 max-w-lg text-sm leading-relaxed text-stone-500">
-                {isMarketView
-                  ? `${selectedMarket.subtitle} · CFTC + TradingView`
-                  : "Vyber trh — otevře se samostatná stránka (bez scrollu dolů)"}
-              </p>
-            </div>
+            {isMarketView ? (
+              <div>
+                <p className="font-display text-[10px] font-semibold uppercase tracking-[0.32em] text-titan-gold">
+                  Market detail
+                </p>
+                <h1 className="font-display text-2xl font-bold tracking-tight text-stone-50 md:text-[1.75rem]">
+                  {selectedMarket.shortLabel}{" "}
+                  <span className="text-titan-goldDim">{selectedMarket.symbol}</span>
+                </h1>
+                <p className="mt-1 max-w-lg text-sm leading-relaxed text-stone-500">
+                  {selectedMarket.subtitle} · CFTC + TradingView
+                </p>
+              </div>
+            ) : (
+              <div className="hidden sm:block">
+                <h1 className="font-display text-2xl font-bold tracking-tight text-stone-50 md:text-[1.85rem]">
+                  Institutional COT
+                </h1>
+                <p className="mt-1 max-w-lg text-sm leading-relaxed text-stone-500">
+                  Býk vs. medvěd · 26W bias · vyber trh pro detail
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-wrap items-center gap-3 lg:justify-end">
             <TitanLivePill label={`${liveCount} markets live`} />
-            <div className="rounded-xl border border-titan-line/90 bg-titan-panel/90 px-4 py-3 shadow-insetGold">
+            <div className="rounded-xl border border-titan-gold/15 bg-titan-panel/85 px-4 py-3 shadow-insetGold backdrop-blur-md">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">
                 {isMarketView ? "Report" : "Data"}
               </p>
@@ -193,7 +199,7 @@ export function TitanCotDashboard() {
       {view === "market" ? (
         <div
           ref={marketScrollRef}
-          className="fixed inset-x-0 bottom-0 top-[var(--titan-header-offset,5.5rem)] z-20 overflow-y-auto overflow-x-hidden bg-titan-black titan-page-bg"
+          className="fixed inset-x-0 bottom-0 top-[var(--titan-header-offset,5.5rem)] z-20 overflow-y-auto overflow-x-hidden bg-titan-void/88 backdrop-blur-md"
         >
           <main className="mx-auto max-w-[1600px] px-4 py-6 pb-12">
             {globalError ? (
@@ -217,8 +223,11 @@ export function TitanCotDashboard() {
         hidden={view !== "overview"}
         aria-hidden={view !== "overview"}
       >
-        <p className="text-[11px] text-stone-600">TITAN COT — Bias only, not execution</p>
+        <p className="text-[11px] tracking-wide text-stone-600">
+          TITAN COT — Bias only, not execution · Bull vs Bear
+        </p>
       </footer>
+      </div>
     </div>
   );
 }

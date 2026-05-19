@@ -17,7 +17,7 @@ export default {
       },
       fontFamily: {
         sans: ["Outfit", "system-ui", "sans-serif"],
-        display: ["Outfit", "system-ui", "sans-serif"],
+        display: ["Cinzel", "Outfit", "system-ui", "serif"],
         mono: ["JetBrains Mono", "ui-monospace", "monospace"],
       },
       boxShadow: {
