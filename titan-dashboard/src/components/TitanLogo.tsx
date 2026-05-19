@@ -1,4 +1,5 @@
 import { useId } from "react";
+import { useTitanI18n } from "../i18n";
 
 type TitanLogoProps = {
   className?: string;
@@ -119,7 +120,7 @@ export function TitanLogo({ className, title = "TITAN COT", showWordmark = false
         <p className="font-display text-[10px] font-semibold uppercase tracking-[0.38em] text-titan-gold">
           TITAN
         </p>
-        <p className="mt-0.5 font-display text-sm font-medium tracking-wide text-stone-400">COT Intelligence</p>
+        <p className="mt-0.5 font-display text-sm font-medium tracking-wide text-stone-400">{t("brand.tagline")}</p>
       </div>
     </div>
   );

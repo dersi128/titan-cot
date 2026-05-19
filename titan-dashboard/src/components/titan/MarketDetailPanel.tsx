@@ -13,6 +13,7 @@ import type { InstitutionalMarket } from "../../config/institutionalMarkets";
 import { AiVerdictPanel } from "./AiVerdictPanel";
 import { MarketGuide } from "./MarketGuide";
 import { TradingViewChart } from "./TradingViewChart";
+import { useTitanI18n } from "../../i18n";
 import { TitanMetricCard, TitanPanel, TitanPanelHeader } from "./ui/TitanPrimitives";
 
 type MarketDetailPanelProps = {
@@ -22,10 +23,13 @@ type MarketDetailPanelProps = {
   error: string | null;
 };
 
-function divLabel(d: CotDashboardData["nonCommercials"]["divergence"]): string {
-  if (d === "bullish") return "Bullish institutional divergence (weekly)";
-  if (d === "bearish") return "Bearish institutional divergence (weekly)";
-  return "No clear weekly divergence";
+function divLabel(
+  d: CotDashboardData["nonCommercials"]["divergence"],
+  tr: (key: string) => string,
+): string {
+  if (d === "bullish") return tr("detail.divBullish");
+  if (d === "bearish") return tr("detail.divBearish");
+  return tr("detail.divNone");
 }
 
 const CHART_TOOLTIP_STYLE = {
@@ -50,11 +54,11 @@ export function MarketDetailPanel({ market, data, loading, error }: MarketDetail
   return (
     <TitanPanel className="overflow-hidden">
       <TitanPanelHeader
-        eyebrow="Market Detail"
+        eyebrow={t("detail.eyebrow")}
         title={`${market.shortLabel} · ${market.symbol}`}
         aside={
           data?.reportDate ? (
-            <p className="font-mono text-xs text-stone-500">CFTC · {data.reportDate}</p>
+            <p className="font-mono text-xs text-stone-500">{t("detail.cftcReport", { date: data.reportDate })}</p>
           ) : null
         }
       />
@@ -79,35 +83,34 @@ export function MarketDetailPanel({ market, data, loading, error }: MarketDetail
                 ◆
               </span>
               <p>
-                <strong className="font-medium text-titan-goldBright">Disclaimer:</strong> Bias and positioning
-                context only — not buy, sell, or timing signals.
+                <strong className="font-medium text-titan-goldBright">Disclaimer:</strong> {t("detail.disclaimer")}
               </p>
             </div>
 
             <section>
               <h3 className="mb-4 text-[10px] font-semibold uppercase tracking-[0.2em] text-stone-500">
-                Positioning snapshot
+                {t("detail.positioningSnapshot")}
               </h3>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <TitanMetricCard
-                  label="Commercial 26W"
+                  label={t("detail.metricComm26")}
                   value={data.commercials.index26w.toFixed(1)}
                   index={data.commercials.index26w}
-                  sub="Percentile vs 26-week range"
+                  sub={t("detail.metricComm26Sub")}
                 />
                 <TitanMetricCard
-                  label="Commercial 52W"
+                  label={t("detail.metricComm52")}
                   value={data.commercials.index52w.toFixed(1)}
                   index={data.commercials.index52w}
-                  sub="Display only · not in TITAN score"
+                  sub={t("detail.metricComm52Sub")}
                 />
                 <TitanMetricCard
-                  label="Retail 26W / 52W"
+                  label={t("detail.metricRetail")}
                   value={`${data.retail.index26w.toFixed(0)} / ${data.retail.index52w.toFixed(0)}`}
                   index={data.retail.index26w}
                 />
                 <TitanMetricCard
-                  label="Non-comm 26W / 52W"
+                  label={t("detail.metricNonComm")}
                   value={`${data.nonCommercials.index26w.toFixed(0)} / ${data.nonCommercials.index52w.toFixed(0)}`}
                   index={data.nonCommercials.index26w}
                 />
@@ -119,18 +122,24 @@ export function MarketDetailPanel({ market, data, loading, error }: MarketDetail
                   sub="1W · 4W · 13W"
                 />
                 <TitanMetricCard
-                  label="Δ Non-comm (1W)"
+                  label={t("detail.metricDeltaNc1w")}
                   value={data.nonCommercials.weeklyChange.toLocaleString()}
                 />
-                <TitanMetricCard label="Δ Retail (1W)" value={data.retail.weeklyChange.toLocaleString()} />
-                <TitanMetricCard label="Divergence" value={divLabel(data.nonCommercials.divergence)} />
+                <TitanMetricCard
+                  label={t("detail.metricDeltaRetail1w")}
+                  value={data.retail.weeklyChange.toLocaleString()}
+                />
+                <TitanMetricCard
+                  label={t("detail.metricDivergence")}
+                  value={divLabel(data.nonCommercials.divergence, t)}
+                />
               </div>
             </section>
 
           </>
         ) : null}
 
-        <ChartsSection market={market} trimmed={trimmed} loading={loading} />
+        <ChartsSection market={market} trimmed={trimmed} loading={loading} tr={t} />
       </div>
     </TitanPanel>
   );
@@ -147,15 +156,17 @@ function ChartsSection({
   market,
   trimmed,
   loading,
+  tr,
 }: {
   market: InstitutionalMarket;
   trimmed: CotChartPoint[];
   loading: boolean;
+  tr: (key: string) => string;
 }) {
   return (
     <section id="market-charts">
       <h3 className="mb-4 text-[10px] font-semibold uppercase tracking-[0.2em] text-stone-500">
-        Grafy · TradingView nahoře, COT indikátor dole
+        {tr("detail.chartsTitle")}
       </h3>
       <div className="flex flex-col gap-4">
         <TradingViewChart market={market} selectionKey={market.symbol} />
@@ -194,7 +205,7 @@ function ChartsSection({
                   <Line
                     type="monotone"
                     dataKey="commercialNet"
-                    name="Commercial"
+                    name={tr("detail.chartCommercial")}
                     stroke="#d4af37"
                     strokeWidth={2.25}
                     dot={false}
@@ -204,7 +215,7 @@ function ChartsSection({
                   <Line
                     type="monotone"
                     dataKey="nonCommercialNet"
-                    name="Non-commercial"
+                    name={tr("detail.chartNonCommercial")}
                     stroke="#38bdf8"
                     strokeWidth={1.75}
                     dot={false}
@@ -213,7 +224,7 @@ function ChartsSection({
                   <Line
                     type="monotone"
                     dataKey="retailNet"
-                    name="Retail"
+                    name={tr("detail.chartRetail")}
                     stroke="#f472b6"
                     strokeWidth={1.75}
                     dot={false}
@@ -223,7 +234,7 @@ function ChartsSection({
               </ResponsiveContainer>
             ) : (
               <p className="flex h-full items-center justify-center text-sm text-stone-500">
-                Not enough history for chart.
+                {tr("detail.notEnoughHistory")}
               </p>
             )}
           </div>

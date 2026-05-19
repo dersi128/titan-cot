@@ -1,6 +1,7 @@
 import type { CotDashboardData } from "../../types";
 import { computeTitanDashboardScore, scoreHeatClass } from "../../lib/titanCotScore";
 import type { InstitutionalMarket } from "../../config/institutionalMarkets";
+import { useTitanI18n } from "../../i18n";
 import { TitanPanel, TitanPanelHeader } from "./ui/TitanPrimitives";
 
 type CotHeatmapProps = {
@@ -48,15 +49,17 @@ function cellVisuals(data: CotDashboardData | undefined): {
 }
 
 export function CotHeatmap({ markets, bundle, selectedMarket, onSelectMarket }: CotHeatmapProps) {
+  const { t } = useTitanI18n();
+
   return (
     <TitanPanel delayMs={80}>
       <TitanPanelHeader
-        eyebrow="COT Heatmap"
+        eyebrow={t("heatmap.eyebrow")}
         description={
           <>
-            <span className="text-emerald-400/90">Green</span> commercial long skew ·{" "}
-            <span className="text-rose-400/90">Red</span> short skew ·{" "}
-            <span className="text-amber-400/85">Amber ring</span> retail extreme
+            <span className="text-emerald-400/90">{t("heatmap.descGreen")}</span> {t("heatmap.descGreenRest")}{" "}
+            <span className="text-rose-400/90">{t("heatmap.descRed")}</span> {t("heatmap.descRedRest")}{" "}
+            <span className="text-amber-400/85">{t("heatmap.descAmber")}</span> {t("heatmap.descAmberRest")}
           </>
         }
       />

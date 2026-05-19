@@ -8,6 +8,7 @@ import {
   verdictAccentClass,
 } from "../../lib/titanCotScore";
 import type { InstitutionalMarket } from "../../config/institutionalMarkets";
+import { translateApiLabel, translateTrend, useTitanI18n } from "../../i18n";
 import { TitanBadge, TitanScoreGauge } from "./ui/TitanPrimitives";
 
 type AiVerdictPanelProps = {
@@ -17,15 +18,6 @@ type AiVerdictPanelProps = {
   variant?: "standalone" | "embedded";
 };
 
-const COMPONENT_LABELS: { key: keyof ReturnType<typeof evaluateTitanCot>["components"]; label: string }[] = [
-  { key: "commercialPositioning", label: "Positioning" },
-  { key: "commercialFlow", label: "Flow" },
-  { key: "persistence", label: "Persistence" },
-  { key: "ncDivergence", label: "NC div." },
-  { key: "retailContrarian", label: "Retail" },
-  { key: "openInterest", label: "OI" },
-];
-
 function phaseTone(phase: string): "gold" | "bull" | "bear" | "warn" | "neutral" {
   if (phase.includes("Accumulation") || phase.includes("Crowded Short")) return "bull";
   if (phase.includes("Distribution") || phase.includes("Crowded Long")) return "bear";
@@ -34,6 +26,7 @@ function phaseTone(phase: string): "gold" | "bull" | "bear" | "warn" | "neutral"
 }
 
 export function AiVerdictPanel({ market, data, loading, variant = "standalone" }: AiVerdictPanelProps) {
+  const { t, locale } = useTitanI18n();
   const score = data ? computeTitanDashboardScore(data) : null;
   const verdict = data ? resolveTitanVerdict(data) : null;
   const scoring = data ? evaluateTitanCot(data) : null;
@@ -41,6 +34,15 @@ export function AiVerdictPanel({ market, data, loading, variant = "standalone" }
     data && score !== null && verdict !== null ? buildInstitutionalNarrative(data, score, verdict) : null;
   const trend = data ? commercialTrend(data) : null;
   const isEmbedded = variant === "embedded";
+
+  const componentLabels: { key: keyof NonNullable<typeof scoring>["components"]; label: string }[] = [
+    { key: "commercialPositioning", label: t("verdict.compPositioning") },
+    { key: "commercialFlow", label: t("verdict.compFlow") },
+    { key: "persistence", label: t("verdict.compPersistence") },
+    { key: "ncDivergence", label: t("verdict.compNcDiv") },
+    { key: "retailContrarian", label: t("verdict.compRetail") },
+    { key: "openInterest", label: t("verdict.compOi") },
+  ];
 
   const body = (
     <div className="space-y-5 px-5 py-5">
@@ -50,12 +52,12 @@ export function AiVerdictPanel({ market, data, loading, variant = "standalone" }
           <div className="h-24 animate-pulse rounded-xl bg-titan-elevated/80" />
         </div>
       ) : !data ? (
-        <p className="text-sm text-stone-500">COT data unavailable for {market.shortLabel}.</p>
+        <p className="text-sm text-stone-500">{t("verdict.unavailable", { market: market.shortLabel })}</p>
       ) : (
         <>
           {!isEmbedded ? (
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">Active</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">{t("verdict.active")}</p>
               <p className="mt-1 font-display text-lg text-stone-100">
                 {market.shortLabel}{" "}
                 <span className="text-titan-goldDim">{market.symbol}</span>
@@ -67,7 +69,7 @@ export function AiVerdictPanel({ market, data, loading, variant = "standalone" }
             <TitanScoreGauge score={score ?? 0} />
             <div className="min-w-0 flex-1 space-y-3">
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">Verdict</p>
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">{t("verdict.verdict")}</p>
                 <p
                   className={`mt-1 text-sm font-semibold leading-snug sm:text-base ${
                     verdict ? verdictAccentClass(verdict) : ""
@@ -78,24 +80,32 @@ export function AiVerdictPanel({ market, data, loading, variant = "standalone" }
               </div>
               <div className="flex flex-wrap gap-2">
                 {scoring?.marketPhase ? (
-                  <TitanBadge tone={phaseTone(scoring.marketPhase)}>{scoring.marketPhase}</TitanBadge>
+                  <TitanBadge tone={phaseTone(scoring.marketPhase)}>
+                    {translateApiLabel(scoring.marketPhase, locale)}
+                  </TitanBadge>
                 ) : data.marketPhase ? (
-                  <TitanBadge tone={phaseTone(data.marketPhase)}>{data.marketPhase}</TitanBadge>
+                  <TitanBadge tone={phaseTone(data.marketPhase)}>
+                    {translateApiLabel(data.marketPhase, locale)}
+                  </TitanBadge>
                 ) : null}
                 {scoring?.commercialPositioningLabel ? (
-                  <TitanBadge tone="gold">{scoring.commercialPositioningLabel}</TitanBadge>
+                  <TitanBadge tone="gold">
+                    {translateApiLabel(scoring.commercialPositioningLabel, locale)}
+                  </TitanBadge>
                 ) : null}
-                {scoring?.flowLabel ? <TitanBadge tone="neutral">{scoring.flowLabel}</TitanBadge> : null}
+                {scoring?.flowLabel ? (
+                  <TitanBadge tone="neutral">{translateApiLabel(scoring.flowLabel, locale)}</TitanBadge>
+                ) : null}
                 {trend ? (
                   <TitanBadge tone={trend === "accumulation" ? "bull" : trend === "distribution" ? "bear" : "neutral"}>
-                    {trend}
+                    {translateTrend(trend, locale, t)}
                   </TitanBadge>
                 ) : null}
               </div>
               {scoring && scoring.persistenceWeeks > 0 ? (
                 <p className="text-xs text-stone-500">
-                  {scoring.persistenceSide === "bull" ? "Bullish" : "Bearish"} persistence ·{" "}
-                  <span className="font-mono text-stone-400">{scoring.persistenceWeeks}w</span>
+                  {scoring.persistenceSide === "bull" ? t("verdict.persistenceBull") : t("verdict.persistenceBear")}{" "}
+                  {t("verdict.persistenceWeeks", { weeks: scoring.persistenceWeeks })}
                 </p>
               ) : null}
             </div>
@@ -103,9 +113,11 @@ export function AiVerdictPanel({ market, data, loading, variant = "standalone" }
 
           {scoring ? (
             <div className="rounded-xl border border-titan-line/70 bg-titan-black/35 p-4">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">Score breakdown</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">
+                {t("verdict.scoreBreakdown")}
+              </p>
               <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                {COMPONENT_LABELS.map(({ key, label }) => {
+                {componentLabels.map(({ key, label }) => {
                   const pts = scoring.components[key];
                   const positive = pts > 0;
                   const negative = pts < 0;
@@ -130,7 +142,9 @@ export function AiVerdictPanel({ market, data, loading, variant = "standalone" }
           ) : null}
 
           <div className="rounded-xl border border-titan-line/70 bg-gradient-to-br from-titan-black/50 to-titan-elevated/20 p-4">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-titan-goldDim">Institutional narrative</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-titan-goldDim">
+              {t("verdict.narrative")}
+            </p>
             <p className="mt-2 text-balance text-sm leading-relaxed text-stone-400">{narrative}</p>
           </div>
         </>
@@ -143,9 +157,9 @@ export function AiVerdictPanel({ market, data, loading, variant = "standalone" }
       <div className="overflow-hidden rounded-xl border border-titan-gold/20 bg-gradient-to-br from-titan-void/90 via-titan-panel/50 to-titan-black/60 shadow-insetGold">
         <header className="border-b border-titan-line/70 px-5 py-3.5">
           <h3 className="font-display text-[10px] font-semibold uppercase tracking-[0.22em] text-titan-gold">
-            AI Verdict
+            {t("verdict.panelTitle")}
           </h3>
-          <p className="mt-0.5 text-xs text-stone-500">Institutional read · bias only, not execution</p>
+          <p className="mt-0.5 text-xs text-stone-500">{t("verdict.panelSub")}</p>
         </header>
         {body}
       </div>
@@ -156,9 +170,9 @@ export function AiVerdictPanel({ market, data, loading, variant = "standalone" }
     <aside className="titan-glass overflow-hidden">
       <header className="border-b border-titan-line/80 px-5 py-4">
         <h2 className="font-display text-xs font-semibold uppercase tracking-[0.2em] text-titan-gold">
-          AI Verdict Panel
+          {t("verdict.panelStandalone")}
         </h2>
-        <p className="mt-1 text-sm text-stone-500">Positioning context only</p>
+        <p className="mt-1 text-sm text-stone-500">{t("verdict.panelStandaloneSub")}</p>
       </header>
       {body}
     </aside>

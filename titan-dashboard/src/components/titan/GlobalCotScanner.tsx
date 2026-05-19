@@ -8,7 +8,8 @@ import {
   type PositioningTrend,
   type TitanBiasVerdict,
 } from "../../lib/titanCotScore";
-import { MARKET_CATEGORY_LABELS, type InstitutionalMarket } from "../../config/institutionalMarkets";
+import type { InstitutionalMarket } from "../../config/institutionalMarkets";
+import { useTitanI18n } from "../../i18n";
 import { TitanPanel, TitanPanelHeader, TitanScoreBar } from "./ui/TitanPrimitives";
 
 export type ScannerRowModel = {
@@ -28,10 +29,10 @@ type GlobalCotScannerProps = {
   onSelectMarket: (market: InstitutionalMarket) => void;
 };
 
-function trendLabel(t: PositioningTrend): string {
-  if (t === "accumulation") return "Accumulation";
-  if (t === "distribution") return "Distribution";
-  return "Flat";
+function trendLabel(trend: PositioningTrend, tr: (key: string) => string): string {
+  if (trend === "accumulation") return tr("scanner.trendAccumulation");
+  if (trend === "distribution") return tr("scanner.trendDistribution");
+  return tr("scanner.trendFlat");
 }
 
 function trendPillClass(t: PositioningTrend): string {
@@ -84,16 +85,17 @@ export function buildScannerRows(
 }
 
 export function GlobalCotScanner({ rows, selectedMarket, onSelectMarket }: GlobalCotScannerProps) {
+  const { t, messages } = useTitanI18n();
   const sorted = [...rows].sort((a, b) => Math.abs(b.score) - Math.abs(a.score));
 
   return (
     <TitanPanel>
       <TitanPanelHeader
-        eyebrow="Global COT Scanner · Bull vs Bear"
+        eyebrow={t("scanner.eyebrow")}
         description={
           <>
-            {rows.length} markets · sorted by conviction ·{" "}
-            <span className="text-stone-600">Legacy futures only</span>
+            {t("scanner.marketsSorted", { count: rows.length })}{" "}
+            <span className="text-stone-600">{t("scanner.legacyOnly")}</span>
           </>
         }
       />
@@ -101,13 +103,13 @@ export function GlobalCotScanner({ rows, selectedMarket, onSelectMarket }: Globa
         <table className="w-full min-w-[780px] text-left text-sm">
           <thead className="sticky top-0 z-[1] bg-titan-panel/95 backdrop-blur-sm">
             <tr className="border-b border-titan-line text-[10px] font-semibold uppercase tracking-wider text-stone-500">
-              <th className="px-5 py-3.5">Market</th>
-              <th className="px-3 py-3.5 text-right">Score</th>
-              <th className="hidden px-3 py-3.5 md:table-cell">Bias bar</th>
-              <th className="px-3 py-3.5">Verdict</th>
-              <th className="px-3 py-3.5 text-right">Comm 26W</th>
-              <th className="px-3 py-3.5 text-right">Retail 26W</th>
-              <th className="px-5 py-3.5">Flow</th>
+              <th className="px-5 py-3.5">{t("scanner.colMarket")}</th>
+              <th className="px-3 py-3.5 text-right">{t("scanner.colScore")}</th>
+              <th className="hidden px-3 py-3.5 md:table-cell">{t("scanner.colBiasBar")}</th>
+              <th className="px-3 py-3.5">{t("scanner.colVerdict")}</th>
+              <th className="px-3 py-3.5 text-right">{t("scanner.colComm26")}</th>
+              <th className="px-3 py-3.5 text-right">{t("scanner.colRetail26")}</th>
+              <th className="px-5 py-3.5">{t("scanner.colFlow")}</th>
             </tr>
           </thead>
           <tbody>
@@ -136,7 +138,7 @@ export function GlobalCotScanner({ rows, selectedMarket, onSelectMarket }: Globa
                     <div className="flex flex-col gap-0.5">
                       <span className="font-semibold text-stone-100">{row.market.shortLabel}</span>
                       <span className="text-[11px] text-stone-500">
-                        {MARKET_CATEGORY_LABELS[row.market.category]} · {row.market.subtitle}
+                        {messages.category[row.market.category]} · {row.market.subtitle}
                       </span>
                       {row.status === "error" ? (
                         <span className="text-[10px] text-rose-400/90">{row.errorMessage}</span>
@@ -165,7 +167,7 @@ export function GlobalCotScanner({ rows, selectedMarket, onSelectMarket }: Globa
                       <span
                         className={`inline-flex rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${trendPillClass(row.trend)}`}
                       >
-                        {trendLabel(row.trend)}
+                        {trendLabel(row.trend, t)}
                       </span>
                     ) : (
                       <span className="text-stone-600">—</span>

@@ -11,6 +11,7 @@ import { TitanLogo } from "../TitanLogo";
 import { buildScannerRows, GlobalCotScanner } from "./GlobalCotScanner";
 import { CotHeatmap } from "./CotHeatmap";
 import { MarketDetailPanel } from "./MarketDetailPanel";
+import { LanguageSwitcher, useTitanI18n } from "../../i18n";
 import { TitanLivePill } from "./ui/TitanPrimitives";
 
 const REFRESH_MS = 120_000;
@@ -30,6 +31,7 @@ function lockPageScroll(lock: boolean) {
 }
 
 export function TitanCotDashboard() {
+  const { t } = useTitanI18n();
   const [view, setView] = useState<DashboardView>("overview");
   const [selectedMarket, setSelectedMarket] = useState<InstitutionalMarket>(() => getDefaultSelectedMarket());
   const [bundle, setBundle] = useState<Record<string, CotDashboardData>>({});
@@ -79,10 +81,10 @@ export function TitanCotDashboard() {
         setLastRefresh(new Date());
       } catch (err) {
         if (!cancelled) {
-          const msg = err instanceof Error ? err.message : "Failed to load CFTC data.";
+          const msg = err instanceof Error ? err.message : t("errors.loadCftc");
           setGlobalError(
             msg.includes("Failed to fetch") || msg.includes("NetworkError")
-              ? `Nelze se připojit k API (${describeCotApiTarget()}). Na Vercelu nastav VITE_COT_API_URL=https://titan-cot.onrender.com nebo pushni vercel.json proxy a redeploy.`
+              ? t("errors.apiConnect", { target: describeCotApiTarget() })
               : msg,
           );
           setBundle({});
@@ -96,7 +98,7 @@ export function TitanCotDashboard() {
       cancelled = true;
       window.clearInterval(id);
     };
-  }, []);
+  }, [t]);
 
   const rows = useMemo(() => buildScannerRows(INSTITUTIONAL_MARKETS, bundle, errors), [bundle, errors]);
   const liveCount = useMemo(() => rows.filter((r) => r.status === "live").length, [rows]);
@@ -125,7 +127,7 @@ export function TitanCotDashboard() {
                 type="button"
                 onClick={backToOverview}
                 className="mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-titan-gold/20 bg-titan-panel/90 text-lg text-titan-goldBright shadow-card transition-all hover:border-titan-gold/45 hover:bg-titan-elevated/80"
-                aria-label="Zpět na všechny trhy"
+                aria-label={t("header.backMarkets")}
               >
                 ←
               </button>
@@ -135,14 +137,14 @@ export function TitanCotDashboard() {
             {isMarketView ? (
               <div>
                 <p className="font-display text-[10px] font-semibold uppercase tracking-[0.32em] text-titan-gold">
-                  Market detail
+                  {t("header.marketDetail")}
                 </p>
                 <h1 className="font-display text-2xl font-bold tracking-tight text-stone-50 md:text-[1.75rem]">
                   {selectedMarket.shortLabel}{" "}
                   <span className="text-titan-goldDim">{selectedMarket.symbol}</span>
                 </h1>
                 <p className="mt-1 max-w-lg text-sm leading-relaxed text-stone-500">
-                  {selectedMarket.subtitle} · CFTC + TradingView
+                  {selectedMarket.subtitle} · {t("header.cftcTv")}
                 </p>
               </div>
             ) : (
@@ -158,17 +160,18 @@ export function TitanCotDashboard() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3 lg:justify-end">
-            <TitanLivePill label={`${liveCount} markets live`} />
+            <LanguageSwitcher />
+            <TitanLivePill label={t("header.marketsLive", { count: liveCount })} />
             <div className="rounded-xl border border-titan-gold/15 bg-titan-panel/80 px-4 py-3 shadow-insetGold backdrop-blur-md">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">
-                {isMarketView ? "Report" : "Data"}
+                {isMarketView ? t("header.report") : t("header.data")}
               </p>
               <p className="mt-0.5 font-mono text-sm font-medium text-titan-goldBright">
                 {isMarketView && selectedData?.reportDate
                   ? selectedData.reportDate
-                  : `Refresh ${REFRESH_MS / 1000}s`}
+                  : t("header.refreshSec", { sec: REFRESH_MS / 1000 })}
               </p>
-              <p className="mt-1 text-[10px] text-stone-600">Updated {refreshLabel}</p>
+              <p className="mt-1 text-[10px] text-stone-600">{t("header.updated", { time: refreshLabel })}</p>
             </div>
           </div>
         </div>
@@ -177,7 +180,7 @@ export function TitanCotDashboard() {
       {globalError && view === "overview" ? (
         <div className="mx-auto max-w-[1600px] px-4 pt-6">
           <div className="rounded-xl border border-rose-500/30 bg-rose-950/25 px-4 py-3 text-sm text-rose-200/90 backdrop-blur-sm">
-            <strong className="font-medium text-rose-300">Connection:</strong> {globalError}
+            <strong className="font-medium text-rose-300">{t("header.connection")}:</strong> {globalError}
           </div>
         </div>
       ) : null}
@@ -224,7 +227,7 @@ export function TitanCotDashboard() {
         aria-hidden={view !== "overview"}
       >
         <p className="text-[11px] tracking-wide text-stone-600">
-          TITAN COT — Bias only, not execution · Bull vs Bear
+          {t("brand.footer")}
         </p>
       </footer>
       </div>
