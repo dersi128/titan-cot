@@ -11,6 +11,7 @@ import {
 import type { CotDashboardData } from "../../types";
 import type { InstitutionalMarket } from "../../config/institutionalMarkets";
 import { AiVerdictPanel } from "./AiVerdictPanel";
+import { MarketGuide } from "./MarketGuide";
 import { TradingViewChart } from "./TradingViewChart";
 import { TitanMetricCard, TitanPanel, TitanPanelHeader } from "./ui/TitanPrimitives";
 
@@ -59,6 +60,8 @@ export function MarketDetailPanel({ market, data, loading, error }: MarketDetail
       />
 
       <div className="space-y-8 p-5 md:p-6">
+        <MarketGuide market={market} />
+
         <div key={market.symbol}>
           <AiVerdictPanel variant="embedded" market={market} data={data} loading={loading} />
         </div>
@@ -150,7 +153,7 @@ function ChartsSection({
   loading: boolean;
 }) {
   return (
-    <section id="market-charts" className="scroll-mt-28">
+    <section id="market-charts">
       <h3 className="mb-4 text-[10px] font-semibold uppercase tracking-[0.2em] text-stone-500">
         Charts · COT & price
       </h3>

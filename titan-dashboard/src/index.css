@@ -4,7 +4,7 @@
 
 @layer base {
   html {
-    scroll-behavior: smooth;
+    scroll-behavior: auto;
   }
   body {
     @apply bg-titan-black font-sans text-stone-300 antialiased;
