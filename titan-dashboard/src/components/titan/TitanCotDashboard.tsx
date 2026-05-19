@@ -159,7 +159,7 @@ export function TitanCotDashboard() {
 
           <div className="flex flex-wrap items-center gap-3 lg:justify-end">
             <TitanLivePill label={`${liveCount} markets live`} />
-            <div className="rounded-xl border border-titan-gold/15 bg-titan-panel/85 px-4 py-3 shadow-insetGold backdrop-blur-md">
+            <div className="rounded-xl border border-titan-gold/15 bg-titan-panel/80 px-4 py-3 shadow-insetGold backdrop-blur-md">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">
                 {isMarketView ? "Report" : "Data"}
               </p>
@@ -199,7 +199,7 @@ export function TitanCotDashboard() {
       {view === "market" ? (
         <div
           ref={marketScrollRef}
-          className="fixed inset-x-0 bottom-0 top-[var(--titan-header-offset,5.5rem)] z-20 overflow-y-auto overflow-x-hidden bg-titan-void/88 backdrop-blur-md"
+          className="fixed inset-x-0 bottom-0 top-[var(--titan-header-offset,5.5rem)] z-20 overflow-y-auto overflow-x-hidden bg-titan-void/90 backdrop-blur-md"
         >
           <main className="mx-auto max-w-[1600px] px-4 py-6 pb-12">
             {globalError ? (
