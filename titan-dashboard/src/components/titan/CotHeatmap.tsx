@@ -22,13 +22,13 @@ function cellVisuals(data: CotDashboardData | undefined): {
   const score = computeTitanDashboardScore(data);
 
   let bg = "bg-titan-elevated/80";
-  if (c.index26w > 80 && c.index52w > 80) {
+  if (c.index26w > 80) {
     bg = "bg-emerald-950/70 border-emerald-600/35";
-  } else if (c.index26w < 20 && c.index52w < 20) {
+  } else if (c.index26w < 20) {
     bg = "bg-rose-950/70 border-rose-600/35";
-  } else if (c.index26w > 80 || c.index52w > 80) {
+  } else if (c.index26w > 60) {
     bg = "bg-emerald-950/40 border-emerald-700/20";
-  } else if (c.index26w < 20 || c.index52w < 20) {
+  } else if (c.index26w < 40) {
     bg = "bg-rose-950/40 border-rose-700/20";
   }
 
@@ -48,8 +48,8 @@ export function CotHeatmap({ markets, bundle, selectedMarket, onSelectMarket }: 
           COT Heatmap
         </h2>
         <p className="mt-1 text-sm text-stone-500">
-          <span className="text-emerald-400/90">Green</span> commercial skew ·{" "}
-          <span className="text-rose-400/90">Red</span> commercial skew ·{" "}
+          <span className="text-emerald-400/90">Green</span> commercial 26W skew ·{" "}
+          <span className="text-rose-400/90">Red</span> commercial 26W skew ·{" "}
           <span className="text-amber-400/90">Amber ring</span> retail 26W extreme
         </p>
       </header>

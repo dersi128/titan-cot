@@ -51,9 +51,10 @@ export type CotEngineInput = {
   nonCommercialDivergence: InstitutionalDivergence;
 };
 
-export function getCommercialBias(index26w: number, index52w: number): CommercialBias {
-  if (index26w > IDX_HI && index52w > IDX_HI) return "bullish";
-  if (index26w < IDX_LO && index52w < IDX_LO) return "bearish";
+/** 26W-only bias label (52W ignored — display field only). */
+export function getCommercialBias(index26w: number, _index52w?: number): CommercialBias {
+  if (index26w > IDX_HI) return "bullish";
+  if (index26w < IDX_LO) return "bearish";
   return "neutral";
 }
 
@@ -69,13 +70,10 @@ export function getInstitutionalDivergence(
 export function getRetailContrarianSignal(
   commercialBias: CommercialBias,
   retailIndex26w: number,
-  retailIndex52w: number,
+  _retailIndex52w?: number,
 ): RetailContrarian {
-  const retailLow = retailIndex26w < IDX_LO && retailIndex52w < IDX_LO;
-  const retailHigh = retailIndex26w > IDX_HI && retailIndex52w > IDX_HI;
-
-  if (commercialBias === "bullish" && retailLow) return "bullish";
-  if (commercialBias === "bearish" && retailHigh) return "bearish";
+  if (commercialBias === "bullish" && retailIndex26w < IDX_LO) return "bullish";
+  if (commercialBias === "bearish" && retailIndex26w > IDX_HI) return "bearish";
   return "none";
 }
 
@@ -95,6 +93,7 @@ function engineInputToScoring(input: CotEngineInput): TitanCotScoringInput {
       bias: input.commercialBias,
     },
     nonCommercials: {
+      index26w: input.nonCommercials.index26w,
       weeklyChange: input.nonCommercials.weeklyChange,
       divergence: input.nonCommercialDivergence,
     },

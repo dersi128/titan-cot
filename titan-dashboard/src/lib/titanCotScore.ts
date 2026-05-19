@@ -24,6 +24,8 @@ function dashboardToScoringInput(data: CotDashboardData): TitanCotScoringInput {
       bias: data.commercials.bias,
     },
     nonCommercials: {
+      index26w: data.nonCommercials.index26w,
+      index52w: data.nonCommercials.index52w,
       weeklyChange: data.nonCommercials.weeklyChange,
       divergence: data.nonCommercials.divergence,
     },

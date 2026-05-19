@@ -242,6 +242,7 @@ function buildDashboardOutput(series: NetSeriesPoint[], mapping: CotMarketMappin
       bias: commercialBias,
     },
     nonCommercials: {
+      index26w: nonCommercials.index26w,
       weeklyChange: nonCommWeekly,
       divergence: nonCommercialDivergence,
     },
@@ -259,9 +260,6 @@ function buildDashboardOutput(series: NetSeriesPoint[], mapping: CotMarketMappin
     marketLabel: mapping.displayName,
     futuresSymbol: mapping.futuresSymbol,
     reportDate: latest.reportDate,
-    commercialBias,
-    retailContrarian: retailSignal,
-    nonCommercialDivergence,
     result: scoring,
   });
 
