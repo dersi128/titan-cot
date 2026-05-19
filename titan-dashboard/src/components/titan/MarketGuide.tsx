@@ -23,7 +23,7 @@ const GUIDE_ITEMS = [
   },
   {
     title: "TradingView (nahoře)",
-    body: "Cenový graf futures — musí sedět symbol pod názvem (např. CME:6A1! pro AUD). Není to Apple ani akcie, pokud widget načte správně.",
+    body: "Vložený graf používá spot/index proxy (např. AUD/USD). Futures kontrakt (CME:6A1!) otevři tlačítkem „Futures graf v TV“ — free embed neumí všechny futures.",
   },
   {
     title: "COT indikátor (dole)",
