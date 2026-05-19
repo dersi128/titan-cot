@@ -38,6 +38,17 @@
     isolation: isolate;
   }
 
+  .titan-institutional-backdrop__photo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 40%;
+    opacity: 0.52;
+    filter: saturate(1.05) contrast(1.04);
+  }
+
   .titan-institutional-backdrop__map {
     position: absolute;
     inset: 0;
@@ -46,6 +57,11 @@
     background-size: cover;
     background-position: center;
     filter: blur(0.3px);
+  }
+
+  .titan-institutional-backdrop__map--hidden {
+    opacity: 0;
+    pointer-events: none;
   }
 
   .titan-institutional-backdrop__mesh {
@@ -82,8 +98,8 @@
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(ellipse 90% 70% at 50% 35%, transparent 0%, rgba(5, 5, 5, 0.5) 55%, rgba(5, 5, 5, 0.94) 100%),
-      linear-gradient(180deg, rgba(5, 5, 5, 0.4) 0%, rgba(5, 5, 5, 0.92) 100%);
+      radial-gradient(ellipse 85% 65% at 50% 38%, transparent 0%, rgba(5, 5, 5, 0.35) 50%, rgba(5, 5, 5, 0.9) 100%),
+      linear-gradient(180deg, rgba(5, 5, 5, 0.55) 0%, rgba(5, 5, 5, 0.35) 35%, rgba(5, 5, 5, 0.88) 100%);
   }
 
   .titan-content-layer {
