@@ -3,6 +3,12 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    /* UI surface opacity — 84% = more background visible (was ~92%) */
+    --titan-surface-alpha: 0.84;
+    --titan-surface-alpha-soft: 0.72;
+  }
+
   html {
     scroll-behavior: auto;
   }
@@ -17,7 +23,7 @@
 @layer components {
   .titan-glass {
     @apply rounded-2xl border border-white/[0.06] shadow-card backdrop-blur-2xl;
-    background: rgba(15, 15, 20, 0.75);
+    background: rgba(15, 15, 20, var(--titan-surface-alpha));
     box-shadow:
       inset 0 1px 0 0 rgba(255, 255, 255, 0.08),
       inset 0 -1px 0 0 rgba(0, 0, 0, 0.4),
@@ -27,7 +33,11 @@
 
   .titan-glass-premium {
     @apply rounded-2xl border border-white/[0.06] backdrop-blur-xl;
-    background: linear-gradient(145deg, rgba(20, 22, 30, 0.88), rgba(10, 12, 18, 0.72));
+    background: linear-gradient(
+      145deg,
+      rgba(20, 22, 30, var(--titan-surface-alpha)),
+      rgba(10, 12, 18, var(--titan-surface-alpha-soft))
+    );
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.06),
       0 16px 48px -24px rgba(0, 0, 0, 0.85);
@@ -97,7 +107,7 @@
     height: 100%;
     object-fit: cover;
     object-position: center 42%;
-    opacity: 0.92;
+    opacity: 1;
     filter: saturate(1.1) contrast(1.05) brightness(1.08);
   }
 
@@ -160,7 +170,11 @@
 
   .titan-header-bar {
     @apply border-b border-white/[0.06] backdrop-blur-xl;
-    background: linear-gradient(180deg, rgba(11, 15, 20, 0.72), rgba(11, 15, 20, 0.42));
+    background: linear-gradient(
+      180deg,
+      rgba(11, 15, 20, var(--titan-surface-alpha-soft)),
+      rgba(11, 15, 20, 0.38)
+    );
     box-shadow: 0 1px 0 rgba(212, 175, 55, 0.1);
     --titan-header-offset: 15.5rem;
   }
