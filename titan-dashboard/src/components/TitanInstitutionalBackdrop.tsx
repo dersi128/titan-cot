@@ -4,8 +4,9 @@ import { TITAN_WORLD_MAP_CANDIDATES } from "../lib/brandAssets";
 /** Cinematic institutional background — world map photo + gold atmosphere. */
 export function TitanInstitutionalBackdrop() {
   const [mapIndex, setMapIndex] = useState(0);
-  const mapSrc = TITAN_WORLD_MAP_CANDIDATES[mapIndex] ?? TITAN_WORLD_MAP_CANDIDATES[0];
-  const showSvgFallback = mapIndex >= TITAN_WORLD_MAP_CANDIDATES.length;
+  const mapSrc = TITAN_WORLD_MAP_CANDIDATES[mapIndex];
+  const showSvgFallback =
+    TITAN_WORLD_MAP_CANDIDATES.length === 0 || mapIndex >= TITAN_WORLD_MAP_CANDIDATES.length;
 
   const onMapError = useCallback(() => {
     setMapIndex((i) => i + 1);
@@ -16,7 +17,7 @@ export function TitanInstitutionalBackdrop() {
       <div
         className={`titan-institutional-backdrop__map ${showSvgFallback ? "" : "titan-institutional-backdrop__map--hidden"}`}
       />
-      {!showSvgFallback ? (
+      {!showSvgFallback && mapSrc ? (
         <img
           key={mapSrc}
           src={mapSrc}

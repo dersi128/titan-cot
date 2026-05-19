@@ -157,7 +157,7 @@ export function TitanCotDashboard() {
             ) : (
               <div className="grid gap-6 lg:grid-cols-[1fr_auto_1fr] lg:items-center">
                 <div className="flex justify-center lg:justify-start">
-                  <TitanLogo showWordmark className="drop-shadow-glow" />
+                  <TitanLogo showWordmark />
                 </div>
                 <div className="text-center">
                   <h1 className="titan-hero-title">{t("header.institutionalCot")}</h1>

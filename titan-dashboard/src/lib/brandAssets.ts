@@ -1,12 +1,24 @@
-/** Public assets in `titan-dashboard/public/brand/` */
-const base = import.meta.env.BASE_URL.endsWith("/")
-  ? import.meta.env.BASE_URL
-  : `${import.meta.env.BASE_URL}/`;
+/**
+ * Brand images bundled from src/assets/brand/ (hashed URLs in production).
+ * Local setup: put files in public/brand/, then run `npm run brand:sync`.
+ */
+const assets = import.meta.glob<string>("../assets/brand/*.{png,jpg,jpeg,webp}", {
+  eager: true,
+  query: "?url",
+  import: "default",
+});
 
-export const TITAN_LOGO_SRC = `${base}brand/titan-logo.png`;
+function assetUrl(filename: string): string | undefined {
+  const normalized = filename.toLowerCase();
+  const hit = Object.entries(assets).find(([path]) =>
+    path.replace(/\\/g, "/").toLowerCase().endsWith(`/${normalized}`),
+  );
+  return hit?.[1];
+}
 
-/** Try .jpg first (filename on disk), then .png if load fails */
+export const TITAN_LOGO_SRC = assetUrl("titan-logo.png") ?? "";
+
 export const TITAN_WORLD_MAP_CANDIDATES = [
-  `${base}brand/world-map.jpg`,
-  `${base}brand/world-map.png`,
-] as const;
+  assetUrl("world-map.jpg"),
+  assetUrl("world-map.png"),
+].filter((u): u is string => Boolean(u));

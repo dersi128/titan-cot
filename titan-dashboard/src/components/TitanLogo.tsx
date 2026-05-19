@@ -6,6 +6,8 @@ type TitanLogoProps = {
   className?: string;
   title?: string;
   showWordmark?: boolean;
+  /** Show "COT INTELLIGENCE" under the image (off when PNG already includes branding) */
+  showTagline?: boolean;
 };
 
 function TitanLogoSvg({ className, title, showWordmark }: TitanLogoProps) {
@@ -74,44 +76,44 @@ function TitanLogoSvg({ className, title, showWordmark }: TitanLogoProps) {
   );
 }
 
-export function TitanLogo({ className, title = "TITAN COT", showWordmark = false }: TitanLogoProps) {
+export function TitanLogo({
+  className,
+  title = "TITAN COT",
+  showWordmark = false,
+  showTagline = false,
+}: TitanLogoProps) {
   const { t } = useTitanI18n();
-  const [useFallback, setUseFallback] = useState(false);
+  const [imgFailed, setImgFailed] = useState(false);
 
-  if (useFallback) {
+  if (!TITAN_LOGO_SRC || imgFailed) {
     return <TitanLogoSvg className={className} title={title} showWordmark={showWordmark} />;
   }
 
-  const imgClass =
-    "titan-brand-logo h-11 w-auto max-w-[min(100vw-2rem,320px)] object-contain object-left md:h-[3.25rem]";
-
-  if (showWordmark) {
-    return (
-      <div className={`flex flex-col items-start gap-1 ${className ?? ""}`}>
-        <img
-          src={TITAN_LOGO_SRC}
-          alt={title}
-          width={320}
-          height={64}
-          className={imgClass}
-          decoding="async"
-          fetchPriority="high"
-          onError={() => setUseFallback(true)}
-        />
-        <p className="pl-0.5 font-sans text-[11px] font-medium uppercase tracking-[0.28em] text-titan-muted">
-          {t("brand.tagline")}
-        </p>
-      </div>
-    );
-  }
-
-  return (
+  const image = (
     <img
       src={TITAN_LOGO_SRC}
       alt={title}
-      className={`titan-brand-logo ${className ?? "h-10 w-auto object-contain"}`}
+      width={360}
+      height={80}
+      className="titan-brand-logo"
       decoding="async"
-      onError={() => setUseFallback(true)}
+      fetchPriority="high"
+      onError={() => setImgFailed(true)}
     />
+  );
+
+  if (!showWordmark) {
+    return <div className={`titan-logo-shell inline-flex ${className ?? ""}`}>{image}</div>;
+  }
+
+  return (
+    <div className={`titan-logo-shell ${className ?? ""}`}>
+      {image}
+      {showTagline ? (
+        <p className="mt-1.5 font-sans text-[11px] font-medium uppercase tracking-[0.28em] text-titan-muted">
+          {t("brand.tagline")}
+        </p>
+      ) : null}
+    </div>
   );
 }

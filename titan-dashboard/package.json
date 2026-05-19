@@ -7,8 +7,9 @@
     "node": ">=20"
   },
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "brand:sync": "node scripts/sync-brand-assets.mjs",
+    "dev": "npm run brand:sync && vite",
+    "build": "npm run brand:sync && vite build",
     "typecheck": "tsc -b",
     "lint": "eslint .",
     "preview": "vite preview"
