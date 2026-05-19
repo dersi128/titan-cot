@@ -38,33 +38,27 @@
     isolation: isolate;
   }
 
-  .titan-logo-shell {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 4px 10px 4px 6px;
-    border-radius: 14px;
-    border: 1px solid rgba(212, 175, 55, 0.14);
-    background: linear-gradient(135deg, rgba(12, 12, 16, 0.85), rgba(5, 5, 8, 0.65));
-    box-shadow:
-      0 0 32px -12px rgba(212, 175, 55, 0.35),
-      inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  }
-
   .titan-brand-logo {
     display: block;
-    height: 2.85rem;
+    height: 3.5rem;
     width: auto;
-    max-width: min(100vw - 3rem, 340px);
+    max-width: min(100vw - 2rem, 460px);
     object-fit: contain;
     object-position: left center;
-    filter: drop-shadow(0 2px 16px rgba(212, 175, 55, 0.4));
+    filter: drop-shadow(0 4px 24px rgba(212, 175, 55, 0.35));
   }
 
   @media (min-width: 768px) {
     .titan-brand-logo {
-      height: 3.35rem;
-      max-width: 380px;
+      height: 4.25rem;
+      max-width: 520px;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .titan-brand-logo {
+      height: 4.75rem;
+      max-width: 560px;
     }
   }
 

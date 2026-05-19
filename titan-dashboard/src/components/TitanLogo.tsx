@@ -93,9 +93,9 @@ export function TitanLogo({
     <img
       src={TITAN_LOGO_SRC}
       alt={title}
-      width={360}
-      height={80}
-      className="titan-brand-logo"
+      width={480}
+      height={112}
+      className={`titan-brand-logo ${className ?? ""}`}
       decoding="async"
       fetchPriority="high"
       onError={() => setImgFailed(true)}
@@ -103,11 +103,11 @@ export function TitanLogo({
   );
 
   if (!showWordmark) {
-    return <div className={`titan-logo-shell inline-flex ${className ?? ""}`}>{image}</div>;
+    return image;
   }
 
   return (
-    <div className={`titan-logo-shell ${className ?? ""}`}>
+    <div className={className}>
       {image}
       {showTagline ? (
         <p className="mt-1.5 font-sans text-[11px] font-medium uppercase tracking-[0.28em] text-titan-muted">
