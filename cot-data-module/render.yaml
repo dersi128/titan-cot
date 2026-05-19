@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: titan-cot-api
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run start:prod
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: COT_CACHE_TTL_MS
+        value: "900000"
+      - key: CORS_ORIGIN
+        sync: false

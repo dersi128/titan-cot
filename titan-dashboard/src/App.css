@@ -1,0 +1,60 @@
+import { useEffect, useState } from "react";
+
+function App() {
+  const [data, setData] = useState<any>(null);
+
+  useEffect(() => {
+    fetch("http://localhost:3000/api/cot")
+      .then((res) => res.json())
+      .then((json) => setData(json))
+      .catch((err) => console.error(err));
+  }, []);
+
+  return (
+    <div
+      style={{
+        background: "#0b1020",
+        color: "white",
+        minHeight: "100vh",
+        padding: "40px",
+        fontFamily: "Arial",
+      }}
+    >
+      <h1>TITAN PRO Dashboard</h1>
+
+      {!data ? (
+        <p>Loading...</p>
+      ) : (
+        <>
+          <div
+            style={{
+              background: "#151c33",
+              padding: "20px",
+              borderRadius: "10px",
+              marginTop: "20px",
+            }}
+          >
+            <h2>NASDAQ</h2>
+            <p>COT Bias: {data.nasdaq?.bias}</p>
+            <p>Commercials: {data.nasdaq?.commercials}%</p>
+          </div>
+
+          <div
+            style={{
+              background: "#151c33",
+              padding: "20px",
+              borderRadius: "10px",
+              marginTop: "20px",
+            }}
+          >
+            <h2>GOLD</h2>
+            <p>COT Bias: {data.gold?.bias}</p>
+            <p>Commercials: {data.gold?.commercials}%</p>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+export default App;
