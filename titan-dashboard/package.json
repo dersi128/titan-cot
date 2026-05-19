@@ -8,8 +8,9 @@
   },
   "scripts": {
     "brand:sync": "node scripts/sync-brand-assets.mjs",
-    "dev": "npm run brand:sync && vite",
-    "build": "npm run brand:sync && vite build",
+    "icons:sync": "node scripts/sync-market-icons.mjs",
+    "dev": "npm run brand:sync && npm run icons:sync && vite",
+    "build": "npm run brand:sync && npm run icons:sync && vite build",
     "typecheck": "tsc -b",
     "lint": "eslint .",
     "preview": "vite preview"
