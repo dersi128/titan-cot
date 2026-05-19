@@ -14,6 +14,7 @@ type TradingViewChartProps = {
 };
 
 export function TradingViewChart({ market, selectionKey }: TradingViewChartProps) {
+  const { t } = useTitanI18n();
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const mapping = getTradingViewMapping(market.symbol);
   const embedSymbol = embedTradingViewSymbol(market.symbol);
@@ -47,7 +48,7 @@ export function TradingViewChart({ market, selectionKey }: TradingViewChartProps
             {t("tv.openFutures")}
           </a>
         </div>
-        <p className="text-[11px] leading-snug text-stone-500">{embedNote}</p>
+        <p className="text-[11px] leading-snug text-stone-500">{mapping.embedNote}</p>
       </header>
       <iframe
         ref={iframeRef}

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   getDefaultSelectedMarket,
   INSTITUTIONAL_MARKETS,
@@ -39,8 +39,6 @@ export function TitanCotDashboard() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [globalError, setGlobalError] = useState<string | null>(null);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
-  const marketScrollRef = useRef<HTMLDivElement>(null);
-
   const openMarket = useCallback((market: InstitutionalMarket) => {
     setSelectedMarket(market);
     setView("market");
@@ -62,12 +60,8 @@ export function TitanCotDashboard() {
 
   useEffect(() => {
     if (view === "market") {
-      lockPageScroll(true);
-      marketScrollRef.current?.scrollTo(0, 0);
-    } else {
-      lockPageScroll(false);
+      window.scrollTo(0, 0);
     }
-    return () => lockPageScroll(false);
   }, [view, selectedMarket.symbol]);
 
   useEffect(() => {
@@ -195,11 +189,8 @@ export function TitanCotDashboard() {
           </div>
         ) : null}
 
-        <main
-          className="mx-auto max-w-[1600px] px-4 py-8"
-          hidden={view !== "overview"}
-          aria-hidden={view !== "overview"}
-        >
+        {view === "overview" ? (
+        <main className="mx-auto max-w-[1600px] px-4 py-8">
           <div className="flex flex-col gap-6 xl:flex-row xl:items-start">
             <div className="min-w-0 flex-1 space-y-6">
               <GlobalCotScanner rows={rows} selectedMarket={selectedMarket} onSelectMarket={openMarket} />
@@ -213,27 +204,23 @@ export function TitanCotDashboard() {
             <TitanInstitutionalRail liveCount={liveCount} />
           </div>
         </main>
+        ) : null}
 
         {view === "market" ? (
-          <div
-            ref={marketScrollRef}
-            className="fixed inset-x-0 bottom-0 top-[var(--titan-header-offset,5.5rem)] z-20 overflow-y-auto overflow-x-hidden bg-titan-black/75 backdrop-blur-md"
-          >
-            <main className="mx-auto max-w-[1600px] px-4 py-6 pb-12">
-              {globalError ? (
-                <div className="mb-4 rounded-xl border border-rose-500/30 bg-rose-950/25 px-4 py-3 text-sm text-rose-200/90">
-                  {globalError}
-                </div>
-              ) : null}
-              <MarketDetailPanel
-                key={selectedSymbol}
-                market={selectedMarket}
-                data={selectedData}
-                loading={loadingDetail}
-                error={detailError && !selectedData ? detailError : null}
-              />
-            </main>
-          </div>
+          <main className="mx-auto max-w-[1600px] px-4 py-6 pb-12">
+            {globalError ? (
+              <div className="mb-4 rounded-xl border border-rose-500/30 bg-rose-950/25 px-4 py-3 text-sm text-rose-200/90">
+                {globalError}
+              </div>
+            ) : null}
+            <MarketDetailPanel
+              key={selectedSymbol}
+              market={selectedMarket}
+              data={selectedData}
+              loading={loadingDetail}
+              error={detailError && !selectedData ? detailError : null}
+            />
+          </main>
         ) : null}
 
         <footer
