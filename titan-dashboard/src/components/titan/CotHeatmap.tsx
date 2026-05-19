@@ -1,6 +1,7 @@
 import type { CotDashboardData } from "../../types";
-import { computeTitanDashboardScore } from "../../lib/titanCotScore";
+import { computeTitanDashboardScore, scoreHeatClass } from "../../lib/titanCotScore";
 import type { InstitutionalMarket } from "../../config/institutionalMarkets";
+import { TitanPanel, TitanPanelHeader } from "./ui/TitanPrimitives";
 
 type CotHeatmapProps = {
   markets: readonly InstitutionalMarket[];
@@ -11,52 +12,58 @@ type CotHeatmapProps = {
 
 function cellVisuals(data: CotDashboardData | undefined): {
   bg: string;
+  border: string;
   ring: string;
   score: number | null;
 } {
   if (!data) {
-    return { bg: "bg-titan-elevated/50", ring: "", score: null };
+    return { bg: "bg-titan-elevated/40", border: "border-titan-line/60", ring: "", score: null };
   }
   const c = data.commercials;
   const r = data.retail;
   const score = computeTitanDashboardScore(data);
 
-  let bg = "bg-titan-elevated/80";
+  let bg = "bg-titan-elevated/70";
+  let border = "border-titan-line/70";
   if (c.index26w > 80) {
-    bg = "bg-emerald-950/70 border-emerald-600/35";
+    bg = "bg-emerald-950/80";
+    border = "border-emerald-600/30";
   } else if (c.index26w < 20) {
-    bg = "bg-rose-950/70 border-rose-600/35";
+    bg = "bg-rose-950/80";
+    border = "border-rose-600/30";
   } else if (c.index26w > 60) {
-    bg = "bg-emerald-950/40 border-emerald-700/20";
+    bg = "bg-emerald-950/45";
+    border = "border-emerald-800/25";
   } else if (c.index26w < 40) {
-    bg = "bg-rose-950/40 border-rose-700/20";
+    bg = "bg-rose-950/45";
+    border = "border-rose-800/25";
   }
 
   let ring = "";
   if (r.index26w > 80 || r.index26w < 20) {
-    ring = "ring-2 ring-amber-500/50 ring-offset-2 ring-offset-titan-panel";
+    ring = "ring-1 ring-amber-400/45 ring-offset-1 ring-offset-titan-panel";
   }
 
-  return { bg, ring, score };
+  return { bg, border, ring, score };
 }
 
 export function CotHeatmap({ markets, bundle, selectedMarket, onSelectMarket }: CotHeatmapProps) {
   return (
-    <section className="animate-fade-up rounded-xl border border-titan-line bg-titan-panel/80 shadow-card backdrop-blur-sm transition-all duration-300 hover:border-titan-gold/15">
-      <header className="border-b border-titan-line px-5 py-4">
-        <h2 className="font-display text-xs font-semibold uppercase tracking-[0.2em] text-titan-gold">
-          COT Heatmap
-        </h2>
-        <p className="mt-1 text-sm text-stone-500">
-          <span className="text-emerald-400/90">Green</span> commercial 26W skew ·{" "}
-          <span className="text-rose-400/90">Red</span> commercial 26W skew ·{" "}
-          <span className="text-amber-400/90">Amber ring</span> retail 26W extreme
-        </p>
-      </header>
-      <div className="grid grid-cols-2 gap-3 p-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+    <TitanPanel delayMs={80}>
+      <TitanPanelHeader
+        eyebrow="COT Heatmap"
+        description={
+          <>
+            <span className="text-emerald-400/90">Green</span> commercial long skew ·{" "}
+            <span className="text-rose-400/90">Red</span> short skew ·{" "}
+            <span className="text-amber-400/85">Amber ring</span> retail extreme
+          </>
+        }
+      />
+      <div className="grid grid-cols-2 gap-2.5 p-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
         {markets.map((m) => {
           const data = bundle[m.symbol];
-          const { bg, ring, score } = cellVisuals(data);
+          const { bg, border, ring, score } = cellVisuals(data);
           const active = m.symbol === selectedMarket.symbol;
           return (
             <button
@@ -65,26 +72,30 @@ export function CotHeatmap({ markets, bundle, selectedMarket, onSelectMarket }: 
               aria-pressed={active}
               disabled={!data}
               onClick={() => data && onSelectMarket(m)}
-              className={`group relative flex flex-col rounded-lg border px-3 py-4 text-left transition-all duration-300 ease-out ${bg} ${ring} ${
+              className={`group relative flex flex-col rounded-xl border px-3 py-3.5 text-left transition-all duration-300 ${bg} ${border} ${ring} ${
                 active
-                  ? "z-10 scale-[1.02] border-titan-gold/55 shadow-[0_0_0_2px_rgba(201,162,39,0.35),0_12px_40px_-12px_rgba(201,162,39,0.25)]"
-                  : "border-titan-line/80"
-              } ${data ? "hover:border-titan-gold/40 hover:shadow-card active:scale-[0.99]" : "cursor-not-allowed opacity-40"}`}
+                  ? "z-10 scale-[1.02] border-titan-gold/50 shadow-[0_0_0_1px_rgba(212,175,55,0.4),0_16px_40px_-16px_rgba(212,175,55,0.25)]"
+                  : ""
+              } ${data ? "hover:border-titan-gold/35 hover:shadow-card active:scale-[0.99]" : "cursor-not-allowed opacity-35"}`}
             >
               <span className="font-display text-sm font-semibold text-stone-100">{m.shortLabel}</span>
-              <span className="mt-0.5 text-[10px] uppercase tracking-wider text-stone-500">{m.symbol}</span>
+              <span className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-stone-500">
+                {m.symbol}
+              </span>
               {score !== null ? (
-                <span className="mt-3 font-mono text-lg font-medium text-stone-200">{score}</span>
+                <span className={`mt-3 font-mono text-xl font-semibold tabular-nums ${scoreHeatClass(score)}`}>
+                  {score}
+                </span>
               ) : (
-                <span className="mt-3 font-mono text-sm text-stone-600">…</span>
+                <span className="mt-3 font-mono text-sm text-stone-600 animate-pulse-soft">…</span>
               )}
-              <span className="mt-1 text-[9px] text-stone-500 transition-colors group-hover:text-titan-goldDim">
-                Score
+              <span className="mt-0.5 text-[9px] uppercase tracking-widest text-stone-600 group-hover:text-titan-goldDim">
+                TITAN
               </span>
             </button>
           );
         })}
       </div>
-    </section>
+    </TitanPanel>
   );
 }

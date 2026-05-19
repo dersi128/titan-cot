@@ -11,6 +11,7 @@ import {
 import type { CotDashboardData } from "../../types";
 import type { InstitutionalMarket } from "../../config/institutionalMarkets";
 import { AiVerdictPanel } from "./AiVerdictPanel";
+import { TitanMetricCard, TitanPanel, TitanPanelHeader } from "./ui/TitanPrimitives";
 
 type MarketDetailPanelProps = {
   market: InstitutionalMarket;
@@ -19,29 +20,19 @@ type MarketDetailPanelProps = {
   error: string | null;
 };
 
-function MetricCard({
-  label,
-  value,
-  sub,
-}: {
-  label: string;
-  value: string;
-  sub?: string;
-}) {
-  return (
-    <div className="rounded-lg border border-titan-line/90 bg-titan-elevated/40 px-4 py-3 transition-colors duration-300 hover:border-titan-gold/15">
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">{label}</p>
-      <p className="mt-1 font-mono text-lg text-stone-100">{value}</p>
-      {sub ? <p className="mt-0.5 text-[11px] text-stone-500">{sub}</p> : null}
-    </div>
-  );
-}
-
 function divLabel(d: CotDashboardData["nonCommercials"]["divergence"]): string {
   if (d === "bullish") return "Bullish institutional divergence (weekly)";
   if (d === "bearish") return "Bearish institutional divergence (weekly)";
   return "No clear weekly divergence";
 }
+
+const CHART_TOOLTIP_STYLE = {
+  background: "rgba(12, 12, 16, 0.96)",
+  border: "1px solid rgba(37, 37, 45, 0.9)",
+  borderRadius: 10,
+  fontSize: 12,
+  boxShadow: "0 12px 40px rgba(0,0,0,0.5)",
+};
 
 export function MarketDetailPanel({ market, data, loading, error }: MarketDetailPanelProps) {
   const chartData =
@@ -55,146 +46,140 @@ export function MarketDetailPanel({ market, data, loading, error }: MarketDetail
   const trimmed = chartData.length > 120 ? chartData.slice(-120) : chartData;
 
   return (
-    <section className="rounded-xl border border-titan-line bg-titan-panel/80 shadow-card backdrop-blur-sm transition-all duration-300 hover:border-titan-gold/15">
-      <header className="flex flex-col gap-2 border-b border-titan-line px-5 py-4 md:flex-row md:items-end md:justify-between">
-        <div>
-          <h2 className="font-display text-xs font-semibold uppercase tracking-[0.2em] text-titan-gold">
-            Market Detail
-          </h2>
-          <p className="mt-1 font-display text-xl text-stone-100 transition-all duration-300">
-            {market.shortLabel}{" "}
-            <span className="text-titan-goldDim">{market.symbol}</span>
-          </p>
-        </div>
-        {data?.reportDate ? (
-          <p className="font-mono text-xs text-stone-500">Last CFTC report · {data.reportDate}</p>
-        ) : null}
-      </header>
+    <TitanPanel className="overflow-hidden">
+      <TitanPanelHeader
+        eyebrow="Market Detail"
+        title={`${market.shortLabel} · ${market.symbol}`}
+        aside={
+          data?.reportDate ? (
+            <p className="font-mono text-xs text-stone-500">CFTC · {data.reportDate}</p>
+          ) : null
+        }
+      />
 
-      <div className="space-y-8 p-5">
+      <div className="space-y-8 p-5 md:p-6">
         <div key={market.symbol} className="titan-market-surface">
           <AiVerdictPanel variant="embedded" market={market} data={data} loading={loading} />
         </div>
 
         {error ? (
-          <p className="text-sm text-rose-400/90">{error}</p>
+          <p className="rounded-lg border border-rose-500/25 bg-rose-950/20 px-4 py-3 text-sm text-rose-300/90">
+            {error}
+          </p>
         ) : null}
 
         {data ? (
           <>
-            <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 px-4 py-3 text-sm text-stone-400">
-              <strong className="text-titan-gold">Disclaimer:</strong> This dashboard expresses{" "}
-              <em>bias and positioning context</em> only. It does not provide buy, sell, or timing signals.
+            <div className="flex items-start gap-3 rounded-xl border border-amber-500/15 bg-gradient-to-r from-amber-500/5 to-transparent px-4 py-3.5 text-sm text-stone-400">
+              <span className="mt-0.5 text-titan-gold" aria-hidden>
+                ◆
+              </span>
+              <p>
+                <strong className="font-medium text-titan-goldBright">Disclaimer:</strong> Bias and positioning
+                context only — not buy, sell, or timing signals.
+              </p>
             </div>
 
-            <div>
-              <h3 className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-stone-500">
+            <section>
+              <h3 className="mb-4 text-[10px] font-semibold uppercase tracking-[0.2em] text-stone-500">
                 Positioning snapshot
               </h3>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <MetricCard
-                  label="Commercial 26W index"
+                <TitanMetricCard
+                  label="Commercial 26W"
                   value={data.commercials.index26w.toFixed(1)}
-                  sub="Percentile vs 26-week net range"
+                  index={data.commercials.index26w}
+                  sub="Percentile vs 26-week range"
                 />
-                <MetricCard
-                  label="Commercial 52W index"
+                <TitanMetricCard
+                  label="Commercial 52W"
                   value={data.commercials.index52w.toFixed(1)}
-                  sub="Percentile vs 52-week net range"
+                  index={data.commercials.index52w}
+                  sub="Display only · not in TITAN score"
                 />
-                <MetricCard
+                <TitanMetricCard
                   label="Retail 26W / 52W"
                   value={`${data.retail.index26w.toFixed(0)} / ${data.retail.index52w.toFixed(0)}`}
+                  index={data.retail.index26w}
                 />
-                <MetricCard
+                <TitanMetricCard
                   label="Non-comm 26W / 52W"
                   value={`${data.nonCommercials.index26w.toFixed(0)} / ${data.nonCommercials.index52w.toFixed(0)}`}
+                  index={data.nonCommercials.index26w}
                 />
               </div>
               <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <MetricCard
-                  label="Δ Commercial (1W · 4W · 13W)"
+                <TitanMetricCard
+                  label="Δ Commercial"
                   value={`${data.commercials.weeklyChange.toLocaleString()} · ${data.commercials.delta4w.toLocaleString()} · ${data.commercials.delta13w.toLocaleString()}`}
+                  sub="1W · 4W · 13W"
                 />
-                <MetricCard
+                <TitanMetricCard
                   label="Δ Non-comm (1W)"
                   value={data.nonCommercials.weeklyChange.toLocaleString()}
                 />
-                <MetricCard label="Δ Retail (1W)" value={data.retail.weeklyChange.toLocaleString()} />
-                <MetricCard
-                  label="Divergence"
-                  value={divLabel(data.nonCommercials.divergence)}
-                />
+                <TitanMetricCard label="Δ Retail (1W)" value={data.retail.weeklyChange.toLocaleString()} />
+                <TitanMetricCard label="Divergence" value={divLabel(data.nonCommercials.divergence)} />
               </div>
-            </div>
+            </section>
 
-            <div>
-              <h3 className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-stone-500">
+            <section>
+              <h3 className="mb-4 text-[10px] font-semibold uppercase tracking-[0.2em] text-stone-500">
                 Historical net positioning
               </h3>
               <div
                 key={market.symbol}
-                className="h-[380px] w-full min-w-0 rounded-lg border border-titan-line/80 bg-titan-black/30 p-2 transition-opacity duration-300"
+                className="h-[400px] w-full min-w-0 rounded-xl border border-titan-line/70 bg-titan-black/40 p-3"
               >
                 {trimmed.length >= 2 ? (
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={trimmed} margin={{ top: 8, right: 12, left: 0, bottom: 4 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#2a2a30" vertical={false} />
+                    <LineChart data={trimmed} margin={{ top: 12, right: 16, left: 4, bottom: 4 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(37,37,45,0.6)" vertical={false} />
                       <XAxis
                         dataKey="reportDate"
-                        tick={{ fill: "#78716c", fontSize: 9 }}
+                        tick={{ fill: "#78716c", fontSize: 9, fontFamily: "JetBrains Mono" }}
                         tickLine={false}
-                        axisLine={{ stroke: "#2a2a30" }}
+                        axisLine={{ stroke: "rgba(37,37,45,0.8)" }}
                         interval="preserveStartEnd"
-                        angle={-30}
+                        angle={-28}
                         textAnchor="end"
-                        height={54}
+                        height={52}
                       />
                       <YAxis
-                        tick={{ fill: "#78716c", fontSize: 10 }}
+                        tick={{ fill: "#78716c", fontSize: 10, fontFamily: "JetBrains Mono" }}
                         tickLine={false}
-                        axisLine={{ stroke: "#2a2a30" }}
+                        axisLine={{ stroke: "rgba(37,37,45,0.8)" }}
                         tickFormatter={(v) => `${Math.round(v / 1000)}k`}
                       />
-                      <Tooltip
-                        contentStyle={{
-                          background: "#0e0e11",
-                          border: "1px solid #232328",
-                          borderRadius: 6,
-                          fontSize: 12,
-                        }}
-                        labelStyle={{ color: "#a8a29e" }}
-                      />
-                      <Legend wrapperStyle={{ fontSize: 11 }} />
+                      <Tooltip contentStyle={CHART_TOOLTIP_STYLE} labelStyle={{ color: "#a8a29e" }} />
+                      <Legend wrapperStyle={{ fontSize: 11, paddingTop: 8 }} />
                       <Line
                         type="monotone"
                         dataKey="commercialNet"
-                        name="Commercial net"
-                        stroke="#c9a227"
-                        strokeWidth={2}
+                        name="Commercial"
+                        stroke="#d4af37"
+                        strokeWidth={2.25}
                         dot={false}
-                        isAnimationActive={true}
-                        animationDuration={600}
+                        activeDot={{ r: 4, fill: "#f0d060" }}
+                        animationDuration={500}
                       />
                       <Line
                         type="monotone"
                         dataKey="nonCommercialNet"
-                        name="Non-commercial net"
+                        name="Non-commercial"
                         stroke="#38bdf8"
-                        strokeWidth={1.8}
+                        strokeWidth={1.75}
                         dot={false}
-                        isAnimationActive={true}
-                        animationDuration={600}
+                        animationDuration={500}
                       />
                       <Line
                         type="monotone"
                         dataKey="retailNet"
-                        name="Retail net"
+                        name="Retail"
                         stroke="#f472b6"
-                        strokeWidth={1.8}
+                        strokeWidth={1.75}
                         dot={false}
-                        isAnimationActive={true}
-                        animationDuration={600}
+                        animationDuration={500}
                       />
                     </LineChart>
                   </ResponsiveContainer>
@@ -204,10 +189,10 @@ export function MarketDetailPanel({ market, data, loading, error }: MarketDetail
                   </p>
                 )}
               </div>
-            </div>
+            </section>
           </>
         ) : null}
       </div>
-    </section>
+    </TitanPanel>
   );
 }

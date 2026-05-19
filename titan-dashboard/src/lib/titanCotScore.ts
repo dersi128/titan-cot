@@ -43,7 +43,13 @@ export function evaluateTitanCot(data: CotDashboardData): TitanCotScoringResult 
 }
 
 export function computeTitanDashboardScore(data: CotDashboardData): number {
+  if (Number.isFinite(data.cotScore)) return data.cotScore;
   return evaluateTitanCot(data).score;
+}
+
+export function resolveTitanVerdict(data: CotDashboardData): TitanBiasVerdict {
+  if (data.cotVerdict) return data.cotVerdict;
+  return scoreToTitanBiasVerdict(computeTitanDashboardScore(data));
 }
 
 export function scoreToTitanBiasVerdict(score: number): TitanBiasVerdict {

@@ -3,32 +3,52 @@ import {
   buildInstitutionalNarrative,
   commercialTrend,
   computeTitanDashboardScore,
-  scoreToTitanBiasVerdict,
+  evaluateTitanCot,
+  resolveTitanVerdict,
   verdictAccentClass,
 } from "../../lib/titanCotScore";
 import type { InstitutionalMarket } from "../../config/institutionalMarkets";
+import { TitanBadge, TitanScoreGauge } from "./ui/TitanPrimitives";
 
 type AiVerdictPanelProps = {
   market: InstitutionalMarket;
   data: CotDashboardData | null;
   loading: boolean;
-  /** `embedded` = inside Market Detail card (no duplicate market title). */
   variant?: "standalone" | "embedded";
 };
 
+const COMPONENT_LABELS: { key: keyof ReturnType<typeof evaluateTitanCot>["components"]; label: string }[] = [
+  { key: "commercialPositioning", label: "Positioning" },
+  { key: "commercialFlow", label: "Flow" },
+  { key: "persistence", label: "Persistence" },
+  { key: "ncDivergence", label: "NC div." },
+  { key: "retailContrarian", label: "Retail" },
+  { key: "openInterest", label: "OI" },
+];
+
+function phaseTone(phase: string): "gold" | "bull" | "bear" | "warn" | "neutral" {
+  if (phase.includes("Accumulation") || phase.includes("Crowded Short")) return "bull";
+  if (phase.includes("Distribution") || phase.includes("Crowded Long")) return "bear";
+  if (phase.includes("Exhaustion")) return "warn";
+  return "neutral";
+}
+
 export function AiVerdictPanel({ market, data, loading, variant = "standalone" }: AiVerdictPanelProps) {
   const score = data ? computeTitanDashboardScore(data) : null;
-  const verdict = score !== null ? scoreToTitanBiasVerdict(score) : null;
+  const verdict = data ? resolveTitanVerdict(data) : null;
+  const scoring = data ? evaluateTitanCot(data) : null;
   const narrative =
     data && score !== null && verdict !== null ? buildInstitutionalNarrative(data, score, verdict) : null;
   const trend = data ? commercialTrend(data) : null;
-
   const isEmbedded = variant === "embedded";
 
   const body = (
-    <div className="space-y-4 px-5 py-5">
+    <div className="space-y-5 px-5 py-5">
       {loading ? (
-        <p className="animate-pulse-soft text-sm text-stone-500">Synthesizing CFTC positioning…</p>
+        <div className="space-y-3">
+          <div className="h-4 w-48 animate-pulse rounded bg-titan-elevated" />
+          <div className="h-24 animate-pulse rounded-xl bg-titan-elevated/80" />
+        </div>
       ) : !data ? (
         <p className="text-sm text-stone-500">COT data unavailable for {market.shortLabel}.</p>
       ) : (
@@ -42,30 +62,75 @@ export function AiVerdictPanel({ market, data, loading, variant = "standalone" }
               </p>
             </div>
           ) : null}
-          <div className="flex flex-wrap items-baseline gap-6">
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">TITAN score</p>
-              <p className="font-mono text-3xl font-semibold text-stone-100">{score}</p>
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">Verdict</p>
-              <p
-                className={`text-sm font-semibold leading-snug sm:text-base ${
-                  verdict ? verdictAccentClass(verdict) : ""
-                }`}
-              >
-                {verdict}
-              </p>
-            </div>
-            {isEmbedded && trend ? (
+
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-start">
+            <TitanScoreGauge score={score ?? 0} />
+            <div className="min-w-0 flex-1 space-y-3">
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">Comm. flow</p>
-                <p className="text-sm capitalize text-stone-300">{trend}</p>
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">Verdict</p>
+                <p
+                  className={`mt-1 text-sm font-semibold leading-snug sm:text-base ${
+                    verdict ? verdictAccentClass(verdict) : ""
+                  }`}
+                >
+                  {verdict}
+                </p>
               </div>
-            ) : null}
+              <div className="flex flex-wrap gap-2">
+                {scoring?.marketPhase ? (
+                  <TitanBadge tone={phaseTone(scoring.marketPhase)}>{scoring.marketPhase}</TitanBadge>
+                ) : data.marketPhase ? (
+                  <TitanBadge tone={phaseTone(data.marketPhase)}>{data.marketPhase}</TitanBadge>
+                ) : null}
+                {scoring?.commercialPositioningLabel ? (
+                  <TitanBadge tone="gold">{scoring.commercialPositioningLabel}</TitanBadge>
+                ) : null}
+                {scoring?.flowLabel ? <TitanBadge tone="neutral">{scoring.flowLabel}</TitanBadge> : null}
+                {trend ? (
+                  <TitanBadge tone={trend === "accumulation" ? "bull" : trend === "distribution" ? "bear" : "neutral"}>
+                    {trend}
+                  </TitanBadge>
+                ) : null}
+              </div>
+              {scoring && scoring.persistenceWeeks > 0 ? (
+                <p className="text-xs text-stone-500">
+                  {scoring.persistenceSide === "bull" ? "Bullish" : "Bearish"} persistence ·{" "}
+                  <span className="font-mono text-stone-400">{scoring.persistenceWeeks}w</span>
+                </p>
+              ) : null}
+            </div>
           </div>
-          <div className="rounded-lg border border-titan-line/80 bg-titan-black/40 p-4">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-titan-goldDim">Narrative</p>
+
+          {scoring ? (
+            <div className="rounded-xl border border-titan-line/70 bg-titan-black/35 p-4">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">Score breakdown</p>
+              <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                {COMPONENT_LABELS.map(({ key, label }) => {
+                  const pts = scoring.components[key];
+                  const positive = pts > 0;
+                  const negative = pts < 0;
+                  return (
+                    <li
+                      key={key}
+                      className="flex items-center justify-between rounded-lg border border-titan-line/50 bg-titan-elevated/25 px-3 py-2"
+                    >
+                      <span className="text-[11px] text-stone-500">{label}</span>
+                      <span
+                        className={`font-mono text-sm font-medium tabular-nums ${
+                          positive ? "text-emerald-400" : negative ? "text-rose-400" : "text-stone-500"
+                        }`}
+                      >
+                        {pts > 0 ? `+${pts}` : pts}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ) : null}
+
+          <div className="rounded-xl border border-titan-line/70 bg-gradient-to-br from-titan-black/50 to-titan-elevated/20 p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-titan-goldDim">Institutional narrative</p>
             <p className="mt-2 text-balance text-sm leading-relaxed text-stone-400">{narrative}</p>
           </div>
         </>
@@ -75,8 +140,8 @@ export function AiVerdictPanel({ market, data, loading, variant = "standalone" }
 
   if (isEmbedded) {
     return (
-      <div className="overflow-hidden rounded-xl border border-titan-gold/25 bg-gradient-to-br from-titan-void/95 via-titan-panel/60 to-titan-black/40 shadow-[inset_0_1px_0_0_rgba(201,162,39,0.12)] transition-all duration-300">
-        <header className="border-b border-titan-line/80 px-5 py-3">
+      <div className="overflow-hidden rounded-xl border border-titan-gold/20 bg-gradient-to-br from-titan-void/90 via-titan-panel/50 to-titan-black/60 shadow-insetGold">
+        <header className="border-b border-titan-line/70 px-5 py-3.5">
           <h3 className="font-display text-[10px] font-semibold uppercase tracking-[0.22em] text-titan-gold">
             AI Verdict
           </h3>
@@ -88,12 +153,12 @@ export function AiVerdictPanel({ market, data, loading, variant = "standalone" }
   }
 
   return (
-    <aside className="rounded-xl border border-titan-line bg-gradient-to-b from-titan-panel to-titan-void shadow-card backdrop-blur-sm transition-all duration-300 hover:border-titan-gold/25">
-      <header className="border-b border-titan-line px-5 py-4">
+    <aside className="titan-glass overflow-hidden">
+      <header className="border-b border-titan-line/80 px-5 py-4">
         <h2 className="font-display text-xs font-semibold uppercase tracking-[0.2em] text-titan-gold">
           AI Verdict Panel
         </h2>
-        <p className="mt-1 text-sm text-stone-500">Institutional narrative · positioning context only</p>
+        <p className="mt-1 text-sm text-stone-500">Positioning context only</p>
       </header>
       {body}
     </aside>

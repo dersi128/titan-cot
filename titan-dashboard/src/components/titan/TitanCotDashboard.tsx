@@ -6,9 +6,11 @@ import {
 } from "../../config/institutionalMarkets";
 import { loadAllMappedCotData } from "../../data/cotData";
 import type { CotDashboardData } from "../../types";
+import { TitanLogo } from "../TitanLogo";
 import { buildScannerRows, GlobalCotScanner } from "./GlobalCotScanner";
 import { CotHeatmap } from "./CotHeatmap";
 import { MarketDetailPanel } from "./MarketDetailPanel";
+import { TitanLivePill } from "./ui/TitanPrimitives";
 
 const REFRESH_MS = 120_000;
 
@@ -19,6 +21,7 @@ export function TitanCotDashboard() {
   const [bundle, setBundle] = useState<Record<string, CotDashboardData>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [globalError, setGlobalError] = useState<string | null>(null);
+  const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
   const marketDetailAnchorRef = useRef<HTMLDivElement>(null);
   const skipScrollOnMountRef = useRef(true);
 
@@ -45,6 +48,7 @@ export function TitanCotDashboard() {
         setBundle(nextBundle);
         setErrors(nextErrors);
         setGlobalError(null);
+        setLastRefresh(new Date());
       } catch (err) {
         if (!cancelled) {
           setGlobalError(err instanceof Error ? err.message : "Failed to load CFTC data.");
@@ -62,48 +66,61 @@ export function TitanCotDashboard() {
   }, []);
 
   const rows = useMemo(() => buildScannerRows(INSTITUTIONAL_MARKETS, bundle, errors), [bundle, errors]);
+  const liveCount = useMemo(() => rows.filter((r) => r.status === "live").length, [rows]);
 
   const selectedData = bundle[selectedSymbol] ?? null;
   const symbolError = errors[selectedSymbol];
   const loadingDetail = !selectedData && !symbolError && !globalError;
-
   const detailError = globalError ?? symbolError ?? null;
 
+  const refreshLabel = lastRefresh
+    ? lastRefresh.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })
+    : "—";
+
   return (
-    <div className="min-h-screen bg-titan-black">
-      <header className="sticky top-0 z-20 border-b border-titan-line bg-titan-void/95 backdrop-blur-md">
-        <div className="mx-auto flex max-w-[1600px] flex-col gap-3 px-4 py-5 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="font-display text-[10px] font-semibold uppercase tracking-[0.28em] text-titan-gold">
-              TITAN
-            </p>
-            <h1 className="font-display text-2xl font-semibold tracking-tight text-stone-100 md:text-3xl">
-              COT Dashboard
-            </h1>
-            <p className="mt-1 max-w-xl text-sm text-stone-500">
-              Swing-oriented institutional positioning · CFTC Legacy Futures Only · Bias, not execution
-            </p>
+    <div className="titan-page-bg min-h-screen">
+      <header className="titan-header-bar sticky top-0 z-20">
+        <div className="mx-auto flex max-w-[1600px] flex-col gap-5 px-4 py-5 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-start gap-4">
+            <TitanLogo className="h-12 w-12 shrink-0 drop-shadow-glow" />
+            <div>
+              <p className="font-display text-[10px] font-semibold uppercase tracking-[0.32em] text-titan-gold">
+                TITAN
+              </p>
+              <h1 className="font-display text-2xl font-bold tracking-tight text-stone-50 md:text-[1.75rem]">
+                COT Dashboard
+              </h1>
+              <p className="mt-1 max-w-lg text-sm leading-relaxed text-stone-500">
+                Institutional positioning · CFTC Legacy Futures · Swing bias context only
+              </p>
+            </div>
           </div>
-          <div className="rounded-lg border border-titan-line bg-titan-panel px-4 py-3 text-right transition-colors duration-300">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">Selected</p>
-            <p className="mt-1 font-mono text-sm text-titan-gold transition-all duration-300">
-              {selectedMarket.shortLabel}{" "}
-              <span className="text-titan-goldDim">{selectedMarket.symbol}</span>
-            </p>
-            <p className="mt-1 text-[10px] text-stone-600">Data refresh · {REFRESH_MS / 1000}s</p>
+
+          <div className="flex flex-wrap items-center gap-3 lg:justify-end">
+            <TitanLivePill label={`${liveCount} markets live`} />
+            <div className="rounded-xl border border-titan-line/90 bg-titan-panel/90 px-4 py-3 shadow-insetGold">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">Focus</p>
+              <p className="mt-0.5 font-mono text-sm font-medium text-titan-goldBright">
+                {selectedMarket.shortLabel}{" "}
+                <span className="text-titan-goldDim">{selectedMarket.symbol}</span>
+              </p>
+              <p className="mt-1 text-[10px] text-stone-600">
+                Refresh {REFRESH_MS / 1000}s · Updated {refreshLabel}
+              </p>
+            </div>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-[1600px] space-y-8 px-4 py-8">
+      <main className="mx-auto max-w-[1600px] space-y-6 px-4 py-8">
         {globalError ? (
-          <div className="rounded-lg border border-rose-500/30 bg-rose-950/20 px-4 py-3 text-sm text-rose-200/90">
-            <strong className="text-rose-300">Connection:</strong> {globalError} — start the COT API (
-            <code className="rounded bg-titan-elevated px-1">cot-data-module</code>).
+          <div className="rounded-xl border border-rose-500/30 bg-rose-950/25 px-4 py-3 text-sm text-rose-200/90 backdrop-blur-sm">
+            <strong className="font-medium text-rose-300">Connection:</strong> {globalError} — start the COT API (
+            <code className="rounded bg-titan-elevated px-1.5 py-0.5 font-mono text-xs">cot-data-module</code>).
           </div>
         ) : null}
 
-        <div className="space-y-8">
+        <div className="grid gap-6 xl:grid-cols-1">
           <GlobalCotScanner
             rows={rows}
             selectedMarket={selectedMarket}
@@ -132,8 +149,13 @@ export function TitanCotDashboard() {
         </div>
       </main>
 
-      <footer className="border-t border-titan-line py-8 text-center text-[11px] text-stone-600">
-        TITAN COT Dashboard — Smart money context only. Past positioning does not predict future prices.
+      <footer className="border-t border-titan-line/60 py-10 text-center">
+        <p className="text-[11px] text-stone-600">
+          TITAN COT — Smart money context only · Bias only, not execution
+        </p>
+        <p className="mt-1 text-[10px] text-stone-700">
+          Past positioning does not predict future prices
+        </p>
       </footer>
     </div>
   );
