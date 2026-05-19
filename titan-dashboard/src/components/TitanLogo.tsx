@@ -1,5 +1,8 @@
-import { useId } from "react";
+import { useId, useState } from "react";
 import { useTitanI18n } from "../i18n";
+
+/** Drop your asset at: titan-dashboard/public/brand/titan-logo.png */
+export const TITAN_LOGO_SRC = "/brand/titan-logo.png";
 
 type TitanLogoProps = {
   className?: string;
@@ -7,7 +10,7 @@ type TitanLogoProps = {
   showWordmark?: boolean;
 };
 
-export function TitanLogo({ className, title = "TITAN COT", showWordmark = false }: TitanLogoProps) {
+function TitanLogoSvg({ className, title, showWordmark }: TitanLogoProps) {
   const { t } = useTitanI18n();
   const uid = useId().replace(/:/g, "");
   const gold = `titan-gold-${uid}`;
@@ -41,16 +44,12 @@ export function TitanLogo({ className, title = "TITAN COT", showWordmark = false
           </feMerge>
         </filter>
       </defs>
-
-      {/* Crown */}
       <path
         d="M20 14 L26 22 L32 12 L36 20 L40 12 L46 22 L52 14 L48 26 L24 26 Z"
         fill={`url(#${gold})`}
         opacity="0.95"
         filter={`url(#${glow})`}
       />
-
-      {/* Shield */}
       <path
         d="M36 28 L58 38 V54 C58 64 48 72 36 76 C24 72 14 64 14 54 V38 Z"
         fill={`url(#${goldDeep})`}
@@ -58,31 +57,59 @@ export function TitanLogo({ className, title = "TITAN COT", showWordmark = false
         strokeWidth="2"
         filter={`url(#${glow})`}
       />
-
-      {/* T monogram */}
       <path d="M28 42 H44 V46 H38 V62 H34 V46 H28 V42 Z" fill={`url(#${gold})`} />
-
-      {/* Inner accent lines */}
-      <path d="M36 32 V70" stroke={`url(#${gold})`} strokeWidth="0.5" opacity="0.2" />
-      <path d="M22 48 H50" stroke={`url(#${gold})`} strokeWidth="0.5" opacity="0.12" />
     </svg>
   );
 
-  if (!showWordmark) {
-    return icon;
-  }
+  if (!showWordmark) return icon;
 
   return (
     <div className={`flex items-center gap-4 ${className ?? ""}`}>
       {icon}
       <div className="min-w-0 leading-none">
-        <p className="font-display text-sm font-bold uppercase tracking-[0.42em] text-titan-goldBright">
-          TITAN
-        </p>
+        <p className="font-display text-sm font-bold uppercase tracking-[0.42em] text-titan-goldBright">TITAN</p>
         <p className="mt-1 font-sans text-[11px] font-medium uppercase tracking-[0.28em] text-titan-muted">
           {t("brand.tagline")}
         </p>
       </div>
     </div>
+  );
+}
+
+export function TitanLogo({ className, title = "TITAN COT", showWordmark = false }: TitanLogoProps) {
+  const { t } = useTitanI18n();
+  const [useFallback, setUseFallback] = useState(false);
+
+  if (useFallback) {
+    return <TitanLogoSvg className={className} title={title} showWordmark={showWordmark} />;
+  }
+
+  if (showWordmark) {
+    return (
+      <div className={`flex flex-col items-start gap-1 ${className ?? ""}`}>
+        <img
+          src={TITAN_LOGO_SRC}
+          alt={title}
+          width={280}
+          height={56}
+          className="h-11 w-auto max-w-[min(100vw-2rem,300px)] object-contain object-left drop-shadow-glow md:h-12"
+          decoding="async"
+          onError={() => setUseFallback(true)}
+        />
+        <p className="pl-0.5 font-sans text-[11px] font-medium uppercase tracking-[0.28em] text-titan-muted">
+          {t("brand.tagline")}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={TITAN_LOGO_SRC}
+      alt={title}
+      className={className ?? "h-10 w-auto object-contain drop-shadow-glow"}
+      decoding="async"
+      onError={() => setUseFallback(true)}
+    />
   );
 }
