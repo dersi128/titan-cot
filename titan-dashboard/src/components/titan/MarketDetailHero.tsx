@@ -1,12 +1,8 @@
 import type { CotDashboardData } from "../../types";
 import type { InstitutionalMarket } from "../../config/institutionalMarkets";
-import {
-  computeTitanDashboardScore,
-  evaluateTitanCot,
-  resolveTitanVerdict,
-  verdictAccentClass,
-} from "../../lib/titanCotScore";
-import { useTitanI18n, translateApiLabel } from "../../i18n";
+import { computeTitanDashboardScore, resolveTitanVerdict, verdictAccentClass } from "../../lib/titanCotScore";
+import { evaluateTitanPositioning } from "../../lib/titanCommercialIndex";
+import { useTitanI18n } from "../../i18n";
 import { TitanMarketIcon } from "./TitanMarketIcon";
 import { TitanBadge, TitanScoreGauge } from "./ui/TitanPrimitives";
 
@@ -17,11 +13,10 @@ type MarketDetailHeroProps = {
 };
 
 export function MarketDetailHero({ market, data, loading }: MarketDetailHeroProps) {
-  const { t, locale } = useTitanI18n();
+  const { t } = useTitanI18n();
   const score = data ? computeTitanDashboardScore(data) : null;
   const verdict = data ? resolveTitanVerdict(data) : null;
-  const scoring = data ? evaluateTitanCot(data) : null;
-  const phase = scoring?.marketPhase ?? data?.marketPhase;
+  const positioning = data ? evaluateTitanPositioning(data) : null;
 
   return (
     <header className="titan-detail-hero relative overflow-hidden border-b border-white/[0.06] px-5 py-6 md:px-7 md:py-8">
@@ -67,7 +62,7 @@ export function MarketDetailHero({ market, data, loading }: MarketDetailHeroProp
               {t("engine.regime")}
             </p>
             <p className="mt-1 max-w-[220px] text-sm font-medium text-stone-200">
-              {phase ? translateApiLabel(phase, locale) : "—"}
+              {positioning ? t(`positioning.zones.${positioning.commercialZone}`) : "—"}
             </p>
             <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-stone-500">
               {t("engine.bias")}

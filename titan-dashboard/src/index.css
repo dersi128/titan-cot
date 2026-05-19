@@ -605,6 +605,32 @@
 
   .titan-engine-meter__fill {
     @apply block h-full rounded-full transition-all duration-700 ease-out;
+    background: linear-gradient(90deg, rgba(255, 77, 109, 0.75), rgba(212, 175, 55, 0.85), rgba(0, 208, 132, 0.8));
+  }
+
+  .titan-engine-meter--range {
+    box-shadow: 0 0 calc(24px * var(--zone-glow, 0.3)) rgba(212, 175, 55, calc(0.35 * var(--zone-glow, 0.3)));
+  }
+
+  .titan-engine-meter__marker {
+    @apply absolute top-1/2 h-3 w-0.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.65);
+  }
+
+  .titan-engine-card--bull {
+    border-color: rgba(0, 208, 132, 0.35);
+  }
+
+  .titan-engine-card--bear {
+    border-color: rgba(255, 77, 109, 0.35);
+  }
+
+  .titan-engine-card--warn {
+    border-color: rgba(251, 191, 36, 0.35);
+  }
+
+  .titan-engine-card--neutral {
+    border-color: rgba(120, 113, 108, 0.35);
   }
 }
 
