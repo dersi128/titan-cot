@@ -68,9 +68,9 @@
 
   .titan-brand-logo {
     display: block;
-    height: 4.9rem;
+    height: 7.85rem;
     width: auto;
-    max-width: min(100vw - 1.5rem, 644px);
+    max-width: min(100vw - 1rem, 1030px);
     object-fit: contain;
     object-position: left center;
     filter: drop-shadow(0 4px 28px rgba(212, 175, 55, 0.4));
@@ -78,15 +78,15 @@
 
   @media (min-width: 768px) {
     .titan-brand-logo {
-      height: 6rem;
-      max-width: 728px;
+      height: 9.6rem;
+      max-width: 1165px;
     }
   }
 
   @media (min-width: 1280px) {
     .titan-brand-logo {
-      height: 6.75rem;
-      max-width: 784px;
+      height: 10.8rem;
+      max-width: 1254px;
     }
   }
 
@@ -162,12 +162,12 @@
     @apply border-b border-white/[0.06] backdrop-blur-xl;
     background: linear-gradient(180deg, rgba(11, 15, 20, 0.72), rgba(11, 15, 20, 0.42));
     box-shadow: 0 1px 0 rgba(212, 175, 55, 0.1);
-    --titan-header-offset: 9.5rem;
+    --titan-header-offset: 15.5rem;
   }
 
   @media (min-width: 1024px) {
     .titan-header-bar {
-      --titan-header-offset: 11rem;
+      --titan-header-offset: 18rem;
     }
   }
 

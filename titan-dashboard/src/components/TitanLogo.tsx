@@ -93,8 +93,8 @@ export function TitanLogo({
     <img
       src={TITAN_LOGO_SRC}
       alt={title}
-      width={672}
-      height={157}
+      width={1075}
+      height={251}
       className={`titan-brand-logo ${className ?? ""}`}
       decoding="async"
       fetchPriority="high"
