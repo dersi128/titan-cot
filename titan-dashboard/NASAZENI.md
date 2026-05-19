@@ -116,10 +116,11 @@ V prohlížeči otevře → hotovo. Žádná instalace.
 
 | Problém | Řešení |
 |---------|--------|
+| Vercel build spadne na `tsc` / `vite build` | **Root Directory** musí být `titan-dashboard` (ne `./`). V Build Logs scrolluj dolů — tam je přesná chyba. Po pushi nejnovějšího commitu build běží jen `vite build` (Node ≥ 20). |
 | Dashboard „Connection failed“ | API neběží → `/health` na Renderu |
 | Prázdná data / CORS chyba v konzoli (F12) | `CORS_ORIGIN` = přesná Vercel URL, redeploy API |
 | První load velmi pomalý | Free Render spí → počkat 30–60 s, obnovit stránku |
-| Lokálně funguje, online ne | V Vercelu chybí `VITE_COT_API_URL` |
+| Lokálně funguje, online ne | V Vercelu chybí `VITE_COT_API_URL` (Render URL, ne placeholder) |
 
 ---
 
