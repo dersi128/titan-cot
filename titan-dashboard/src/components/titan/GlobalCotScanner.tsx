@@ -142,7 +142,10 @@ export function GlobalCotScanner({ rows, selectedMarket, onSelectMarket }: Globa
                 >
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <TitanMarketIcon market={row.market} />
+                      <TitanMarketIcon
+                        market={row.market}
+                        score={row.status === "live" ? row.score : undefined}
+                      />
                       <div className="min-w-0">
                         <span className="font-display text-base font-semibold tracking-wide text-white">
                           {row.market.shortLabel}

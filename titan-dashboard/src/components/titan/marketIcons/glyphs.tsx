@@ -1,181 +1,281 @@
-/** Minimal institutional glyphs — 24×24 viewBox */
-type G = { className?: string };
+/** Premium institutional glyphs — 24×24, stroke-first, gold via currentColor */
+export type GlyphProps = { className?: string };
 
-export function GlyphDxy({ className }: G) {
+const S = {
+  stroke: "currentColor",
+  strokeWidth: 1.35,
+  strokeLinecap: "round" as const,
+  strokeLinejoin: "round" as const,
+  fill: "none",
+};
+
+export function GlyphDxy({ className }: GlyphProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" />
-      <path d="M12 6v12M9 9h4.5a2 2 0 100-4H9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <circle cx="12" cy="12" r="8.5" {...S} opacity="0.5" />
+      <path d="M12 7v10M9.5 10h3a1.8 1.8 0 100-3.6H9.5" {...S} />
     </svg>
   );
 }
 
-export function GlyphEur({ className }: G) {
+export function GlyphEur({ className }: GlyphProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M8 10h7M8 14h5.5M15 8.5a4.5 4.5 0 110 7" {...S} />
+    </svg>
+  );
+}
+
+export function GlyphJpy({ className }: GlyphProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M8.5 8.5h7v2.8H8.5V8.5zm0 4.2h7v2.8h-7v-2.8z" {...S} />
+    </svg>
+  );
+}
+
+export function GlyphGbp({ className }: GlyphProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M10 7v10M10 7h4.2l-2.1 3.5 2.1 3.5H10" {...S} />
+    </svg>
+  );
+}
+
+export function GlyphAud({ className }: GlyphProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M7.5 16l2.8-7.5 2.7 7.5M8.8 13.2h3.9" {...S} />
+      <path d="M16 9v6M14.5 10.5h3" {...S} opacity="0.7" />
+    </svg>
+  );
+}
+
+export function GlyphCad({ className }: GlyphProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M12 6v12M9 9l3-3 3 3M9 15l3 3 3-3" {...S} />
+    </svg>
+  );
+}
+
+export function GlyphChf({ className }: GlyphProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <rect x="8.5" y="8.5" width="7" height="7" rx="1" {...S} />
+      <path d="M6.5 10.5h2m7 0h2m-5.5-2v2m0 5v2" {...S} />
+    </svg>
+  );
+}
+
+export function GlyphGold({ className }: GlyphProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M7 17h10l-1.8-9H8.8L7 17z" {...S} />
+      <path d="M9 8h6" {...S} />
+      <path d="M12 5.5l.8 2.2h2.3l-1.9 1.4.7 2.2-2-1.4-2 1.4.7-2.2-1.9-1.4h2.3L12 5.5z" fill="currentColor" opacity="0.35" />
+    </svg>
+  );
+}
+
+export function GlyphSilver({ className }: GlyphProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <rect x="7" y="7" width="10" height="10" rx="2" {...S} />
+      <path d="M9.5 12h5M12 9.5v5" {...S} opacity="0.65" />
+    </svg>
+  );
+}
+
+export function GlyphCopper({ className }: GlyphProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <ellipse cx="12" cy="14.5" rx="5.5" ry="2.5" {...S} />
+      <path d="M9 11.5l3-5 3 5" {...S} />
+      <path d="M12 6.5v2" {...S} />
+    </svg>
+  );
+}
+
+export function GlyphPlatinum({ className }: GlyphProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M8 16l4-9 4 9" {...S} />
+      <path d="M9.2 13.5h5.6" {...S} />
+    </svg>
+  );
+}
+
+export function GlyphPalladium({ className }: GlyphProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <circle cx="12" cy="12" r="4.5" {...S} />
+      <path d="M12 5v2M12 17v2M5 12h2M17 12h2" {...S} opacity="0.55" />
+    </svg>
+  );
+}
+
+export function GlyphOil({ className }: GlyphProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
       <path
-        d="M7 10h8M7 14h6M16 8a5 5 0 110 8"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
+        d="M12 5.5c-1.8 3.2-5.5 4.8-5.5 8.2a5.5 5.5 0 1011 0c0-3.4-3.7-5-5.5-8.2z"
+        {...S}
       />
+      <path d="M12 14.2v2.5" {...S} opacity="0.5" />
     </svg>
   );
 }
 
-export function GlyphJpy({ className }: G) {
+export function GlyphGas({ className }: GlyphProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path d="M8 8h8v3H8V8zm0 5h8v3H8v-3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+      <path d="M12 5c2.5 2.5 4.5 4.8 4.5 7.5a4.5 4.5 0 11-9 0C7.5 9.8 9.5 7.5 12 5z" {...S} />
     </svg>
   );
 }
 
-export function GlyphGbp({ className }: G) {
+export function GlyphCorn({ className }: GlyphProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M10 6v12M10 6h4l-2 4 2 4h-4"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <path d="M12 5v14" {...S} />
+      <path d="M9 8c1.5-1.2 3-1.2 3 0s1.5 1.2 3 0M9 16c1.5 1.2 3 1.2 3 0s1.5-1.2 3 0" {...S} />
     </svg>
   );
 }
 
-export function GlyphAud({ className }: G) {
+export function GlyphSoy({ className }: GlyphProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path d="M7 16l3-8 3 8M8 13h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="10" cy="12" r="2.2" {...S} />
+      <circle cx="14.5" cy="10" r="2" {...S} />
+      <circle cx="14" cy="14.5" r="2" {...S} />
+      <path d="M12 6v2M12 16v2" {...S} opacity="0.45" />
     </svg>
   );
 }
 
-export function GlyphCad({ className }: G) {
+export function GlyphWheat({ className }: GlyphProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path d="M12 5v14M9 8l3-3 3 3M9 16l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M12 6v12" {...S} />
+      <path d="M9.5 9.5c2-2 5-2 5 0M9.5 14.5c2 2 5 2 5 0" {...S} />
+      <path d="M8 7.5l4-1.5 4 1.5" {...S} opacity="0.5" />
     </svg>
   );
 }
 
-export function GlyphChf({ className }: G) {
+export function GlyphCoffee({ className }: GlyphProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path d="M9 9h6v6H9V9zm-2 2h2m8 0h2m-6-2v2m0 4v2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M8.5 10.5h7.5v5.5a3.8 3.8 0 01-7.5 0v-5.5z" {...S} />
+      <path d="M16 11.5h1.6a2 2 0 010 4H16M10 7V5.5M14 7V5.5" {...S} />
     </svg>
   );
 }
 
-export function GlyphGold({ className }: G) {
+export function GlyphCocoa({ className }: GlyphProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path d="M6 18h12l-2-10H8L6 18z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-      <path d="M9 8h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M9.5 14.5c0-3.5 1.5-6.5 2.5-6.5s2.5 3 2.5 6.5" {...S} />
+      <path d="M8 14.5h7" {...S} />
+      <ellipse cx="12" cy="15.5" rx="3.5" ry="1.2" {...S} opacity="0.55" />
     </svg>
   );
 }
 
-export function GlyphSilver({ className }: G) {
+export function GlyphSugar({ className }: GlyphProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <rect x="6" y="6" width="12" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" />
-      <path d="M9 12h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M8 15l2-7 2 7M14 15l2-7 2 7" {...S} />
+      <path d="M7.5 15h9" {...S} />
     </svg>
   );
 }
 
-export function GlyphMetal({ className }: G) {
+export function GlyphCotton({ className }: GlyphProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <ellipse cx="12" cy="14" rx="6" ry="3" stroke="currentColor" strokeWidth="1.5" />
-      <path d="M8 11l4-5 4 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="10" cy="11" r="3" {...S} />
+      <circle cx="14.5" cy="13" r="2.5" {...S} />
+      <path d="M12 6v1.5M12 16.5V18" {...S} opacity="0.45" />
     </svg>
   );
 }
 
-export function GlyphOil({ className }: G) {
+export function GlyphCattle({ className }: GlyphProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M12 4c-2 4-6 6-6 10a6 6 0 1012 0c0-4-4-6-6-10z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
-      />
+      <path d="M7.5 14.5c0-3 2.2-5.5 4.5-5.5s4.5 2.5 4.5 5.5v2H7.5v-2z" {...S} />
+      <path d="M9.5 8.5V7M14.5 8.5V7" {...S} />
     </svg>
   );
 }
 
-export function GlyphGas({ className }: G) {
+export function GlyphHogs({ className }: GlyphProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M12 4c3 3 5 6 5 9a5 5 0 11-10 0c0-3 2-6 5-9z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
-      />
+      <ellipse cx="12" cy="13" rx="5" ry="3.5" {...S} />
+      <circle cx="9.5" cy="11" r="1" {...S} />
+      <circle cx="14.5" cy="11" r="1" {...S} />
+      <path d="M12 9.5c0-1.5.8-2.5 0-3.5" {...S} opacity="0.55" />
     </svg>
   );
 }
 
-export function GlyphGrain({ className }: G) {
+export function GlyphNas100({ className }: GlyphProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path d="M12 4v16M8 8c2-2 4-2 4 0s2 2 4 0M8 16c2 2 4 2 4 0s2-2 4 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M6 17V12M10 17V9M14 17V11M18 17V7" {...S} />
+      <path d="M5 17h14" {...S} opacity="0.45" />
     </svg>
   );
 }
 
-export function GlyphCoffee({ className }: G) {
+export function GlyphSp500({ className }: GlyphProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path d="M8 10h8v6a4 4 0 01-8 0v-6z" stroke="currentColor" strokeWidth="1.5" />
-      <path d="M16 12h2a2 2 0 010 4h-2M10 6V4M14 6V4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M6 17l4-9 3 5 2-3 3 7" {...S} />
+      <path d="M5 17h14" {...S} opacity="0.45" />
     </svg>
   );
 }
 
-export function GlyphSoft({ className }: G) {
+export function GlyphDow({ className }: GlyphProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path d="M8 14c0-4 2-8 4-8s4 4 4 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      <path d="M7 14h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M7 17V10h3v7M14 17V7h3v10" {...S} />
+      <path d="M5 17h14" {...S} opacity="0.45" />
     </svg>
   );
 }
 
-export function GlyphLivestock({ className }: G) {
+export function GlyphRussell({ className }: GlyphProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M7 14c0-3 2-6 5-6s5 3 5 6v2H7v-2zM10 8V6M14 8V6"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <path d="M6 17V13M9 17V10M12 17V14M15 17V9M18 17V11" {...S} />
+      <path d="M5 17h14" {...S} opacity="0.45" />
     </svg>
   );
 }
 
-export function GlyphIndex({ className }: G) {
+/** Bond-style yield curve (for future US02Y / US10Y markets) */
+export function GlyphBond({ className }: GlyphProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path d="M5 17l4-6 4 3 5-8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M5 19h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M6 16c2-4 4-5 6-7s4-3 6-5" {...S} />
+      <circle cx="6" cy="16" r="1" fill="currentColor" />
+      <circle cx="12" cy="11" r="1" fill="currentColor" />
+      <circle cx="18" cy="6" r="1" fill="currentColor" />
     </svg>
   );
 }
 
-export function GlyphDefault({ className }: G) {
+export function GlyphDefault({ className }: GlyphProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="1.5" />
-      <path d="M12 8v8M8 12h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M12 5l1.8 4.2H18l-3.4 2.5 1.3 4-3.7-2.6-3.7 2.6 1.3-4L6 9.2h4.2L12 5z" fill="currentColor" opacity="0.2" />
+      <circle cx="12" cy="12" r="7.5" {...S} opacity="0.7" />
     </svg>
   );
 }

@@ -76,14 +76,14 @@ export function CotHeatmap({ markets, bundle, selectedMarket, onSelectMarket }: 
               aria-pressed={active}
               disabled={!data}
               onClick={() => data && onSelectMarket(m)}
-              className={`group relative flex flex-col rounded-xl border px-3 py-3.5 text-left transition-all duration-300 ${bg} ${border} ${ring} ${
+              className={`titan-heatmap-cell group relative flex flex-col rounded-xl border px-3 py-3.5 text-left transition-all duration-300 ${bg} ${border} ${ring} ${
                 active
                   ? "z-10 scale-[1.02] border-titan-gold/50 shadow-[0_0_0_1px_rgba(212,175,55,0.4),0_16px_40px_-16px_rgba(212,175,55,0.25)]"
                   : ""
               } ${data ? "hover:border-titan-gold/35 hover:shadow-card active:scale-[0.99]" : "cursor-not-allowed opacity-35"}`}
             >
               <div className="flex items-center gap-2.5">
-                <TitanMarketIcon market={m} size="sm" />
+                <TitanMarketIcon market={m} size="sm" score={score ?? undefined} />
                 <span className="font-display text-sm font-semibold text-stone-100">{m.shortLabel}</span>
               </div>
               <span className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-stone-500">

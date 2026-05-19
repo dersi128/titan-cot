@@ -1,27 +1,37 @@
 import type { InstitutionalMarket } from "../../../config/institutionalMarkets";
 import type { ComponentType } from "react";
+import type { GlyphProps } from "./glyphs";
 import {
   GlyphAud,
+  GlyphBond,
   GlyphCad,
+  GlyphCattle,
   GlyphChf,
+  GlyphCocoa,
   GlyphCoffee,
+  GlyphCopper,
+  GlyphCorn,
+  GlyphCotton,
   GlyphDefault,
+  GlyphDow,
   GlyphDxy,
   GlyphEur,
   GlyphGas,
   GlyphGbp,
   GlyphGold,
-  GlyphGrain,
-  GlyphIndex,
+  GlyphHogs,
   GlyphJpy,
-  GlyphLivestock,
-  GlyphMetal,
+  GlyphNas100,
   GlyphOil,
+  GlyphPalladium,
+  GlyphPlatinum,
+  GlyphRussell,
   GlyphSilver,
-  GlyphSoft,
+  GlyphSoy,
+  GlyphSp500,
+  GlyphSugar,
+  GlyphWheat,
 } from "./glyphs";
-
-type GlyphProps = { className?: string };
 
 const BY_ID: Record<string, ComponentType<GlyphProps>> = {
   DXY: GlyphDxy,
@@ -33,26 +43,28 @@ const BY_ID: Record<string, ComponentType<GlyphProps>> = {
   CHF: GlyphChf,
   GOLD: GlyphGold,
   SILVER: GlyphSilver,
-  PLATINUM: GlyphMetal,
-  PALLADIUM: GlyphMetal,
-  COPPER: GlyphMetal,
+  PLATINUM: GlyphPlatinum,
+  PALLADIUM: GlyphPalladium,
+  COPPER: GlyphCopper,
   OIL: GlyphOil,
   NATGAS: GlyphGas,
-  CORN: GlyphGrain,
-  SOYBEANS: GlyphGrain,
-  WHEAT: GlyphGrain,
+  CORN: GlyphCorn,
+  SOYBEANS: GlyphSoy,
+  WHEAT: GlyphWheat,
   COFFEE: GlyphCoffee,
-  COCOA: GlyphSoft,
-  SUGAR: GlyphSoft,
-  COTTON: GlyphSoft,
-  CATTLE: GlyphLivestock,
-  HOGS: GlyphLivestock,
-  SP500: GlyphIndex,
-  NAS100: GlyphIndex,
-  DOW: GlyphIndex,
-  RUSSELL: GlyphIndex,
+  COCOA: GlyphCocoa,
+  SUGAR: GlyphSugar,
+  COTTON: GlyphCotton,
+  CATTLE: GlyphCattle,
+  HOGS: GlyphHogs,
+  SP500: GlyphSp500,
+  NAS100: GlyphNas100,
+  DOW: GlyphDow,
+  RUSSELL: GlyphRussell,
 };
 
 export function resolveMarketGlyph(market: InstitutionalMarket): ComponentType<GlyphProps> {
   return BY_ID[market.id] ?? GlyphDefault;
 }
+
+export { GlyphBond };
