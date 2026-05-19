@@ -41,6 +41,8 @@ const CHART_TOOLTIP_STYLE = {
 };
 
 export function MarketDetailPanel({ market, data, loading, error }: MarketDetailPanelProps) {
+  const { t } = useTitanI18n();
+
   const chartData =
     data?.history?.map((h) => ({
       reportDate: h.reportDate.slice(0, 10),
