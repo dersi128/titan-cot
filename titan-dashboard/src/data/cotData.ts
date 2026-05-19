@@ -1,12 +1,26 @@
 import type { CotDashboardData } from "../types";
 
 const DEFAULT_API = "http://localhost:3000";
+const RENDER_API = "https://titan-cot.onrender.com";
 
-/** Set in Vercel/Netlify: VITE_COT_API_URL=https://your-api.onrender.com */
+/** Set in Vercel: VITE_COT_API_URL=https://titan-cot.onrender.com (no trailing slash) */
 export function getCotApiBase(): string {
   const fromEnv = import.meta.env.VITE_COT_API_URL?.trim();
   if (fromEnv) return fromEnv.replace(/\/$/, "");
+  if (import.meta.env.PROD && typeof window !== "undefined") {
+    return window.location.origin;
+  }
   return DEFAULT_API;
+}
+
+export function describeCotApiTarget(): string {
+  const base = getCotApiBase();
+  if (base === DEFAULT_API) return "localhost:3000 (spusť cot-data-module)";
+  if (base === RENDER_API || base.includes("onrender.com")) return base;
+  if (typeof window !== "undefined" && base === window.location.origin) {
+    return `${base} → proxy na Render`;
+  }
+  return base;
 }
 
 export type CotUnavailableResponse = {
@@ -64,7 +78,9 @@ export async function loadAllMappedCotData(
   );
 
   if (!response.ok) {
-    throw new Error(`Failed to load COT bundle: ${response.status}`);
+    throw new Error(
+      `COT API ${describeCotApiTarget()} → ${response.status}. Zkontroluj VITE_COT_API_URL=https://titan-cot.onrender.com nebo redeploy s vercel.json proxy.`,
+    );
   }
 
   const payload = (await response.json()) as {

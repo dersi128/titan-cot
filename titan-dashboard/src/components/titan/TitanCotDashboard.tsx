@@ -4,7 +4,7 @@ import {
   INSTITUTIONAL_MARKETS,
   type InstitutionalMarket,
 } from "../../config/institutionalMarkets";
-import { loadAllMappedCotData } from "../../data/cotData";
+import { describeCotApiTarget, loadAllMappedCotData } from "../../data/cotData";
 import type { CotDashboardData } from "../../types";
 import { TitanLogo } from "../TitanLogo";
 import { buildScannerRows, GlobalCotScanner } from "./GlobalCotScanner";
@@ -69,7 +69,12 @@ export function TitanCotDashboard() {
         setLastRefresh(new Date());
       } catch (err) {
         if (!cancelled) {
-          setGlobalError(err instanceof Error ? err.message : "Failed to load CFTC data.");
+          const msg = err instanceof Error ? err.message : "Failed to load CFTC data.";
+          setGlobalError(
+            msg.includes("Failed to fetch") || msg.includes("NetworkError")
+              ? `Nelze se připojit k API (${describeCotApiTarget()}). Na Vercelu nastav VITE_COT_API_URL=https://titan-cot.onrender.com nebo pushni vercel.json proxy a redeploy.`
+              : msg,
+          );
           setBundle({});
           setErrors({});
         }

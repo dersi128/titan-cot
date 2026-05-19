@@ -1,5 +1,15 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "framework": "vite"
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/api/cot/:match*",
+      "destination": "https://titan-cot.onrender.com/api/cot/:match*"
+    },
+    {
+      "source": "/health",
+      "destination": "https://titan-cot.onrender.com/health"
+    }
+  ]
 }
