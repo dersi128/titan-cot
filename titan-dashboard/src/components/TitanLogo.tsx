@@ -1,8 +1,6 @@
 import { useId, useState } from "react";
 import { useTitanI18n } from "../i18n";
-
-/** Drop your asset at: titan-dashboard/public/brand/titan-logo.png */
-export const TITAN_LOGO_SRC = "/brand/titan-logo.png";
+import { TITAN_LOGO_SRC } from "../lib/brandAssets";
 
 type TitanLogoProps = {
   className?: string;
@@ -84,16 +82,20 @@ export function TitanLogo({ className, title = "TITAN COT", showWordmark = false
     return <TitanLogoSvg className={className} title={title} showWordmark={showWordmark} />;
   }
 
+  const imgClass =
+    "titan-brand-logo h-11 w-auto max-w-[min(100vw-2rem,320px)] object-contain object-left md:h-[3.25rem]";
+
   if (showWordmark) {
     return (
       <div className={`flex flex-col items-start gap-1 ${className ?? ""}`}>
         <img
           src={TITAN_LOGO_SRC}
           alt={title}
-          width={280}
-          height={56}
-          className="h-11 w-auto max-w-[min(100vw-2rem,300px)] object-contain object-left drop-shadow-glow md:h-12"
+          width={320}
+          height={64}
+          className={imgClass}
           decoding="async"
+          fetchPriority="high"
           onError={() => setUseFallback(true)}
         />
         <p className="pl-0.5 font-sans text-[11px] font-medium uppercase tracking-[0.28em] text-titan-muted">
@@ -107,7 +109,7 @@ export function TitanLogo({ className, title = "TITAN COT", showWordmark = false
     <img
       src={TITAN_LOGO_SRC}
       alt={title}
-      className={className ?? "h-10 w-auto object-contain drop-shadow-glow"}
+      className={`titan-brand-logo ${className ?? "h-10 w-auto object-contain"}`}
       decoding="async"
       onError={() => setUseFallback(true)}
     />

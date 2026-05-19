@@ -38,15 +38,21 @@
     isolation: isolate;
   }
 
+  .titan-brand-logo {
+    filter: drop-shadow(0 0 28px rgba(212, 175, 55, 0.35));
+    /* Black rectangle in PNG blends into dark UI */
+    mix-blend-mode: lighten;
+  }
+
   .titan-institutional-backdrop__photo {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center 40%;
-    opacity: 0.52;
-    filter: saturate(1.05) contrast(1.04);
+    object-position: center 42%;
+    opacity: 0.78;
+    filter: saturate(1.08) contrast(1.06) brightness(1.05);
   }
 
   .titan-institutional-backdrop__map {
@@ -98,8 +104,8 @@
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(ellipse 85% 65% at 50% 38%, transparent 0%, rgba(5, 5, 5, 0.35) 50%, rgba(5, 5, 5, 0.9) 100%),
-      linear-gradient(180deg, rgba(5, 5, 5, 0.55) 0%, rgba(5, 5, 5, 0.35) 35%, rgba(5, 5, 5, 0.88) 100%);
+      radial-gradient(ellipse 90% 70% at 50% 40%, transparent 0%, rgba(5, 5, 5, 0.15) 45%, rgba(5, 5, 5, 0.72) 100%),
+      linear-gradient(180deg, rgba(5, 5, 5, 0.35) 0%, rgba(5, 5, 5, 0.12) 40%, rgba(5, 5, 5, 0.75) 100%);
   }
 
   .titan-content-layer {

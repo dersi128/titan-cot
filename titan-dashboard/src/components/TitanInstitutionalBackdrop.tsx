@@ -1,24 +1,29 @@
-import { useState } from "react";
-
-/** Drop your asset at: titan-dashboard/public/brand/world-map.jpg */
-export const TITAN_WORLD_MAP_SRC = "/brand/world-map.jpg";
+import { useCallback, useState } from "react";
+import { TITAN_WORLD_MAP_CANDIDATES } from "../lib/brandAssets";
 
 /** Cinematic institutional background — world map photo + gold atmosphere. */
 export function TitanInstitutionalBackdrop() {
-  const [hasPhoto, setHasPhoto] = useState(true);
+  const [mapIndex, setMapIndex] = useState(0);
+  const mapSrc = TITAN_WORLD_MAP_CANDIDATES[mapIndex] ?? TITAN_WORLD_MAP_CANDIDATES[0];
+  const showSvgFallback = mapIndex >= TITAN_WORLD_MAP_CANDIDATES.length;
+
+  const onMapError = useCallback(() => {
+    setMapIndex((i) => i + 1);
+  }, []);
 
   return (
     <div className="titan-institutional-backdrop pointer-events-none fixed inset-0 z-0" aria-hidden>
       <div
-        className={`titan-institutional-backdrop__map ${hasPhoto ? "titan-institutional-backdrop__map--hidden" : ""}`}
+        className={`titan-institutional-backdrop__map ${showSvgFallback ? "" : "titan-institutional-backdrop__map--hidden"}`}
       />
-      {hasPhoto ? (
+      {!showSvgFallback ? (
         <img
-          src={TITAN_WORLD_MAP_SRC}
+          key={mapSrc}
+          src={mapSrc}
           alt=""
           className="titan-institutional-backdrop__photo"
           decoding="async"
-          onError={() => setHasPhoto(false)}
+          onError={onMapError}
         />
       ) : null}
       <div className="titan-institutional-backdrop__mesh" />
