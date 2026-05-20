@@ -1,6 +1,12 @@
 import type { CotDashboardData } from "../../types";
 import type { InstitutionalMarket } from "../../config/institutionalMarkets";
-import { computeTitanDashboardScore, getTitanCotRead, resolveTitanVerdict, verdictAccentClass } from "../../lib/titanCotScore";
+import {
+  computeTitanDashboardScore,
+  getTitanCotRead,
+  resolveTitanVerdict,
+  verdictAccentClass,
+  type TitanBiasVerdict,
+} from "../../lib/titanCotScore";
 import { evaluateTitanPositioning } from "../../lib/titanCommercialIndex";
 import { useTitanI18n } from "../../i18n";
 import { TitanMarketIcon } from "./TitanMarketIcon";
@@ -21,7 +27,7 @@ function biasSummaryLabel(bias: CotDashboardData["commercials"]["bias"] | undefi
 export function MarketDetailHero({ market, data, loading }: MarketDetailHeroProps) {
   const { t } = useTitanI18n();
   let score: number | null = null;
-  let verdict: string | null = null;
+  let verdict: TitanBiasVerdict | null = null;
   let cotRead: ReturnType<typeof getTitanCotRead> | null = null;
   if (data) {
     try {

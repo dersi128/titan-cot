@@ -11,6 +11,8 @@ import {
 /** Unified verdict (same as API). */
 export type TitanBiasVerdict = CotVerdict;
 
+export type { TitanCotScoringResult } from "./titanCotScoringCore";
+
 export type PositioningTrend = "accumulation" | "distribution" | "flat";
 
 function dashboardToScoringInput(data: CotDashboardData): TitanCotScoringInput {

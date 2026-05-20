@@ -1,5 +1,8 @@
 import type { InstitutionalMarket } from "../config/institutionalMarkets";
 import type { CotDashboardData } from "../types";
+import { commercialIndexZone, type MarketRegimeId } from "./titanCommercialIndex";
+import { convictionRankScore } from "./titanConviction";
+
 export type HomeScannerRow = {
   market: InstitutionalMarket;
   score: number;
@@ -8,8 +11,6 @@ export type HomeScannerRow = {
   regime: MarketRegimeId;
   status: "live" | "loading" | "error";
 };
-import { commercialIndexZone, type MarketRegimeId } from "./titanCommercialIndex";
-import { convictionRankScore } from "./titanConviction";
 
 export const REGIME_OVERVIEW_ORDER: MarketRegimeId[] = [
   "distribution",
@@ -108,8 +109,6 @@ export function buildHomeOverviewStats(
 
   const enriched = liveRows
     .map((row) => {
-      const data = bundle[row.market.symbol]!;
-      const read = evaluateTitanPositioning(data);
       const conviction = row.conviction;
       const rank = convictionRankScore(row.score, conviction, row.persistenceWeeks);
       return { row, rank, conviction };

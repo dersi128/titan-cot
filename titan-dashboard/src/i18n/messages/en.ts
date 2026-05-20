@@ -504,4 +504,13 @@ export const enMessages = {
   footerNote: "Data derived from CFTC COT reports · Legacy futures only · Not financial advice",
 } as const;
 
-export type Messages = typeof enMessages;
+/** Allows translated locales (e.g. cs) without matching English literal strings. */
+type DeepString<T> = T extends string
+  ? string
+  : T extends readonly (infer U)[]
+    ? readonly DeepString<U>[]
+    : T extends object
+      ? { [K in keyof T]: DeepString<T[K]> }
+      : T;
+
+export type Messages = DeepString<typeof enMessages>;
