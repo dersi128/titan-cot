@@ -172,7 +172,7 @@ export function MarketDetailPanel({ market, data, loading, error }: MarketDetail
     <TitanPanel className="titan-detail-panel overflow-hidden p-0">
       <MarketDetailHeroBias market={market} data={data} loading={loading} />
 
-      <div className="border-b border-white/[0.06] bg-black/15 px-5 py-4 md:px-7 md:py-5">
+      <div className="border-b border-white/[0.06] bg-black/10 px-5 py-3 md:px-7 md:py-4">
         <TitanBiasEngine market={market} data={data} loading={loading} embedded />
       </div>
 

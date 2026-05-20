@@ -383,6 +383,9 @@ export const csMessages: Messages = {
     delta13w: "Delta 13T",
     structuralTitle: "STRUKTURÁLNÍ BIAS",
     executionTitle: "EXEKUČNÍ KONTEXT",
+    executionLine1: "Pouze bias — ne execution.",
+    executionLine2: "Negeneruje se trade signál.",
+    transparencyToggle: "Transparentnost driverů",
     importanceTitle: "ROZLOŽENÍ DŮLEŽITOSTI",
     importanceNote:
       "Importance je informativní — není násobitel ani tvrdý strop bodů. Body se sčítají; CELKOVÉ SKÓRE je oříznuté −100…+100.",

@@ -1172,6 +1172,23 @@
     @apply bg-emerald-400/90;
     box-shadow: 0 0 8px rgba(0, 208, 132, 0.45);
   }
+
+  .titan-bias-structural__list .titan-bias-bullet__dot {
+    @apply mt-2 h-1 w-1 bg-titan-gold/70;
+    box-shadow: none;
+  }
+
+  .titan-bias-execution-note {
+    letter-spacing: 0.02em;
+  }
+
+  .titan-bias-transparency__toggle:hover {
+    @apply text-stone-400;
+  }
+
+  .titan-bias-transparency__toggle:hover .text-stone-500 {
+    @apply text-stone-400;
+  }
 }
 
 @layer utilities {

@@ -381,6 +381,9 @@ export const enMessages = {
     delta13w: "13W Delta",
     structuralTitle: "STRUCTURAL BIAS",
     executionTitle: "EXECUTION CONTEXT",
+    executionLine1: "Bias only — not execution.",
+    executionLine2: "No trade signal is generated.",
+    transparencyToggle: "Driver transparency",
     importanceTitle: "IMPORTANCE BREAKDOWN",
     importanceNote:
       "Importance reflects relative emphasis in the framework — it is not a multiplier and does not cap points. Points are additive; TOTAL SCORE is clamped to −100…+100.",

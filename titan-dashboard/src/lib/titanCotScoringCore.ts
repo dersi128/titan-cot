@@ -489,32 +489,23 @@ function buildKeyDrivers(
   c: TitanCotScoringInput["commercials"],
   persistWeeks: number,
   components: TitanCotScoringComponents,
-  clamped: number,
-  retailPoints: number,
+  _clamped: number,
+  _retailPoints: number,
 ): { structural: string[]; execution: string[] } {
   const structural: string[] = [];
-  if (c.index26w < 35) structural.push("Commercials remain heavily net short (index toward window low).");
-  if (c.index26w > 65) structural.push("Commercials remain heavily net long (index toward window high).");
+  if (c.index26w < 35) structural.push("Commercials remain heavily net short.");
+  if (c.index26w > 65) structural.push("Commercials remain heavily net long.");
   if (c.index26w < IDX_LO || c.index26w > IDX_HI) {
-    structural.push("Commercial positioning remains in extreme territory on the 26W measure.");
+    structural.push("Positioning remains in extreme territory.");
   }
-  if (components.commercialDeltaFlow < -10) structural.push("Commercial delta flow remains negative across horizons.");
-  if (components.commercialDeltaFlow > 10) structural.push("Commercial delta flow remains positive across horizons.");
-  if (persistWeeks >= 5)
-    structural.push("Persistence remains elevated vs typical rolling extremes.");
+  if (components.commercialDeltaFlow < -10) structural.push("Delta flow remains negative across horizons.");
+  if (components.commercialDeltaFlow > 10) structural.push("Delta flow remains positive across horizons.");
+  if (persistWeeks >= 5) structural.push("Persistence remains elevated.");
   if (structural.length === 0) {
-    structural.push("Structural positioning does not meet strong extreme / flow triggers — bias is moderate.");
+    structural.push("Bias is moderate — no extreme structural triggers.");
   }
 
   const execution: string[] = [];
-  if (Math.abs(retailPoints) >= 8) {
-    execution.push("Retail positioning suggests a contrarian tilt vs commercials (anomaly factor only).");
-  }
-  execution.push("No execution signal is generated from these rules.");
-  execution.push("Bias only, not trade entry.");
-  if (Math.abs(clamped) >= 65) {
-    execution.push("High bias magnitude indicates conviction in the COT read — still not an entry system.");
-  }
   return { structural, execution };
 }
 
