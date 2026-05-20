@@ -42,12 +42,19 @@ export function currentYearCurveToMonthlyValues(
   });
 }
 
+export type SeasonalityChartRow = Record<string, string | number | boolean | null> & {
+  month: string;
+  monthIndex: number;
+  isCurrent: boolean;
+  monthReturnPct?: number | null;
+};
+
 export function buildMonthlyChartRows(
   series: { key: string; values: (number | null)[] | number[] }[],
   currentMonth: number,
-): Record<string, string | number | boolean | null>[] {
+): SeasonalityChartRow[] {
   return MONTHS.map((month, i) => {
-    const row: Record<string, string | number | boolean | null> = {
+    const row: SeasonalityChartRow = {
       month,
       monthIndex: i + 1,
       isCurrent: i + 1 === currentMonth,

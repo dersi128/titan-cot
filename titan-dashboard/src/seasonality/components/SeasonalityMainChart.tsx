@@ -16,6 +16,7 @@ import type { SeasonalityResult } from "../types";
 import { lookbackColor } from "../yearsLookback";
 import {
   buildMonthlyChartRows,
+  type SeasonalityChartRow,
   CHART_LOOKBACK_ORDER,
   CURRENT_YEAR_CHART_KEY,
   CURRENT_YEAR_LINE_COLOR,
@@ -91,7 +92,7 @@ export function SeasonalityMainChart({ comparison, currentMonth, result }: Seaso
 
     const rows = buildMonthlyChartRows(series, currentMonth);
     const monthly = primaryResult.currentYearMonthlyReturns ?? [];
-    return rows.map((row, i) => ({
+    return rows.map((row, i): SeasonalityChartRow => ({
       ...row,
       monthReturnPct: monthly[i]?.pct ?? null,
     }));

@@ -8,12 +8,14 @@ export type SeasonalityLegendFocus = string | null;
 
 type SeasonalityChartLegendProps = {
   comparison: SeasonalityComparison;
+  currentYear: number;
   focus: SeasonalityLegendFocus;
   onFocusChange: (key: SeasonalityLegendFocus) => void;
 };
 
 export function SeasonalityChartLegend({
   comparison,
+  currentYear,
   focus,
   onFocusChange,
 }: SeasonalityChartLegendProps) {
