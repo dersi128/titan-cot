@@ -208,26 +208,26 @@ export function GlobalCotScanner({ rows, selectedMarket, onSelectMarket }: Globa
   );
 
   return (
-    <TitanPanel className="titan-scanner-primary animate-fade-up overflow-hidden p-0">
-      <div className="border-b border-white/[0.06] px-4 py-3 md:px-5">
+    <TitanPanel className="titan-scanner-primary animate-fade-up overflow-visible p-0">
+      <div className="titan-scanner-head border-b border-white/10 bg-[#0c0c0f]/90 px-4 py-3 md:px-5">
         <TitanPanelHeader
           eyebrow={t("scanner.eyebrow")}
           description={
-            <span className="text-stone-400">
+            <span className="text-[13px] text-stone-300">
               {t("scanner.marketsSorted", { count: sorted.filter((r) => r.status === "live").length })}{" "}
-              <span className="text-stone-500">{t("scanner.legacyOnly")}</span>
+              <span className="text-stone-400">{t("scanner.legacyOnly")}</span>
             </span>
           }
         />
-        <div className="titan-scanner-filters mt-2.5 flex flex-wrap items-center gap-2">
-          <label className="titan-filter-chip flex cursor-pointer items-center gap-2 border border-white/[0.14] bg-[#141418] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-stone-200">
+        <div className="titan-scanner-filters mt-3 flex flex-wrap items-center gap-2.5">
+          <label className="titan-filter-chip">
             <input
               type="checkbox"
-              className="accent-titan-gold"
+              className="h-3.5 w-3.5 accent-[#d4af37]"
               checked={onlyExtremes}
               onChange={(e) => setOnlyExtremes(e.target.checked)}
             />
-            {t("home.filterOnlyExtremes")}
+            <span>{t("home.filterOnlyExtremes")}</span>
           </label>
           <TitanFilterSelect
             value={regimeFilter}
@@ -246,11 +246,11 @@ export function GlobalCotScanner({ rows, selectedMarket, onSelectMarket }: Globa
             placeholder={t("home.filterSearch")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="titan-filter-search min-w-[140px] flex-1 border border-white/[0.14] bg-[#141418] px-3 py-1.5 text-[12px] text-stone-100 placeholder:text-stone-500 md:max-w-[220px]"
+            className="titan-filter-search min-w-[160px] flex-1 md:max-w-[240px]"
           />
         </div>
       </div>
-      <div className="titan-scanner-table-wrap">
+      <div className="titan-scanner-table-wrap overflow-x-auto rounded-b-2xl">
         <table className="titan-scanner-table w-full min-w-[1020px] text-left text-sm">
           <thead>
             <tr>
@@ -300,7 +300,7 @@ export function GlobalCotScanner({ rows, selectedMarket, onSelectMarket }: Globa
                         <span className="font-display text-[15px] font-semibold tracking-wide text-white">
                           {row.market.shortLabel}
                         </span>
-                        <p className="mt-0.5 text-[11px] text-stone-400">
+                        <p className="mt-0.5 text-[12px] text-stone-300">
                           {messages.category[row.market.category]} · {row.market.subtitle}
                         </p>
                         {row.status === "error" ? (

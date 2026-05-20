@@ -33,7 +33,7 @@ export function TitanPanelHeader({
   return (
     <header className="flex flex-col gap-3 border-b border-titan-line/80 px-5 py-4 sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0">
-        <p className="font-display text-[10px] font-semibold uppercase tracking-[0.24em] text-titan-gold">
+        <p className="font-display text-[11px] font-semibold uppercase tracking-[0.22em] text-[#e8c547]">
           {eyebrow}
         </p>
         {title ? (

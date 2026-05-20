@@ -450,7 +450,11 @@
   }
 
   .titan-scanner-table thead th {
-    @apply border-b border-white/[0.08] bg-titan-void/95 px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-400 backdrop-blur-md;
+    @apply border-b border-white/10 bg-[#0a0a0d] px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-stone-300;
+  }
+
+  .titan-scanner-table tbody td {
+    color: #e7e5e4;
   }
 
   .titan-scanner-row {
@@ -564,25 +568,89 @@
     box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.03), 0 12px 40px -24px rgba(0, 0, 0, 0.65);
   }
 
+  .titan-scanner-head {
+    position: relative;
+    z-index: 20;
+  }
+
   .titan-filter-chip {
-    @apply rounded-sm;
+    @apply flex cursor-pointer items-center gap-2.5 rounded border border-white/20 bg-[#1c1d22] px-3 py-2;
+    color: #f5f5f4;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
   }
 
   .titan-filter-select-btn {
-    @apply rounded-sm;
+    display: flex;
+    min-width: 11rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 4px;
+    background: #1c1d22;
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 600;
+    color: #fafaf9;
+    letter-spacing: 0.02em;
   }
 
-  .titan-filter-select-menu {
-    @apply rounded-sm;
+  .titan-filter-select-btn:hover {
+    border-color: rgba(212, 175, 55, 0.45);
+    background: #222328;
+  }
+
+  .titan-filter-select-btn__caret {
+    flex-shrink: 0;
+    font-size: 11px;
+    color: #a8a29e;
+  }
+
+  .titan-filter-select-menu__item {
+    display: block;
+    width: 100%;
+    padding: 0.55rem 0.85rem;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.35;
+    color: #f5f5f4;
+    letter-spacing: 0.01em;
+    text-transform: none;
+  }
+
+  .titan-filter-select-menu__item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+  }
+
+  .titan-filter-select-menu__item--active {
+    background: rgba(212, 175, 55, 0.22);
+    color: #fcee9a;
+    font-weight: 600;
   }
 
   .titan-filter-search {
-    @apply rounded-sm outline-none;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 4px;
+    background: #1c1d22;
+    padding: 0.5rem 0.75rem;
+    font-size: 13px;
+    color: #fafaf9;
+    outline: none;
+  }
+
+  .titan-filter-search::placeholder {
+    color: #78716c;
   }
 
   .titan-filter-search:focus {
-    border-color: rgba(212, 175, 55, 0.35);
-    box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.15);
+    border-color: rgba(212, 175, 55, 0.5);
+    box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.2);
   }
 
   .titan-conviction-stars {
