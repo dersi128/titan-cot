@@ -1,13 +1,4 @@
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  ReferenceLine,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { Area, AreaChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { DeltaFlowRow } from "../../lib/titanCommercialIndex";
 import {
   horizonDeltas,
@@ -32,9 +23,9 @@ function fmtDeltaShort(n: number): string {
 }
 
 function strokeForTone(tone: HorizonFlowTone): string {
-  if (tone === "bull") return "#34d399";
-  if (tone === "bear") return "#fb7185";
-  return "#94a3b8";
+  if (tone === "bull") return "#5b8f75";
+  if (tone === "bear") return "#b87878";
+  return "#7d8288";
 }
 
 function fillIdForTone(tone: HorizonFlowTone): string {
@@ -79,7 +70,7 @@ export function DeltaFlowHorizonChart({ rows, t }: DeltaFlowHorizonChartProps) {
   const strengthKey = `positioning.delta.flowStrength.${strength}`;
 
   const valueClass =
-    tone === "bull" ? "text-emerald-400" : tone === "bear" ? "text-rose-400" : "text-stone-400";
+    tone === "bull" ? "text-[#6eb692]" : tone === "bear" ? "text-[#c99494]" : "text-stone-500";
 
   return (
     <div className="flex flex-col gap-4 lg:flex-row lg:items-stretch lg:gap-5">
@@ -88,31 +79,30 @@ export function DeltaFlowHorizonChart({ rows, t }: DeltaFlowHorizonChartProps) {
           <AreaChart data={chartData} margin={{ top: 8, right: 6, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="deltaFlowPos" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="rgba(52, 211, 153, 0.35)" />
-                <stop offset="100%" stopColor="rgba(52, 211, 153, 0.02)" />
+                <stop offset="0%" stopColor="rgba(91, 143, 117, 0.26)" />
+                <stop offset="100%" stopColor="rgba(91, 143, 117, 0.02)" />
               </linearGradient>
               <linearGradient id="deltaFlowNeg" x1="0" y1="1" x2="0" y2="0">
-                <stop offset="0%" stopColor="rgba(251, 113, 133, 0.32)" />
-                <stop offset="100%" stopColor="rgba(251, 113, 133, 0.02)" />
+                <stop offset="0%" stopColor="rgba(184, 120, 120, 0.24)" />
+                <stop offset="100%" stopColor="rgba(184, 120, 120, 0.02)" />
               </linearGradient>
               <linearGradient id="deltaFlowMix" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="rgba(148, 163, 184, 0.2)" />
-                <stop offset="100%" stopColor="rgba(148, 163, 184, 0.02)" />
+                <stop offset="0%" stopColor="rgba(125, 130, 136, 0.16)" />
+                <stop offset="100%" stopColor="rgba(125, 130, 136, 0.02)" />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(37,37,45,0.45)" vertical={false} />
             <XAxis
               dataKey="tf"
-              tick={{ fill: "#78716c", fontSize: 10, fontFamily: "JetBrains Mono" }}
+              tick={{ fill: "#57534e", fontSize: 10, fontFamily: "JetBrains Mono" }}
               tickLine={false}
-              axisLine={{ stroke: "rgba(37,37,45,0.7)" }}
+              axisLine={{ stroke: "rgba(45,45,52,0.85)" }}
             />
             <YAxis
               width={40}
               domain={[yMin, yMax]}
-              tick={{ fill: "#78716c", fontSize: 9, fontFamily: "JetBrains Mono" }}
+              tick={{ fill: "#57534e", fontSize: 9, fontFamily: "JetBrains Mono" }}
               tickLine={false}
-              axisLine={{ stroke: "rgba(37,37,45,0.7)" }}
+              axisLine={{ stroke: "rgba(45,45,52,0.85)" }}
               tickFormatter={(v) => {
                 const n = Number(v);
                 if (!Number.isFinite(n)) return "";
@@ -126,16 +116,16 @@ export function DeltaFlowHorizonChart({ rows, t }: DeltaFlowHorizonChartProps) {
               labelStyle={{ color: "#a8a29e" }}
               formatter={(v: number) => [fmtDeltaShort(v), t("positioning.delta.delta")]}
             />
-            <ReferenceLine y={0} stroke="rgba(212, 175, 55, 0.35)" strokeDasharray="4 4" />
+            <ReferenceLine y={0} stroke="rgba(214, 211, 208, 0.85)" strokeWidth={1.75} />
             <Area
               type="monotone"
               dataKey="delta"
               stroke={stroke}
-              strokeWidth={2}
+              strokeWidth={1.75}
               fill={`url(#${gradId})`}
               fillOpacity={1}
-              dot={{ r: 4, fill: stroke, stroke: "#0c0c10", strokeWidth: 1 }}
-              activeDot={{ r: 5 }}
+              dot={false}
+              activeDot={{ r: 4, fill: stroke, stroke: "#0c0c10", strokeWidth: 1 }}
               isAnimationActive={false}
             />
           </AreaChart>
@@ -144,11 +134,11 @@ export function DeltaFlowHorizonChart({ rows, t }: DeltaFlowHorizonChartProps) {
 
       <div className="flex flex-col justify-center gap-3 border-t border-white/[0.06] pt-3 text-[10px] font-semibold uppercase tracking-[0.14em] lg:w-[min(28%,220px)] lg:flex-shrink-0 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
         <div>
-          <p className="text-stone-600">{t("positioning.delta.panelCurrent")}</p>
+          <p className="text-stone-600">{t("positioning.delta.panelCurrentDelta")}</p>
           <p className={`mt-1 font-mono text-sm tracking-tight ${valueClass}`}>{fmtDeltaShort(w1)}</p>
         </div>
         <div>
-          <p className="text-stone-600">{t("positioning.delta.panelTrend")}</p>
+          <p className="text-stone-600">{t("positioning.delta.panelFlow")}</p>
           <p className={`mt-1 text-xs tracking-wide ${valueClass}`}>{t(trendKey)}</p>
         </div>
         <div>

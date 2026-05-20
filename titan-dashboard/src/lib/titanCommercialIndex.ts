@@ -30,7 +30,13 @@ export type DivergenceStateId = "none" | "bearish" | "bullish" | "unavailable";
 
 export type MarketRegimeId = "accumulation" | "distribution" | "range" | "trend";
 
-export type DeltaFlowTrend = "accelerating_up" | "accelerating_down" | "steady" | "flat";
+/** Horizon momentum vs longer-window run rate (positioning context, not a trade signal). */
+export type DeltaFlowTrend =
+  | "bearish_accel"
+  | "bullish_accel"
+  | "weakening_bear"
+  | "weakening_bull"
+  | "mixed_flow";
 
 export type DeltaFlowRow = {
   label: "1W" | "4W" | "13W";
@@ -176,13 +182,37 @@ export function weeksInExtremeZone(indexSeries: number[]): number {
 }
 
 export function deltaFlowTrend(weekly: number, periodDelta: number, weeks: number): DeltaFlowTrend {
-  const avgPerWeek = periodDelta / weeks;
-  if (Math.abs(weekly) < 1 && Math.abs(periodDelta) < 1) return "flat";
-  if (weekly > 0 && weekly > Math.abs(avgPerWeek) * 1.05) return "accelerating_up";
-  if (weekly < 0 && Math.abs(weekly) > Math.abs(avgPerWeek) * 1.05) return "accelerating_down";
-  if (weekly > 0 || periodDelta > 0) return "steady";
-  if (weekly < 0 || periodDelta < 0) return "steady";
-  return "flat";
+  const w = weekly;
+  const p = periodDelta;
+  const wks = Math.max(weeks, 1);
+
+  // 13W row uses the same cumulative for both legs — directional label only
+  if (Math.abs(w - p) < 1e-6) {
+    if (Math.abs(w) < 1) return "mixed_flow";
+    return w > 0 ? "bullish_accel" : "bearish_accel";
+  }
+
+  if (Math.abs(w) < 1 && Math.abs(p) < 1) return "mixed_flow";
+
+  if ((w > 0 && p < 0) || (w < 0 && p > 0)) return "mixed_flow";
+
+  const avgPerWeek = p / wks;
+  const base = Math.abs(avgPerWeek);
+  const thrAccel = base * 1.05 + 1e-6;
+
+  const bearishSide = w <= 0 && p <= 0;
+  const bullishSide = w >= 0 && p >= 0;
+
+  if (bearishSide) {
+    if (w < 0 && Math.abs(w) > thrAccel) return "bearish_accel";
+    return "weakening_bear";
+  }
+  if (bullishSide) {
+    if (w > 0 && w > thrAccel) return "bullish_accel";
+    return "weakening_bull";
+  }
+
+  return "mixed_flow";
 }
 
 export function buildDeltaFlow(data: CotDashboardData): DeltaFlowRow[] {

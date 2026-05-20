@@ -322,8 +322,10 @@ function CheckItem({ checked, label }: { checked: boolean; label: string }) {
 }
 
 function trendArrow(trend: DeltaFlowTrend): string {
-  if (trend === "accelerating_up") return "↑";
-  if (trend === "accelerating_down") return "↓";
+  if (trend === "bullish_accel") return "↑";
+  if (trend === "bearish_accel") return "↓";
+  if (trend === "weakening_bull") return "↗";
+  if (trend === "weakening_bear") return "↘";
   return "→";
 }
 
@@ -460,7 +462,7 @@ function PositioningContext({
           <div className="mt-4">
             <DeltaFlowTable rows={read.deltaFlow} t={t} />
           </div>
-          <p className="mt-4 text-[12px] leading-snug text-stone-500">{t("positioning.cards.delta.desc")}</p>
+          <p className="mt-4 text-[11px] leading-relaxed tracking-wide text-stone-500">{t("positioning.cards.delta.desc")}</p>
         </TerminalCard>
       </div>
     </div>

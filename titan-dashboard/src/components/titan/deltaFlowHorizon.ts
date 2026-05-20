@@ -16,16 +16,17 @@ export function horizonFlowTone(w1: number, w4: number, w13: number): HorizonFlo
   return "mixed";
 }
 
-/** Deterministic strength from average |delta| when flow is aligned. */
+/** Deterministic strength from average |delta| when horizons are aligned. */
 export function horizonFlowStrengthClass(
   tone: HorizonFlowTone,
   w1: number,
   w4: number,
   w13: number,
-): "strong" | "moderate" | "weak" | "mixed" {
+): "low" | "moderate" | "high" | "extreme" | "mixed" {
   if (tone === "mixed") return "mixed";
   const avg = (Math.abs(w1) + Math.abs(w4) + Math.abs(w13)) / 3;
-  if (avg >= 25_000) return "strong";
-  if (avg >= 8_000) return "moderate";
-  return "weak";
+  if (avg >= 40_000) return "extreme";
+  if (avg >= 22_000) return "high";
+  if (avg >= 9_000) return "moderate";
+  return "low";
 }
