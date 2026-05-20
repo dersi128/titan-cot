@@ -450,7 +450,7 @@
   }
 
   .titan-scanner-table thead th {
-    @apply border-b border-white/[0.06] bg-titan-void/90 px-4 py-4 text-[10px] font-semibold uppercase tracking-[0.18em] text-titan-muted backdrop-blur-md;
+    @apply border-b border-white/[0.08] bg-titan-void/95 px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-400 backdrop-blur-md;
   }
 
   .titan-scanner-row {
@@ -564,11 +564,15 @@
     box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.03), 0 12px 40px -24px rgba(0, 0, 0, 0.65);
   }
 
-  .titan-scanner-table thead th {
-    @apply py-2.5;
+  .titan-filter-chip {
+    @apply rounded-sm;
   }
 
-  .titan-filter-chip {
+  .titan-filter-select-btn {
+    @apply rounded-sm;
+  }
+
+  .titan-filter-select-menu {
     @apply rounded-sm;
   }
 
@@ -577,7 +581,8 @@
   }
 
   .titan-filter-search:focus {
-    border-color: rgba(212, 175, 55, 0.25);
+    border-color: rgba(212, 175, 55, 0.35);
+    box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.15);
   }
 
   .titan-conviction-stars {

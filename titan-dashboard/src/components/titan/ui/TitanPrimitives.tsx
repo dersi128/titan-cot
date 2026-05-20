@@ -39,7 +39,7 @@ export function TitanPanelHeader({
         {title ? (
           <h2 className="mt-1 font-display text-lg font-semibold tracking-tight text-stone-100">{title}</h2>
         ) : null}
-        {description ? <p className="mt-1 text-sm text-stone-500">{description}</p> : null}
+        {description ? <p className="mt-1 text-sm leading-relaxed text-stone-400">{description}</p> : null}
       </div>
       {aside ? <aside className="shrink-0">{aside}</aside> : null}
     </header>
