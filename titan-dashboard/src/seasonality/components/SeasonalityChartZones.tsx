@@ -18,8 +18,8 @@ const ZONE_FILL = {
 } as const;
 
 const ZONE_STROKE = {
-  bullish: "rgba(61, 184, 140, 0.72)",
-  bearish: "rgba(196, 92, 122, 0.72)",
+  bullish: "rgba(61, 184, 140, 0.55)",
+  bearish: "rgba(196, 92, 122, 0.55)",
 } as const;
 
 const ZONE_LABEL_FILL = {
@@ -31,14 +31,14 @@ export function SeasonalityChartZoneDefs() {
   return (
     <defs>
       <linearGradient id="seasonalityBullZone" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stopColor="#3db88c" stopOpacity={0.42} />
-        <stop offset="42%" stopColor="#2d8f6e" stopOpacity={0.26} />
-        <stop offset="100%" stopColor="#1a4d3c" stopOpacity={0.06} />
+        <stop offset="0%" stopColor="#3db88c" stopOpacity={0.4} />
+        <stop offset="50%" stopColor="#2d8f6e" stopOpacity={0.26} />
+        <stop offset="100%" stopColor="#1a4d3c" stopOpacity={0.1} />
       </linearGradient>
       <linearGradient id="seasonalityBearZone" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stopColor="#c45c7a" stopOpacity={0.4} />
-        <stop offset="42%" stopColor="#9e4562" stopOpacity={0.24} />
-        <stop offset="100%" stopColor="#5c2d3d" stopOpacity={0.06} />
+        <stop offset="0%" stopColor="#c45c7a" stopOpacity={0.38} />
+        <stop offset="50%" stopColor="#9e4562" stopOpacity={0.24} />
+        <stop offset="100%" stopColor="#5c2d3d" stopOpacity={0.1} />
       </linearGradient>
       <filter id="seasonalityBullGlow" x="-8%" y="-12%" width="116%" height="124%">
         <feGaussianBlur stdDeviation="5" result="blur" />

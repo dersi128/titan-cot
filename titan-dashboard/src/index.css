@@ -1073,6 +1073,21 @@
     font-weight: 500;
   }
 
+  .titan-seasonality-year-panel__values {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.1rem;
+  }
+
+  .titan-seasonality-year-panel__vs10y {
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: rgba(212, 175, 55, 0.75);
+  }
+
   .titan-seasonality-deviation-section {
     margin-top: 0.25rem;
   }
@@ -1228,7 +1243,7 @@
   }
 
   .titan-seasonality-line-current-year {
-    filter: drop-shadow(0 0 14px rgba(245, 245, 244, 0.5));
+    filter: drop-shadow(0 0 18px rgba(245, 245, 244, 0.65));
   }
 
   .titan-seasonality-chart-deviation-pill {

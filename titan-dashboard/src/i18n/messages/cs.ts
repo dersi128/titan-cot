@@ -577,8 +577,8 @@ export const csMessages: Messages = {
   seasonality: {
     heroEyebrow: "Historický OHLC framework",
     heroTitle: "TITAN Seasonality",
-    heroSub: "Rolling 30D / 60D / 90D trading-day projekce · vážená historie · momentum & vol režim · event overlay",
-    engineBadge: "Engine v2 · rolling TD · ne měsíční normalizace",
+    heroSub: "Historická sezónní struktura · live path aktuálního roku · kotvené 30D / 60D / 90D na společném indexu 0–100.",
+    engineBadge: "Institucionální sezónnost · společná normalizace · bez macro overlay",
     disclaimer: "Sezónnost je pouze historická tendence. Není to execution signál.",
     selectMarket: "Trh",
     loading: "Počítám sezónní křivku z OHLC historie…",
@@ -590,7 +590,8 @@ export const csMessages: Messages = {
     historicalWindowPrimary: "Statistiky a okna: {{period}}",
     chartTitle: "12měsíční sezónní křivka (normalizováno 0–100)",
     chartTitleRolling: "Rolling sezónní projekce (trading days)",
-    chartSeasonalNote: "30D / 60D / 90D vážené projekce od TDY · live path na 60D kotvě (bez ročního min-max). Měsíční % → vpravo.",
+    chartSeasonalNote:
+      "Všechny křivky sdílí škálu 0–100. Projekce navazují na live kotvu v TODAY — bez resetu za markerem. Měsíční % a vs 10Y → vpravo.",
     chartYAxis: "Sezónní index",
     chartYAxisRolling: "Indexová úroveň",
     chartTooltipRolling: "Rolling projekce · T+N trading days od dneška",
@@ -612,8 +613,10 @@ export const csMessages: Messages = {
     chartTooltip: "Sezónní index",
     yearPanel: {
       title: "{{year}} · měsíční %",
-      sub: "Kalendářní měsíc z futures OHLC (reálné ceny).",
+      sub: "Měsíční výnos z OHLC. vs 10Y používá stejný normalizovaný index jako graf.",
       ytd: "YTD",
+      monthReturn: "Měsíční výnos",
+      vs10y: "vs 10Y index",
     },
     legendHistorical: "Historická sezónnost",
     legendCurrentYear: "Aktuální rok ({{year}})",

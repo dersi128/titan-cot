@@ -61,7 +61,10 @@ export function SeasonalityPage() {
 
   const result = useMemo(() => {
     if (!comparison) return null;
-    return comparison[DEFAULT_YEARS_LOOKBACK] ?? comparison[10] ?? Object.values(comparison)[0] ?? null;
+    const base = comparison[10] ?? comparison[DEFAULT_YEARS_LOOKBACK] ?? Object.values(comparison)[0] ?? null;
+    if (!base) return null;
+    if (base.deviationAnalysis) return base;
+    return attachSeasonalDeviationAnalysis(base);
   }, [comparison]);
 
   const currentMonth = result
@@ -91,7 +94,7 @@ export function SeasonalityPage() {
 
       {comparison && result ? (
         <div className={`space-y-4${loading ? " opacity-80" : ""}`}>
-          <SeasonalityMainChart result={result} currentMonth={currentMonth} />
+          <SeasonalityMainChart result={result} comparison={comparison} currentMonth={currentMonth} />
           <SeasonalityStatsCards result={result} />
           <SeasonalityDeviationSection result={result} />
           <div>

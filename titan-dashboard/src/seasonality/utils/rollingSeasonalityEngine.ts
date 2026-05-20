@@ -8,7 +8,6 @@ import type {
   VolatilityRegime,
   IntramonthBucket,
 } from "../types";
-import { buildSeasonalEvents } from "./seasonalEvents";
 import { buildTradingDaySeries, parseIso, wrapTdy, yearWeight, type TradingDayRow } from "./tradingDays";
 import { circularMovingAverage } from "./smoothing";
 import { slopeAround, classifyBias, classifyStrength } from "./rollingSeasonalityClassifiers";
@@ -106,9 +105,8 @@ function buildRollingProjection(
 
   const fixed = blendToFixedLength(blended, horizon + 1);
   const smoothed = circularMovingAverage(fixed, SMOOTH);
-  const display = scaleToDisplay(smoothed);
 
-  return display.map((smoothedVal, i) => ({
+  return smoothed.map((smoothedVal, i) => ({
     dayOfYear: wrapTdy(startTdy + i),
     month: Math.min(12, Math.ceil((startTdy + i) / 21)),
     value: fixed[i] ?? 100,
@@ -258,7 +256,7 @@ export function computeRollingSeasonality(bars: OhlcBar[], asOfDate?: string): R
     momentumAdjustedCurve,
     trendStrength,
     volatilityRegime,
-    seasonalEvents: buildSeasonalEvents(asOf, 90),
+    seasonalEvents: [],
     intramonthBuckets: buildIntramonthBuckets(rows, asOfYear),
     primaryCurve: momentumAdjustedCurve,
     bullishWindows: detectWindowsFromCurve(momentumAdjustedCurve, "bullish"),

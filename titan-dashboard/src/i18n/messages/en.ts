@@ -575,8 +575,8 @@ export const enMessages = {
   seasonality: {
     heroEyebrow: "Historical OHLC framework",
     heroTitle: "TITAN Seasonality",
-    heroSub: "Rolling 30D / 60D / 90D trading-day projections · dynamic-weighted history · momentum & vol regime · event overlays",
-    engineBadge: "Engine v2 · rolling TD · not calendar-month normalized",
+    heroSub: "Historical seasonal structure · current-year live path · anchored 30D / 60D / 90D forward paths on a shared 0–100 index.",
+    engineBadge: "Institutional seasonality · shared normalization · no macro overlays",
     disclaimer: "Seasonality is historical tendency only. Not an execution signal.",
     selectMarket: "Market",
     loading: "Computing seasonal curve from OHLC history…",
@@ -588,7 +588,8 @@ export const enMessages = {
     historicalWindowPrimary: "Stats & windows: {{period}}",
     chartTitle: "12-month seasonal curve (normalized 0–100)",
     chartTitleRolling: "Rolling seasonal projection (trading days)",
-    chartSeasonalNote: "30D / 60D / 90D weighted projections from TDY · live path resets on a 60D rolling anchor (no yearly min-max). Monthly % → right panel.",
+    chartSeasonalNote:
+      "All curves share one 0–100 scale. Projections continue from the live anchor at TODAY — no reset after the marker. Monthly % and vs 10Y index → right panel.",
     chartYAxis: "Seasonal index",
     chartYAxisRolling: "Indexed level",
     chartTooltipRolling: "Rolling projection index · T+N trading days from today",
@@ -610,8 +611,10 @@ export const enMessages = {
     chartTooltip: "Seasonal index",
     yearPanel: {
       title: "{{year}} · monthly %",
-      sub: "Calendar-month return from futures OHLC (real prices).",
+      sub: "Calendar-month return from OHLC. vs 10Y uses the same normalized index as the chart.",
       ytd: "YTD",
+      monthReturn: "Month return",
+      vs10y: "vs 10Y index",
     },
     legendHistorical: "Historical Seasonality",
     legendCurrentYear: "Current Year ({{year}})",

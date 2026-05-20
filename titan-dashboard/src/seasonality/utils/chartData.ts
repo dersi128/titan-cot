@@ -47,6 +47,8 @@ export type SeasonalityChartRow = Record<string, string | number | boolean | nul
   monthIndex: number;
   isCurrent: boolean;
   monthReturnPct?: number | null;
+  /** Live vs 10Y on shared normalized scale (month). */
+  seasonalIndex?: number | null;
 };
 
 export function buildMonthlyChartRows(
