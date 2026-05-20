@@ -62,21 +62,39 @@ export function buildScannerRows(
   return markets.map((market) => {
     const data = bundle[market.symbol];
     if (data) {
-      const score = computeTitanDashboardScore(data);
-      const conviction = computeInstitutionalConviction(data, score).level;
-      const read = evaluateTitanPositioning(data);
-      return {
-        market,
-        score,
-        verdict: resolveTitanVerdict(data),
-        comm26: data.commercials.index26w,
-        retail26: data.retail.index26w,
-        regime: resolveMarketRegime(data),
-        conviction,
-        persistenceWeeks: read?.commercialPersistenceWeeks ?? 0,
-        isExtreme: isExtremeCommercial(data.commercials.index26w),
-        status: "live",
-      };
+      try {
+        const score = computeTitanDashboardScore(data);
+        const conviction = computeInstitutionalConviction(data, score).level;
+        const read = evaluateTitanPositioning(data);
+        const comm26 = data.commercials?.index26w;
+        const retail26 = data.retail?.index26w;
+        return {
+          market,
+          score,
+          verdict: resolveTitanVerdict(data),
+          comm26: Number.isFinite(comm26) ? comm26 : null,
+          retail26: Number.isFinite(retail26) ? retail26 : null,
+          regime: resolveMarketRegime(data),
+          conviction,
+          persistenceWeeks: read?.commercialPersistenceWeeks ?? 0,
+          isExtreme: Number.isFinite(comm26) ? isExtremeCommercial(comm26) : false,
+          status: "live",
+        };
+      } catch (err) {
+        console.error("[TITAN] buildScannerRows failed", market.symbol, err);
+        return {
+          market,
+          score: data.cotScore ?? 0,
+          verdict: data.cotVerdict ?? "NEUTRAL",
+          comm26: data.commercials?.index26w ?? null,
+          retail26: data.retail?.index26w ?? null,
+          regime: "neutral",
+          conviction: 0,
+          persistenceWeeks: 0,
+          isExtreme: false,
+          status: "live",
+        };
+      }
     }
     if (errors[market.symbol]) {
       return {

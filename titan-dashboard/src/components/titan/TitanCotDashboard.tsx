@@ -8,7 +8,7 @@ import { describeCotApiTarget, loadAllMappedCotData } from "../../data/cotData";
 import type { CotDashboardData } from "../../types";
 import { TitanInstitutionalBackdrop } from "../TitanInstitutionalBackdrop";
 import { buildScannerRows, GlobalCotScanner } from "./GlobalCotScanner";
-import { buildHomeOverviewStats } from "../../lib/titanHomeOverview";
+import { buildHomeOverviewStats, emptyHomeOverviewStats } from "../../lib/titanHomeOverview";
 import { MarketDetailPanel } from "./MarketDetailPanel";
 import { TitanRegimeOverview } from "./TitanRegimeOverview";
 import { TitanDetailErrorBoundary } from "./TitanDetailErrorBoundary";
@@ -96,12 +96,23 @@ export function TitanCotDashboard() {
     };
   }, [t]);
 
-  const rows = useMemo(() => buildScannerRows(INSTITUTIONAL_MARKETS, bundle, errors), [bundle, errors]);
+  const rows = useMemo(() => {
+    try {
+      return buildScannerRows(INSTITUTIONAL_MARKETS, bundle, errors);
+    } catch (err) {
+      console.error("[TITAN] buildScannerRows batch failed", err);
+      return [];
+    }
+  }, [bundle, errors]);
   const liveCount = useMemo(() => rows.filter((r) => r.status === "live").length, [rows]);
-  const homeStats = useMemo(
-    () => buildHomeOverviewStats(INSTITUTIONAL_MARKETS, bundle, rows),
-    [bundle, rows],
-  );
+  const homeStats = useMemo(() => {
+    try {
+      return buildHomeOverviewStats(INSTITUTIONAL_MARKETS, bundle, rows);
+    } catch (err) {
+      console.error("[TITAN] buildHomeOverviewStats failed", err);
+      return emptyHomeOverviewStats(INSTITUTIONAL_MARKETS.length);
+    }
+  }, [bundle, rows]);
 
   const selectedSymbol = selectedMarket.symbol;
   const selectedData = bundle[selectedSymbol] ?? null;

@@ -146,6 +146,10 @@ export function evaluateInstitutionalDivergence(data: CotDashboardData): Diverge
   const history = data.history ?? [];
   if (history.length < 27) return "unavailable";
 
+  const c = data.commercials;
+  const nc = data.nonCommercials;
+  if (!c || !nc) return "unavailable";
+
   const commSeries = buildCommercialIndexSeries(history);
   if (commSeries.length < 2) return "unavailable";
 
@@ -156,8 +160,9 @@ export function evaluateInstitutionalDivergence(data: CotDashboardData): Diverge
   const minNet = Math.min(...nets);
   const currNet = nets[nets.length - 1]!;
 
-  const c = data.commercials;
-  const nc = data.nonCommercials;
+  const ncIdx26 = clampIndex(nc.index26w ?? 50);
+  const ncW1 = nc.weeklyChange ?? 0;
+  const ncD4 = nc.delta4w ?? 0;
   const w1 = c.weeklyChange;
   const d4 = c.delta4w;
 
@@ -165,20 +170,20 @@ export function evaluateInstitutionalDivergence(data: CotDashboardData): Diverge
     currNet >= maxNet * 0.98 && currIdx < prevIdx - 3 && c.index26w >= 52;
 
   const ncChasingLong =
-    nc.index26w >= 62 &&
-    nc.weeklyChange > 0 &&
+    ncIdx26 >= 62 &&
+    ncW1 > 0 &&
     ((w1 < 0 && d4 <= 0) || (w1 < 0 && currIdx < prevIdx - 1));
 
   const commAddsShort = w1 < 0 && d4 < 0 && c.index26w > 38;
   const bearish =
     structuralBear ||
     ncChasingLong ||
-    (commAddsShort && nc.index26w >= 58 && (nc.delta4w >= 0 || nc.weeklyChange > 0));
+    (commAddsShort && ncIdx26 >= 58 && (ncD4 >= 0 || ncW1 > 0));
 
   const structuralBull =
     currNet <= minNet * 1.02 && currIdx > prevIdx + 3 && c.index26w <= 48;
 
-  const ncStaysBearish = nc.index26w <= 42 && nc.weeklyChange <= 0 && nc.delta4w <= 0;
+  const ncStaysBearish = ncIdx26 <= 42 && ncW1 <= 0 && ncD4 <= 0;
 
   const commAccumulating = w1 > 0 && d4 > 0;
   const bullish = structuralBull || (ncStaysBearish && commAccumulating && c.index26w < 58);
@@ -219,10 +224,17 @@ export function weeksInExtremeZone(indexSeries: number[]): number {
 
 export function buildDeltaFlow(data: CotDashboardData): DeltaFlowRow[] {
   const c = data.commercials;
+  if (!c) {
+    return [
+      { label: "1W", delta: 0 },
+      { label: "4W", delta: 0 },
+      { label: "13W", delta: 0 },
+    ];
+  }
   return [
-    { label: "1W", delta: c.weeklyChange },
-    { label: "4W", delta: c.delta4w },
-    { label: "13W", delta: c.delta13w },
+    { label: "1W", delta: c.weeklyChange ?? 0 },
+    { label: "4W", delta: c.delta4w ?? 0 },
+    { label: "13W", delta: c.delta13w ?? 0 },
   ];
 }
 
@@ -357,9 +369,19 @@ export function resolveMarketRegime(data: CotDashboardData): MarketRegimeId {
 }
 
 export function evaluateTitanPositioning(data: CotDashboardData): TitanPositioningRead | null {
-  if (!data.commercials || !data.retail) {
+  if (!data.commercials || !data.retail || !data.nonCommercials) {
     return null;
   }
+
+  try {
+    return evaluateTitanPositioningCore(data);
+  } catch (err) {
+    console.error("[TITAN] evaluateTitanPositioning failed", data.futuresSymbol ?? data.market, err);
+    return null;
+  }
+}
+
+function evaluateTitanPositioningCore(data: CotDashboardData): TitanPositioningRead | null {
 
   const commercialIndex = clampIndex(data.commercials.index26w);
   const retailIndex = clampIndex(data.retail.index26w);

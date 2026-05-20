@@ -51,6 +51,23 @@ function isCommercial26wExtreme(index26w: number): boolean {
   return z === "extreme_short" || z === "extreme_long" || index26w <= 20 || index26w >= 80;
 }
 
+export function emptyHomeOverviewStats(totalMarkets: number): HomeOverviewStats {
+  return {
+    liveCount: 0,
+    totalMarkets,
+    regimeCards: REGIME_OVERVIEW_ORDER.map((regime) => ({
+      regime,
+      count: 0,
+      pct: 0,
+      spark: [0, 0, 0, 0, 0, 0, 0, 0],
+    })),
+    commercialDominancePct: 0,
+    extremeMarketsCount: 0,
+    strongestLongs: [],
+    strongestShorts: [],
+  };
+}
+
 export function buildHomeOverviewStats(
   markets: readonly InstitutionalMarket[],
   bundle: Record<string, CotDashboardData>,
