@@ -208,8 +208,8 @@ export function GlobalCotScanner({ rows, selectedMarket, onSelectMarket }: Globa
   );
 
   return (
-    <TitanPanel className="titan-scanner-primary animate-fade-up overflow-visible p-0">
-      <div className="titan-scanner-head border-b border-white/10 bg-[#0c0c0f]/90 px-4 py-3 md:px-5">
+    <TitanPanel className="titan-scanner-primary titan-home-scanner animate-fade-up overflow-visible p-0">
+      <div className="titan-scanner-head border-b border-white/10 px-4 py-3 md:px-5">
         <TitanPanelHeader
           eyebrow={t("scanner.eyebrow")}
           description={

@@ -463,6 +463,7 @@ export const enMessages = {
   },
   home: {
     heroSubtitle: "Deterministic positioning framework",
+    heroCaption: "CFTC Legacy Futures Positioning",
     heroLegacy: "Live · CFTC legacy",
     regimeOverviewTitle: "Global market regime overview",
     regimeOverviewSub: "{{count}} live markets · positioning engine",

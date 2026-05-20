@@ -74,7 +74,7 @@ export function TitanFilterSelect({ value, onChange, options, "aria-label": aria
           <ul
             id={listId}
             role="listbox"
-            className="titan-filter-select-menu fixed z-[9999] max-h-64 overflow-y-auto rounded border border-white/25 bg-[#1a1b20] py-1 shadow-2xl"
+            className="titan-filter-select-menu"
             style={{
               top: menuPos.top,
               left: menuPos.left,

@@ -7,12 +7,10 @@ import {
 import { describeCotApiTarget, loadAllMappedCotData } from "../../data/cotData";
 import type { CotDashboardData } from "../../types";
 import { TitanInstitutionalBackdrop } from "../TitanInstitutionalBackdrop";
+import { TitanLogo } from "../TitanLogo";
 import { buildScannerRows, GlobalCotScanner } from "./GlobalCotScanner";
-import { buildHomeOverviewStats, emptyHomeOverviewStats } from "../../lib/titanHomeOverview";
 import { MarketDetailPanel } from "./MarketDetailPanel";
-import { TitanRegimeOverview } from "./TitanRegimeOverview";
 import { TitanDetailErrorBoundary } from "./TitanDetailErrorBoundary";
-import { TitanInstitutionalRail } from "./TitanInstitutionalRail";
 import { LanguageSwitcher, useTitanI18n } from "../../i18n";
 import { TitanLivePill } from "./ui/TitanPrimitives";
 
@@ -105,14 +103,6 @@ export function TitanCotDashboard() {
     }
   }, [bundle, errors]);
   const liveCount = useMemo(() => rows.filter((r) => r.status === "live").length, [rows]);
-  const homeStats = useMemo(() => {
-    try {
-      return buildHomeOverviewStats(INSTITUTIONAL_MARKETS, bundle, rows);
-    } catch (err) {
-      console.error("[TITAN] buildHomeOverviewStats failed", err);
-      return emptyHomeOverviewStats(INSTITUTIONAL_MARKETS.length);
-    }
-  }, [bundle, rows]);
 
   const selectedSymbol = selectedMarket.symbol;
   const selectedData = bundle[selectedSymbol] ?? null;
@@ -172,13 +162,18 @@ export function TitanCotDashboard() {
               </div>
             ) : (
               <div className="titan-home-hero flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                <div className="min-w-0 flex-1 text-center lg:text-left">
-                  <h1 className="titan-hero-title font-display text-xl font-bold uppercase tracking-[0.14em] text-stone-50 md:text-2xl">
-                    {t("header.institutionalCot")}
-                  </h1>
-                  <p className="mt-1 text-xs tracking-wide text-stone-500">{t("home.heroSubtitle")}</p>
+                <div className="flex min-w-0 flex-1 items-center gap-4">
+                  <TitanLogo className="h-11 w-11 shrink-0 md:h-12 md:w-12" showWordmark={false} />
+                  <div className="min-w-0 text-center lg:text-left">
+                    <h1 className="titan-hero-title font-display text-lg font-bold uppercase tracking-[0.16em] text-stone-50 md:text-xl">
+                      {t("header.institutionalCot")}
+                    </h1>
+                    <p className="titan-home-hero__caption mt-1 text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">
+                      {t("home.heroCaption")}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex flex-wrap items-center justify-center gap-2 lg:justify-end">
+                <div className="titan-home-hero__meta flex flex-wrap items-center justify-center gap-2 lg:justify-end">
                   <LanguageSwitcher />
                   <span className="rounded border border-titan-gold/20 bg-titan-black/40 px-2.5 py-1.5 text-[9px] font-semibold uppercase tracking-[0.16em] text-titan-gold/90">
                     {t("home.heroLegacy")}
@@ -208,19 +203,9 @@ export function TitanCotDashboard() {
         ) : null}
 
         {view === "overview" ? (
-        <main className="titan-home-main mx-auto max-w-[1680px] px-4 py-3 md:py-4">
-          <div className="flex flex-col gap-3 xl:flex-row xl:items-start">
-            <div className="titan-home-primary min-w-0 flex-1 space-y-3">
-              <TitanRegimeOverview
-                cards={homeStats.regimeCards}
-                liveCount={homeStats.liveCount}
-                totalMarkets={homeStats.totalMarkets}
-              />
-              <GlobalCotScanner rows={rows} selectedMarket={selectedMarket} onSelectMarket={openMarket} />
-            </div>
-            <TitanInstitutionalRail stats={homeStats} onSelectMarket={openMarket} />
-          </div>
-        </main>
+          <main className="titan-home-main mx-auto w-full max-w-[1520px] px-4 py-3 md:px-6 md:py-4">
+            <GlobalCotScanner rows={rows} selectedMarket={selectedMarket} onSelectMarket={openMarket} />
+          </main>
         ) : null}
 
         {view === "market" ? (
@@ -242,11 +227,11 @@ export function TitanCotDashboard() {
         ) : null}
 
         <footer
-          className="border-t border-white/[0.06] py-10 text-center"
+          className="border-t border-white/[0.06] py-6 text-center"
           hidden={view !== "overview"}
           aria-hidden={view !== "overview"}
         >
-          <p className="text-[11px] tracking-wide text-titan-muted">{t("footerNote")}</p>
+          <p className="text-[10px] tracking-wide text-stone-600">{t("footerNote")}</p>
         </footer>
       </div>
     </div>

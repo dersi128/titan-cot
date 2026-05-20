@@ -550,22 +550,26 @@
   }
 
   .titan-home-hero .titan-hero-title {
-    text-shadow: 0 0 32px rgba(212, 175, 55, 0.1);
+    text-shadow: 0 0 28px rgba(212, 175, 55, 0.12);
   }
 
-  .titan-home-primary {
-    min-width: 0;
+  .titan-home-hero__caption {
+    color: #a8a29e;
   }
 
-  @media (min-width: 1280px) {
-    .titan-home-primary {
-      flex: 1.12;
-    }
+  .titan-home-main {
+    width: 100%;
   }
 
   .titan-scanner-primary {
-    border-color: rgba(212, 175, 55, 0.12);
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.03), 0 12px 40px -24px rgba(0, 0, 0, 0.65);
+    border-color: rgba(212, 175, 55, 0.14);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.04),
+      0 20px 56px -28px rgba(0, 0, 0, 0.75);
+  }
+
+  .titan-scanner-head {
+    background: linear-gradient(180deg, rgba(12, 12, 15, 0.95), rgba(8, 8, 10, 0.88));
   }
 
   .titan-scanner-head {
@@ -574,7 +578,14 @@
   }
 
   .titan-filter-chip {
-    @apply flex cursor-pointer items-center gap-2.5 rounded border border-white/20 bg-[#1c1d22] px-3 py-2;
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    gap: 0.55rem;
+    border-radius: 2px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: #0a0b0e;
+    padding: 0.5rem 0.8rem;
     color: #f5f5f4;
     font-size: 12px;
     font-weight: 600;
@@ -588,50 +599,68 @@
     align-items: center;
     justify-content: space-between;
     gap: 0.5rem;
-    border: 1px solid rgba(255, 255, 255, 0.22);
-    border-radius: 4px;
-    background: #1c1d22;
-    padding: 0.5rem 0.75rem;
+    border: 1px solid rgba(212, 175, 55, 0.22);
+    border-radius: 2px;
+    background: #0a0b0e;
+    padding: 0.5rem 0.8rem;
     text-align: left;
     font-size: 13px;
     font-weight: 600;
-    color: #fafaf9;
+    color: #ffffff;
     letter-spacing: 0.02em;
   }
 
   .titan-filter-select-btn:hover {
-    border-color: rgba(212, 175, 55, 0.45);
-    background: #222328;
+    border-color: rgba(212, 175, 55, 0.5);
+    background: #12131a;
   }
 
   .titan-filter-select-btn__caret {
     flex-shrink: 0;
-    font-size: 11px;
+    font-size: 10px;
     color: #a8a29e;
+  }
+
+  .titan-filter-select-menu {
+    position: fixed;
+    z-index: 9999;
+    max-height: 16rem;
+    overflow-y: auto;
+    border-radius: 2px;
+    border: 1px solid rgba(212, 175, 55, 0.32);
+    background: #08090c;
+    padding: 0.35rem 0;
+    box-shadow:
+      0 16px 48px rgba(0, 0, 0, 0.85),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
   }
 
   .titan-filter-select-menu__item {
     display: block;
     width: 100%;
-    padding: 0.55rem 0.85rem;
+    padding: 0.6rem 1rem;
     text-align: left;
     font-size: 13px;
     font-weight: 500;
-    line-height: 1.35;
+    line-height: 1.4;
     color: #f5f5f4;
     letter-spacing: 0.01em;
     text-transform: none;
+    background: transparent;
+    border: none;
+    cursor: pointer;
   }
 
   .titan-filter-select-menu__item:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
+    background: rgba(212, 175, 55, 0.14);
+    color: #fff8e7;
   }
 
   .titan-filter-select-menu__item--active {
-    background: rgba(212, 175, 55, 0.22);
+    background: rgba(212, 175, 55, 0.24);
     color: #fcee9a;
     font-weight: 600;
+    box-shadow: inset 2px 0 0 rgba(212, 175, 55, 0.85);
   }
 
   .titan-filter-search {

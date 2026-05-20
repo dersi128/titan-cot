@@ -465,6 +465,7 @@ export const csMessages: Messages = {
   },
   home: {
     heroSubtitle: "Deterministický positioning framework",
+    heroCaption: "CFTC Legacy Futures · institucionální positioning",
     heroLegacy: "Live · CFTC legacy",
     regimeOverviewTitle: "Globální přehled tržních režimů",
     regimeOverviewSub: "{{count}} live trhů · positioning engine",
