@@ -154,10 +154,17 @@ export function TitanBiasEngine({ market: _market, data, loading }: TitanBiasEng
                       <td />
                       <td
                         className={`font-mono text-sm font-semibold tabular-nums ${
-                          view.componentsSum < 0 ? "text-rose-400" : view.componentsSum > 0 ? "text-emerald-400" : "text-stone-500"
+                          view.score < 0 ? "text-rose-400" : view.score > 0 ? "text-emerald-400" : "text-stone-500"
                         }`}
                       >
-                        {view.componentsSum > 0 ? `+${view.componentsSum}` : view.componentsSum}
+                        <span className="block">{view.score > 0 ? `+${view.score}` : view.score}</span>
+                        {view.componentsSumRaw !== view.score ? (
+                          <span className="mt-1 block text-[10px] font-normal font-sans normal-case tracking-normal text-stone-500">
+                            {t("biasEngine.componentSumRaw", {
+                              raw: view.componentsSumRaw > 0 ? `+${view.componentsSumRaw}` : String(view.componentsSumRaw),
+                            })}
+                          </span>
+                        ) : null}
                       </td>
                       <td />
                     </tr>

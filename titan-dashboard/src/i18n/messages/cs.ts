@@ -346,12 +346,13 @@ export const csMessages: Messages = {
       impact: "Impact",
       score: "Body",
       bar: "Bar",
-      total: "Součet",
+      total: "TITAN skóre",
     },
     weightNote:
-      "Weight = typický max. podíl na skóre. Body se sčítají (ne % × skóre). Total = součet řádků.",
+      "Weight = typický max. podíl na skóre. Body se sčítají (ne % × skóre). Řádek Celkem ukazuje finální TITAN skóre (limit ±100); pokud se liší od součtu řádků, zobrazíme i ∑ dílčích.",
     dataNote: "Skóre a breakdown jsou z reálných CFTC Legacy Futures COT polí — ne predikční model.",
     sumCheck: "součet ověřen",
+    componentSumRaw: "Součet dílčích řádků: {{raw}}",
     drivers: {
       commercialPositioning: { name: "Commercial Positioning" },
       commercialFlow: { name: "Commercial Delta Flow" },

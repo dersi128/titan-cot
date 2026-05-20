@@ -111,6 +111,27 @@ export function countCommercialExtremePersistence(
   return streak;
 }
 
+/**
+ * Which extreme streak actually drives persistence points in {@link computeUnifiedCotScore}.
+ * UI (badge weeks) must use this — not max(bull, bear) — or numbers disagree with scoring.
+ */
+export function activeCommercialPersistenceStreak(
+  commercials: TitanCotScoringInput["commercials"],
+  history: CotHistoryPoint[] | undefined,
+): { weeks: number; side: "bull" | "bear" | "none" } {
+  const c = commercials;
+  const bullStreak = countCommercialExtremePersistence(history, "bull");
+  const bearStreak = countCommercialExtremePersistence(history, "bear");
+
+  if (c.bias === "bullish" || (c.index26w > IDX_HI && c.index26w >= c.index52w - 10)) {
+    return { weeks: bullStreak, side: "bull" };
+  }
+  if (c.bias === "bearish" || c.index26w < IDX_LO) {
+    return { weeks: bearStreak, side: "bear" };
+  }
+  return { weeks: 0, side: "none" };
+}
+
 function persistencePoints(streak: number, sign: 1 | -1): number {
   if (streak <= 0) return 0;
   if (streak <= 2) return 4 * sign;
@@ -129,6 +150,36 @@ function flowComponent(weekly: number, delta4w: number, delta13w: number): numbe
   return s;
 }
 
+/**
+ * Retail vs commercial crowding (index-based — aligns with COT index charts).
+ * Strongest when commercials are at a dual-horizon extreme and retail is crowded the other way.
+ */
+function retailContrarianPoints(
+  c: TitanCotScoringInput["commercials"],
+  r: TitanCotScoringInput["retail"],
+  contrarianSignal: RetailContrarian,
+): number {
+  const commDualShort = c.index26w < IDX_LO && c.index52w < IDX_LO;
+  const commDualLong = c.index26w > IDX_HI && c.index52w > IDX_HI;
+  const commShort26 = c.index26w < IDX_LO;
+  const commLong26 = c.index26w > IDX_HI;
+  const retailLong = r.index26w > IDX_HI;
+  const retailShort = r.index26w < IDX_LO;
+
+  if (commDualShort && retailLong) return -16;
+  if (commDualLong && retailShort) return 16;
+  if (commShort26 && retailLong) return -12;
+  if (commLong26 && retailShort) return 12;
+
+  if (contrarianSignal === "bullish") return 6;
+  if (contrarianSignal === "bearish") return -6;
+
+  if (retailShort && c.bias === "bullish") return 4;
+  if (retailLong && c.bias === "bearish") return -4;
+
+  return 0;
+}
+
 function openInterestComponent(
   oi: OpenInterestSnapshot | undefined,
   commercialWeekly: number,
@@ -145,9 +196,19 @@ function openInterestComponent(
 
 export function deriveMarketPhase(input: TitanCotScoringInput, score: number): string {
   const c = input.commercials;
+  const r = input.retail;
   const nc = input.nonCommercials;
   const bullPersist = countCommercialExtremePersistence(input.history, "bull");
   const bearPersist = countCommercialExtremePersistence(input.history, "bear");
+
+  const commDualShort = c.index26w < IDX_LO && c.index52w < IDX_LO;
+  const commDualLong = c.index26w > IDX_HI && c.index52w > IDX_HI;
+  if (commDualShort && r.index26w > IDX_HI) {
+    return "Crowded retail long vs dual-horizon commercial short extreme — institutional vs crowd divergence (bias only).";
+  }
+  if (commDualLong && r.index26w < IDX_LO) {
+    return "Crowded retail short vs dual-horizon commercial long extreme — institutional vs crowd divergence (bias only).";
+  }
 
   if (c.bias === "bullish" && bullPersist >= 4 && c.weeklyChange > 0) {
     return "Institutional accumulation phase — commercials extended long with sustained extreme persistence.";
@@ -189,23 +250,18 @@ export function computeUnifiedCotScore(input: TitanCotScoringInput): TitanCotSco
   const commercialFlow = flowComponent(c.weeklyChange, c.delta4w, c.delta13w);
 
   let persistence = 0;
-  const bullStreak = countCommercialExtremePersistence(input.history, "bull");
-  const bearStreak = countCommercialExtremePersistence(input.history, "bear");
-  if (c.bias === "bullish" || (c.index26w > IDX_HI && c.index26w >= c.index52w - 10)) {
-    persistence += persistencePoints(bullStreak, 1);
-  } else if (c.bias === "bearish" || c.index26w < IDX_LO) {
-    persistence += persistencePoints(bearStreak, -1);
+  const appliedPersistence = activeCommercialPersistenceStreak(c, input.history);
+  if (appliedPersistence.side === "bull") {
+    persistence += persistencePoints(appliedPersistence.weeks, 1);
+  } else if (appliedPersistence.side === "bear") {
+    persistence += persistencePoints(appliedPersistence.weeks, -1);
   }
 
   let ncDivergence = 0;
   if (nc.divergence === "bullish") ncDivergence += 10;
   else if (nc.divergence === "bearish") ncDivergence -= 10;
 
-  let retailContrarian = 0;
-  if (r.contrarianSignal === "bullish") retailContrarian += 6;
-  else if (r.contrarianSignal === "bearish") retailContrarian -= 6;
-  else if (r.index26w < IDX_LO && c.bias === "bullish") retailContrarian += 4;
-  else if (r.index26w > IDX_HI && c.bias === "bearish") retailContrarian -= 4;
+  const retailContrarian = retailContrarianPoints(c, r, r.contrarianSignal);
 
   const openInterest = openInterestComponent(input.openInterest, c.weeklyChange);
 

@@ -342,12 +342,13 @@ export const enMessages = {
       impact: "Impact",
       score: "Points",
       bar: "Bar",
-      total: "Total (sum)",
+      total: "TITAN score",
     },
     weightNote:
-      "Weight = typical max share of the score. Points are additive (not % × score). Total equals the sum of rows.",
+      "Weight = typical max share of the score. Points add (not % × score). The total row shows the final TITAN score (±100 clamp); raw sum of rows is shown when it differs.",
     dataNote: "Score and breakdown are computed from live CFTC Legacy Futures COT fields — not a prediction model.",
     sumCheck: "sum verified",
+    componentSumRaw: "Raw sum of rows: {{raw}}",
     drivers: {
       commercialPositioning: { name: "Commercial Positioning" },
       commercialFlow: { name: "Commercial Delta Flow" },

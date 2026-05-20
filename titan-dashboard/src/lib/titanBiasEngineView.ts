@@ -1,6 +1,6 @@
 import type { CotDashboardData } from "../types";
 import {
-  countCommercialExtremePersistence,
+  activeCommercialPersistenceStreak,
   type TitanCotScoringResult,
 } from "./titanCotScoringCore";
 import { evaluateTitanPositioning } from "./titanCommercialIndex";
@@ -26,8 +26,8 @@ export type BiasDriverRow = {
 export type TitanBiasEngineView = {
   score: number;
   verdict: string;
-  /** Sum of visible driver points — must match score */
-  componentsSum: number;
+  /** Sum of visible driver rows before ±100 clamp — can differ from `score`. */
+  componentsSumRaw: number;
   primaryDriverId: BiasDriverId;
   persistenceWeeks: number;
   drivers: BiasDriverRow[];
@@ -48,7 +48,7 @@ const DRIVER_MAX: Record<BiasDriverId, number> = {
   commercialFlow: 20,
   persistence: 15,
   ncDivergence: 10,
-  retailContrarian: 6,
+  retailContrarian: 16,
   openInterest: 7,
 };
 
@@ -143,10 +143,7 @@ export function buildTitanBiasEngineView(
   scoring: TitanCotScoringResult,
 ): TitanBiasEngineView {
   const { components } = scoring;
-  const persistenceWeeks = Math.max(
-    countCommercialExtremePersistence(data.history, "bull"),
-    countCommercialExtremePersistence(data.history, "bear"),
-  );
+  const persistenceWeeks = activeCommercialPersistenceStreak(data.commercials, data.history).weeks;
 
   const driverIds: BiasDriverId[] = [
     "commercialPositioning",
@@ -168,12 +165,12 @@ export function buildTitanBiasEngineView(
     impact: impactForDriver(id, components[id]),
   }));
 
-  const componentsSum = sumDriverScores(drivers);
+  const componentsSumRaw = sumDriverScores(drivers);
 
   return {
     score: scoring.score,
     verdict: scoring.verdict,
-    componentsSum,
+    componentsSumRaw,
     primaryDriverId: primaryDriver(components),
     persistenceWeeks,
     drivers,
