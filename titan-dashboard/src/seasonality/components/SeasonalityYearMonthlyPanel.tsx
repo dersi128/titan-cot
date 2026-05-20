@@ -28,23 +28,30 @@ export function SeasonalityYearMonthlyPanel({ year, returns, ytdPct }: Seasonali
       </p>
       <ul className="titan-seasonality-year-panel__list mt-3">
         {rows.map((row) => {
-          const hasValue = row.pct !== null;
-          const positive = hasValue && row.pct >= 0;
+          const pct = row.pct;
+          if (pct === null) {
+            return (
+              <li
+                key={row.month}
+                className={`titan-seasonality-year-panel__row${row.isCurrent ? " titan-seasonality-year-panel__row--current" : ""} titan-seasonality-year-panel__row--pending`}
+              >
+                <span className="titan-seasonality-year-panel__month">{row.monthLabel}</span>
+                <span className="titan-seasonality-year-panel__pct titan-seasonality-year-panel__pct--na">—</span>
+              </li>
+            );
+          }
+          const positive = pct >= 0;
           return (
             <li
               key={row.month}
-              className={`titan-seasonality-year-panel__row${row.isCurrent ? " titan-seasonality-year-panel__row--current" : ""}${!hasValue ? " titan-seasonality-year-panel__row--pending" : ""}`}
+              className={`titan-seasonality-year-panel__row${row.isCurrent ? " titan-seasonality-year-panel__row--current" : ""}`}
             >
               <span className="titan-seasonality-year-panel__month">{row.monthLabel}</span>
-              {hasValue ? (
-                <span
-                  className={`titan-seasonality-year-panel__pct${positive ? " titan-seasonality-year-panel__pct--up" : " titan-seasonality-year-panel__pct--down"}`}
-                >
-                  {fmtPct(row.pct)}
-                </span>
-              ) : (
-                <span className="titan-seasonality-year-panel__pct titan-seasonality-year-panel__pct--na">—</span>
-              )}
+              <span
+                className={`titan-seasonality-year-panel__pct${positive ? " titan-seasonality-year-panel__pct--up" : " titan-seasonality-year-panel__pct--down"}`}
+              >
+                {fmtPct(pct)}
+              </span>
             </li>
           );
         })}
