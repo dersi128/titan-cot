@@ -594,6 +594,8 @@ export const csMessages: Messages = {
     legendCurrentYearShort: "{{year}} YTD",
     legendBull: "Bullish okno",
     legendBear: "Bearish okno",
+    chartLabelBull: "BULLISH WINDOW",
+    chartLabelBear: "BEARISH WINDOW",
     legendCurrent: "Aktuální měsíc",
     alignment: {
       label: "Seasonality Alignment",

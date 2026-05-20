@@ -592,6 +592,8 @@ export const enMessages = {
     legendCurrentYearShort: "{{year}} YTD",
     legendBull: "Bullish Window",
     legendBear: "Bearish Window",
+    chartLabelBull: "BULLISH WINDOW",
+    chartLabelBear: "BEARISH WINDOW",
     legendCurrent: "Current month",
     alignment: {
       label: "Seasonality Alignment",
