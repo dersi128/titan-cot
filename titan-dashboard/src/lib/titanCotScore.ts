@@ -48,14 +48,19 @@ export function evaluateTitanCot(data: CotDashboardData): TitanCotScoringResult 
 
 /** Reconcile API payload so score, verdict, and breakdown always match. */
 export function normalizeCotDashboardData(data: CotDashboardData): CotDashboardData {
-  const read = evaluateTitanCot(data);
-  return {
-    ...data,
-    cotScore: read.score,
-    cotVerdict: read.verdict,
-    marketPhase: read.marketPhase,
-    scoreComponents: read.components,
-  };
+  try {
+    const read = evaluateTitanCot(data);
+    return {
+      ...data,
+      cotScore: read.score,
+      cotVerdict: read.verdict,
+      marketPhase: read.marketPhase,
+      scoreComponents: read.components,
+    };
+  } catch (err) {
+    console.error("[TITAN] normalizeCotDashboardData failed", err);
+    return data;
+  }
 }
 
 export function getTitanCotRead(data: CotDashboardData): TitanCotScoringResult {

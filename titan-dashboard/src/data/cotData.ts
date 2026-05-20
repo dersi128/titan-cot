@@ -60,9 +60,10 @@ export async function loadCotDataForMarket(futuresSymbol: string): Promise<CotLo
     throw new Error(`Failed to load COT data: ${response.status}`);
   }
 
+  const raw = (await response.json()) as CotDashboardData;
   return {
     status: "connected",
-    data: (await response.json()) as CotDashboardData,
+    data: normalizeCotDashboardData(raw),
   };
 }
 
@@ -91,7 +92,11 @@ export async function loadAllMappedCotData(
 
   const bundle: Record<string, CotDashboardData> = {};
   for (const [sym, row] of Object.entries(payload.bundle ?? {})) {
-    bundle[sym] = normalizeCotDashboardData(row);
+    try {
+      bundle[sym] = normalizeCotDashboardData(row);
+    } catch {
+      bundle[sym] = row;
+    }
   }
 
   return {

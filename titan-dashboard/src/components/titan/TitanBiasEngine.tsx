@@ -38,7 +38,7 @@ function impactToneClass(impact: ImpactTone): string {
 
 export function TitanBiasEngine({ market: _market, data, loading }: TitanBiasEngineProps) {
   const { t } = useTitanI18n();
-  const scoring = data ? evaluateTitanCot(data) : null;
+  const scoring = data ? getTitanCotRead(data) : null;
   const view = data && scoring ? buildTitanBiasEngineView(data, scoring) : null;
 
   const panelTone =
@@ -155,10 +155,7 @@ export function TitanBiasEngine({ market: _market, data, loading }: TitanBiasEng
                   </tbody>
                 </table>
                 <p className="mt-3 px-1 text-[10px] leading-relaxed text-stone-600">{t("biasEngine.weightNote")}</p>
-                <p className="mt-2 px-1 text-[10px] text-stone-600">
-                  {t("biasEngine.dataNote")}
-                  {sumMatchesTotal ? "" : ` (${t("biasEngine.sumCheck")})`}
-                </p>
+                <p className="mt-2 px-1 text-[10px] text-stone-600">{t("biasEngine.dataNote")}</p>
               </div>
             </div>
 
