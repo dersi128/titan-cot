@@ -157,22 +157,23 @@ export function SeasonalityMainChart({ result, currentMonth }: SeasonalityMainCh
                 const xLabel = ev.tdyOffset === 0 ? "T+0" : ev.tdyOffset > 0 ? `T+${ev.tdyOffset}` : `T${ev.tdyOffset}`;
                 if (!chartData.some((r) => r.offsetLabel === xLabel)) return null;
                 return (
-                <ReferenceLine
-                  key={`${ev.type}-${ev.date}`}
-                  x={xLabel}
-                  stroke={EVENT_COLORS[ev.type]}
-                  strokeWidth={1}
-                  strokeOpacity={0.55}
-                  strokeDasharray="2 4"
-                  label={{
-                    value: ev.label,
-                    position: "insideTopRight",
-                    fill: EVENT_COLORS[ev.type],
-                    fontSize: 7,
-                    opacity: 0.75,
-                  }}
-                />
-              ))}
+                  <ReferenceLine
+                    key={`${ev.type}-${ev.date}`}
+                    x={xLabel}
+                    stroke={EVENT_COLORS[ev.type]}
+                    strokeWidth={1}
+                    strokeOpacity={0.55}
+                    strokeDasharray="2 4"
+                    label={{
+                      value: ev.label,
+                      position: "insideTopRight",
+                      fill: EVENT_COLORS[ev.type],
+                      fontSize: 7,
+                      opacity: 0.75,
+                    }}
+                  />
+                );
+              })}
 
               {chartData
                 .filter((row: RollingChartRow) => row.isToday)
