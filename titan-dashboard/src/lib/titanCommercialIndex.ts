@@ -30,18 +30,9 @@ export type DivergenceStateId = "none" | "bearish" | "bullish" | "unavailable";
 
 export type MarketRegimeId = "accumulation" | "distribution" | "range" | "trend";
 
-/** Horizon momentum vs longer-window run rate (positioning context, not a trade signal). */
-export type DeltaFlowTrend =
-  | "bearish_accel"
-  | "bullish_accel"
-  | "weakening_bear"
-  | "weakening_bull"
-  | "mixed_flow";
-
 export type DeltaFlowRow = {
   label: "1W" | "4W" | "13W";
   delta: number;
-  trend: DeltaFlowTrend;
 };
 
 export type NetRange26w = {
@@ -181,46 +172,12 @@ export function weeksInExtremeZone(indexSeries: number[]): number {
   return count;
 }
 
-export function deltaFlowTrend(weekly: number, periodDelta: number, weeks: number): DeltaFlowTrend {
-  const w = weekly;
-  const p = periodDelta;
-  const wks = Math.max(weeks, 1);
-
-  // 13W row uses the same cumulative for both legs — directional label only
-  if (Math.abs(w - p) < 1e-6) {
-    if (Math.abs(w) < 1) return "mixed_flow";
-    return w > 0 ? "bullish_accel" : "bearish_accel";
-  }
-
-  if (Math.abs(w) < 1 && Math.abs(p) < 1) return "mixed_flow";
-
-  if ((w > 0 && p < 0) || (w < 0 && p > 0)) return "mixed_flow";
-
-  const avgPerWeek = p / wks;
-  const base = Math.abs(avgPerWeek);
-  const thrAccel = base * 1.05 + 1e-6;
-
-  const bearishSide = w <= 0 && p <= 0;
-  const bullishSide = w >= 0 && p >= 0;
-
-  if (bearishSide) {
-    if (w < 0 && Math.abs(w) > thrAccel) return "bearish_accel";
-    return "weakening_bear";
-  }
-  if (bullishSide) {
-    if (w > 0 && w > thrAccel) return "bullish_accel";
-    return "weakening_bull";
-  }
-
-  return "mixed_flow";
-}
-
 export function buildDeltaFlow(data: CotDashboardData): DeltaFlowRow[] {
   const c = data.commercials;
   return [
-    { label: "1W", delta: c.weeklyChange, trend: deltaFlowTrend(c.weeklyChange, c.delta4w, 4) },
-    { label: "4W", delta: c.delta4w, trend: deltaFlowTrend(c.delta4w, c.delta13w, 13) },
-    { label: "13W", delta: c.delta13w, trend: deltaFlowTrend(c.delta13w, c.delta13w, 13) },
+    { label: "1W", delta: c.weeklyChange },
+    { label: "4W", delta: c.delta4w },
+    { label: "13W", delta: c.delta13w },
   ];
 }
 

@@ -162,20 +162,20 @@ export const csMessages: Messages = {
       neutral: "Retail neutrální",
     },
     delta: {
-      timeframe: "Timeframe",
+      timeframe: "Horizont",
       delta: "Delta",
-      trend: "Trend",
       trend_bearish_accel: "Medvědí akcelerace",
       trend_bullish_accel: "Býčí akcelerace",
-      trend_weakening_bear: "Slábnoucí medvědí flow",
-      trend_weakening_bull: "Slábnoucí býčí flow",
+      trend_weakening_bear: "Oslabující medvědí flow",
+      trend_weakening_bull: "Oslabující býčí flow",
       trend_mixed_flow: "Smíšený flow",
       panelCurrentDelta: "Aktuální delta",
       panelFlow: "Flow",
+      panelTrend: "Trend",
       panelStrength: "Síla",
       flowTrend: {
-        bull: "Pozitivní flow",
-        bear: "Negativní flow",
+        bull: "Býčí flow",
+        bear: "Medvědí flow",
         mixed: "Smíšený flow",
       },
       flowStrength: {
@@ -288,7 +288,7 @@ export const csMessages: Messages = {
       },
       delta: {
         title: "DELTA FLOW",
-        desc: "Komerční positioning flow napříč hlavními horizonty.",
+        desc: "Institucionální positioning flow napříč hlavními horizonty.",
       },
       reversal: {
         title: "REVERSAL STATE",

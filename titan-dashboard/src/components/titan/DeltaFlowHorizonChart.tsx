@@ -1,9 +1,11 @@
-import { Area, AreaChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { DeltaFlowRow } from "../../lib/titanCommercialIndex";
 import {
   horizonDeltas,
   horizonFlowStrengthClass,
   horizonFlowTone,
+  horizonPanelTrend,
+  type DeltaPanelTrend,
   type HorizonFlowTone,
 } from "./deltaFlowHorizon";
 
@@ -34,6 +36,18 @@ function fillIdForTone(tone: HorizonFlowTone): string {
   return "deltaFlowMix";
 }
 
+function valueClassForFlowTone(tone: HorizonFlowTone): string {
+  if (tone === "bull") return "text-[#6eb692]";
+  if (tone === "bear") return "text-[#c99494]";
+  return "text-stone-500";
+}
+
+function valueClassForPanelTrend(trend: DeltaPanelTrend): string {
+  if (trend === "bullish_accel" || trend === "weakening_bull") return "text-[#6eb692]";
+  if (trend === "bearish_accel" || trend === "weakening_bear") return "text-[#c99494]";
+  return "text-stone-500";
+}
+
 type DeltaFlowHorizonChartProps = {
   rows: DeltaFlowRow[];
   t: (key: string) => string;
@@ -42,6 +56,7 @@ type DeltaFlowHorizonChartProps = {
 export function DeltaFlowHorizonChart({ rows, t }: DeltaFlowHorizonChartProps) {
   const { w1, w4, w13 } = horizonDeltas(rows);
   const tone = horizonFlowTone(w1, w4, w13);
+  const panelTrend = horizonPanelTrend(w1, w4, w13);
   const strength = horizonFlowStrengthClass(tone, w1, w4, w13);
   const stroke = strokeForTone(tone);
   const gradId = fillIdForTone(tone);
@@ -60,17 +75,19 @@ export function DeltaFlowHorizonChart({ rows, t }: DeltaFlowHorizonChartProps) {
   const yMin = Math.min(rawMin - pad, 0);
   const yMax = Math.max(rawMax + pad, 0);
 
-  const trendKey =
+  const flowKey =
     tone === "bull"
       ? "positioning.delta.flowTrend.bull"
       : tone === "bear"
         ? "positioning.delta.flowTrend.bear"
         : "positioning.delta.flowTrend.mixed";
 
+  const trendKey = `positioning.delta.trend_${panelTrend}`;
   const strengthKey = `positioning.delta.flowStrength.${strength}`;
 
-  const valueClass =
-    tone === "bull" ? "text-[#6eb692]" : tone === "bear" ? "text-[#c99494]" : "text-stone-500";
+  const flowValueClass = valueClassForFlowTone(tone);
+  const trendValueClass = valueClassForPanelTrend(panelTrend);
+  const strengthValueClass = strength === "mixed" ? "text-stone-500" : flowValueClass;
 
   return (
     <div className="flex flex-col gap-4 lg:flex-row lg:items-stretch lg:gap-5">
@@ -106,6 +123,7 @@ export function DeltaFlowHorizonChart({ rows, t }: DeltaFlowHorizonChartProps) {
               tickFormatter={(v) => {
                 const n = Number(v);
                 if (!Number.isFinite(n)) return "";
+                if (n === 0) return "0";
                 const a = Math.abs(n);
                 if (a >= 1000) return `${Math.round(n / 1000)}k`;
                 return String(Math.round(n));
@@ -116,7 +134,6 @@ export function DeltaFlowHorizonChart({ rows, t }: DeltaFlowHorizonChartProps) {
               labelStyle={{ color: "#a8a29e" }}
               formatter={(v: number) => [fmtDeltaShort(v), t("positioning.delta.delta")]}
             />
-            <ReferenceLine y={0} stroke="rgba(214, 211, 208, 0.85)" strokeWidth={1.75} />
             <Area
               type="monotone"
               dataKey="delta"
@@ -132,18 +149,22 @@ export function DeltaFlowHorizonChart({ rows, t }: DeltaFlowHorizonChartProps) {
         </ResponsiveContainer>
       </div>
 
-      <div className="flex flex-col justify-center gap-3 border-t border-white/[0.06] pt-3 text-[10px] font-semibold uppercase tracking-[0.14em] lg:w-[min(28%,220px)] lg:flex-shrink-0 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
+      <div className="flex flex-col justify-center gap-3 border-t border-white/[0.06] pt-3 text-[10px] font-semibold uppercase tracking-[0.14em] lg:w-[min(28%,240px)] lg:flex-shrink-0 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
         <div>
           <p className="text-stone-600">{t("positioning.delta.panelCurrentDelta")}</p>
-          <p className={`mt-1 font-mono text-sm tracking-tight ${valueClass}`}>{fmtDeltaShort(w1)}</p>
+          <p className={`mt-1 font-mono text-sm tracking-tight ${flowValueClass}`}>{fmtDeltaShort(w1)}</p>
         </div>
         <div>
           <p className="text-stone-600">{t("positioning.delta.panelFlow")}</p>
-          <p className={`mt-1 text-xs tracking-wide ${valueClass}`}>{t(trendKey)}</p>
+          <p className={`mt-1 text-xs tracking-wide ${flowValueClass}`}>{t(flowKey)}</p>
+        </div>
+        <div>
+          <p className="text-stone-600">{t("positioning.delta.panelTrend")}</p>
+          <p className={`mt-1 text-xs tracking-wide ${trendValueClass}`}>{t(trendKey)}</p>
         </div>
         <div>
           <p className="text-stone-600">{t("positioning.delta.panelStrength")}</p>
-          <p className={`mt-1 text-xs tracking-wide ${valueClass}`}>{t(strengthKey)}</p>
+          <p className={`mt-1 text-xs tracking-wide ${strengthValueClass}`}>{t(strengthKey)}</p>
         </div>
       </div>
     </div>

@@ -162,7 +162,6 @@ export const enMessages = {
     delta: {
       timeframe: "Timeframe",
       delta: "Delta",
-      trend: "Trend",
       trend_bearish_accel: "Bearish acceleration",
       trend_bullish_accel: "Bullish acceleration",
       trend_weakening_bear: "Weakening bearish flow",
@@ -170,10 +169,11 @@ export const enMessages = {
       trend_mixed_flow: "Mixed flow",
       panelCurrentDelta: "Current delta",
       panelFlow: "Flow",
+      panelTrend: "Trend",
       panelStrength: "Strength",
       flowTrend: {
-        bull: "Positive flow",
-        bear: "Negative flow",
+        bull: "Bullish flow",
+        bear: "Bearish flow",
         mixed: "Mixed flow",
       },
       flowStrength: {
@@ -285,8 +285,8 @@ export const enMessages = {
         crowdNote: "Contrarian confirmation only",
       },
       delta: {
-        title: "Delta Flow",
-        desc: "Commercial net Δ · 1W · 4W · 13W. Sparkline color = horizon alignment; table = flow speed.",
+        title: "DELTA FLOW",
+        desc: "Institutional positioning flow across primary horizons.",
       },
       reversal: {
         title: "REVERSAL STATE",

@@ -6,7 +6,6 @@ import {
   retailPositioningLabel,
   type CommercialZoneId,
   type DeltaFlowRow,
-  type DeltaFlowTrend,
   type TitanPositioningRead,
 } from "../../lib/titanCommercialIndex";
 import { useTitanI18n } from "../../i18n";
@@ -321,14 +320,6 @@ function CheckItem({ checked, label }: { checked: boolean; label: string }) {
   );
 }
 
-function trendArrow(trend: DeltaFlowTrend): string {
-  if (trend === "bullish_accel") return "↑";
-  if (trend === "bearish_accel") return "↓";
-  if (trend === "weakening_bull") return "↗";
-  if (trend === "weakening_bear") return "↘";
-  return "→";
-}
-
 function DeltaFlowTable({ rows, t }: { rows: DeltaFlowRow[]; t: (k: string) => string }) {
   return (
     <table className="titan-delta-table w-full text-left">
@@ -336,18 +327,14 @@ function DeltaFlowTable({ rows, t }: { rows: DeltaFlowRow[]; t: (k: string) => s
         <tr>
           <th>{t("positioning.delta.timeframe")}</th>
           <th>{t("positioning.delta.delta")}</th>
-          <th>{t("positioning.delta.trend")}</th>
         </tr>
       </thead>
       <tbody>
         {rows.map((row) => (
           <tr key={row.label}>
             <td className="font-mono text-stone-400">{row.label}</td>
-            <td className={`font-mono tabular-nums ${row.delta < 0 ? "text-rose-400/95" : row.delta > 0 ? "text-emerald-400/95" : "text-stone-400"}`}>
+            <td className={`font-mono tabular-nums ${row.delta < 0 ? "text-[#c99494]" : row.delta > 0 ? "text-[#6eb692]" : "text-stone-500"}`}>
               {fmtDelta(row.delta)}
-            </td>
-            <td className="text-[11px] text-stone-500">
-              {trendArrow(row.trend)} {t(`positioning.delta.trend_${row.trend}`)}
             </td>
           </tr>
         ))}
@@ -462,7 +449,7 @@ function PositioningContext({
           <div className="mt-4">
             <DeltaFlowTable rows={read.deltaFlow} t={t} />
           </div>
-          <p className="mt-4 text-[11px] leading-relaxed tracking-wide text-stone-500">{t("positioning.cards.delta.desc")}</p>
+          <p className="mt-4 text-[12px] leading-snug text-stone-500">{t("positioning.cards.delta.desc")}</p>
         </TerminalCard>
       </div>
     </div>
