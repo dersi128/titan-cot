@@ -1,4 +1,5 @@
 import type { CotDashboardData } from "../types";
+import { normalizeCotDashboardData } from "../lib/titanCotScore";
 
 const DEFAULT_API = "http://localhost:3000";
 const RENDER_API = "https://titan-cot.onrender.com";
@@ -88,8 +89,13 @@ export async function loadAllMappedCotData(
     errors: Record<string, string>;
   };
 
+  const bundle: Record<string, CotDashboardData> = {};
+  for (const [sym, row] of Object.entries(payload.bundle ?? {})) {
+    bundle[sym] = normalizeCotDashboardData(row);
+  }
+
   return {
-    bundle: payload.bundle ?? {},
+    bundle,
     errors: payload.errors ?? {},
   };
 }

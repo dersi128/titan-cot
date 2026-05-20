@@ -53,4 +53,13 @@ export type CotDashboardData = {
   marketPhase?: string;
   plainEnglishExplanation: string;
   history: CotHistoryPoint[];
+  /** Unified score breakdown (from API or client recompute). */
+  scoreComponents?: {
+    commercialPositioning: number;
+    commercialFlow: number;
+    persistence: number;
+    ncDivergence: number;
+    retailContrarian: number;
+    openInterest: number;
+  };
 };

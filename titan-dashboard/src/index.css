@@ -986,13 +986,17 @@
   }
 
   .titan-bias-bar__seg--bear {
-    background: linear-gradient(180deg, rgba(255, 120, 140, 0.95), rgba(180, 40, 60, 0.85));
-    box-shadow: 0 0 6px rgba(255, 77, 109, 0.35);
+    background: linear-gradient(180deg, rgba(255, 120, 140, 0.95), rgba(180, 40, 60, 0.85)) !important;
+    box-shadow: 0 0 8px rgba(255, 77, 109, 0.45);
   }
 
   .titan-bias-bar__seg--bull {
-    background: linear-gradient(180deg, rgba(0, 230, 150, 0.95), rgba(0, 140, 90, 0.85));
-    box-shadow: 0 0 6px rgba(0, 208, 132, 0.35);
+    background: linear-gradient(180deg, rgba(0, 230, 150, 0.95), rgba(0, 140, 90, 0.85)) !important;
+    box-shadow: 0 0 8px rgba(0, 208, 132, 0.45);
+  }
+
+  .titan-bias-table__row--total td {
+    @apply border-t border-white/10 bg-white/[0.03] py-3;
   }
 
   .titan-bias-summary {

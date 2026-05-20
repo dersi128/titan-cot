@@ -3,16 +3,9 @@ import type { InstitutionalMarket } from "../../config/institutionalMarkets";
 import {
   buildTitanBiasEngineView,
   driverBarSegments,
-  type BiasDriverId,
   type ImpactTone,
 } from "../../lib/titanBiasEngineView";
-import {
-  computeTitanDashboardScore,
-  evaluateTitanCot,
-  resolveTitanVerdict,
-  scoreHeatClass,
-  verdictAccentClass,
-} from "../../lib/titanCotScore";
+import { getTitanCotRead, scoreHeatClass, verdictAccentClass } from "../../lib/titanCotScore";
 import { useTitanI18n } from "../../i18n";
 
 type TitanBiasEngineProps = {
@@ -46,14 +39,10 @@ function impactToneClass(impact: ImpactTone): string {
 export function TitanBiasEngine({ market: _market, data, loading }: TitanBiasEngineProps) {
   const { t } = useTitanI18n();
   const scoring = data ? evaluateTitanCot(data) : null;
-  const score = data ? computeTitanDashboardScore(data) : null;
-  const verdict = data ? resolveTitanVerdict(data) : null;
-  const view =
-    data && scoring && score !== null && verdict
-      ? buildTitanBiasEngineView(data, scoring, score, verdict)
-      : null;
+  const view = data && scoring ? buildTitanBiasEngineView(data, scoring) : null;
 
-  const panelTone = score !== null && score < 0 ? "bear" : score !== null && score > 0 ? "bull" : "neutral";
+  const panelTone =
+    view && view.score < 0 ? "bear" : view && view.score > 0 ? "bull" : "neutral";
 
   return (
     <section className={`titan-bias-engine relative titan-bias-engine--${panelTone} overflow-hidden rounded-2xl border border-titan-gold/15 backdrop-blur-xl`}>
@@ -150,8 +139,26 @@ export function TitanBiasEngine({ market: _market, data, loading }: TitanBiasEng
                         </tr>
                       );
                     })}
+                    <tr className="titan-bias-table__row--total">
+                      <td className="font-semibold text-stone-300">{t("biasEngine.col.total")}</td>
+                      <td />
+                      <td />
+                      <td
+                        className={`font-mono text-sm font-semibold tabular-nums ${
+                          view.componentsSum < 0 ? "text-rose-400" : view.componentsSum > 0 ? "text-emerald-400" : "text-stone-500"
+                        }`}
+                      >
+                        {view.componentsSum > 0 ? `+${view.componentsSum}` : view.componentsSum}
+                      </td>
+                      <td />
+                    </tr>
                   </tbody>
                 </table>
+                <p className="mt-3 px-1 text-[10px] leading-relaxed text-stone-600">{t("biasEngine.weightNote")}</p>
+                <p className="mt-2 px-1 text-[10px] text-stone-600">
+                  {t("biasEngine.dataNote")}
+                  {sumMatchesTotal ? "" : ` (${t("biasEngine.sumCheck")})`}
+                </p>
               </div>
             </div>
 

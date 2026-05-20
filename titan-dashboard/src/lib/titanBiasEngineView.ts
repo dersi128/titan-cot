@@ -26,6 +26,8 @@ export type BiasDriverRow = {
 export type TitanBiasEngineView = {
   score: number;
   verdict: string;
+  /** Sum of visible driver points — must match score */
+  componentsSum: number;
   primaryDriverId: BiasDriverId;
   persistenceWeeks: number;
   drivers: BiasDriverRow[];
@@ -127,11 +129,13 @@ function buildKeyDrivers(data: CotDashboardData, scoring: TitanCotScoringResult,
   return bullets;
 }
 
+export function sumDriverScores(drivers: BiasDriverRow[]): number {
+  return drivers.reduce((sum, row) => sum + row.score, 0);
+}
+
 export function buildTitanBiasEngineView(
   data: CotDashboardData,
   scoring: TitanCotScoringResult,
-  score: number,
-  verdict: string,
 ): TitanBiasEngineView {
   const { components } = scoring;
   const persistenceWeeks = Math.max(
@@ -159,9 +163,12 @@ export function buildTitanBiasEngineView(
     impact: impactForDriver(id, components[id]),
   }));
 
+  const componentsSum = sumDriverScores(drivers);
+
   return {
-    score,
-    verdict,
+    score: scoring.score,
+    verdict: scoring.verdict,
+    componentsSum,
     primaryDriverId: primaryDriver(components),
     persistenceWeeks,
     drivers,

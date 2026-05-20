@@ -38,18 +38,36 @@ function dashboardToScoringInput(data: CotDashboardData): TitanCotScoringInput {
   };
 }
 
+/**
+ * Single source of truth: score + verdict + components from COT fields
+ * via the same logic as the API (titanCotScoringCore).
+ */
 export function evaluateTitanCot(data: CotDashboardData): TitanCotScoringResult {
   return computeUnifiedCotScore(dashboardToScoringInput(data));
 }
 
+/** Reconcile API payload so score, verdict, and breakdown always match. */
+export function normalizeCotDashboardData(data: CotDashboardData): CotDashboardData {
+  const read = evaluateTitanCot(data);
+  return {
+    ...data,
+    cotScore: read.score,
+    cotVerdict: read.verdict,
+    marketPhase: read.marketPhase,
+    scoreComponents: read.components,
+  };
+}
+
+export function getTitanCotRead(data: CotDashboardData): TitanCotScoringResult {
+  return evaluateTitanCot(data);
+}
+
 export function computeTitanDashboardScore(data: CotDashboardData): number {
-  if (Number.isFinite(data.cotScore)) return data.cotScore;
-  return evaluateTitanCot(data).score;
+  return getTitanCotRead(data).score;
 }
 
 export function resolveTitanVerdict(data: CotDashboardData): TitanBiasVerdict {
-  if (data.cotVerdict) return data.cotVerdict;
-  return scoreToTitanBiasVerdict(computeTitanDashboardScore(data));
+  return getTitanCotRead(data).verdict;
 }
 
 export function scoreToTitanBiasVerdict(score: number): TitanBiasVerdict {
@@ -67,7 +85,7 @@ export function buildInstitutionalNarrative(
   score: number,
   verdict: TitanBiasVerdict,
 ): string {
-  const result = evaluateTitanCot(data);
+  const result = getTitanCotRead(data);
   return buildInstitutionalNarrativeCore({
     market: data.market,
     futuresSymbol: data.futuresSymbol,
