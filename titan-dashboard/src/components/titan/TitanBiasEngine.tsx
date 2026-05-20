@@ -148,7 +148,7 @@ export function TitanBiasEngine({ market: _market, data, loading }: TitanBiasEng
                     <div>
                       <dt className="titan-bias-kicker">{t("biasEngine.primaryDriver")}</dt>
                       <dd className="mt-0.5 text-sm font-medium text-stone-200">
-                        {t(driverNameKey(scoring.primary_driver_id))}
+                        {driverLabel(t, scoring.primary_driver_id)}
                       </dd>
                     </div>
                     <div>
