@@ -38,6 +38,24 @@ const HISTORICAL_STROKE = {
   20: 1.4,
 } as const satisfies Record<5 | 10 | 15 | 20, number>;
 
+/** Bull/bear seasonal windows — readable on institutional world-map backdrop. */
+const WINDOW_BAND_STYLE = {
+  bullish: {
+    fill: "#00d084",
+    fillOpacity: 0.22,
+    stroke: "rgba(0, 208, 132, 0.55)",
+    strokeWidth: 1,
+    strokeOpacity: 0.85,
+  },
+  bearish: {
+    fill: "#ff4d6d",
+    fillOpacity: 0.22,
+    stroke: "rgba(255, 77, 109, 0.55)",
+    strokeWidth: 1,
+    strokeOpacity: 0.85,
+  },
+} as const;
+
 function monthFromDoy(doy: number): number {
   return new Date(2024, 0, doy).getMonth() + 1;
 }
@@ -114,12 +132,12 @@ export function SeasonalityMainChart({ comparison, currentMonth }: SeasonalityMa
           <span className="rounded-full bg-stone-100" style={{ width: 14, height: 3 }} />
           {t("seasonality.legendCurrentYear", { year: currentYear })}
         </span>
-        <span className="inline-flex items-center gap-1.5 text-[9px] uppercase tracking-wider text-stone-600">
-          <span className="h-2 w-3 rounded-sm bg-emerald-500/20" />
+        <span className="inline-flex items-center gap-1.5 text-[9px] uppercase tracking-wider text-emerald-400/80">
+          <span className="titan-seasonality-legend-band titan-seasonality-legend-band--bull" />
           {t("seasonality.legendBull")}
         </span>
-        <span className="inline-flex items-center gap-1.5 text-[9px] uppercase tracking-wider text-stone-600">
-          <span className="h-2 w-3 rounded-sm bg-rose-500/20" />
+        <span className="inline-flex items-center gap-1.5 text-[9px] uppercase tracking-wider text-rose-400/80">
+          <span className="titan-seasonality-legend-band titan-seasonality-legend-band--bear" />
           {t("seasonality.legendBear")}
         </span>
       </div>
@@ -129,10 +147,10 @@ export function SeasonalityMainChart({ comparison, currentMonth }: SeasonalityMa
         <p className="mt-1 text-[10px] text-stone-600">{t("seasonality.disclaimer")}</p>
       </div>
 
-      <div className="mt-3 h-[300px] w-full md:h-[360px]">
+      <div className="titan-seasonality-chart-plot mt-3 h-[300px] w-full md:h-[360px]">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 8, right: 12, left: 0, bottom: 4 }}>
-            <CartesianGrid stroke="rgba(255,255,255,0.04)" vertical={false} />
+            <CartesianGrid stroke="rgba(255,255,255,0.07)" vertical={false} />
             <XAxis
               dataKey="month"
               tick={{ fill: "#78716c", fontSize: 10 }}
@@ -147,15 +165,22 @@ export function SeasonalityMainChart({ comparison, currentMonth }: SeasonalityMa
               width={36}
             />
             <Tooltip content={<SeasonalityChartTooltip />} cursor={{ stroke: "rgba(255,255,255,0.08)" }} />
-            {windowBands.map((band, i) => (
-              <ReferenceArea
-                key={`${band.bias}-${i}`}
-                x1={band.x1}
-                x2={band.x2}
-                fill={band.bias === "bullish" ? "rgba(0,208,132,0.06)" : "rgba(255,77,109,0.06)"}
-                strokeOpacity={0}
-              />
-            ))}
+            {windowBands.map((band, i) => {
+              const style = WINDOW_BAND_STYLE[band.bias];
+              return (
+                <ReferenceArea
+                  key={`${band.bias}-${i}`}
+                  x1={band.x1}
+                  x2={band.x2}
+                  fill={style.fill}
+                  fillOpacity={style.fillOpacity}
+                  stroke={style.stroke}
+                  strokeWidth={style.strokeWidth}
+                  strokeOpacity={style.strokeOpacity}
+                  ifOverflow="visible"
+                />
+              );
+            })}
             {CHART_LOOKBACK_ORDER.map((lb) => {
               const key = lookbackChartKey(lb);
               if (!comparison[lb]) return null;
