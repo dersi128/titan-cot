@@ -31,12 +31,12 @@ type SeasonalityMainChartProps = {
   currentMonth: number;
 };
 
-const HISTORICAL_STROKE: Record<number, number> = {
+const HISTORICAL_STROKE = {
   5: 1.4,
   10: 1.65,
   15: 1.5,
   20: 1.4,
-};
+} as const satisfies Record<5 | 10 | 15 | 20, number>;
 
 function monthFromDoy(doy: number): number {
   return new Date(2024, 0, doy).getMonth() + 1;
@@ -166,7 +166,7 @@ export function SeasonalityMainChart({ comparison, currentMonth }: SeasonalityMa
                   dataKey={key}
                   name={key}
                   stroke={lookbackColor(lb)}
-                  strokeWidth={HISTORICAL_STROKE[lb] ?? 1.4}
+                  strokeWidth={HISTORICAL_STROKE[lb as 5 | 10 | 15 | 20]}
                   strokeOpacity={lb === 10 ? 1 : 0.72}
                   dot={false}
                   activeDot={false}
