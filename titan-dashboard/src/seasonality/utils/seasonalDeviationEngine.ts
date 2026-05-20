@@ -73,10 +73,15 @@ function histSmoothedAt(curve: SeasonalCurvePoint[], doy: number): number | null
   return prev?.smoothed ?? null;
 }
 
-function slopeAround(points: SeasonalCurvePoint[], centerDoy: number, span = 12): number {
+function slopeAround(points: SeasonalCurvePoint[], center: number, span = 12): number {
   const samples: number[] = [];
   for (let delta = -span; delta <= span; delta++) {
-    const p = points.find((x) => x.dayOfYear === centerDoy + delta);
+    const p = points.find(
+      (x) =>
+        x.tradingDayOffset !== undefined
+          ? x.tradingDayOffset === center + delta
+          : x.dayOfYear === center + delta,
+    );
     if (p) samples.push(p.smoothed);
   }
   if (samples.length < 2) return 0;
@@ -102,14 +107,25 @@ function classifyDeviationLevel(score: number): SeasonalDeviationLevel {
   return "LOW";
 }
 
+function histAtOffset(hist: SeasonalCurvePoint[], offset: number): number | null {
+  const exact = hist.find((p) => p.tradingDayOffset === offset);
+  if (exact) return exact.smoothed;
+  return histSmoothedAt(hist, offset);
+}
+
 function buildDeviationSamples(reference10Y: SeasonalityResult): DeviationSample[] {
-  const hist = reference10Y.seasonalCurve;
+  const hist =
+    reference10Y.rollingProjections?.[60] ??
+    reference10Y.momentumAdjustedCurve ??
+    reference10Y.seasonalCurve;
   const cy = reference10Y.currentYearCurve;
   if (hist.length < 5 || cy.length < 5) return [];
 
   const samples: DeviationSample[] = [];
   for (const point of cy) {
-    const expected = histSmoothedAt(hist, point.dayOfYear);
+    const off = point.tradingDayOffset ?? 0;
+    const expected =
+      hist.find((p) => p.tradingDayOffset === off)?.smoothed ?? histAtOffset(hist, off);
     if (expected === null) continue;
     samples.push({
       dayOfYear: point.dayOfYear,
@@ -281,8 +297,12 @@ export function computeSeasonalDeviation(reference10Y: SeasonalityResult): Seaso
   const score = Math.max(meanAbs, Math.abs(currentGap));
   const level = classifyDeviationLevel(score);
 
-  const cySlope = slopeAround(reference10Y.currentYearCurve, currentDoy, 12);
-  const histSlope = slopeAround(reference10Y.seasonalCurve, currentDoy, 12);
+  const histCurve =
+    reference10Y.rollingProjections?.[60] ??
+    reference10Y.momentumAdjustedCurve ??
+    reference10Y.seasonalCurve;
+  const cySlope = slopeAround(reference10Y.currentYearCurve, 0, 5);
+  const histSlope = slopeAround(histCurve, 0, 5);
   const alignment = computeAlignment(samples, currentGap, cySlope, histSlope, meanAbs);
 
   let trackingStatus: SeasonalTrackingStatus = "on_path";

@@ -22,19 +22,11 @@ export type SeasonalityServiceOptions = {
   asOfDate?: string;
 };
 
-function dayOfYearFromIso(iso: string): number {
-  const [y, m, d] = iso.split("-").map(Number);
-  const date = new Date(y, m - 1, d);
-  const start = new Date(date.getFullYear(), 0, 0);
-  return Math.floor((date.getTime() - start.getTime()) / 86400000);
-}
-
 function attachCurrentYearOverlay(
   base: SeasonalityResult,
   allBars: OhlcBar[],
 ): SeasonalityResult {
-  const currentDoy = dayOfYearFromIso(base.currentDate);
-  const histSlope = slopeAround(base.seasonalCurve, currentDoy, 15);
+  const histSlope = slopeAround(base.seasonalCurve, 0, 8);
   return enrichSeasonalityWithCurrentYear(base, allBars, histSlope);
 }
 

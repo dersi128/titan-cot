@@ -91,7 +91,7 @@ export function SeasonalityPage() {
 
       {comparison && result ? (
         <div className={`space-y-4${loading ? " opacity-80" : ""}`}>
-          <SeasonalityMainChart comparison={comparison} currentMonth={currentMonth} result={result} />
+          <SeasonalityMainChart result={result} currentMonth={currentMonth} />
           <SeasonalityStatsCards result={result} />
           <SeasonalityDeviationSection result={result} />
           <div>

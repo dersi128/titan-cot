@@ -12,6 +12,7 @@ export function SeasonalityHero() {
         {t("seasonality.heroTitle")}
       </h1>
       <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-stone-400">{t("seasonality.heroSub")}</p>
+      <p className="mt-2 text-[10px] uppercase tracking-wider text-titan-gold/70">{t("seasonality.engineBadge")}</p>
       <p className="mt-3 text-[11px] leading-relaxed text-stone-600">{t("seasonality.disclaimer")}</p>
     </header>
   );

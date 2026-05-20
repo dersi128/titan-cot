@@ -25,6 +25,28 @@ export type SeasonalCurvePoint = {
   value: number;
   smoothed: number;
   month: number;
+  /** Offset from anchor TDY in rolling projection (0 = today). */
+  tradingDayOffset?: number;
+};
+
+export type RollingWindowDays = 30 | 60 | 90;
+
+export type VolatilityRegime = "LOW" | "NORMAL" | "HIGH";
+
+export type SeasonalEventType = "FOMC" | "CPI" | "OPEX" | "NVDA_EARNINGS" | "ELECTION";
+
+export type SeasonalEventMarker = {
+  type: SeasonalEventType;
+  date: string;
+  label: string;
+  tdyOffset: number;
+};
+
+export type IntramonthBucket = {
+  week: number;
+  month: number;
+  avgReturn: number;
+  bias: SeasonalBias;
 };
 
 export type MonthlyStat = {
@@ -76,6 +98,16 @@ export type SeasonalityResult = {
   deviationAnalysis?: SeasonalDeviationAnalysis;
   /** Calendar-month % returns for the active year (real OHLC). */
   currentYearMonthlyReturns?: MonthlyYearReturn[];
+  /** Rolling institutional engine (30/60/90 TD projections). */
+  engineVersion?: "rolling-v2";
+  tradingDayOfYear?: number;
+  rollingProjections?: Partial<Record<RollingWindowDays, SeasonalCurvePoint[]>>;
+  momentumAdjustedCurve?: SeasonalCurvePoint[];
+  trendStrength?: number;
+  volatilityRegime?: VolatilityRegime;
+  seasonalEvents?: SeasonalEventMarker[];
+  intramonthBuckets?: IntramonthBucket[];
+  primaryRollingWindow?: RollingWindowDays;
 };
 
 export type SeasonalityMarket = {
