@@ -37,6 +37,7 @@ export const enMessages = {
     colVerdict: "Verdict",
     colComm26: "Comm 26W",
     colRetail26: "Retail 26W",
+    colRegime: "Regime",
     colFlow: "Flow",
     trendAccumulation: "Accumulation",
     trendDistribution: "Distribution",

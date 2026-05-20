@@ -39,6 +39,7 @@ export const csMessages: Messages = {
     colVerdict: "Verdict",
     colComm26: "Comm 26T",
     colRetail26: "Retail 26T",
+    colRegime: "Režim",
     colFlow: "Flow",
     trendAccumulation: "Akumulace",
     trendDistribution: "Distribuce",

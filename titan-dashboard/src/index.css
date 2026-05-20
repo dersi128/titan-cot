@@ -501,6 +501,24 @@
     @apply border border-white/10 bg-white/5 text-titan-muted;
   }
 
+  .titan-regime-pill--bull {
+    @apply border border-titan-bull/35 bg-titan-bull/10 text-emerald-300;
+    box-shadow: 0 0 20px -8px rgba(0, 208, 132, 0.45);
+  }
+
+  .titan-regime-pill--bear {
+    @apply border border-titan-bear/35 bg-titan-bear/10 text-rose-300;
+    box-shadow: 0 0 20px -8px rgba(255, 77, 109, 0.45);
+  }
+
+  .titan-regime-pill--warn {
+    @apply border border-amber-500/30 bg-amber-950/25 text-amber-200/90;
+  }
+
+  .titan-regime-pill--neutral {
+    @apply border border-white/10 bg-white/5 text-titan-muted;
+  }
+
   .titan-ai-pill {
     @apply inline-flex items-center rounded-full border border-titan-gold/30 bg-titan-gold/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-titan-goldBright;
   }

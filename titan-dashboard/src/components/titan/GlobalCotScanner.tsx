@@ -1,14 +1,13 @@
 import type { CotDashboardData } from "../../types";
 import {
-  commercialTrend,
   computeTitanDashboardScore,
   resolveTitanVerdict,
   scoreHeatClass,
   scoreRowAccentClass,
   verdictAccentClass,
-  type PositioningTrend,
   type TitanBiasVerdict,
 } from "../../lib/titanCotScore";
+import { resolveMarketRegime, type MarketRegimeId } from "../../lib/titanCommercialIndex";
 import type { InstitutionalMarket } from "../../config/institutionalMarkets";
 import { useTitanI18n } from "../../i18n";
 import { TitanMarketIcon } from "./TitanMarketIcon";
@@ -20,7 +19,7 @@ export type ScannerRowModel = {
   verdict: TitanBiasVerdict;
   comm26: number | null;
   retail26: number | null;
-  trend: PositioningTrend;
+  regime: MarketRegimeId;
   status: "live" | "loading" | "error";
   errorMessage?: string;
 };
@@ -31,16 +30,11 @@ type GlobalCotScannerProps = {
   onSelectMarket: (market: InstitutionalMarket) => void;
 };
 
-function trendLabel(trend: PositioningTrend, tr: (key: string) => string): string {
-  if (trend === "accumulation") return tr("scanner.trendAccumulation");
-  if (trend === "distribution") return tr("scanner.trendDistribution");
-  return tr("scanner.trendFlat");
-}
-
-function trendPillClass(t: PositioningTrend): string {
-  if (t === "accumulation") return "titan-flow-pill--accumulation";
-  if (t === "distribution") return "titan-flow-pill--distribution";
-  return "titan-flow-pill--flat";
+function regimePillClass(regime: MarketRegimeId): string {
+  if (regime === "accumulation" || regime === "trending") return "titan-regime-pill--bull";
+  if (regime === "distribution") return "titan-regime-pill--bear";
+  if (regime === "exhaustion" || regime === "transition") return "titan-regime-pill--warn";
+  return "titan-regime-pill--neutral";
 }
 
 export function buildScannerRows(
@@ -58,7 +52,7 @@ export function buildScannerRows(
         verdict: resolveTitanVerdict(data),
         comm26: data.commercials.index26w,
         retail26: data.retail.index26w,
-        trend: commercialTrend(data),
+        regime: resolveMarketRegime(data),
         status: "live",
       };
     }
@@ -69,7 +63,7 @@ export function buildScannerRows(
         verdict: "NEUTRAL",
         comm26: null,
         retail26: null,
-        trend: "flat",
+        regime: "neutral",
         status: "error",
         errorMessage: errors[market.symbol],
       };
@@ -80,7 +74,7 @@ export function buildScannerRows(
       verdict: "NEUTRAL",
       comm26: null,
       retail26: null,
-      trend: "flat",
+      regime: "neutral",
       status: "loading",
     };
   });
@@ -113,7 +107,7 @@ export function GlobalCotScanner({ rows, selectedMarket, onSelectMarket }: Globa
               <th>{t("scanner.colVerdict")}</th>
               <th className="text-right">{t("scanner.colComm26")}</th>
               <th className="text-right">{t("scanner.colRetail26")}</th>
-              <th className="px-6">{t("scanner.colFlow")}</th>
+              <th className="px-6">{t("scanner.colRegime")}</th>
             </tr>
           </thead>
           <tbody>
@@ -179,9 +173,9 @@ export function GlobalCotScanner({ rows, selectedMarket, onSelectMarket }: Globa
                   <td className="px-6 py-4">
                     {row.status === "live" ? (
                       <span
-                        className={`inline-flex rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${trendPillClass(row.trend)}`}
+                        className={`inline-flex rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${regimePillClass(row.regime)}`}
                       >
-                        {trendLabel(row.trend, t)}
+                        {t(`positioning.regime.${row.regime}`)}
                       </span>
                     ) : (
                       <span className="text-titan-muted">—</span>

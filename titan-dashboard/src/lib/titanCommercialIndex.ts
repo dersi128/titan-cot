@@ -351,6 +351,11 @@ export function evaluatePositioningMarketRegime(
   return "neutral";
 }
 
+/** Single source of truth for market regime (scanner + detail). */
+export function resolveMarketRegime(data: CotDashboardData): MarketRegimeId {
+  return evaluateTitanPositioning(data)?.regime ?? "neutral";
+}
+
 export function evaluateTitanPositioning(data: CotDashboardData): TitanPositioningRead | null {
   if (!data.commercials || !data.retail) {
     return null;
