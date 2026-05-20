@@ -7,6 +7,7 @@ import type {
   SeasonalStrength,
   SeasonalWindow,
 } from "../types";
+import { DEFAULT_YEARS_LOOKBACK, type YearsLookback } from "../yearsLookback";
 import { circularMovingAverage } from "./smoothing";
 
 const MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -271,6 +272,7 @@ export function calculateSeasonality(options: CalculateSeasonalityOptions): Seas
   return {
     symbol,
     yearsUsed: years.size,
+    selectedLookback: options.yearsLookback ?? DEFAULT_YEARS_LOOKBACK,
     currentDate: asOf,
     seasonalBias,
     seasonalStrength,

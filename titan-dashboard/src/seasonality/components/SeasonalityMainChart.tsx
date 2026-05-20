@@ -11,13 +11,18 @@ import {
   YAxis,
 } from "recharts";
 import type { SeasonalityResult } from "../types";
+import { lookbackLabel, type YearsLookback } from "../yearsLookback";
 import { useTitanI18n } from "../../i18n";
+import { SeasonalityLookbackControl } from "./SeasonalityLookbackControl";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 type SeasonalityMainChartProps = {
   result: SeasonalityResult;
   currentMonth: number;
+  lookback: YearsLookback;
+  onLookbackChange: (lookback: YearsLookback) => void;
+  lookbackDisabled?: boolean;
 };
 
 type ChartRow = {
@@ -31,7 +36,16 @@ function monthFromDoy(doy: number): number {
   return new Date(2024, 0, doy).getMonth() + 1;
 }
 
-export function SeasonalityMainChart({ result, currentMonth }: SeasonalityMainChartProps) {
+/**
+ * Single active seasonal curve. Future: overlay 5Y / 10Y / 15Y comparison lines here.
+ */
+export function SeasonalityMainChart({
+  result,
+  currentMonth,
+  lookback,
+  onLookbackChange,
+  lookbackDisabled = false,
+}: SeasonalityMainChartProps) {
   const { t } = useTitanI18n();
 
   const chartData = useMemo(() => {
@@ -61,10 +75,20 @@ export function SeasonalityMainChart({ result, currentMonth }: SeasonalityMainCh
     return bands;
   }, [result.bullishWindows, result.bearishWindows]);
 
+  const windowText = t("seasonality.historicalWindow", { period: lookbackLabel(lookback) });
+
   return (
     <div className="titan-seasonality-chart rounded-lg border border-titan-gold/12 bg-titan-panel/40 p-4">
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <p className="titan-cmd-kicker">{t("seasonality.chartTitle")}</p>
+      <SeasonalityLookbackControl value={lookback} onChange={onLookbackChange} disabled={lookbackDisabled} />
+
+      <div className="mt-3 flex flex-wrap items-end justify-between gap-2 border-b border-white/[0.06] pb-3">
+        <div>
+          <p className="titan-cmd-kicker">{t("seasonality.chartTitle")}</p>
+          <p className="mt-1 font-display text-[11px] font-semibold uppercase tracking-[0.14em] text-titan-gold/90">
+            {windowText}
+          </p>
+          <p className="mt-1 text-[10px] text-stone-600">{t("seasonality.disclaimer")}</p>
+        </div>
         <div className="flex flex-wrap gap-3 text-[9px] uppercase tracking-wider text-stone-500">
           <span className="inline-flex items-center gap-1.5">
             <span className="h-2 w-3 rounded-sm bg-emerald-500/25" />
@@ -81,7 +105,7 @@ export function SeasonalityMainChart({ result, currentMonth }: SeasonalityMainCh
         </div>
       </div>
 
-      <div className="h-[280px] w-full md:h-[320px]">
+      <div className="mt-3 h-[280px] w-full md:h-[320px]">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 8, right: 12, left: 0, bottom: 4 }}>
             <CartesianGrid stroke="rgba(255,255,255,0.04)" vertical={false} />

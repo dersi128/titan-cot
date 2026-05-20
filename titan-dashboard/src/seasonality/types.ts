@@ -35,9 +35,12 @@ export type MonthlyStat = {
   bias: SeasonalBias;
 };
 
+import type { YearsLookback } from "./yearsLookback";
+
 export type SeasonalityResult = {
   symbol: string;
   yearsUsed: number;
+  selectedLookback: YearsLookback;
   currentDate: string;
   seasonalBias: SeasonalBias;
   seasonalStrength: SeasonalStrength;

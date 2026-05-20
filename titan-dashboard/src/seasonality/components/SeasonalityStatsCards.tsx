@@ -1,4 +1,5 @@
 import type { SeasonalityResult } from "../types";
+import { lookbackLabel } from "../yearsLookback";
 import { useTitanI18n } from "../../i18n";
 
 type SeasonalityStatsCardsProps = {
@@ -57,7 +58,11 @@ export function SeasonalityStatsCards({ result }: SeasonalityStatsCardsProps) {
         valueClass={strengthClass(result.seasonalStrength)}
         sub={t(`seasonality.strength.${result.seasonalStrength}`)}
       />
-      <StatCard label={t("seasonality.stats.years")} value={String(result.yearsUsed)} />
+      <StatCard
+        label={t("seasonality.stats.years")}
+        value={String(result.yearsUsed)}
+        sub={t("seasonality.stats.lookbackSub", { period: lookbackLabel(result.selectedLookback) })}
+      />
       <StatCard label={t("seasonality.stats.window")} value={windowLabel} />
       <StatCard label={t("seasonality.stats.avgReturn")} value={`${avgPct}%`} sub={t("seasonality.stats.avgReturnSub")} />
       <StatCard label={t("seasonality.stats.winRate")} value={`${winPct}%`} sub={t("seasonality.stats.winRateSub")} />
