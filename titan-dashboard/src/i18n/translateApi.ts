@@ -19,6 +19,13 @@ const LABELS: Record<string, { en: string; cs: string }> = {
   accumulation: { en: "accumulation", cs: "akumulace" },
   distribution: { en: "distribution", cs: "distribuce" },
   flat: { en: "flat", cs: "flat" },
+  ACCUMULATION: { en: "Accumulation", cs: "Akumulace" },
+  DISTRIBUTION: { en: "Distribution", cs: "Distribuce" },
+  TRENDING: { en: "Trending", cs: "Trend" },
+  ROTATION: { en: "Rotation", cs: "Rotace" },
+  EXHAUSTION: { en: "Exhaustion", cs: "Vyčerpání" },
+  TRANSITION: { en: "Transition", cs: "Přechod" },
+  NEUTRAL: { en: "Neutral", cs: "Neutrální" },
 };
 
 export function translateApiLabel(value: string, locale: Locale): string {

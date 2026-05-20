@@ -19,10 +19,12 @@ type AiVerdictPanelProps = {
   variant?: "standalone" | "embedded" | "insights";
 };
 
-function phaseTone(phase: string): "gold" | "bull" | "bear" | "warn" | "neutral" {
-  if (phase.includes("Accumulation") || phase.includes("Crowded Short")) return "bull";
-  if (phase.includes("Distribution") || phase.includes("Crowded Long")) return "bear";
-  if (phase.includes("Exhaustion")) return "warn";
+function phaseTone(regime: string): "gold" | "bull" | "bear" | "warn" | "neutral" {
+  const u = regime.toUpperCase();
+  if (u.includes("ACCUMULATION") || u.includes("CROWDED SHORT")) return "bull";
+  if (u.includes("DISTRIBUTION") || u.includes("CROWDED LONG")) return "bear";
+  if (u.includes("EXHAUSTION") || u.includes("TRANSITION")) return "warn";
+  if (u.includes("TRENDING")) return "gold";
   return "neutral";
 }
 
@@ -45,11 +47,10 @@ export function AiVerdictPanel({ market, data, loading, variant = "standalone" }
 
   const componentLabels: { key: keyof NonNullable<typeof scoring>["components"]; label: string }[] = [
     { key: "commercialPositioning", label: t("verdict.compPositioning") },
-    { key: "commercialFlow", label: t("verdict.compFlow") },
+    { key: "commercialDeltaFlow", label: t("verdict.compFlow") },
     { key: "persistence", label: t("verdict.compPersistence") },
     { key: "ncDivergence", label: t("verdict.compNcDiv") },
-    { key: "retailContrarian", label: t("verdict.compRetail") },
-    { key: "openInterest", label: t("verdict.compOi") },
+    { key: "retailCrowding", label: t("verdict.compRetail") },
   ];
 
   const body = (
@@ -86,22 +87,14 @@ export function AiVerdictPanel({ market, data, loading, variant = "standalone" }
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
-                {scoring?.marketPhase ? (
-                  <TitanBadge tone={phaseTone(scoring.marketPhase)}>
-                    {translateApiLabel(scoring.marketPhase, locale)}
+                {scoring?.market_regime ? (
+                  <TitanBadge tone={phaseTone(scoring.market_regime)}>
+                    {translateApiLabel(scoring.market_regime, locale)}
                   </TitanBadge>
                 ) : data.marketPhase ? (
                   <TitanBadge tone={phaseTone(data.marketPhase)}>
                     {translateApiLabel(data.marketPhase, locale)}
                   </TitanBadge>
-                ) : null}
-                {scoring?.commercialPositioningLabel ? (
-                  <TitanBadge tone="gold">
-                    {translateApiLabel(scoring.commercialPositioningLabel, locale)}
-                  </TitanBadge>
-                ) : null}
-                {scoring?.flowLabel ? (
-                  <TitanBadge tone="neutral">{translateApiLabel(scoring.flowLabel, locale)}</TitanBadge>
                 ) : null}
                 {trend ? (
                   <TitanBadge tone={trend === "accumulation" ? "bull" : trend === "distribution" ? "bear" : "neutral"}>
@@ -109,10 +102,14 @@ export function AiVerdictPanel({ market, data, loading, variant = "standalone" }
                   </TitanBadge>
                 ) : null}
               </div>
-              {scoring && scoring.persistenceWeeks > 0 ? (
+              {scoring && scoring.persistence_weeks_for_badge > 0 ? (
                 <p className="text-xs text-stone-500">
-                  {scoring.persistenceSide === "bull" ? t("verdict.persistenceBull") : t("verdict.persistenceBear")}{" "}
-                  {t("verdict.persistenceWeeks", { weeks: scoring.persistenceWeeks })}
+                  {scoring.persistence_side === "bull"
+                    ? t("verdict.persistenceBull")
+                    : scoring.persistence_side === "bear"
+                      ? t("verdict.persistenceBear")
+                      : t("verdict.persistenceNeutral")}{" "}
+                  {t("verdict.persistenceWeeks", { weeks: scoring.persistence_weeks_for_badge })}
                 </p>
               ) : null}
             </div>

@@ -1,11 +1,13 @@
 export type CotVerdict =
-  | "A+ INSTITUTIONAL LONG"
-  | "B LONG"
-  | "WEAK LONG"
-  | "NEUTRAL"
-  | "WEAK SHORT"
+  | "A+ EXTREME SHORT"
+  | "A STRONG SHORT"
   | "B SHORT"
-  | "A+ INSTITUTIONAL SHORT";
+  | "WEAK SHORT"
+  | "NEUTRAL"
+  | "WEAK LONG"
+  | "B LONG"
+  | "A STRONG LONG"
+  | "A+ EXTREME LONG";
 
 export type CotHistoryPoint = {
   reportDate: string;
@@ -56,10 +58,9 @@ export type CotDashboardData = {
   /** Unified score breakdown (from API or client recompute). */
   scoreComponents?: {
     commercialPositioning: number;
-    commercialFlow: number;
+    commercialDeltaFlow: number;
     persistence: number;
     ncDivergence: number;
-    retailContrarian: number;
-    openInterest: number;
+    retailCrowding: number;
   };
 };

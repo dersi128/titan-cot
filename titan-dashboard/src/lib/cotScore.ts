@@ -6,14 +6,16 @@ export function verdictTone(verdict: CotVerdict | "—" | string): "bull" | "bea
   if (verdict === "—") return "neutral";
   const v = normalizeLegacyVerdict(verdict);
   if (
-    v === "A+ INSTITUTIONAL LONG" ||
+    v === "A+ EXTREME LONG" ||
+    v === "A STRONG LONG" ||
     v === "B LONG" ||
     v === "WEAK LONG"
   ) {
     return "bull";
   }
   if (
-    v === "A+ INSTITUTIONAL SHORT" ||
+    v === "A+ EXTREME SHORT" ||
+    v === "A STRONG SHORT" ||
     v === "B SHORT" ||
     v === "WEAK SHORT"
   ) {

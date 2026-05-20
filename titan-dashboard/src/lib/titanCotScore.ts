@@ -24,8 +24,6 @@ function dashboardToScoringInput(data: CotDashboardData): TitanCotScoringInput {
       bias: data.commercials.bias,
     },
     nonCommercials: {
-      index26w: data.nonCommercials.index26w,
-      index52w: data.nonCommercials.index52w,
       weeklyChange: data.nonCommercials.weeklyChange,
       divergence: data.nonCommercials.divergence,
     },
@@ -54,7 +52,7 @@ export function normalizeCotDashboardData(data: CotDashboardData): CotDashboardD
       ...data,
       cotScore: read.score,
       cotVerdict: read.verdict,
-      marketPhase: read.marketPhase,
+      marketPhase: read.market_regime,
       scoreComponents: read.components,
     };
   } catch (err) {
@@ -103,9 +101,11 @@ export function buildInstitutionalNarrative(
 }
 
 export function verdictAccentClass(verdict: TitanBiasVerdict): string {
-  if (verdict === "A+ INSTITUTIONAL LONG" || verdict === "B LONG") return "text-emerald-400/95";
+  if (verdict === "A+ EXTREME LONG" || verdict === "A STRONG LONG") return "text-emerald-400/95";
+  if (verdict === "B LONG") return "text-emerald-400/90";
   if (verdict === "WEAK LONG") return "text-emerald-300/75";
-  if (verdict === "A+ INSTITUTIONAL SHORT" || verdict === "B SHORT") return "text-rose-400/95";
+  if (verdict === "A+ EXTREME SHORT" || verdict === "A STRONG SHORT") return "text-rose-400/95";
+  if (verdict === "B SHORT") return "text-rose-400/90";
   if (verdict === "WEAK SHORT") return "text-rose-300/75";
   return "text-stone-400";
 }
