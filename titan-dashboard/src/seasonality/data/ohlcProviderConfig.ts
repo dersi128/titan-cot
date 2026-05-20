@@ -1,3 +1,4 @@
+import type { OhlcBar } from "../types";
 import type { OhlcProviderId } from "./types";
 import { mockOhlcProvider } from "./mockOhlcProvider";
 import { yahooOhlcProvider } from "./yahooOhlcProvider";

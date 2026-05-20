@@ -21,6 +21,7 @@ export function SeasonalityPage() {
   const { t } = useTitanI18n();
   const [marketId, setMarketId] = useState(DEFAULT_SEASONALITY_MARKET_ID);
   const [comparison, setComparison] = useState<SeasonalityComparison | null>(null);
+  const [dataSource, setDataSource] = useState("yahoo");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
