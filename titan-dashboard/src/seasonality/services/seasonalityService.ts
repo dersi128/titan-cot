@@ -66,12 +66,18 @@ export async function fetchSeasonalityComparison(
   for (const lb of lookbacks) {
     const filtered = filterBarsByLookback(bars, lb, options.asOfDate);
     if (filtered.length < 252) continue;
-    comparison[lb] = calculateSeasonality({
+    const base = calculateSeasonality({
       symbol,
       bars: filtered,
       asOfDate: options.asOfDate,
       yearsLookback: lb,
     });
+    const parts = base.currentDate.split("-").map(Number);
+    const asOf = new Date(parts[0], parts[1] - 1, parts[2]);
+    const yearStart = new Date(asOf.getFullYear(), 0, 0);
+    const currentDoy = Math.floor((asOf.getTime() - yearStart.getTime()) / 86400000);
+    const histSlope = slopeAround(base.seasonalCurve, currentDoy, 15);
+    comparison[lb] = enrichSeasonalityWithCurrentYear(base, bars, histSlope);
   }
 
   const primary = comparison[DEFAULT_YEARS_LOOKBACK];

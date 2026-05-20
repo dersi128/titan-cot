@@ -100,7 +100,7 @@ function buildSeasonalCurve(avgByDoy: Map<number, number[]>, maxDoy: number): { 
   return { raw, points };
 }
 
-function slopeAround(points: SeasonalCurvePoint[], centerDoy: number, span = 15): number {
+export function slopeAround(points: SeasonalCurvePoint[], centerDoy: number, span = 15): number {
   const n = points.length;
   const samples: number[] = [];
   for (let delta = -span; delta <= span; delta++) {

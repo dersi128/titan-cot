@@ -43,6 +43,8 @@ export function SeasonalityStatsCards({ result }: SeasonalityStatsCardsProps) {
   const windowLabel = result.currentSeasonalWindow?.label ?? "—";
   const avgPct = (result.averageReturnInWindow * 100).toFixed(3);
   const winPct = result.overallWinRate.toFixed(1);
+  const ytdPct = result.currentYearPerformance.toFixed(2);
+  const histIdx = result.historicalPerformance.toFixed(1);
 
   return (
     <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-6">
@@ -64,6 +66,18 @@ export function SeasonalityStatsCards({ result }: SeasonalityStatsCardsProps) {
         sub={t("seasonality.stats.lookbackSub", { period: lookbackLabel(result.selectedLookback) })}
       />
       <StatCard label={t("seasonality.stats.window")} value={windowLabel} />
+      <StatCard
+        label={t("seasonality.stats.ytd")}
+        value={`${ytdPct}%`}
+        sub={t("seasonality.stats.ytdSub")}
+        valueClass={result.currentYearPerformance >= 0 ? "text-cyan-300/95" : "text-rose-400/95"}
+      />
+      <StatCard
+        label={t("seasonality.stats.histIndex")}
+        value={histIdx}
+        sub={t("seasonality.stats.histIndexSub")}
+        valueClass="text-titan-goldBright"
+      />
       <StatCard label={t("seasonality.stats.avgReturn")} value={`${avgPct}%`} sub={t("seasonality.stats.avgReturnSub")} />
       <StatCard label={t("seasonality.stats.winRate")} value={`${winPct}%`} sub={t("seasonality.stats.winRateSub")} />
     </div>

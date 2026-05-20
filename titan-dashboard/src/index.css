@@ -887,6 +887,79 @@
     background: rgba(8, 8, 10, 0.6);
   }
 
+  .titan-seasonality-overlay-toggle__input {
+    accent-color: #9ae8ff;
+    width: 14px;
+    height: 14px;
+  }
+
+  .titan-seasonality-alignment {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    border-radius: 2px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.35);
+    padding: 0.35rem 0.65rem;
+  }
+
+  .titan-seasonality-alignment__value {
+    font-family: var(--font-display, "Cinzel", serif);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+  }
+
+  .titan-seasonality-alignment--aligned {
+    border-color: rgba(61, 184, 140, 0.35);
+  }
+
+  .titan-seasonality-alignment--aligned .titan-seasonality-alignment__value {
+    color: #3db88c;
+  }
+
+  .titan-seasonality-alignment--diverging {
+    border-color: rgba(232, 149, 90, 0.35);
+  }
+
+  .titan-seasonality-alignment--diverging .titan-seasonality-alignment__value {
+    color: #e8955a;
+  }
+
+  .titan-seasonality-alignment--strong {
+    border-color: rgba(255, 77, 109, 0.4);
+    box-shadow: 0 0 12px rgba(255, 77, 109, 0.12);
+  }
+
+  .titan-seasonality-alignment--strong .titan-seasonality-alignment__value {
+    color: #ff6b8a;
+  }
+
+  .titan-seasonality-legend-line {
+    display: inline-block;
+    height: 3px;
+    width: 14px;
+    border-radius: 999px;
+  }
+
+  .titan-seasonality-legend-line--historical {
+    background: #d4af37;
+    box-shadow: 0 0 6px rgba(212, 175, 55, 0.45);
+  }
+
+  .titan-seasonality-legend-line--current-year {
+    background: #9ae8ff;
+    box-shadow: 0 0 8px rgba(154, 232, 255, 0.5);
+  }
+
+  .titan-seasonality-line-historical {
+    filter: drop-shadow(0 0 4px rgba(212, 175, 55, 0.35));
+  }
+
+  .titan-seasonality-line-current-year {
+    filter: drop-shadow(0 0 5px rgba(154, 232, 255, 0.45));
+  }
+
   .titan-scanner-primary {
     border-color: rgba(212, 175, 55, 0.14);
     box-shadow:

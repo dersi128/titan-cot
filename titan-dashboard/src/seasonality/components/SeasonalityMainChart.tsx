@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   CartesianGrid,
   Line,
@@ -12,15 +12,18 @@ import {
 } from "recharts";
 import type { SeasonalityResult } from "../types";
 import type { SeasonalityComparison } from "../services/seasonalityService";
+import { lookbackLabel, type YearsLookback } from "../yearsLookback";
 import {
-  CHART_COMPARISON_LOOKBACKS,
-  lookbackColor,
-  LOOKBACK_CHART_KEYS,
-  lookbackLabel,
-  type YearsLookback,
-} from "../yearsLookback";
-import { buildMonthlyChartRows, seasonalCurveToMonthlyValues } from "../utils/chartData";
+  buildMonthlyChartRows,
+  CURRENT_YEAR_CHART_KEY,
+  CURRENT_YEAR_LINE_COLOR,
+  currentYearCurveToMonthlyValues,
+  HISTORICAL_CHART_KEY,
+  HISTORICAL_LINE_COLOR,
+  seasonalCurveToMonthlyValues,
+} from "../utils/chartData";
 import { useTitanI18n } from "../../i18n";
+import { SeasonalityAlignmentBadge } from "./SeasonalityAlignmentBadge";
 import { SeasonalityLookbackControl } from "./SeasonalityLookbackControl";
 
 type SeasonalityMainChartProps = {
@@ -43,21 +46,26 @@ export function SeasonalityMainChart({
   lookbackDisabled = false,
 }: SeasonalityMainChartProps) {
   const { t } = useTitanI18n();
+  const [showCurrentYear, setShowCurrentYear] = useState(true);
 
   const primaryResult = comparison[primaryLookback] ?? comparison[10] ?? Object.values(comparison)[0];
 
-  const activeLookbacks = useMemo(
-    () => CHART_COMPARISON_LOOKBACKS.filter((lb) => comparison[lb]),
-    [comparison],
-  );
-
   const chartData = useMemo(() => {
-    const series = activeLookbacks.map((lb) => ({
-      key: LOOKBACK_CHART_KEYS[lb],
-      values: seasonalCurveToMonthlyValues(comparison[lb]!.seasonalCurve),
-    }));
+    if (!primaryResult) return [];
+    const series: { key: string; values: (number | null)[] | number[] }[] = [
+      {
+        key: HISTORICAL_CHART_KEY,
+        values: seasonalCurveToMonthlyValues(primaryResult.seasonalCurve),
+      },
+    ];
+    if (showCurrentYear && primaryResult.currentYearCurve.length > 0) {
+      series.push({
+        key: CURRENT_YEAR_CHART_KEY,
+        values: currentYearCurveToMonthlyValues(primaryResult.currentYearCurve, currentMonth),
+      });
+    }
     return buildMonthlyChartRows(series, currentMonth);
-  }, [comparison, activeLookbacks, currentMonth]);
+  }, [primaryResult, showCurrentYear, currentMonth]);
 
   const windowBands = useMemo(() => {
     if (!primaryResult) return [];
@@ -73,70 +81,65 @@ export function SeasonalityMainChart({
     return bands;
   }, [primaryResult]);
 
-  const primaryKey = LOOKBACK_CHART_KEYS[primaryLookback];
+  if (!primaryResult) return null;
+
+  const currentYear = new Date(primaryResult.currentDate).getFullYear();
 
   return (
     <div className="titan-seasonality-chart rounded-lg border border-titan-gold/12 bg-titan-panel/40 p-4">
-      <SeasonalityLookbackControl
-        value={primaryLookback}
-        onChange={onPrimaryLookbackChange}
-        disabled={lookbackDisabled}
-      />
-      <p className="mt-2 text-[10px] text-stone-600">{t("seasonality.lookbackCompareHint")}</p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <SeasonalityLookbackControl
+          value={primaryLookback}
+          onChange={onPrimaryLookbackChange}
+          disabled={lookbackDisabled}
+        />
+        <label className="titan-seasonality-overlay-toggle inline-flex cursor-pointer items-center gap-2">
+          <input
+            type="checkbox"
+            className="titan-seasonality-overlay-toggle__input"
+            checked={showCurrentYear}
+            disabled={lookbackDisabled}
+            onChange={(e) => setShowCurrentYear(e.target.checked)}
+          />
+          <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-stone-400">
+            {t("seasonality.showCurrentYear")}
+          </span>
+        </label>
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <SeasonalityAlignmentBadge alignment={primaryResult.seasonalityAlignment} />
+      </div>
 
       <div className="mt-3 flex flex-wrap items-end justify-between gap-2 border-b border-white/[0.06] pb-3">
         <div>
           <p className="titan-cmd-kicker">{t("seasonality.chartTitle")}</p>
           <p className="mt-1 font-display text-[11px] font-semibold uppercase tracking-[0.14em] text-titan-gold/90">
-            {t("seasonality.historicalWindowCompare")}
-          </p>
-          <p className="mt-1 text-[10px] text-stone-600">
             {t("seasonality.historicalWindowPrimary", { period: lookbackLabel(primaryLookback) })}
           </p>
           <p className="mt-1 text-[10px] text-stone-600">{t("seasonality.disclaimer")}</p>
         </div>
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-wrap gap-2">
-            {activeLookbacks.map((lb) => {
-              const isPrimary = lb === primaryLookback;
-              const color = lookbackColor(lb);
-              return (
-                <span
-                  key={String(lb)}
-                  className="inline-flex items-center gap-1.5 text-[9px] font-semibold uppercase tracking-wider"
-                  style={{ color, opacity: isPrimary ? 1 : 0.82 }}
-                >
-                  <span
-                    className="rounded-full"
-                    style={{
-                      background: color,
-                      width: isPrimary ? 14 : 10,
-                      height: isPrimary ? 3 : 2,
-                    }}
-                  />
-                  {lookbackLabel(lb)}
-                </span>
-              );
-            })}
-          </div>
-          <div className="flex flex-wrap gap-3 text-[9px] uppercase tracking-wider text-stone-500">
-            <span className="inline-flex items-center gap-1.5">
-              <span className="h-2 w-3 rounded-sm bg-emerald-500/25" />
-              {t("seasonality.legendBull")}
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <span className="h-2 w-3 rounded-sm bg-rose-500/25" />
-              {t("seasonality.legendBear")}
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <span className="h-0.5 w-3 bg-titan-gold/80" />
-              {t("seasonality.legendCurrent")}
-            </span>
-          </div>
+        <div className="flex flex-wrap gap-3 text-[9px] uppercase tracking-wider text-stone-500">
+          <span className="inline-flex items-center gap-1.5">
+            <span className="titan-seasonality-legend-line titan-seasonality-legend-line--historical" />
+            {t("seasonality.legendHistorical")}
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="titan-seasonality-legend-line titan-seasonality-legend-line--current-year" />
+            {t("seasonality.legendCurrentYear", { year: currentYear })}
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-2 w-3 rounded-sm bg-emerald-500/25" />
+            {t("seasonality.legendBull")}
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-2 w-3 rounded-sm bg-rose-500/25" />
+            {t("seasonality.legendBear")}
+          </span>
         </div>
       </div>
 
-      <div className="mt-3 h-[280px] w-full md:h-[320px]">
+      <div className="mt-3 h-[300px] w-full md:h-[340px]">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 8, right: 12, left: 0, bottom: 4 }}>
             <CartesianGrid stroke="rgba(255,255,255,0.04)" vertical={false} />
@@ -161,9 +164,14 @@ export function SeasonalityMainChart({
                 fontSize: 11,
               }}
               formatter={(value: number, name: string) => {
-                const lb = activeLookbacks.find((k) => LOOKBACK_CHART_KEYS[k] === name);
-                const label = lb ? lookbackLabel(lb) : name;
-                return [typeof value === "number" ? value.toFixed(1) : value, label];
+                if (value == null || Number.isNaN(value)) return ["—", name];
+                const label =
+                  name === HISTORICAL_CHART_KEY
+                    ? t("seasonality.legendHistorical")
+                    : name === CURRENT_YEAR_CHART_KEY
+                      ? t("seasonality.legendCurrentYearShort", { year: currentYear })
+                      : name;
+                return [value.toFixed(1), label];
               }}
             />
             {windowBands.map((band, i) => (
@@ -175,41 +183,68 @@ export function SeasonalityMainChart({
                 strokeOpacity={0}
               />
             ))}
-            {activeLookbacks.map((lb) => {
-              const isPrimary = lb === primaryLookback;
-              const dataKey = LOOKBACK_CHART_KEYS[lb];
-              return (
-                <Line
-                  key={dataKey}
-                  type="monotone"
-                  dataKey={dataKey}
-                  name={dataKey}
-                  stroke={LOOKBACK_CHART_COLORS[lb]}
-                  strokeWidth={isPrimary ? 2.5 : 1.25}
-                  strokeOpacity={isPrimary ? 1 : 0.55}
-                  dot={false}
-                  activeDot={isPrimary ? { r: 4, fill: LOOKBACK_CHART_COLORS[lb] } : { r: 3 }}
-                />
-              );
-            })}
+            <Line
+              type="monotone"
+              dataKey={HISTORICAL_CHART_KEY}
+              name={HISTORICAL_CHART_KEY}
+              stroke={HISTORICAL_LINE_COLOR}
+              strokeWidth={2.5}
+              className="titan-seasonality-line-historical"
+              dot={false}
+              activeDot={{ r: 4, fill: HISTORICAL_LINE_COLOR }}
+              connectNulls
+            />
+            {showCurrentYear ? (
+              <Line
+                type="monotone"
+                dataKey={CURRENT_YEAR_CHART_KEY}
+                name={CURRENT_YEAR_CHART_KEY}
+                stroke={CURRENT_YEAR_LINE_COLOR}
+                strokeWidth={2}
+                className="titan-seasonality-line-current-year"
+                dot={false}
+                connectNulls={false}
+                activeDot={{ r: 4, fill: CURRENT_YEAR_LINE_COLOR, stroke: "#0a0b0e", strokeWidth: 1 }}
+              />
+            ) : null}
             {chartData
               .filter((row) => row.isCurrent)
               .map((row) => {
-                const y = row[primaryKey];
-                if (typeof y !== "number") return null;
+                const histY = row[HISTORICAL_CHART_KEY];
+                if (typeof histY !== "number") return null;
                 return (
                   <ReferenceDot
-                    key={`dot-${String(row.month)}`}
+                    key={`hist-dot-${String(row.month)}`}
                     x={String(row.month)}
-                    y={y}
-                    r={6}
-                    fill={lookbackColor(primaryLookback)}
+                    y={histY}
+                    r={5}
+                    fill={HISTORICAL_LINE_COLOR}
                     stroke="#0a0b0e"
                     strokeWidth={2}
                   />
                 );
               })
               .filter(Boolean)}
+            {showCurrentYear
+              ? chartData
+                  .filter((row) => row.isCurrent)
+                  .map((row) => {
+                    const cyY = row[CURRENT_YEAR_CHART_KEY];
+                    if (typeof cyY !== "number") return null;
+                    return (
+                      <ReferenceDot
+                        key={`cy-dot-${String(row.month)}`}
+                        x={String(row.month)}
+                        y={cyY}
+                        r={5}
+                        fill={CURRENT_YEAR_LINE_COLOR}
+                        stroke="#0a0b0e"
+                        strokeWidth={2}
+                      />
+                    );
+                  })
+                  .filter(Boolean)
+              : null}
           </LineChart>
         </ResponsiveContainer>
       </div>

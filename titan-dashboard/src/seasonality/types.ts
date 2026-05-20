@@ -37,6 +37,8 @@ export type MonthlyStat = {
 
 import type { YearsLookback } from "./yearsLookback";
 
+export type SeasonalityAlignment = "ALIGNED" | "DIVERGING" | "STRONGLY_DIVERGING";
+
 export type SeasonalityResult = {
   symbol: string;
   yearsUsed: number;
