@@ -477,6 +477,10 @@ export const csMessages: Messages = {
     strongestShorts: "Nejsilnější shorts",
     extremeMarketsTitle: "Extrémní trhy",
     extremeMarketsSub: "{{count}} trhů v 26T extrémním positioning",
+    extremeMarketsCaption: "Trhy v institucionálních positioning extrémech",
+    dominanceCaption: "Podíl trhů v 26T commercial extrému",
+    regimeMarketsOf: "{{count}} z {{total}} trhů",
+    noActiveExtremes: "Žádné aktivní extrémy",
     convictionMax: "5",
   },
   rail: {

@@ -475,6 +475,10 @@ export const enMessages = {
     strongestShorts: "Strongest shorts",
     extremeMarketsTitle: "Extreme markets",
     extremeMarketsSub: "{{count}} markets in 26W extreme positioning",
+    extremeMarketsCaption: "Markets currently in institutional positioning extremes",
+    dominanceCaption: "Share of markets in 26W commercial extreme",
+    regimeMarketsOf: "{{count}} of {{total}} markets",
+    noActiveExtremes: "No active extremes",
     convictionMax: "5",
   },
   rail: {

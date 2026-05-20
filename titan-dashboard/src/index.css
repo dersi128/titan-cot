@@ -442,7 +442,7 @@
 
   .titan-scanner-icon-slot .titan-market-icon--photo,
   .titan-scanner-icon-slot .titan-market-icon--vector {
-    @apply h-12 w-12;
+    @apply h-11 w-11;
   }
 
   .titan-scanner-table-wrap {
@@ -501,22 +501,24 @@
     @apply border border-white/10 bg-white/5 text-titan-muted;
   }
 
+  .titan-regime-pill {
+    @apply rounded-sm;
+  }
+
   .titan-regime-pill--bull {
-    @apply border border-titan-bull/35 bg-titan-bull/10 text-emerald-300;
-    box-shadow: 0 0 20px -8px rgba(0, 208, 132, 0.45);
+    @apply border border-titan-bull/30 bg-titan-bull/8 text-emerald-300/95;
   }
 
   .titan-regime-pill--bear {
-    @apply border border-titan-bear/35 bg-titan-bear/10 text-rose-300;
-    box-shadow: 0 0 20px -8px rgba(255, 77, 109, 0.45);
+    @apply border border-titan-bear/30 bg-titan-bear/8 text-rose-300/95;
   }
 
   .titan-regime-pill--warn {
-    @apply border border-amber-500/30 bg-amber-950/25 text-amber-200/90;
+    @apply border border-amber-500/25 bg-amber-950/20 text-amber-200/85;
   }
 
   .titan-regime-pill--neutral {
-    @apply border border-white/10 bg-white/5 text-titan-muted;
+    @apply border border-white/[0.08] bg-white/[0.04] text-stone-500;
   }
 
   .titan-regime-card--bull {
@@ -539,8 +541,52 @@
     min-height: 3px;
   }
 
+  .titan-header-bar--home {
+    @apply py-0;
+  }
+
   .titan-home-hero .titan-hero-title {
-    text-shadow: 0 0 40px rgba(212, 175, 55, 0.12);
+    text-shadow: 0 0 32px rgba(212, 175, 55, 0.1);
+  }
+
+  .titan-home-primary {
+    min-width: 0;
+  }
+
+  @media (min-width: 1280px) {
+    .titan-home-primary {
+      flex: 1.12;
+    }
+  }
+
+  .titan-scanner-primary {
+    border-color: rgba(212, 175, 55, 0.12);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.03), 0 12px 40px -24px rgba(0, 0, 0, 0.65);
+  }
+
+  .titan-scanner-table thead th {
+    @apply py-2.5;
+  }
+
+  .titan-filter-chip {
+    @apply rounded-sm;
+  }
+
+  .titan-filter-search {
+    @apply rounded-sm outline-none;
+  }
+
+  .titan-filter-search:focus {
+    border-color: rgba(212, 175, 55, 0.25);
+  }
+
+  .titan-conviction-stars {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+  }
+
+  .titan-rail-stat {
+    @apply backdrop-blur-sm;
   }
 
   .titan-ai-pill {

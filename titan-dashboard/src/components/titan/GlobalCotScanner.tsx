@@ -125,8 +125,19 @@ export function buildScannerRows(
   });
 }
 
-function convictionDots(level: number): string {
-  return "●".repeat(level) + "○".repeat(CONVICTION_MAX - level);
+function ConvictionStars({ level }: { level: number }) {
+  return (
+    <span
+      className="titan-conviction-stars inline-flex gap-px text-[11px] tracking-[0.05em]"
+      aria-label={`${level} of ${CONVICTION_MAX}`}
+    >
+      {Array.from({ length: CONVICTION_MAX }).map((_, i) => (
+        <span key={i} className={i < level ? "text-titan-gold/90" : "text-stone-700/90"}>
+          {i < level ? "★" : "☆"}
+        </span>
+      ))}
+    </span>
+  );
 }
 
 export function GlobalCotScanner({ rows, selectedMarket, onSelectMarket }: GlobalCotScannerProps) {
@@ -170,8 +181,8 @@ export function GlobalCotScanner({ rows, selectedMarket, onSelectMarket }: Globa
   }, [rows]);
 
   return (
-    <TitanPanel className="animate-fade-up overflow-hidden p-0">
-      <div className="border-b border-white/[0.06] px-5 py-4 md:px-6 md:py-5">
+    <TitanPanel className="titan-scanner-primary animate-fade-up overflow-hidden p-0">
+      <div className="border-b border-white/[0.06] px-4 py-3 md:px-5">
         <TitanPanelHeader
           eyebrow={t("scanner.eyebrow")}
           description={
@@ -181,8 +192,8 @@ export function GlobalCotScanner({ rows, selectedMarket, onSelectMarket }: Globa
             </>
           }
         />
-        <div className="titan-scanner-filters mt-4 flex flex-wrap items-center gap-2">
-          <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-white/[0.08] bg-black/25 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-stone-400">
+        <div className="titan-scanner-filters mt-2.5 flex flex-wrap items-center gap-1.5">
+          <label className="titan-filter-chip flex cursor-pointer items-center gap-1.5 border border-white/[0.07] bg-black/30 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-wider text-stone-500">
             <input
               type="checkbox"
               className="accent-titan-gold"
@@ -192,7 +203,7 @@ export function GlobalCotScanner({ rows, selectedMarket, onSelectMarket }: Globa
             {t("home.filterOnlyExtremes")}
           </label>
           <select
-            className="rounded-lg border border-white/[0.08] bg-black/25 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-stone-300"
+            className="titan-filter-chip border border-white/[0.07] bg-black/30 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-wider text-stone-400"
             value={regimeFilter}
             onChange={(e) => setRegimeFilter(e.target.value as ScannerRegimeFilter)}
           >
@@ -214,7 +225,7 @@ export function GlobalCotScanner({ rows, selectedMarket, onSelectMarket }: Globa
             ))}
           </select>
           <select
-            className="rounded-lg border border-white/[0.08] bg-black/25 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-stone-300"
+            className="titan-filter-chip border border-white/[0.07] bg-black/30 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-wider text-stone-400"
             value={categoryFilter}
             onChange={(e) =>
               setCategoryFilter(e.target.value as InstitutionalMarket["category"] | "all")
@@ -232,7 +243,7 @@ export function GlobalCotScanner({ rows, selectedMarket, onSelectMarket }: Globa
             placeholder={t("home.filterSearch")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="min-w-[140px] flex-1 rounded-lg border border-white/[0.08] bg-black/25 px-3 py-1.5 text-xs text-stone-200 placeholder:text-stone-600 md:max-w-[220px]"
+            className="titan-filter-search min-w-[120px] flex-1 border border-white/[0.07] bg-black/30 px-2.5 py-1 text-[11px] text-stone-300 placeholder:text-stone-600 md:max-w-[200px]"
           />
         </div>
       </div>
@@ -274,16 +285,16 @@ export function GlobalCotScanner({ rows, selectedMarket, onSelectMarket }: Globa
                   } ${active ? "titan-scanner-row-active" : ""}`}
                   onClick={() => !disabled && onSelectMarket(row.market)}
                 >
-                  <td className="px-6 py-4">
+                  <td className="px-5 py-3.5">
                     <div className="flex items-center gap-3">
-                      <div className="titan-scanner-icon-slot flex h-12 w-12 shrink-0 items-center justify-center">
+                      <div className="titan-scanner-icon-slot flex h-11 w-11 shrink-0 items-center justify-center">
                         <TitanMarketIcon
                           market={row.market}
                           score={row.status === "live" ? row.score : undefined}
                         />
                       </div>
                       <div className="min-w-0">
-                        <span className="font-display text-base font-semibold tracking-wide text-white">
+                        <span className="font-display text-[15px] font-semibold tracking-wide text-white">
                           {row.market.shortLabel}
                         </span>
                         <p className="mt-0.5 text-[11px] text-titan-muted">
@@ -296,28 +307,28 @@ export function GlobalCotScanner({ rows, selectedMarket, onSelectMarket }: Globa
                     </div>
                   </td>
                   <td
-                    className={`px-4 py-4 text-right font-mono text-2xl font-bold tabular-nums ${scoreHeatClass(row.score)}`}
+                    className={`px-4 py-3.5 text-right font-mono text-[1.65rem] font-bold leading-none tabular-nums ${scoreHeatClass(row.score)}`}
                   >
                     {row.status === "live" ? row.score : "—"}
                   </td>
-                  <td className="hidden w-40 px-4 py-4 md:table-cell">
+                  <td className="hidden w-44 px-4 py-3.5 md:table-cell">
                     {row.status === "live" ? <TitanScoreBar score={row.score} /> : "—"}
                   </td>
                   <td
-                    className={`max-w-[200px] px-4 py-4 text-[11px] font-semibold uppercase leading-snug tracking-wide ${verdictAccentClass(row.verdict)}`}
+                    className={`max-w-[200px] px-4 py-3.5 text-[10px] font-semibold uppercase leading-snug tracking-wide ${verdictAccentClass(row.verdict)}`}
                   >
                     {row.status === "live" ? row.verdict : "—"}
                   </td>
-                  <td className="px-4 py-4 text-right font-mono text-base tabular-nums text-titan-text">
+                  <td className="px-4 py-3.5 text-right font-mono text-sm tabular-nums text-titan-text">
                     {row.comm26 !== null ? row.comm26.toFixed(0) : "—"}
                   </td>
-                  <td className="px-4 py-4 text-right font-mono text-base tabular-nums text-titan-text">
+                  <td className="px-4 py-3.5 text-right font-mono text-sm tabular-nums text-titan-text">
                     {row.retail26 !== null ? row.retail26.toFixed(0) : "—"}
                   </td>
-                  <td className="px-4 py-4">
+                  <td className="px-4 py-3.5 align-middle">
                     {row.status === "live" ? (
                       <span
-                        className={`inline-flex rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${regimePillClass(row.regime)}`}
+                        className={`titan-regime-pill inline-flex min-h-[1.625rem] min-w-[6.75rem] items-center justify-center px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em] ${regimePillClass(row.regime)}`}
                       >
                         {t(`positioning.regime.${row.regime}`)}
                       </span>
@@ -325,19 +336,13 @@ export function GlobalCotScanner({ rows, selectedMarket, onSelectMarket }: Globa
                       <span className="text-titan-muted">—</span>
                     )}
                   </td>
-                  <td className="px-6 py-4 text-right">
+                  <td className="px-5 py-3.5 text-right align-middle">
                     {row.status === "live" ? (
                       <div className="inline-flex flex-col items-end gap-0.5">
-                        <span className="font-mono text-sm font-semibold tabular-nums text-stone-200">
+                        <span className="font-mono text-[11px] font-medium tabular-nums text-stone-500">
                           {row.conviction}/{CONVICTION_MAX}
                         </span>
-                        <span
-                          className="text-[10px] tracking-[0.12em] text-titan-gold/70"
-                          aria-hidden
-                          title={convictionDots(row.conviction)}
-                        >
-                          {convictionDots(row.conviction)}
-                        </span>
+                        <ConvictionStars level={row.conviction} />
                       </div>
                     ) : (
                       <span className="text-titan-muted">—</span>
