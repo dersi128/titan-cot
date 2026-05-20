@@ -11,6 +11,14 @@
     {
       "source": "/health",
       "destination": "https://titan-cot.onrender.com/health"
+    },
+    {
+      "source": "/api/seasonality/:match*",
+      "destination": "https://titan-cot.onrender.com/api/seasonality/:match*"
+    },
+    {
+      "source": "/api/yahoo/:match*",
+      "destination": "https://query1.finance.yahoo.com/:match*"
     }
   ]
 }

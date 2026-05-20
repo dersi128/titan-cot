@@ -600,8 +600,9 @@ export const enMessages = {
       STRONGLY_DIVERGING: "STRONGLY DIVERGING",
     },
     tableTitle: "Monthly statistics",
-    dataNote: "Source: daily OHLC via pluggable data adapter (mock provider active)",
-    dataNoteApi: "Source: TITAN Seasonality API ({{target}}) · mock OHLC until live vendor wired",
+    dataNote: "Source: synthetic mock OHLC (fallback)",
+    dataNoteYahoo: "Source: Yahoo Finance · free delayed daily OHLC · not for execution",
+    dataNoteApi: "Source: TITAN Seasonality API ({{target}})",
     stats: {
       bias: "Seasonal Bias",
       strength: "Seasonal Strength",

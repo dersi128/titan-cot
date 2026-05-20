@@ -3,12 +3,10 @@ import type { SeasonalityComparison } from "./services/seasonalityService";
 import type { SeasonalityResult } from "./types";
 import type { YearsLookback } from "./yearsLookback";
 
-/** Use TITAN API for seasonality (same host as COT by default). Set VITE_USE_SEASONALITY_API=false for local-only mock. */
+/** Server API optional. Default: Yahoo OHLC in browser + local engine (free). */
 export function shouldUseSeasonalityApi(): boolean {
   const flag = import.meta.env.VITE_USE_SEASONALITY_API?.trim().toLowerCase();
-  if (flag === "false" || flag === "0") return false;
-  if (flag === "true" || flag === "1") return true;
-  return import.meta.env.PROD;
+  return flag === "true" || flag === "1";
 }
 
 export function getSeasonalityApiBase(): string {

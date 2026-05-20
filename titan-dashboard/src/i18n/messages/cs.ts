@@ -602,8 +602,9 @@ export const csMessages: Messages = {
       STRONGLY_DIVERGING: "STRONGLY DIVERGING",
     },
     tableTitle: "Měsíční statistiky",
-    dataNote: "Zdroj: denní OHLC přes datový adapter (aktivní mock provider)",
-    dataNoteApi: "Zdroj: TITAN Seasonality API ({{target}}) · mock OHLC dokud není live vendor",
+    dataNote: "Zdroj: syntetický mock OHLC (záložní režim)",
+    dataNoteYahoo: "Zdroj: Yahoo Finance · bezplatné zpožděné daily OHLC · ne pro exekuci",
+    dataNoteApi: "Zdroj: TITAN Seasonality API ({{target}})",
     stats: {
       bias: "Seasonal Bias",
       strength: "Seasonal Strength",

@@ -1,5 +1,7 @@
-import { getOhlcProvider } from "../data/providers";
+import "./data/ohlcProviderConfig";
+import { fetchOhlcWithFallback, getDefaultOhlcProviderId } from "../data/ohlcProviderConfig";
 import type { OhlcProviderId } from "../data/types";
+import type { OhlcBar, SeasonalityResult } from "../types";
 import {
   CHART_COMPARISON_LOOKBACKS,
   DEFAULT_YEARS_LOOKBACK,
@@ -75,11 +77,37 @@ export async function fetchSeasonalityComparison(
     lookbacks?: readonly YearsLookback[];
   } = {},
 ): Promise<SeasonalityComparison> {
-  const lookbacks = options.lookbacks ?? CHART_COMPARISON_LOOKBACKS;
-  const provider = getOhlcProvider(options.providerId ?? "mock");
   const fetchYears = Math.max(MAX_OHLC_FETCH_YEARS, options.years ?? MAX_OHLC_FETCH_YEARS);
-  const bars = await provider.fetchDailyOHLC(symbol, { years: fetchYears });
+  const { bars } = await fetchOhlcWithFallback(
+    symbol,
+    fetchYears,
+    options.providerId ?? getDefaultOhlcProviderId(),
+  );
+  return buildComparisonFromBars(symbol, bars, options);
+}
 
+export async function fetchSeasonalityComparisonWithSource(
+  symbol: string,
+  options: Omit<SeasonalityServiceOptions, "yearsLookback"> & {
+    lookbacks?: readonly YearsLookback[];
+  } = {},
+): Promise<{ comparison: SeasonalityComparison; ohlcSource: OhlcProviderId }> {
+  const fetchYears = Math.max(MAX_OHLC_FETCH_YEARS, options.years ?? MAX_OHLC_FETCH_YEARS);
+  const { bars, source } = await fetchOhlcWithFallback(
+    symbol,
+    fetchYears,
+    options.providerId ?? getDefaultOhlcProviderId(),
+  );
+  const comparison = await buildComparisonFromBars(symbol, bars, options);
+  return { comparison, ohlcSource: source };
+}
+
+async function buildComparisonFromBars(
+  symbol: string,
+  bars: OhlcBar[],
+  options: Omit<SeasonalityServiceOptions, "yearsLookback"> & { lookbacks?: readonly YearsLookback[] },
+): Promise<SeasonalityComparison> {
+  const lookbacks = options.lookbacks ?? CHART_COMPARISON_LOOKBACKS;
   const comparison: SeasonalityComparison = {};
 
   for (const lb of lookbacks) {
@@ -94,12 +122,8 @@ export async function fetchSeasonalityComparison(
     comparison[lb] = attachCurrentYearOverlay(base, bars);
   }
 
-  const primary = comparison[DEFAULT_YEARS_LOOKBACK];
-  if (!primary) {
-    const first = YEARS_LOOKBACK_OPTIONS.find((lb) => comparison[lb]);
-    if (!first || !comparison[first]) {
-      throw new Error(`Insufficient OHLC history for ${symbol}`);
-    }
+  if (!comparison[DEFAULT_YEARS_LOOKBACK] && !comparison[10]) {
+    throw new Error(`Insufficient OHLC history for ${symbol}`);
   }
 
   return comparison;

@@ -7,7 +7,9 @@ import {
   describeSeasonalityApiTarget,
 } from "./seasonalityApi";
 import type { SeasonalityComparison } from "./services/seasonalityService";
-import { fetchSeasonalityComparison } from "./services/seasonalityService";
+import {
+  fetchSeasonalityComparisonWithSource,
+} from "./services/seasonalityService";
 import { DEFAULT_YEARS_LOOKBACK } from "./yearsLookback";
 import { SeasonalityHero } from "./components/SeasonalityHero";
 import { SeasonalityMainChart } from "./components/SeasonalityMainChart";
@@ -29,10 +31,17 @@ export function SeasonalityPage() {
       setLoading(true);
       setError(null);
       try {
-        const curves = shouldUseSeasonalityApi()
-          ? await fetchSeasonalityComparisonFromApi(market.dataSymbol)
-          : await fetchSeasonalityComparison(market.dataSymbol);
-        setComparison(curves);
+        if (shouldUseSeasonalityApi()) {
+          const curves = await fetchSeasonalityComparisonFromApi(market.dataSymbol);
+          setComparison(curves);
+          setDataSource("api");
+        } else {
+          const { comparison: curves, ohlcSource } = await fetchSeasonalityComparisonWithSource(
+            market.dataSymbol,
+          );
+          setComparison(curves);
+          setDataSource(ohlcSource);
+        }
       } catch (err) {
         setComparison(null);
         setError(err instanceof Error ? err.message : t("seasonality.loadError"));
@@ -88,7 +97,9 @@ export function SeasonalityPage() {
           <p className="text-[10px] leading-relaxed text-stone-600">
             {shouldUseSeasonalityApi()
               ? t("seasonality.dataNoteApi", { target: describeSeasonalityApiTarget() })
-              : t("seasonality.dataNote")}{" "}
+              : dataSource === "yahoo"
+                ? t("seasonality.dataNoteYahoo")
+                : t("seasonality.dataNote")}{" "}
             · {t("seasonality.disclaimer")}
           </p>
         </div>
