@@ -588,7 +588,15 @@ export const csMessages: Messages = {
     historicalWindowCompare: "Souběžný overlay: 5Y · 10Y · 15Y · 20Y · ALL",
     historicalWindowPrimary: "Statistiky a okna: {{period}}",
     chartTitle: "12měsíční sezónní křivka (normalizováno 0–100)",
+    chartSeasonalNote: "Historická sezónní tendence (5Y–20Y). Měsíční % aktuálního roku jsou vpravo.",
+    chartYAxis: "Sezónní index",
+    chartTooltipIndex: "Normalizovaný sezónní index",
     chartTooltip: "Sezónní index",
+    yearPanel: {
+      title: "{{year}} · měsíční %",
+      sub: "Kalendářní měsíc z futures OHLC (reálné ceny).",
+      ytd: "YTD",
+    },
     legendHistorical: "Historická sezónnost",
     legendCurrentYear: "Aktuální rok ({{year}})",
     legendCurrentYearShort: "{{year}} YTD",
@@ -604,6 +612,9 @@ export const csMessages: Messages = {
       STRONGLY_DIVERGING: "STRONGLY DIVERGING",
     },
     deviation: {
+      sectionTitle: "Deviation vs 10Y očekávání",
+      sectionSub:
+        "Odděleně od sezónního grafu. Měří, jak moc aktuální rok diverguje od 10Y sezónní cesty — není to cenová predikce.",
       frameworkTitle: "Institucionální deviation framework",
       frameworkNote:
         "Sezónnost = historická statistická tendence. Aktuální rok = reálné chování trhu. Deviation měří respekt vůči 10Y očekávání — není to predikce.",
@@ -636,7 +647,7 @@ export const csMessages: Messages = {
     },
     tableTitle: "Měsíční statistiky",
     dataNote: "Zdroj: syntetický mock OHLC (záložní režim)",
-    dataNoteYahoo: "Zdroj: Yahoo Finance · bezplatné zpožděné daily OHLC · ne pro exekuci",
+    dataNoteYahoo: "Zdroj: Yahoo Finance · MNQ=F / futures tickery · zpožděné daily OHLC · ne pro exekuci",
     dataNoteApi: "Zdroj: TITAN Seasonality API ({{target}})",
     stats: {
       bias: "Seasonal Bias",

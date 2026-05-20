@@ -40,8 +40,9 @@ import type { YearsLookback } from "./yearsLookback";
 export type SeasonalityAlignment = "ALIGNED" | "DIVERGING" | "STRONGLY_DIVERGING";
 
 import type { SeasonalDeviationAnalysis } from "./utils/seasonalDeviationEngine";
+import type { MonthlyYearReturn } from "./utils/monthlyYearReturns";
 
-export type { SeasonalDeviationAnalysis };
+export type { SeasonalDeviationAnalysis, MonthlyYearReturn };
 
 export type SeasonalityResult = {
   symbol: string;
@@ -73,6 +74,8 @@ export type SeasonalityResult = {
   historicalPerformance: number;
   /** Current Year vs 10Y expectation — institutional deviation layer. */
   deviationAnalysis?: SeasonalDeviationAnalysis;
+  /** Calendar-month % returns for the active year (real OHLC). */
+  currentYearMonthlyReturns?: MonthlyYearReturn[];
 };
 
 export type SeasonalityMarket = {

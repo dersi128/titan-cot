@@ -9,7 +9,7 @@ export const SEASONALITY_MARKETS: readonly SeasonalityMarket[] = [
   { id: "COCOA", label: "Cocoa", dataSymbol: "COCOA" },
   { id: "COFFEE", label: "Coffee", dataSymbol: "COFFEE" },
   { id: "COTTON", label: "Cotton", dataSymbol: "COTTON" },
-  { id: "NAS100", label: "NAS 100", dataSymbol: "NAS100" },
+  { id: "NAS100", label: "NAS 100 · MNQ", dataSymbol: "NAS100" },
   { id: "AUD", label: "AUD", dataSymbol: "AUD" },
   { id: "EUR", label: "EUR", dataSymbol: "EUR" },
 ] as const;

@@ -586,7 +586,15 @@ export const enMessages = {
     historicalWindowCompare: "Parallel overlay: 5Y · 10Y · 15Y · 20Y · ALL",
     historicalWindowPrimary: "Stats & windows: {{period}}",
     chartTitle: "12-month seasonal curve (normalized 0–100)",
+    chartSeasonalNote: "Historical seasonal tendency (5Y–20Y). Current-year % returns are shown in the panel on the right.",
+    chartYAxis: "Seasonal index",
+    chartTooltipIndex: "Normalized seasonal index",
     chartTooltip: "Seasonal index",
+    yearPanel: {
+      title: "{{year}} · monthly %",
+      sub: "Calendar-month return from futures OHLC (real prices).",
+      ytd: "YTD",
+    },
     legendHistorical: "Historical Seasonality",
     legendCurrentYear: "Current Year ({{year}})",
     legendCurrentYearShort: "{{year}} YTD",
@@ -602,6 +610,9 @@ export const enMessages = {
       STRONGLY_DIVERGING: "STRONGLY DIVERGING",
     },
     deviation: {
+      sectionTitle: "Deviation vs 10Y expectation",
+      sectionSub:
+        "Separate from the seasonal chart. Measures how much the current year diverges from the 10Y seasonal path — not a price forecast.",
       frameworkTitle: "Institutional deviation framework",
       frameworkNote:
         "Seasonality = historical statistical tendency. Current Year = real market behavior. Deviation measures respect for 10Y seasonal expectation — not a forecast.",
@@ -634,7 +645,7 @@ export const enMessages = {
     },
     tableTitle: "Monthly statistics",
     dataNote: "Source: synthetic mock OHLC (fallback)",
-    dataNoteYahoo: "Source: Yahoo Finance · free delayed daily OHLC · not for execution",
+    dataNoteYahoo: "Source: Yahoo Finance · MNQ=F / futures tickers · free delayed daily OHLC · not for execution",
     dataNoteApi: "Source: TITAN Seasonality API ({{target}})",
     stats: {
       bias: "Seasonal Bias",

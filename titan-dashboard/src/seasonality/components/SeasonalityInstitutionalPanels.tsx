@@ -37,7 +37,6 @@ export function SeasonalityInstitutionalPanels({ result }: SeasonalityInstitutio
 
   return (
     <div className="titan-seasonality-institutional">
-      <p className="titan-cmd-kicker mb-2 px-0.5">{t("seasonality.deviation.frameworkTitle")}</p>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
         <article className={`titan-seasonality-deviation-card ${levelClass(dev.level)}`}>
           <p className="titan-cmd-kicker">{t("seasonality.deviation.title")}</p>
@@ -81,9 +80,6 @@ export function SeasonalityInstitutionalPanels({ result }: SeasonalityInstitutio
           <p className="mt-2 text-[10px] text-stone-500">{t("seasonality.deviation.stabilitySub")}</p>
         </article>
       </div>
-      <p className="mt-2 px-0.5 text-[10px] leading-relaxed text-stone-600">
-        {t("seasonality.deviation.frameworkNote")}
-      </p>
     </div>
   );
 }

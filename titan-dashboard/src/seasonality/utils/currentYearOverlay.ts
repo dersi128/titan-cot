@@ -5,6 +5,7 @@ import type {
   SeasonalityAlignment,
   SeasonalityResult,
 } from "../types";
+import { computeCurrentYearMonthlyReturns } from "./monthlyYearReturns";
 
 function parseDate(iso: string): Date {
   const [y, m, d] = iso.split("-").map(Number);
@@ -122,5 +123,6 @@ export function enrichSeasonalityWithCurrentYear(
     seasonalityAlignment,
     currentYearPerformance,
     historicalPerformance,
+    currentYearMonthlyReturns: computeCurrentYearMonthlyReturns(allBars, result.currentDate),
   };
 }

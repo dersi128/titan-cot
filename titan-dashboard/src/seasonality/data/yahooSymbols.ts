@@ -7,7 +7,8 @@ export const YAHOO_TICKERS: Record<string, string> = {
   COCOA: "CC=F",
   COFFEE: "KC=F",
   COTTON: "CT=F",
-  NAS100: "NQ=F",
+  /** Micro E-mini Nasdaq-100 futures (CME delayed). */
+  NAS100: "MNQ=F",
   AUD: "AUDUSD=X",
   EUR: "EURUSD=X",
 };

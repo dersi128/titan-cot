@@ -13,7 +13,7 @@ import {
 import { DEFAULT_YEARS_LOOKBACK } from "./yearsLookback";
 import { attachSeasonalDeviationAnalysis } from "./utils/seasonalDeviationEngine";
 import { SeasonalityHero } from "./components/SeasonalityHero";
-import { SeasonalityInstitutionalPanels } from "./components/SeasonalityInstitutionalPanels";
+import { SeasonalityDeviationSection } from "./components/SeasonalityDeviationSection";
 import { SeasonalityMainChart } from "./components/SeasonalityMainChart";
 import { SeasonalityMarketSelector } from "./components/SeasonalityMarketSelector";
 import { SeasonalityMonthlyTable } from "./components/SeasonalityMonthlyTable";
@@ -92,8 +92,8 @@ export function SeasonalityPage() {
       {comparison && result ? (
         <div className={`space-y-4${loading ? " opacity-80" : ""}`}>
           <SeasonalityMainChart comparison={comparison} currentMonth={currentMonth} result={result} />
-          <SeasonalityInstitutionalPanels result={result} />
           <SeasonalityStatsCards result={result} />
+          <SeasonalityDeviationSection result={result} />
           <div>
             <p className="titan-cmd-kicker mb-2 px-0.5">{t("seasonality.tableTitle")}</p>
             <SeasonalityMonthlyTable result={result} currentMonth={currentMonth} />
