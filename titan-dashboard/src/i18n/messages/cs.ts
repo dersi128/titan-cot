@@ -235,7 +235,7 @@ export const csMessages: Messages = {
     },
     divergence: {
       unavailable: "—",
-      structureContext: "COT struktura",
+      structureContext: "Struktura",
       commercialNet: "Commercial net",
       note: "Pouze strukturální divergence",
       headline: {
@@ -245,7 +245,7 @@ export const csMessages: Messages = {
         unavailable: "NEDOSTATEK DAT",
       },
       price: {
-        unavailable: "Bez OHLC feedu — pouze COT trajektorie.",
+        unavailable: "Institucionální struktura positioning",
         aligned_high: "—",
         aligned_low: "—",
         aligned_mid: "—",
@@ -256,10 +256,10 @@ export const csMessages: Messages = {
         mid_range: "Mid range",
       },
       hint: {
-        aligned: "Cena a positioning zůstávají v souladu.",
-        bearish: "Cena dále roste, zatímco institucionální podpora slábne.",
-        bullish: "Cena zůstává slabá, zatímco institucionální akumulace přibývá.",
-        unavailable: "Nedostatek historie pro strukturální read divergence.",
+        aligned: "Positioning a flow zůstávají sladěné.",
+        bearish: "Trend pressure pokračuje, zatímco commercial flow slábne.",
+        bullish: "Komerční akumulace sílí navzdory slabšímu positioning.",
+        unavailable: "Nedostatek historie pro positioning read.",
       },
     },
     regime: {
@@ -270,7 +270,7 @@ export const csMessages: Messages = {
       exhaustion: "EXHAUSTION",
       transition: "TRANSITION",
       neutral: "NEUTRAL",
-      footer: "Klasifikace z commercials, flow, davu, persistence a strukturální divergence.",
+      footer: "Institucionální prostředí positioning.",
       hint: {
         accumulation: "Institucionální akumulace zůstává dominantní.",
         distribution: "Institucionální prodejní tlak zůstává dominantní.",
@@ -302,11 +302,11 @@ export const csMessages: Messages = {
         stateLabel: "Flow cross",
       },
       divergence: {
-        title: "Strukturální divergence",
+        title: "STRUCTURAL DIVERGENCE",
         stateLabel: "Positioning vs flow",
       },
       regime: {
-        title: "Market regime",
+        title: "MARKET REGIME",
         stateLabel: "Institucionální prostředí",
       },
     },

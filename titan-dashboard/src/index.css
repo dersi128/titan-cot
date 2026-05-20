@@ -939,11 +939,12 @@
   }
 
   .titan-regime-segments__btn {
-    @apply rounded-lg px-2 py-2 text-center text-[9px] font-semibold uppercase tracking-wide text-stone-600 transition-colors;
+    @apply rounded-lg px-2 py-2 text-center text-[9px] font-semibold uppercase tracking-wide transition-colors;
+    @apply border border-transparent bg-transparent text-stone-600/45 opacity-[0.55];
   }
 
   .titan-regime-segments__btn.is-active {
-    @apply bg-sky-500/20 text-sky-200;
+    @apply border-sky-400/25 bg-sky-500/20 text-sky-100 opacity-100;
     box-shadow: inset 0 0 0 1px rgba(96, 165, 250, 0.35);
   }
 

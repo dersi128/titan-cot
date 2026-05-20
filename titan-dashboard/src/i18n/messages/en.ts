@@ -233,7 +233,7 @@ export const enMessages = {
     },
     divergence: {
       unavailable: "—",
-      structureContext: "COT structure",
+      structureContext: "Structure",
       commercialNet: "Commercial net",
       note: "Structural divergence only",
       headline: {
@@ -243,7 +243,7 @@ export const enMessages = {
         unavailable: "INSUFFICIENT DATA",
       },
       price: {
-        unavailable: "No OHLC feed — COT trajectory only.",
+        unavailable: "Institutional positioning structure",
         aligned_high: "—",
         aligned_low: "—",
         aligned_mid: "—",
@@ -254,10 +254,10 @@ export const enMessages = {
         mid_range: "Mid range",
       },
       hint: {
-        aligned: "Price and positioning remain aligned.",
-        bearish: "Price continues higher while institutional support weakens.",
-        bullish: "Price remains weak while institutional accumulation increases.",
-        unavailable: "Not enough history for a structural divergence read.",
+        aligned: "Positioning and flow remain aligned.",
+        bearish: "Trend pressure continues while commercial flow weakens.",
+        bullish: "Commercial accumulation increases despite weak positioning.",
+        unavailable: "Insufficient positioning history.",
       },
     },
     regime: {
@@ -300,11 +300,11 @@ export const enMessages = {
         stateLabel: "Flow cross",
       },
       divergence: {
-        title: "Structural divergence",
+        title: "STRUCTURAL DIVERGENCE",
         stateLabel: "Positioning vs flow",
       },
       regime: {
-        title: "Market regime",
+        title: "MARKET REGIME",
         stateLabel: "Institutional environment",
       },
     },
