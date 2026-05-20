@@ -963,6 +963,10 @@
     background: #60a5fa;
   }
 
+  .titan-legend-dot--nc {
+    background: #a78bfa;
+  }
+
   .titan-bias-engine {
     background: linear-gradient(165deg, rgba(14, 16, 22, 0.92), rgba(4, 5, 8, 0.98));
     box-shadow:

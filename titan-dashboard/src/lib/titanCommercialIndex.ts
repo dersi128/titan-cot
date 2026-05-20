@@ -1,12 +1,16 @@
 /**
- * TITAN Commercial Index — matches TradingView indicator logic.
- * Visualization-only layer on CFTC Legacy Futures COT data.
+ * TITAN positioning read — deterministic institutional framing on legacy COT data.
  */
 
 import type { CotDashboardData, CotHistoryPoint } from "../types";
 import { calculateCotIndex } from "./titanCotScoringCore";
+import {
+  horizonDeltas,
+  horizonFlowTone,
+  horizonPanelTrend,
+} from "../components/titan/deltaFlowHorizon";
 
-/** TradingView thresholds */
+/** Index thresholds (26W rolling, 0–100 scale). */
 export const THR_HIGH = 75;
 export const THR_LOW = 25;
 
@@ -26,9 +30,17 @@ export type ReversalStateId =
   | "confirmed_top"
   | "confirmed_bottom";
 
-export type DivergenceStateId = "none" | "bearish" | "bullish" | "unavailable";
+/** Structural conflict between commercial structure, flow, and trend participation (not RSI-style). */
+export type DivergenceStateId = "aligned" | "bearish" | "bullish" | "unavailable";
 
-export type MarketRegimeId = "accumulation" | "distribution" | "range" | "trend";
+export type MarketRegimeId =
+  | "accumulation"
+  | "distribution"
+  | "trending"
+  | "rotation"
+  | "exhaustion"
+  | "transition"
+  | "neutral";
 
 export type DeltaFlowRow = {
   label: "1W" | "4W" | "13W";
@@ -127,11 +139,11 @@ function crossover(prev: number, curr: number, level: number): boolean {
 }
 
 /**
- * Optional positioning divergence (COT net vs index — no price feed).
- * Bearish: net near 26W high while index rolls over.
- * Bullish: net near 26W low while index lifts.
+ * Strong structural divergence only (deterministic COT rules — no OHLC feed).
+ * Commercial net vs rolling index, delta flow, and non-commercial trend participation.
  */
-export function evaluatePositioningDivergence(history: CotHistoryPoint[]): DivergenceStateId {
+export function evaluateInstitutionalDivergence(data: CotDashboardData): DivergenceStateId {
+  const history = data.history ?? [];
   if (history.length < 27) return "unavailable";
 
   const commSeries = buildCommercialIndexSeries(history);
@@ -144,9 +156,42 @@ export function evaluatePositioningDivergence(history: CotHistoryPoint[]): Diver
   const minNet = Math.min(...nets);
   const currNet = nets[nets.length - 1]!;
 
-  if (currNet >= maxNet * 0.98 && currIdx < prevIdx - 3) return "bearish";
-  if (currNet <= minNet * 1.02 && currIdx > prevIdx + 3) return "bullish";
-  return "none";
+  const c = data.commercials;
+  const nc = data.nonCommercials;
+  const w1 = c.weeklyChange;
+  const d4 = c.delta4w;
+
+  const structuralBear =
+    currNet >= maxNet * 0.98 && currIdx < prevIdx - 3 && c.index26w >= 52;
+
+  const ncChasingLong =
+    nc.index26w >= 62 &&
+    nc.weeklyChange > 0 &&
+    ((w1 < 0 && d4 <= 0) || (w1 < 0 && currIdx < prevIdx - 1));
+
+  const commAddsShort = w1 < 0 && d4 < 0 && c.index26w > 38;
+  const bearish =
+    structuralBear ||
+    ncChasingLong ||
+    (commAddsShort && nc.index26w >= 58 && (nc.delta4w >= 0 || nc.weeklyChange > 0));
+
+  const structuralBull =
+    currNet <= minNet * 1.02 && currIdx > prevIdx + 3 && c.index26w <= 48;
+
+  const ncStaysBearish = nc.index26w <= 42 && nc.weeklyChange <= 0 && nc.delta4w <= 0;
+
+  const commAccumulating = w1 > 0 && d4 > 0;
+  const bullish = structuralBull || (ncStaysBearish && commAccumulating && c.index26w < 58);
+
+  if (bearish && bullish) {
+    if (structuralBear && !structuralBull) return "bearish";
+    if (structuralBull && !structuralBear) return "bullish";
+    return "aligned";
+  }
+  if (bearish) return "bearish";
+  if (bullish) return "bullish";
+
+  return "aligned";
 }
 
 export function netRange26w(history: CotHistoryPoint[], key: "commercialNet" | "retailNet"): NetRange26w {
@@ -201,7 +246,7 @@ export function evaluateDivergenceContext(
   else if (range.current <= range.min + tol) commercialNetLabel = "new_low";
 
   const aligned =
-    divergence === "none" ||
+    divergence === "aligned" ||
     divergence === "unavailable" ||
     (divergence === "bearish" && commercialNetLabel === "new_high") ||
     (divergence === "bullish" && commercialNetLabel === "new_low");
@@ -222,18 +267,88 @@ export function retailPositioningLabel(zone: CommercialZoneId): string {
   return "neutral";
 }
 
-export function marketRegimeFromCot(data: CotDashboardData): MarketRegimeId {
-  const idx = data.commercials.index26w;
-  const d1 = data.commercials.weeklyChange;
-  const d4 = data.commercials.delta4w;
+/**
+ * Institutional environment from commercial bias, persistence, crowd, flow, and divergence.
+ */
+export function evaluatePositioningMarketRegime(
+  data: CotDashboardData,
+  commercialZone: CommercialZoneId,
+  retailZone: CommercialZoneId,
+  commercialPersistenceWeeks: number,
+  divergence: DivergenceStateId,
+): MarketRegimeId {
+  const c = data.commercials;
+  const r = data.retail;
+  const w1 = c.weeklyChange;
+  const d4 = c.delta4w;
+  const idx = clampIndex(c.index26w);
+  const retailIdx = clampIndex(r.index26w);
 
-  if (idx >= 40 && idx <= 60 && Math.abs(d1) < Math.abs(d4) * 0.15 + 1) return "range";
-  if (d1 > 0 && d4 > 0) return "accumulation";
-  if (d1 < 0 && d4 < 0) return "distribution";
-  if (idx >= THR_HIGH || idx <= THR_LOW) return "trend";
-  if (d1 > 0) return "accumulation";
-  if (d1 < 0) return "distribution";
-  return "range";
+  const { w1: f1, w4: f4, w13: f13 } = horizonDeltas(buildDeltaFlow(data));
+  const tone = horizonFlowTone(f1, f4, f13);
+  const panelTrend = horizonPanelTrend(f1, f4, f13);
+  const flowBull = tone === "bull";
+  const flowBear = tone === "bear";
+  const flowMixed = tone === "mixed";
+
+  const commExtremeLong = commercialZone === "extreme_long" || commercialZone === "strong_long";
+  const commExtremeShort = commercialZone === "extreme_short" || commercialZone === "strong_short";
+  const persist = commercialPersistenceWeeks;
+
+  const retailLongCrowd =
+    retailIdx >= 58 ||
+    retailZone === "extreme_long" ||
+    retailZone === "strong_long" ||
+    (retailZone === "bullish" && retailIdx >= 52);
+
+  const retailShortCrowd =
+    retailIdx <= 42 ||
+    retailZone === "extreme_short" ||
+    retailZone === "strong_short" ||
+    (retailZone === "bearish" && retailIdx <= 48);
+
+  if (commExtremeLong && persist >= 2 && flowBull && retailShortCrowd) {
+    return "accumulation";
+  }
+  if (commExtremeShort && persist >= 2 && flowBear && retailLongCrowd) {
+    return "distribution";
+  }
+
+  const weakeningFlow = panelTrend === "weakening_bear" || panelTrend === "weakening_bull";
+  const divStress = divergence === "bearish" || divergence === "bullish";
+  if (
+    (commercialZone === "extreme_long" || commercialZone === "extreme_short") &&
+    persist >= 3 &&
+    (weakeningFlow || (divStress && flowMixed))
+  ) {
+    return "exhaustion";
+  }
+
+  if ((w1 > 0 && d4 < 0) || (w1 < 0 && d4 > 0)) {
+    return "transition";
+  }
+  if ((divergence === "bearish" || divergence === "bullish") && flowMixed && persist <= 2) {
+    return "transition";
+  }
+
+  const dirFlowAligned =
+    (idx >= 52 && flowBull && !flowMixed) || (idx <= 48 && flowBear && !flowMixed);
+  if (dirFlowAligned && divergence === "aligned" && Math.abs(idx - 50) >= 12) {
+    return "trending";
+  }
+
+  if (flowMixed && persist < 5 && Math.abs(idx - 50) <= 28) {
+    return "rotation";
+  }
+
+  if (Math.abs(idx - 50) <= 16 && flowMixed) {
+    return "neutral";
+  }
+
+  if (flowBear && idx >= 55) return "transition";
+  if (flowBull && idx <= 45) return "transition";
+
+  return "neutral";
 }
 
 export function evaluateTitanPositioning(data: CotDashboardData): TitanPositioningRead | null {
@@ -262,7 +377,7 @@ export function evaluateTitanPositioning(data: CotDashboardData): TitanPositioni
   else if (retailConfirmsBottom) reversal = "confirmed_bottom";
   else if (smTurnDown) reversal = "potential_top";
   else if (smTurnUp) reversal = "potential_bottom";
-  const divergence = evaluatePositioningDivergence(history);
+  const divergence = evaluateInstitutionalDivergence(data);
   const retailContrarianExtreme =
     (commercialIndex <= THR_LOW && retailIndex >= THR_HIGH) ||
     (commercialIndex >= THR_HIGH && retailIndex <= THR_LOW);
@@ -299,7 +414,13 @@ export function evaluateTitanPositioning(data: CotDashboardData): TitanPositioni
     checklist,
     divergence,
     divergenceContext: evaluateDivergenceContext(history, divergence),
-    regime: marketRegimeFromCot(data),
+    regime: evaluatePositioningMarketRegime(
+      data,
+      commercialIndexZone(commercialIndex),
+      commercialIndexZone(retailIndex),
+      weeksInExtremeZone(commSeries),
+      divergence,
+    ),
     prevCommercialIndex,
     extremePositioning,
   };

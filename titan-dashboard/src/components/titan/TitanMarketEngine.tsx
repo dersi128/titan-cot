@@ -491,7 +491,7 @@ function SignalEngine({ read, t }: { read: TitanPositioningRead; t: (k: string) 
           <p className="mt-2 text-sm text-stone-400">{t(`positioning.divergence.hint.${read.divergence}`)}</p>
           <div className="mt-5 grid grid-cols-2 gap-2">
             <div className="titan-terminal-mini-stat">
-              <p className="titan-terminal-kicker">{t("positioning.divergence.priceAction")}</p>
+              <p className="titan-terminal-kicker">{t("positioning.divergence.structureContext")}</p>
               <p className="mt-1 text-[11px] font-medium text-stone-300">
                 {t(`positioning.divergence.price.${read.divergenceContext.priceLabel}`)}
               </p>
@@ -509,7 +509,17 @@ function SignalEngine({ read, t }: { read: TitanPositioningRead; t: (k: string) 
           <p className="titan-terminal-headline">{t(`positioning.regime.${read.regime}`)}</p>
           <p className="mt-2 text-sm text-stone-400">{t(`positioning.regime.hint.${read.regime}`)}</p>
           <div className="titan-regime-segments mt-5" role="group" aria-label={t("positioning.cards.regime.title")}>
-            {(["accumulation", "distribution", "range", "trend"] as const).map((r) => (
+            {(
+              [
+                "accumulation",
+                "distribution",
+                "trending",
+                "rotation",
+                "exhaustion",
+                "transition",
+                "neutral",
+              ] as const
+            ).map((r) => (
               <span key={r} className={`titan-regime-segments__btn ${read.regime === r ? "is-active" : ""}`}>
                 {t(`positioning.regime.${r}`)}
               </span>
@@ -540,6 +550,7 @@ export function TitanMarketEngine({ market: _market, data, loading }: TitanMarke
             {t("positioning.terminalTitle")}
           </h2>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-stone-500">{t("positioning.disclaimer")}</p>
+          <p className="mt-1 max-w-2xl text-xs leading-relaxed text-stone-600">{t("positioning.narrativeNote")}</p>
         </div>
         {data?.reportDate ? (
           <p className="shrink-0 font-mono text-[10px] uppercase tracking-wider text-stone-600">
@@ -575,6 +586,9 @@ export function TitanMarketEngine({ market: _market, data, loading }: TitanMarke
             <ul className="flex flex-wrap justify-center gap-4 text-[10px] uppercase tracking-wider text-stone-600">
               <li className="flex items-center gap-1.5">
                 <span className="titan-legend-dot titan-legend-dot--comm" /> {t("positioning.legend.commercial")}
+              </li>
+              <li className="flex items-center gap-1.5">
+                <span className="titan-legend-dot titan-legend-dot--nc" /> {t("positioning.legend.trendPressure")}
               </li>
               <li className="flex items-center gap-1.5">
                 <span className="titan-legend-dot titan-legend-dot--retail" /> {t("positioning.legend.retail")}

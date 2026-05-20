@@ -215,6 +215,8 @@ export function MarketDetailPanel({ market, data, loading, error }: MarketDetail
 
                   index={data.retail.index26w}
 
+                  sub={t("detail.metricRetailSub")}
+
                 />
 
                 <TitanMetricCard
@@ -224,6 +226,8 @@ export function MarketDetailPanel({ market, data, loading, error }: MarketDetail
                   value={`${data.nonCommercials.index26w.toFixed(0)} / ${data.nonCommercials.index52w.toFixed(0)}`}
 
                   index={data.nonCommercials.index26w}
+
+                  sub={t("detail.metricNonCommSub")}
 
                 />
 
