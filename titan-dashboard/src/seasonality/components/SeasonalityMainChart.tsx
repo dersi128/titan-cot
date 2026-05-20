@@ -13,7 +13,7 @@ import {
 } from "recharts";
 import type { SeasonalityComparison } from "../services/seasonalityService";
 import type { SeasonalityResult } from "../types";
-import { lookbackColor } from "../yearsLookback";
+import { lookbackColor, type ChartLookbackYears } from "../yearsLookback";
 import {
   CHART_LOOKBACK_ORDER,
   CURRENT_YEAR_CHART_KEY,
@@ -39,8 +39,8 @@ type SeasonalityMainChartProps = {
   currentMonth: number;
 };
 
-const HISTORICAL_STROKE = { 5: 1.1, 10: 1.35, 15: 1.1, 20: 1.05 } as const;
-const HISTORICAL_OPACITY = { 5: 0.3, 10: 0.48, 15: 0.3, 20: 0.26 } as const;
+const HISTORICAL_STROKE: Record<ChartLookbackYears, number> = { 5: 1.1, 10: 1.35, 15: 1.1, 20: 1.05 };
+const HISTORICAL_OPACITY: Record<ChartLookbackYears, number> = { 5: 0.3, 10: 0.48, 15: 0.3, 20: 0.26 };
 const PROJECTION_OPACITY = { 30: 0.42, 60: 0.52, 90: 0.58 } as const;
 const TITAN_GOLD = "#d4af37";
 

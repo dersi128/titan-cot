@@ -1,5 +1,5 @@
 import type { SeasonalCurvePoint } from "../types";
-import { LOOKBACK_CHART_KEYS, type YearsLookback } from "../yearsLookback";
+import { LOOKBACK_CHART_KEYS, type ChartLookbackYears, type YearsLookback } from "../yearsLookback";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -8,7 +8,7 @@ export { MONTHS };
 export const CURRENT_YEAR_CHART_KEY = "currentYear";
 export const CURRENT_YEAR_LINE_COLOR = "#F5F5F4";
 
-export const CHART_LOOKBACK_ORDER: readonly YearsLookback[] = [5, 10, 15, 20];
+export const CHART_LOOKBACK_ORDER: readonly ChartLookbackYears[] = [5, 10, 15, 20];
 
 export function lookbackChartKey(lb: YearsLookback): string {
   return LOOKBACK_CHART_KEYS[lb];
