@@ -11,8 +11,8 @@ import {
 import type { CotDashboardData } from "../../types";
 import type { InstitutionalMarket } from "../../config/institutionalMarkets";
 import { evaluateTitanPositioning } from "../../lib/titanCommercialIndex";
-import { AiVerdictPanel } from "./AiVerdictPanel";
-import { MarketDetailHero } from "./MarketDetailHero";
+import { MarketDetailHeroBias } from "./MarketDetailHeroBias";
+import { TitanBiasEngine } from "./TitanBiasEngine";
 import { TitanPositioningCore, TitanPositioningSignal } from "./TitanMarketEngine";
 import { TradingViewChart } from "./TradingViewChart";
 import { useTitanI18n } from "../../i18n";
@@ -170,10 +170,10 @@ export function MarketDetailPanel({ market, data, loading, error }: MarketDetail
 
   return (
     <TitanPanel className="titan-detail-panel overflow-hidden p-0">
-      <MarketDetailHero market={market} data={data} loading={loading} />
+      <MarketDetailHeroBias market={market} data={data} loading={loading} />
 
-      <div className="border-b border-white/[0.06] px-5 py-5 md:px-7 md:py-6">
-        <AiVerdictPanel variant="insights" market={market} data={data} loading={loading} />
+      <div className="border-b border-white/[0.06] bg-black/15 px-5 py-4 md:px-7 md:py-5">
+        <TitanBiasEngine market={market} data={data} loading={loading} embedded />
       </div>
 
       <TitanPositioningCore market={market} data={data} loading={loading} />
