@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import { useTitanI18n } from "../../i18n";
-import { CHART_LOOKBACK_ORDER, lookbackChartKey } from "../utils/chartData";
+import { CHART_LOOKBACK_ORDER, CURRENT_YEAR_CHART_KEY, lookbackChartKey } from "../utils/chartData";
 import { lookbackColor, lookbackLabel } from "../yearsLookback";
 import type { SeasonalityComparison } from "../services/seasonalityService";
 
@@ -58,6 +58,22 @@ export function SeasonalityChartLegend({
             </button>
           );
         })}
+        {comparison[10]?.currentYearCurve.length ? (
+          <button
+            type="button"
+            role="listitem"
+            className={`titan-seasonality-legend-item titan-seasonality-legend-item--current-year${focus === CURRENT_YEAR_CHART_KEY ? " titan-seasonality-legend-item--active" : ""}${isDimmed(CURRENT_YEAR_CHART_KEY) ? " titan-seasonality-legend-item--dimmed" : ""}`}
+            style={{ "--legend-color": "#f5f5f4" } as CSSProperties}
+            onMouseEnter={() => setFocus(CURRENT_YEAR_CHART_KEY)}
+            onFocus={() => setFocus(CURRENT_YEAR_CHART_KEY)}
+            onBlur={clearFocus}
+          >
+            <span className="titan-seasonality-legend-item__swatch titan-seasonality-legend-item__swatch--thick" />
+            <span className="titan-seasonality-legend-item__label">
+              {t("seasonality.legendCurrentYear", { year: currentYear })}
+            </span>
+          </button>
+        ) : null}
       </div>
       <div className="titan-seasonality-legend-row__zones">
         <span className="titan-seasonality-legend-zone titan-seasonality-legend-zone--bull">

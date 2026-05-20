@@ -4,6 +4,7 @@ import {
   Label,
   Line,
   LineChart,
+  ReferenceDot,
   ReferenceLine,
   ResponsiveContainer,
   Tooltip,
@@ -16,6 +17,9 @@ import { lookbackColor } from "../yearsLookback";
 import {
   buildMonthlyChartRows,
   CHART_LOOKBACK_ORDER,
+  CURRENT_YEAR_CHART_KEY,
+  CURRENT_YEAR_LINE_COLOR,
+  currentYearCurveToMonthlyValues,
   lookbackChartKey,
   MONTHS,
   seasonalCurveToMonthlyValues,
@@ -54,7 +58,10 @@ function monthFromDoy(doy: number): number {
 
 function lineOpacity(focus: SeasonalityLegendFocus, key: string, base: number): number {
   if (focus === null) return base;
-  return focus === key ? Math.min(1, base + 0.1) : base * 0.28;
+  if (focus === CURRENT_YEAR_CHART_KEY) {
+    return key === CURRENT_YEAR_CHART_KEY ? 1 : base * 0.22;
+  }
+  return focus === key ? Math.min(1, base + 0.12) : key === CURRENT_YEAR_CHART_KEY ? 1 : base * 0.22;
 }
 
 export function SeasonalityMainChart({ comparison, currentMonth, result }: SeasonalityMainChartProps) {
@@ -64,7 +71,7 @@ export function SeasonalityMainChart({ comparison, currentMonth, result }: Seaso
   const primaryResult = result;
 
   const chartData = useMemo(() => {
-    const series: { key: string; values: number[] }[] = [];
+    const series: { key: string; values: (number | null)[] | number[] }[] = [];
 
     for (const lb of CHART_LOOKBACK_ORDER) {
       const res = comparison[lb];
@@ -75,8 +82,20 @@ export function SeasonalityMainChart({ comparison, currentMonth, result }: Seaso
       });
     }
 
-    return buildMonthlyChartRows(series, currentMonth);
-  }, [comparison, currentMonth]);
+    if (primaryResult.currentYearCurve.length > 0) {
+      series.push({
+        key: CURRENT_YEAR_CHART_KEY,
+        values: currentYearCurveToMonthlyValues(primaryResult.currentYearCurve, currentMonth),
+      });
+    }
+
+    const rows = buildMonthlyChartRows(series, currentMonth);
+    const monthly = primaryResult.currentYearMonthlyReturns ?? [];
+    return rows.map((row, i) => ({
+      ...row,
+      monthReturnPct: monthly[i]?.pct ?? null,
+    }));
+  }, [comparison, primaryResult, currentMonth]);
 
   const windowBands = useMemo(() => {
     const bands: { x1: string; x2: string; bias: "bullish" | "bearish" }[] = [];
@@ -97,6 +116,7 @@ export function SeasonalityMainChart({ comparison, currentMonth, result }: Seaso
     <div className="titan-seasonality-chart rounded-lg border border-titan-gold/12 p-4">
       <SeasonalityChartLegend
         comparison={comparison}
+        currentYear={currentYear}
         focus={legendFocus}
         onFocusChange={setLegendFocus}
       />
@@ -182,6 +202,41 @@ export function SeasonalityMainChart({ comparison, currentMonth, result }: Seaso
                   />
                 );
               })}
+
+              {primaryResult.currentYearCurve.length > 0 ? (
+                <Line
+                  type="monotone"
+                  dataKey={CURRENT_YEAR_CHART_KEY}
+                  name={CURRENT_YEAR_CHART_KEY}
+                  stroke={CURRENT_YEAR_LINE_COLOR}
+                  strokeWidth={legendFocus === CURRENT_YEAR_CHART_KEY || legendFocus === null ? 3.5 : 3}
+                  className="titan-seasonality-line-current-year"
+                  strokeOpacity={lineOpacity(legendFocus, CURRENT_YEAR_CHART_KEY, 1)}
+                  dot={false}
+                  connectNulls={false}
+                  activeDot={{ r: 5, fill: CURRENT_YEAR_LINE_COLOR, stroke: TITAN_GOLD, strokeWidth: 1.5 }}
+                />
+              ) : null}
+
+              {chartData
+                .filter((row) => row.isCurrent)
+                .map((row) => {
+                  const cyY = row[CURRENT_YEAR_CHART_KEY];
+                  if (typeof cyY !== "number") return null;
+                  return (
+                    <ReferenceDot
+                      key="cy-dot"
+                      x={String(row.month)}
+                      y={cyY}
+                      r={6}
+                      fill={TITAN_GOLD}
+                      stroke="#0a0b0e"
+                      strokeWidth={2}
+                      className="titan-seasonality-current-month-dot"
+                    />
+                  );
+                })
+                .filter(Boolean)}
 
               <ReferenceLine
                 x={currentMonthKey}

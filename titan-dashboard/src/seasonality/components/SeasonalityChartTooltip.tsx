@@ -1,6 +1,6 @@
 import type { TooltipProps } from "recharts";
 import { useTitanI18n } from "../../i18n";
-import { CHART_LOOKBACK_ORDER, lookbackChartKey } from "../utils/chartData";
+import { CHART_LOOKBACK_ORDER, CURRENT_YEAR_CHART_KEY, lookbackChartKey } from "../utils/chartData";
 import { lookbackColor, lookbackLabel } from "../yearsLookback";
 
 type PayloadRow = {
@@ -42,6 +42,24 @@ export function SeasonalityChartTooltip({ active, payload }: TooltipProps<number
             <span className="font-mono text-stone-300">{fmt(lookbackChartKey(lb))}</span>
           </li>
         ))}
+        <li className="flex items-center justify-between gap-4 border-t border-white/[0.06] pt-1 text-[10px]">
+          <span className="inline-flex items-center gap-1.5 text-stone-300">
+            <span className="h-0.5 w-3 rounded-full bg-stone-100" />
+            {t("seasonality.legendCurrentYearShort", { year: new Date().getFullYear() })}
+          </span>
+          <span className="font-mono text-stone-100">{fmt(CURRENT_YEAR_CHART_KEY)}</span>
+        </li>
+        {typeof row.monthReturnPct === "number" ? (
+          <li className="flex items-center justify-between gap-4 text-[10px]">
+            <span className="text-stone-500">{t("seasonality.yearPanel.monthReturn")}</span>
+            <span
+              className={`font-mono font-semibold${row.monthReturnPct >= 0 ? " text-emerald-400/90" : " text-rose-400/90"}`}
+            >
+              {row.monthReturnPct >= 0 ? "+" : ""}
+              {row.monthReturnPct.toFixed(2)}%
+            </span>
+          </li>
+        ) : null}
       </ul>
     </div>
   );
