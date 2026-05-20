@@ -9,6 +9,8 @@ export {
   DEFAULT_YEARS_LOOKBACK,
   YEARS_LOOKBACK_OPTIONS,
   lookbackLabel,
+  lookbackColor,
+  LOOKBACK_CHART_COLORS,
   filterBarsByLookback,
   type YearsLookback,
 } from "./yearsLookback";

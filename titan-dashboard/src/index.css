@@ -843,8 +843,7 @@
   }
 
   .titan-seasonality-lookback-btn--active {
-    background: rgba(212, 175, 55, 0.14);
-    color: #f0d060;
+    font-weight: 700;
   }
 
   .titan-seasonality-lookback-btn:disabled {

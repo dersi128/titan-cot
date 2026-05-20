@@ -21,14 +21,18 @@ export const LOOKBACK_CHART_KEYS: Record<YearsLookback, string> = {
   ALL: "curveAll",
 };
 
-/** Stroke colors — primary lookback uses full opacity via chart component. */
+/** Distinct curve colors (5Y → ALL) — used on chart, legend, and lookback control. */
 export const LOOKBACK_CHART_COLORS: Record<YearsLookback, string> = {
-  5: "#57534e",
-  10: "#d4af37",
-  15: "#a8a29e",
-  20: "#9ca3af",
-  ALL: "#f0d060",
+  5: "#5B9BD5",
+  10: "#D4AF37",
+  15: "#3DB88C",
+  20: "#B48CFF",
+  ALL: "#E8955A",
 };
+
+export function lookbackColor(lookback: YearsLookback): string {
+  return LOOKBACK_CHART_COLORS[lookback];
+}
 
 export function lookbackLabel(lookback: YearsLookback): string {
   return lookback === "ALL" ? "ALL" : `${lookback}Y`;

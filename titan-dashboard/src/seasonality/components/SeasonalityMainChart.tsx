@@ -14,7 +14,7 @@ import type { SeasonalityResult } from "../types";
 import type { SeasonalityComparison } from "../services/seasonalityService";
 import {
   CHART_COMPARISON_LOOKBACKS,
-  LOOKBACK_CHART_COLORS,
+  lookbackColor,
   LOOKBACK_CHART_KEYS,
   lookbackLabel,
   type YearsLookback,
@@ -99,18 +99,18 @@ export function SeasonalityMainChart({
           <div className="flex flex-wrap gap-2">
             {activeLookbacks.map((lb) => {
               const isPrimary = lb === primaryLookback;
+              const color = lookbackColor(lb);
               return (
                 <span
                   key={String(lb)}
-                  className={`inline-flex items-center gap-1.5 text-[9px] uppercase tracking-wider ${
-                    isPrimary ? "text-titan-goldBright" : "text-stone-500"
-                  }`}
+                  className="inline-flex items-center gap-1.5 text-[9px] font-semibold uppercase tracking-wider"
+                  style={{ color, opacity: isPrimary ? 1 : 0.82 }}
                 >
                   <span
-                    className="h-0.5 w-4 rounded-full"
+                    className="rounded-full"
                     style={{
-                      background: LOOKBACK_CHART_COLORS[lb],
-                      opacity: isPrimary ? 1 : 0.55,
+                      background: color,
+                      width: isPrimary ? 14 : 10,
                       height: isPrimary ? 3 : 2,
                     }}
                   />
@@ -203,7 +203,7 @@ export function SeasonalityMainChart({
                     x={String(row.month)}
                     y={y}
                     r={6}
-                    fill={LOOKBACK_CHART_COLORS[primaryLookback]}
+                    fill={lookbackColor(primaryLookback)}
                     stroke="#0a0b0e"
                     strokeWidth={2}
                   />
