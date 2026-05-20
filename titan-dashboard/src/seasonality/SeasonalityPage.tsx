@@ -8,7 +8,7 @@ import {
 } from "./seasonalityApi";
 import type { SeasonalityComparison } from "./services/seasonalityService";
 import { fetchSeasonalityComparison } from "./services/seasonalityService";
-import { DEFAULT_YEARS_LOOKBACK, type YearsLookback } from "./yearsLookback";
+import { DEFAULT_YEARS_LOOKBACK } from "./yearsLookback";
 import { SeasonalityHero } from "./components/SeasonalityHero";
 import { SeasonalityMainChart } from "./components/SeasonalityMainChart";
 import { SeasonalityMarketSelector } from "./components/SeasonalityMarketSelector";
@@ -18,7 +18,6 @@ import { SeasonalityStatsCards } from "./components/SeasonalityStatsCards";
 export function SeasonalityPage() {
   const { t } = useTitanI18n();
   const [marketId, setMarketId] = useState(DEFAULT_SEASONALITY_MARKET_ID);
-  const [primaryLookback, setPrimaryLookback] = useState<YearsLookback>(DEFAULT_YEARS_LOOKBACK);
   const [comparison, setComparison] = useState<SeasonalityComparison | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -30,7 +29,9 @@ export function SeasonalityPage() {
       setLoading(true);
       setError(null);
       try {
-        const curves = await fetchSeasonalityComparison(market.dataSymbol);
+        const curves = shouldUseSeasonalityApi()
+          ? await fetchSeasonalityComparisonFromApi(market.dataSymbol)
+          : await fetchSeasonalityComparison(market.dataSymbol);
         setComparison(curves);
       } catch (err) {
         setComparison(null);
@@ -48,8 +49,8 @@ export function SeasonalityPage() {
 
   const result = useMemo(() => {
     if (!comparison) return null;
-    return comparison[primaryLookback] ?? comparison[DEFAULT_YEARS_LOOKBACK] ?? Object.values(comparison)[0] ?? null;
-  }, [comparison, primaryLookback]);
+    return comparison[DEFAULT_YEARS_LOOKBACK] ?? comparison[10] ?? Object.values(comparison)[0] ?? null;
+  }, [comparison]);
 
   const currentMonth = result
     ? new Date(result.currentDate).getMonth() + 1
@@ -78,13 +79,7 @@ export function SeasonalityPage() {
 
       {comparison && result ? (
         <div className={`space-y-4${loading ? " opacity-80" : ""}`}>
-          <SeasonalityMainChart
-            comparison={comparison}
-            primaryLookback={primaryLookback}
-            onPrimaryLookbackChange={setPrimaryLookback}
-            currentMonth={currentMonth}
-            lookbackDisabled={loading}
-          />
+          <SeasonalityMainChart comparison={comparison} currentMonth={currentMonth} />
           <SeasonalityStatsCards result={result} />
           <div>
             <p className="titan-cmd-kicker mb-2 px-0.5">{t("seasonality.tableTitle")}</p>

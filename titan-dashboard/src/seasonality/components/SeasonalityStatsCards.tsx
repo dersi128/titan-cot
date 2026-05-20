@@ -47,7 +47,9 @@ export function SeasonalityStatsCards({ result }: SeasonalityStatsCardsProps) {
   const histIdx = result.historicalPerformance.toFixed(1);
 
   return (
-    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+    <div>
+      <p className="mb-2 px-0.5 text-[10px] text-stone-600">{t("seasonality.primaryBiasNote")}</p>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
       <StatCard
         label={t("seasonality.stats.bias")}
         value={result.seasonalBias}
@@ -80,6 +82,7 @@ export function SeasonalityStatsCards({ result }: SeasonalityStatsCardsProps) {
       />
       <StatCard label={t("seasonality.stats.avgReturn")} value={`${avgPct}%`} sub={t("seasonality.stats.avgReturnSub")} />
       <StatCard label={t("seasonality.stats.winRate")} value={`${winPct}%`} sub={t("seasonality.stats.winRateSub")} />
+      </div>
     </div>
   );
 }

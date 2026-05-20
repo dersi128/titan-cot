@@ -1,8 +1,18 @@
 import type { SeasonalCurvePoint } from "../types";
+import { LOOKBACK_CHART_KEYS, type YearsLookback } from "../yearsLookback";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 export { MONTHS };
+
+export const CURRENT_YEAR_CHART_KEY = "currentYear";
+export const CURRENT_YEAR_LINE_COLOR = "#F5F5F4";
+
+export const CHART_LOOKBACK_ORDER: readonly YearsLookback[] = [5, 10, 15, 20];
+
+export function lookbackChartKey(lb: YearsLookback): string {
+  return LOOKBACK_CHART_KEYS[lb];
+}
 
 export function seasonalCurveToMonthlyValues(curve: SeasonalCurvePoint[]): number[] {
   const sums = Array.from({ length: 12 }, () => ({ sum: 0, count: 0 }));
@@ -14,7 +24,6 @@ export function seasonalCurveToMonthlyValues(curve: SeasonalCurvePoint[]): numbe
   return sums.map((s) => (s.count ? s.sum / s.count : 0));
 }
 
-/** Last smoothed index per month; months after `throughMonth` stay null (YTD line stops). */
 export function currentYearCurveToMonthlyValues(
   curve: SeasonalCurvePoint[],
   throughMonth: number,
@@ -32,11 +41,6 @@ export function currentYearCurveToMonthlyValues(
     return v ?? last;
   });
 }
-
-export const HISTORICAL_CHART_KEY = "historical";
-export const CURRENT_YEAR_CHART_KEY = "currentYear";
-export const HISTORICAL_LINE_COLOR = "#D4AF37";
-export const CURRENT_YEAR_LINE_COLOR = "#9AE8FF";
 
 export function buildMonthlyChartRows(
   series: { key: string; values: (number | null)[] | number[] }[],
