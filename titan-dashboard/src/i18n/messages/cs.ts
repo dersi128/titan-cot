@@ -171,6 +171,20 @@ export const csMessages: Messages = {
       trend_accelerating_down: "Zrychluje",
       trend_steady: "Stabilní",
       trend_flat: "Flat",
+      panelCurrent: "Aktuální (1T)",
+      panelTrend: "Směr",
+      panelStrength: "Síla",
+      flowTrend: {
+        bull: "Kladný flow",
+        bear: "Záporný flow",
+        mixed: "Smíšené horizonty",
+      },
+      flowStrength: {
+        strong: "Silná",
+        moderate: "Střední",
+        weak: "Slabá",
+        mixed: "Bez čistého signálu",
+      },
     },
     footer: {
       important: "Důležité",
@@ -266,7 +280,7 @@ export const csMessages: Messages = {
       },
       delta: {
         title: "Delta Flow",
-        desc: "Změna commercial net podle timeframe. Zrychlení vs průměr předchozího období.",
+        desc: "Commercial net Δ v 1T · 4T · 13T. Sparkline používá jen tyto tři body — zelená při shodě kladných, červená při shodě záporných, šedá při směsi. Tabulka dál ukazuje zrychlení.",
       },
       reversal: {
         title: "Reversal State",

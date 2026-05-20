@@ -169,6 +169,20 @@ export const enMessages = {
       trend_accelerating_down: "Accelerating",
       trend_steady: "Steady",
       trend_flat: "Flat",
+      panelCurrent: "Current (1W)",
+      panelTrend: "Trend",
+      panelStrength: "Strength",
+      flowTrend: {
+        bull: "Positive flow",
+        bear: "Negative flow",
+        mixed: "Mixed horizons",
+      },
+      flowStrength: {
+        strong: "Strong",
+        moderate: "Moderate",
+        weak: "Weak",
+        mixed: "No clean read",
+      },
     },
     footer: {
       important: "Important",
@@ -262,7 +276,7 @@ export const enMessages = {
       },
       delta: {
         title: "Delta Flow",
-        desc: "Commercial net change by timeframe. Acceleration vs prior period average.",
+        desc: "Commercial net Δ at 1W · 4W · 13W. Sparkline uses only those three horizons — green when all agree positive, red when all negative, gray when mixed. Table keeps acceleration detail.",
       },
       reversal: {
         title: "Reversal State",

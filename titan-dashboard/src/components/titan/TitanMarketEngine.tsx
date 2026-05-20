@@ -10,6 +10,7 @@ import {
   type TitanPositioningRead,
 } from "../../lib/titanCommercialIndex";
 import { useTitanI18n } from "../../i18n";
+import { DeltaFlowHorizonChart } from "./DeltaFlowHorizonChart";
 
 type TitanMarketEngineProps = {
   market: InstitutionalMarket;
@@ -454,7 +455,10 @@ function PositioningContext({
         </TerminalCard>
 
         <TerminalCard accent="blue" icon={<IconFlow />} title={t("positioning.cards.delta.title")}>
-          <DeltaFlowTable rows={read.deltaFlow} t={t} />
+          <DeltaFlowHorizonChart rows={read.deltaFlow} t={t} />
+          <div className="mt-4">
+            <DeltaFlowTable rows={read.deltaFlow} t={t} />
+          </div>
           <p className="mt-4 text-[12px] leading-snug text-stone-500">{t("positioning.cards.delta.desc")}</p>
         </TerminalCard>
       </div>

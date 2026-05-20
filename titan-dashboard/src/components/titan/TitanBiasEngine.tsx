@@ -10,7 +10,6 @@ import {
 } from "../../lib/titanBiasEngineView";
 import { getTitanCotRead, scoreHeatClass, verdictAccentClass } from "../../lib/titanCotScore";
 import type { BiasDriverId } from "../../lib/titanCotScoringCore";
-import { CommercialDeltaFlowMini } from "./CommercialDeltaFlowMini";
 
 function driverLabel(t: (key: string, vars?: Record<string, string | number>) => string, id: BiasDriverId): string {
   return t(`biasEngine.drivers.${id}.name`);
@@ -93,9 +92,8 @@ export function TitanBiasEngine({ market: _market, data, loading }: TitanBiasEng
           <p className="text-sm text-stone-500">{t("biasEngine.unavailable")}</p>
         ) : (
           <div className="space-y-6">
-            <div className="grid gap-5 xl:grid-cols-[1fr_0.95fr]">
-              <div className="space-y-5">
-                <div className="titan-bias-verdict">
+            <div className="space-y-5">
+              <div className="titan-bias-verdict">
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div>
                       <p className="titan-bias-kicker">{t("biasEngine.totalScoreLabel")}</p>
@@ -159,14 +157,7 @@ export function TitanBiasEngine({ market: _market, data, loading }: TitanBiasEng
                 </div>
               </div>
 
-              <CommercialDeltaFlowMini
-                data={data}
-                title={t("biasEngine.deltaFlowTitle")}
-                labels={{ w1: t("biasEngine.delta1w"), w4: t("biasEngine.delta4w"), w13: t("biasEngine.delta13w") }}
-              />
-            </div>
-
-            <div className="titan-bias-table-wrap overflow-x-auto">
+              <div className="titan-bias-table-wrap overflow-x-auto">
               <p className="titan-bias-kicker mb-3 px-1">{t("biasEngine.importanceTitle")}</p>
               <table className="titan-bias-table w-full min-w-[520px] text-left">
                 <thead>
