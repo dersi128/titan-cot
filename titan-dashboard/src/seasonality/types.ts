@@ -59,6 +59,14 @@ export type SeasonalityResult = {
   averageReturnInWindow: number;
   /** Share of positive daily returns in sample (%). */
   overallWinRate: number;
+  /** YTD cumulative trajectory for the active calendar year (normalized 0–100). */
+  currentYearCurve: SeasonalCurvePoint[];
+  /** Historical vs current-year directional fit at today. */
+  seasonalityAlignment: SeasonalityAlignment;
+  /** YTD % performance (base 100). */
+  currentYearPerformance: number;
+  /** Historical seasonal index at current date (0–100). */
+  historicalPerformance: number;
 };
 
 export type SeasonalityMarket = {

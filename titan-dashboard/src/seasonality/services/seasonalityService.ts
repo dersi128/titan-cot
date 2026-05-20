@@ -9,8 +9,9 @@ import {
   YEARS_LOOKBACK_OPTIONS,
   type YearsLookback,
 } from "../yearsLookback";
-import { calculateSeasonality } from "../utils/calculateSeasonality";
-import type { SeasonalityResult } from "../types";
+import { calculateSeasonality, slopeAround } from "../utils/calculateSeasonality";
+import { enrichSeasonalityWithCurrentYear } from "../utils/currentYearOverlay";
+import type { OhlcBar, SeasonalityResult } from "../types";
 
 export type SeasonalityServiceOptions = {
   providerId?: OhlcProviderId;
@@ -19,6 +20,22 @@ export type SeasonalityServiceOptions = {
   yearsLookback?: YearsLookback;
   asOfDate?: string;
 };
+
+function dayOfYearFromIso(iso: string): number {
+  const [y, m, d] = iso.split("-").map(Number);
+  const date = new Date(y, m - 1, d);
+  const start = new Date(date.getFullYear(), 0, 0);
+  return Math.floor((date.getTime() - start.getTime()) / 86400000);
+}
+
+function attachCurrentYearOverlay(
+  base: SeasonalityResult,
+  allBars: OhlcBar[],
+): SeasonalityResult {
+  const currentDoy = dayOfYearFromIso(base.currentDate);
+  const histSlope = slopeAround(base.seasonalCurve, currentDoy, 15);
+  return enrichSeasonalityWithCurrentYear(base, allBars, histSlope);
+}
 
 /**
  * Loads daily OHLC via configured provider and runs the seasonality engine.
@@ -37,18 +54,20 @@ export async function fetchSeasonalityAnalysis(
     throw new Error(`Insufficient OHLC history for ${symbol} (${filtered.length} bars, ${lookbackLabel(lookback)})`);
   }
 
-  return calculateSeasonality({
+  const base = calculateSeasonality({
     symbol,
     bars: filtered,
     asOfDate: options.asOfDate,
     yearsLookback: lookback,
   });
+
+  return attachCurrentYearOverlay(base, bars);
 }
 
 export type SeasonalityComparison = Partial<Record<YearsLookback, SeasonalityResult>>;
 
 /**
- * One OHLC fetch, multiple lookback curves for parallel chart overlay.
+ * One OHLC fetch, multiple lookback curves + current-year overlay per window.
  */
 export async function fetchSeasonalityComparison(
   symbol: string,
@@ -72,12 +91,7 @@ export async function fetchSeasonalityComparison(
       asOfDate: options.asOfDate,
       yearsLookback: lb,
     });
-    const parts = base.currentDate.split("-").map(Number);
-    const asOf = new Date(parts[0], parts[1] - 1, parts[2]);
-    const yearStart = new Date(asOf.getFullYear(), 0, 0);
-    const currentDoy = Math.floor((asOf.getTime() - yearStart.getTime()) / 86400000);
-    const histSlope = slopeAround(base.seasonalCurve, currentDoy, 15);
-    comparison[lb] = enrichSeasonalityWithCurrentYear(base, bars, histSlope);
+    comparison[lb] = attachCurrentYearOverlay(base, bars);
   }
 
   const primary = comparison[DEFAULT_YEARS_LOOKBACK];
