@@ -137,7 +137,8 @@ export const enMessages = {
     persistenceWeeks: "{{count}} weeks in extreme zone",
     persistenceNone: "Not in extreme zone",
     range26w: "26W range (net)",
-    trajectory: "12-week index path · scale 0–100",
+    bipolarRange: "(−100…+100)",
+    trajectory: "12-week index path · short −100 · 0 neutral · long +100",
     checklist: {
       crossBelow75: "Commercial index crossed below 75 (top)",
       crossAbove25: "Commercial index crossed above 25 (bottom)",
@@ -253,11 +254,11 @@ export const enMessages = {
     cards: {
       commercial: {
         title: "Commercial Index",
-        desc: "Smart-money net position within its 26-week range (0 = short extreme, 100 = long extreme).",
+        desc: "Smart-money net vs its 26-week range. Same math as the TV index: shown as −100 (short extreme) … 0 (mid) … +100 (long extreme).",
       },
       retail: {
         title: "Retail Index",
-        desc: "Small-trader positioning — contrarian confirmation only, never primary.",
+        desc: "Small-trader positioning — contrarian confirmation only. Same −100…+100 scale (short ↔ long).",
       },
       delta: {
         title: "Delta Flow",

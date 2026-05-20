@@ -603,6 +603,26 @@
     @apply h-1.5 overflow-hidden rounded-full bg-titan-black/60;
   }
 
+  .titan-engine-meter__track--bipolar {
+    @apply h-2 overflow-visible rounded-full border border-white/[0.06] bg-titan-black/70;
+  }
+
+  .titan-engine-meter__mid {
+    @apply pointer-events-none absolute bottom-0 left-1/2 top-0 z-[1] w-px -translate-x-1/2 bg-white/25;
+  }
+
+  .titan-engine-meter__fill--neg-bipolar {
+    background: linear-gradient(90deg, rgba(127, 29, 29, 0.55), rgba(255, 77, 109, 0.92));
+  }
+
+  .titan-engine-meter__fill--pos-bipolar {
+    background: linear-gradient(90deg, rgba(0, 208, 132, 0.82), rgba(187, 247, 208, 0.55));
+  }
+
+  .titan-engine-meter--bipolar {
+    box-shadow: 0 0 calc(22px * var(--zone-glow, 0.3)) rgba(212, 175, 55, calc(0.3 * var(--zone-glow, 0.3)));
+  }
+
   .titan-engine-meter__fill {
     @apply block h-full rounded-full transition-all duration-700 ease-out;
     background: linear-gradient(90deg, rgba(255, 77, 109, 0.75), rgba(212, 175, 55, 0.85), rgba(0, 208, 132, 0.8));
@@ -783,6 +803,58 @@
 
   .titan-index-trajectory--bull {
     color: rgba(0, 208, 132, 0.9);
+  }
+
+  .titan-index-trajectory__guide--zero {
+    stroke: rgba(255, 255, 255, 0.14);
+    stroke-dasharray: none;
+  }
+
+  .titan-index-trajectory--bipolar .titan-index-trajectory__line--neg {
+    stroke: rgba(255, 100, 120, 0.95);
+    stroke-width: 1.35;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 5px rgba(255, 100, 120, 0.35));
+  }
+
+  .titan-index-trajectory--bipolar .titan-index-trajectory__line--pos {
+    stroke: rgba(0, 208, 132, 0.95);
+    stroke-width: 1.35;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 5px rgba(0, 208, 132, 0.32));
+  }
+
+  .titan-index-trajectory__area-bipolar {
+    pointer-events: none;
+  }
+
+  .titan-index-trajectory__dot-bipolar--neg {
+    fill: rgba(255, 110, 130, 0.98);
+  }
+
+  .titan-index-trajectory__dot-bipolar--pos {
+    fill: rgba(0, 208, 132, 0.98);
+  }
+
+  .titan-index-trajectory__dot-bipolar--mid {
+    fill: rgba(212, 175, 55, 0.95);
+  }
+
+  .titan-index-trajectory__dot-halo-bipolar {
+    opacity: 0.16;
+    fill: rgba(255, 255, 255, 0.5);
+  }
+
+  .titan-index-trajectory__dot-halo-bipolar--neg {
+    opacity: 0.2;
+    fill: rgba(255, 100, 120, 0.9);
+  }
+
+  .titan-index-trajectory__dot-halo-bipolar--pos {
+    opacity: 0.2;
+    fill: rgba(0, 208, 132, 0.9);
   }
 
   .titan-index-trajectory--gold {

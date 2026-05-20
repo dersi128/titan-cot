@@ -139,7 +139,8 @@ export const csMessages: Messages = {
     persistenceWeeks: "{{count}} týdnů v extrému",
     persistenceNone: "Mimo extrémní zónu",
     range26w: "26T rozsah (net)",
-    trajectory: "12T vývoj indexu · škála 0–100",
+    bipolarRange: "(−100…+100)",
+    trajectory: "12T vývoj indexu · short −100 · 0 neutrál · long +100",
     checklist: {
       crossBelow75: "Commercial index prorazil pod 75 (top)",
       crossAbove25: "Commercial index prorazil nad 25 (bottom)",
@@ -257,11 +258,11 @@ export const csMessages: Messages = {
     cards: {
       commercial: {
         title: "Commercial Index",
-        desc: "Smart-money net pozice v 26týdenním rozsahu (0 = short extrém, 100 = long extrém).",
+        desc: "Smart-money net vs 26týdenní rozsah. Stejná matematika jako TV index: zobrazeno jako −100 (short extrém) … 0 (střed) … +100 (long extrém).",
       },
       retail: {
         title: "Retail Index",
-        desc: "Pozice malých traderů — jen kontrární potvrzení, nikdy primární driver.",
+        desc: "Pozice malých traderů — jen kontrární potvrzení. Stejná škála −100…+100 (short ↔ long).",
       },
       delta: {
         title: "Delta Flow",
