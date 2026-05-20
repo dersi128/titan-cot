@@ -33,7 +33,7 @@ export function AiVerdictPanel({ market, data, loading, variant = "standalone" }
 
   // Market detail uses only TitanBiasEngine — skip verdict/narrative/trend work that can throw on partial API rows.
   if (variant === "insights") {
-    return <TitanBiasEngine market={market} data={data} loading={loading} />;
+    return <TitanBiasEngine market={market} data={data} loading={loading} embedded />;
   }
 
   const score = data ? computeTitanDashboardScore(data) : null;

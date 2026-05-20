@@ -368,16 +368,18 @@ function weekLabel(reportDate: string): string {
 function PositioningContext({
   read,
   t,
+  sectionLabel,
 }: {
   read: TitanPositioningRead;
   t: (k: string) => string;
+  sectionLabel?: string;
 }) {
   const commTone = zoneAccent(read.commercialZone);
   const retailTone = zoneAccent(read.retailZone);
 
   return (
-    <div className="titan-terminal-section">
-      <h3 className="titan-terminal-section__label">{t("positioning.sections.context")}</h3>
+    <div className={`titan-terminal-section ${sectionLabel ? "mt-0" : "mt-4"}`}>
+      <h3 className="titan-terminal-section__label">{sectionLabel ?? t("positioning.sections.context")}</h3>
       <div className="titan-terminal-grid titan-terminal-grid--3 mt-4">
         <TerminalCard accent={commTone === "bear" ? "red" : commTone === "bull" ? "green" : "gold"} icon={<IconBuilding />} title={t("positioning.cards.commercial.title")}>
           <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-stone-500">{t("positioning.cards.commercial.subtitle")}</p>
@@ -473,10 +475,10 @@ function SignalEngine({ read, t }: { read: TitanPositioningRead; t: (k: string) 
   }
 
   return (
-    <div className="titan-terminal-section mt-8 md:mt-10">
-      <h3 className="titan-terminal-section__label">{t("positioning.sections.signal")}</h3>
-      <div className="titan-terminal-grid titan-terminal-grid--3 mt-4">
-        <TerminalCard accent="gold" icon={<IconReversal />} title={t("positioning.cards.reversal.title")}>
+    <div className="titan-terminal-section-signal">
+      <h3 className="titan-terminal-section__label titan-terminal-section-signal__label">{t("detail.sectionStructure")}</h3>
+      <div className="titan-terminal-grid titan-terminal-grid--3 mt-3">
+        <TerminalCard accent="gold" icon={<IconReversal />} title={t("positioning.cards.reversal.title")} className="titan-terminal-card--secondary">
           <p className="titan-terminal-headline">{revHeadline}</p>
           <p className="mt-2 text-sm text-titan-gold/85">{revSub}</p>
           <ul className="mt-5 space-y-2.5">
@@ -486,7 +488,7 @@ function SignalEngine({ read, t }: { read: TitanPositioningRead; t: (k: string) 
           </ul>
         </TerminalCard>
 
-        <TerminalCard accent="purple" icon={<IconDivergence />} title={t("positioning.cards.divergence.title")}>
+        <TerminalCard accent="purple" icon={<IconDivergence />} title={t("positioning.cards.divergence.title")} className="titan-terminal-card--secondary">
           <p className="titan-terminal-headline">{t(`positioning.divergence.headline.${read.divergence}`)}</p>
           <p className="mt-2 text-sm text-stone-400">{t(`positioning.divergence.hint.${read.divergence}`)}</p>
           <div className="mt-5 grid grid-cols-2 gap-2">
@@ -505,7 +507,7 @@ function SignalEngine({ read, t }: { read: TitanPositioningRead; t: (k: string) 
           </div>
         </TerminalCard>
 
-        <TerminalCard accent="blue" icon={<IconRegime />} title={t("positioning.cards.regime.title")}>
+        <TerminalCard accent="blue" icon={<IconRegime />} title={t("positioning.cards.regime.title")} className="titan-terminal-card--secondary">
           <p className="titan-terminal-headline">{t(`positioning.regime.${read.regime}`)}</p>
           <p className="mt-2 text-sm text-stone-400">{t(`positioning.regime.hint.${read.regime}`)}</p>
           <div className="titan-regime-segments mt-5" role="group" aria-label={t("positioning.cards.regime.title")}>
@@ -532,79 +534,60 @@ function SignalEngine({ read, t }: { read: TitanPositioningRead; t: (k: string) 
   );
 }
 
-export function TitanMarketEngine({ market: _market, data, loading }: TitanMarketEngineProps) {
+export function TitanPositioningCore({ market: _market, data, loading }: TitanMarketEngineProps) {
   const { t } = useTitanI18n();
   const read = data ? evaluateTitanPositioning(data) : null;
 
   return (
-    <section className="titan-market-engine titan-positioning-terminal relative px-5 py-6 md:px-7 md:py-10">
+    <section className="titan-market-engine titan-positioning-terminal relative border-b border-white/[0.06] px-5 py-6 md:px-7 md:py-8">
       <div className="titan-market-engine__backdrop pointer-events-none absolute inset-0" aria-hidden />
       <div className="titan-positioning-terminal__vignette pointer-events-none absolute inset-0" aria-hidden />
 
-      <header className="relative mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
-          <p className="font-display text-[10px] font-semibold uppercase tracking-[0.38em] text-titan-gold/90">
-            {t("positioning.eyebrow")}
-          </p>
-          <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight text-white md:text-[1.65rem]">
-            {t("positioning.terminalTitle")}
-          </h2>
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-stone-500">{t("positioning.disclaimer")}</p>
-          <p className="mt-1 max-w-2xl text-xs leading-relaxed text-stone-600">{t("positioning.narrativeNote")}</p>
-        </div>
-        {data?.reportDate ? (
-          <p className="shrink-0 font-mono text-[10px] uppercase tracking-wider text-stone-600">
-            {t("positioning.lastUpdate")} {data.reportDate} ({weekLabel(data.reportDate)})
-          </p>
-        ) : null}
-      </header>
-
       {loading ? (
-        <div className="relative space-y-8">
-          <div className="titan-terminal-grid titan-terminal-grid--3">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="titan-terminal-card h-56 animate-pulse bg-white/[0.03]" />
-            ))}
-          </div>
-          <div className="titan-terminal-grid titan-terminal-grid--3">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="titan-terminal-card h-52 animate-pulse bg-white/[0.03]" />
-            ))}
-          </div>
+        <div className="relative mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="titan-terminal-card h-56 animate-pulse bg-white/[0.03]" />
+          ))}
         </div>
       ) : !read ? (
-        <p className="relative text-sm text-stone-500">{t("positioning.unavailable")}</p>
+        <p className="relative mt-4 text-sm text-stone-500">{t("positioning.unavailable")}</p>
       ) : (
         <div className="relative">
-          <PositioningContext read={read} t={t} />
-          <SignalEngine read={read} t={t} />
-          <footer className="titan-terminal-footer mt-8 grid gap-4 border-t border-white/[0.06] pt-6 md:grid-cols-[1fr_auto_1fr] md:items-start">
-            <div className="titan-terminal-note">
-              <p className="titan-terminal-kicker text-titan-gold/80">{t("positioning.footer.important")}</p>
-              <p className="mt-1 text-[12px] leading-snug text-stone-500">{t("positioning.footer.note")}</p>
-            </div>
-            <ul className="flex flex-wrap justify-center gap-4 text-[10px] uppercase tracking-wider text-stone-600">
-              <li className="flex items-center gap-1.5">
-                <span className="titan-legend-dot titan-legend-dot--comm" /> {t("positioning.legend.commercial")}
-              </li>
-              <li className="flex items-center gap-1.5">
-                <span className="titan-legend-dot titan-legend-dot--nc" /> {t("positioning.legend.trendPressure")}
-              </li>
-              <li className="flex items-center gap-1.5">
-                <span className="titan-legend-dot titan-legend-dot--retail" /> {t("positioning.legend.retail")}
-              </li>
-              <li className="flex items-center gap-1.5">
-                <span className="titan-legend-dot titan-legend-dot--flow" /> {t("positioning.legend.flow")}
-              </li>
-            </ul>
-            {data?.reportDate ? (
-              <p className="text-right font-mono text-[10px] uppercase tracking-wider text-stone-600">
-                {t("positioning.footer.currentWeek")} {weekLabel(data.reportDate)}
-              </p>
-            ) : null}
-          </footer>
+          <PositioningContext read={read} t={t} sectionLabel={t("detail.sectionCorePositioning")} />
         </div>
       )}
     </section>
+  );
+}
+
+export function TitanPositioningSignal({ market: _market, data, loading }: TitanMarketEngineProps) {
+  const { t } = useTitanI18n();
+  const read = data ? evaluateTitanPositioning(data) : null;
+
+  return (
+    <section className="titan-market-engine titan-positioning-terminal relative border-b border-white/[0.06] px-5 py-5 md:px-7 md:py-6">
+      <div className="titan-market-engine__backdrop pointer-events-none absolute inset-0 opacity-50" aria-hidden />
+
+      {loading ? (
+        <div className="relative mt-2 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="titan-terminal-card h-44 animate-pulse bg-white/[0.02]" />
+          ))}
+        </div>
+      ) : !read ? null : (
+        <div className="relative">
+          <SignalEngine read={read} t={t} />
+        </div>
+      )}
+    </section>
+  );
+}
+
+export function TitanMarketEngine({ market, data, loading }: TitanMarketEngineProps) {
+  return (
+    <>
+      <TitanPositioningCore market={market} data={data} loading={loading} />
+      <TitanPositioningSignal market={market} data={data} loading={loading} />
+    </>
   );
 }

@@ -11,9 +11,11 @@ import {
 type TradingViewChartProps = {
   market: InstitutionalMarket;
   selectionKey: string;
+  /** Smaller embed — secondary to positioning charts. */
+  compact?: boolean;
 };
 
-export function TradingViewChart({ market, selectionKey }: TradingViewChartProps) {
+export function TradingViewChart({ market, selectionKey, compact = false }: TradingViewChartProps) {
   const { t } = useTitanI18n();
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const mapping = getTradingViewMapping(market.symbol);
@@ -23,7 +25,9 @@ export function TradingViewChart({ market, selectionKey }: TradingViewChartProps
 
   return (
     <section
-      className="flex min-h-[440px] flex-col overflow-hidden rounded-xl border border-titan-line/70 bg-titan-panel"
+      className={`flex flex-col overflow-hidden rounded-xl border border-titan-line/70 bg-titan-panel ${
+        compact ? "min-h-[240px]" : "min-h-[440px]"
+      }`}
       aria-label={`TradingView chart for ${market.shortLabel}`}
     >
       <header className="space-y-2 border-b border-titan-line/70 px-4 py-3">
@@ -55,7 +59,7 @@ export function TradingViewChart({ market, selectionKey }: TradingViewChartProps
         key={`${selectionKey}-${embedSymbol}`}
         title={`TradingView ${market.shortLabel} (${embedSymbol})`}
         src={embedUrl}
-        className="min-h-[400px] w-full flex-1 border-0 bg-titan-panel"
+        className={`w-full flex-1 border-0 bg-titan-panel ${compact ? "min-h-[200px]" : "min-h-[400px]"}`}
         tabIndex={-1}
         allowFullScreen
         loading="eager"

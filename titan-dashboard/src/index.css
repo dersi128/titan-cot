@@ -664,6 +664,28 @@
     @apply font-display text-[10px] font-semibold uppercase tracking-[0.34em] text-stone-500;
   }
 
+  .titan-terminal-section-signal__label {
+    @apply text-stone-600;
+    letter-spacing: 0.28em;
+  }
+
+  .titan-terminal-card--secondary {
+    @apply p-4;
+    opacity: 0.92;
+  }
+
+  .titan-terminal-card--secondary:hover {
+    transform: translateY(-1px);
+  }
+
+  .titan-terminal-card--secondary .titan-terminal-headline {
+    @apply text-base;
+  }
+
+  .titan-terminal-card--secondary .titan-terminal-card__icon {
+    @apply h-8 w-8;
+  }
+
   .titan-terminal-grid {
     @apply grid gap-3;
   }
