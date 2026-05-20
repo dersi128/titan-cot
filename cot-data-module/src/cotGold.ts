@@ -63,6 +63,14 @@ export type CotDashboardOutput = {
   /** Textual market phase from unified scoring. */
   marketPhase: string;
   plainEnglishExplanation: string;
+  scoreComponents: {
+    commercialPositioning: number;
+    commercialFlow: number;
+    persistence: number;
+    ncDivergence: number;
+    retailContrarian: number;
+    openInterest: number;
+  };
   /** Full fetched weekly series for charts (oldest → newest). */
   history: CotHistoryPoint[];
 };
@@ -288,6 +296,7 @@ function buildDashboardOutput(series: NetSeriesPoint[], mapping: CotMarketMappin
     cotVerdict,
     marketPhase,
     plainEnglishExplanation,
+    scoreComponents: scoring.components,
     history,
   };
 }
