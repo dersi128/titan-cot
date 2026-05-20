@@ -8,7 +8,6 @@ import {
   filterBarsByLookback,
   lookbackLabel,
   MAX_OHLC_FETCH_YEARS,
-  YEARS_LOOKBACK_OPTIONS,
   type YearsLookback,
 } from "../yearsLookback";
 import { calculateSeasonality, slopeAround } from "../utils/calculateSeasonality";
@@ -46,9 +45,12 @@ export async function fetchSeasonalityAnalysis(
   options: SeasonalityServiceOptions = {},
 ): Promise<SeasonalityResult> {
   const lookback = options.yearsLookback ?? DEFAULT_YEARS_LOOKBACK;
-  const provider = getOhlcProvider(options.providerId ?? "mock");
   const fetchYears = Math.max(MAX_OHLC_FETCH_YEARS, options.years ?? MAX_OHLC_FETCH_YEARS);
-  const bars = await provider.fetchDailyOHLC(symbol, { years: fetchYears });
+  const { bars } = await fetchOhlcWithFallback(
+    symbol,
+    fetchYears,
+    options.providerId ?? getDefaultOhlcProviderId(),
+  );
   const filtered = filterBarsByLookback(bars, lookback, options.asOfDate);
 
   if (filtered.length < 252) {
