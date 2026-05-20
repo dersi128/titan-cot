@@ -230,6 +230,7 @@ export type CalculateSeasonalityOptions = {
   symbol: string;
   bars: OhlcBar[];
   asOfDate?: string;
+  yearsLookback?: YearsLookback;
 };
 
 export function calculateSeasonality(options: CalculateSeasonalityOptions): SeasonalityResult {
