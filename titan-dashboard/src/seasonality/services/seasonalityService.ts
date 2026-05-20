@@ -1,4 +1,4 @@
-import "./data/ohlcProviderConfig";
+import "../data/ohlcProviderConfig";
 import { fetchOhlcWithFallback, getDefaultOhlcProviderId } from "../data/ohlcProviderConfig";
 import type { OhlcProviderId } from "../data/types";
 import type { OhlcBar, SeasonalityResult } from "../types";
@@ -46,12 +46,9 @@ export async function fetchSeasonalityAnalysis(
   options: SeasonalityServiceOptions = {},
 ): Promise<SeasonalityResult> {
   const lookback = options.yearsLookback ?? DEFAULT_YEARS_LOOKBACK;
+  const provider = getOhlcProvider(options.providerId ?? "mock");
   const fetchYears = Math.max(MAX_OHLC_FETCH_YEARS, options.years ?? MAX_OHLC_FETCH_YEARS);
-  const { bars } = await fetchOhlcWithFallback(
-    symbol,
-    fetchYears,
-    options.providerId ?? getDefaultOhlcProviderId(),
-  );
+  const bars = await provider.fetchDailyOHLC(symbol, { years: fetchYears });
   const filtered = filterBarsByLookback(bars, lookback, options.asOfDate);
 
   if (filtered.length < 252) {
