@@ -34,6 +34,29 @@ import { useTitanI18n } from "../../i18n";
 
 import { TitanMetricCard, TitanPanel } from "./ui/TitanPrimitives";
 
+function fmtIdx1(n: unknown): string {
+  if (n === null || n === undefined) return "—";
+  const x = Number(n);
+  return Number.isFinite(x) ? x.toFixed(1) : "—";
+}
+
+function fmtIdx0(n: unknown): string {
+  if (n === null || n === undefined) return "—";
+  const x = Number(n);
+  return Number.isFinite(x) ? x.toFixed(0) : "—";
+}
+
+function fmtLocaleInt(n: unknown): string {
+  if (n === null || n === undefined) return "—";
+  const x = Number(n);
+  return Number.isFinite(x) ? x.toLocaleString() : "—";
+}
+
+function asIndexBar(n: unknown): number | undefined {
+  if (n === null || n === undefined) return undefined;
+  const x = Number(n);
+  return Number.isFinite(x) ? x : undefined;
+}
 
 
 type MarketDetailPanelProps = {
@@ -50,20 +73,10 @@ type MarketDetailPanelProps = {
 
 
 
-function divLabel(
-
-  d: CotDashboardData["nonCommercials"]["divergence"],
-
-  tr: (key: string) => string,
-
-): string {
-
+function divLabel(d: CotDashboardData["nonCommercials"]["divergence"] | undefined, tr: (key: string) => string): string {
   if (d === "bullish") return tr("detail.divBullish");
-
   if (d === "bearish") return tr("detail.divBearish");
-
   return tr("detail.divNone");
-
 }
 
 
@@ -91,17 +104,11 @@ export function MarketDetailPanel({ market, data, loading, error }: MarketDetail
 
 
   const chartData =
-
     data?.history?.map((h) => ({
-
-      reportDate: h.reportDate.slice(0, 10),
-
-      commercialNet: h.commercialNet,
-
-      nonCommercialNet: h.nonCommercialNet,
-
-      retailNet: h.retailNet,
-
+      reportDate: String(h.reportDate ?? "").slice(0, 10),
+      commercialNet: Number(h.commercialNet),
+      nonCommercialNet: Number(h.nonCommercialNet),
+      retailNet: Number(h.retailNet),
     })) ?? [];
 
 
@@ -228,7 +235,7 @@ export function MarketDetailPanel({ market, data, loading, error }: MarketDetail
 
                   label="Δ Commercial"
 
-                  value={`${data.commercials.weeklyChange.toLocaleString()} · ${data.commercials.delta4w.toLocaleString()} · ${data.commercials.delta13w.toLocaleString()}`}
+                  value={`${fmtLocaleInt(data.commercials?.weeklyChange)} · ${fmtLocaleInt(data.commercials?.delta4w)} · ${fmtLocaleInt(data.commercials?.delta13w)}`}
 
                   sub="1W · 4W · 13W"
 
@@ -238,7 +245,7 @@ export function MarketDetailPanel({ market, data, loading, error }: MarketDetail
 
                   label={t("detail.metricDeltaNc1w")}
 
-                  value={data.nonCommercials.weeklyChange.toLocaleString()}
+                  value={fmtLocaleInt(data.nonCommercials?.weeklyChange)}
 
                 />
 
@@ -246,7 +253,7 @@ export function MarketDetailPanel({ market, data, loading, error }: MarketDetail
 
                   label={t("detail.metricDeltaRetail1w")}
 
-                  value={data.retail.weeklyChange.toLocaleString()}
+                  value={fmtLocaleInt(data.retail?.weeklyChange)}
 
                 />
 
@@ -254,7 +261,7 @@ export function MarketDetailPanel({ market, data, loading, error }: MarketDetail
 
                   label={t("detail.metricDivergence")}
 
-                  value={divLabel(data.nonCommercials.divergence, t)}
+                  value={divLabel(data.nonCommercials?.divergence, t)}
 
                 />
 

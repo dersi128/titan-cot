@@ -14,8 +14,16 @@ type MarketDetailHeroProps = {
 
 export function MarketDetailHero({ market, data, loading }: MarketDetailHeroProps) {
   const { t } = useTitanI18n();
-  const score = data ? computeTitanDashboardScore(data) : null;
-  const verdict = data ? resolveTitanVerdict(data) : null;
+  let score: number | null = null;
+  let verdict: string | null = null;
+  if (data) {
+    try {
+      score = computeTitanDashboardScore(data);
+      verdict = resolveTitanVerdict(data);
+    } catch (err) {
+      console.error("[TITAN] MarketDetailHero: scoring failed", err);
+    }
+  }
   const positioning = data ? evaluateTitanPositioning(data) : null;
 
   return (

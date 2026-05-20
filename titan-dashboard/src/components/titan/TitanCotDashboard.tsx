@@ -11,6 +11,7 @@ import { TitanLogo } from "../TitanLogo";
 import { buildScannerRows, GlobalCotScanner } from "./GlobalCotScanner";
 import { CotHeatmap } from "./CotHeatmap";
 import { MarketDetailPanel } from "./MarketDetailPanel";
+import { TitanDetailErrorBoundary } from "./TitanDetailErrorBoundary";
 import { TitanInstitutionalRail } from "./TitanInstitutionalRail";
 import { LanguageSwitcher, useTitanI18n } from "../../i18n";
 import { TitanLivePill } from "./ui/TitanPrimitives";
@@ -213,13 +214,14 @@ export function TitanCotDashboard() {
                 {globalError}
               </div>
             ) : null}
-            <MarketDetailPanel
-              key={selectedSymbol}
-              market={selectedMarket}
-              data={selectedData}
-              loading={loadingDetail}
-              error={detailError && !selectedData ? detailError : null}
-            />
+            <TitanDetailErrorBoundary key={selectedSymbol}>
+              <MarketDetailPanel
+                market={selectedMarket}
+                data={selectedData}
+                loading={loadingDetail}
+                error={detailError && !selectedData ? detailError : null}
+              />
+            </TitanDetailErrorBoundary>
           </main>
         ) : null}
 
