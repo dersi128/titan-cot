@@ -12,6 +12,7 @@ import {
 } from "../yearsLookback";
 import { calculateSeasonality, slopeAround } from "../utils/calculateSeasonality";
 import { enrichSeasonalityWithCurrentYear } from "../utils/currentYearOverlay";
+import { attachSeasonalDeviationAnalysis } from "../utils/seasonalDeviationEngine";
 
 export type SeasonalityServiceOptions = {
   providerId?: OhlcProviderId;
@@ -64,7 +65,11 @@ export async function fetchSeasonalityAnalysis(
     yearsLookback: lookback,
   });
 
-  return attachCurrentYearOverlay(base, bars);
+  let result = attachCurrentYearOverlay(base, bars);
+  if (lookback === 10) {
+    result = attachSeasonalDeviationAnalysis(result);
+  }
+  return result;
 }
 
 export type SeasonalityComparison = Partial<Record<YearsLookback, SeasonalityResult>>;
@@ -120,7 +125,11 @@ async function buildComparisonFromBars(
       asOfDate: options.asOfDate,
       yearsLookback: lb,
     });
-    comparison[lb] = attachCurrentYearOverlay(base, bars);
+    let enriched = attachCurrentYearOverlay(base, bars);
+    if (lb === 10) {
+      enriched = attachSeasonalDeviationAnalysis(enriched);
+    }
+    comparison[lb] = enriched;
   }
 
   if (!comparison[DEFAULT_YEARS_LOOKBACK] && !comparison[10]) {

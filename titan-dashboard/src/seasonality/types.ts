@@ -39,6 +39,10 @@ import type { YearsLookback } from "./yearsLookback";
 
 export type SeasonalityAlignment = "ALIGNED" | "DIVERGING" | "STRONGLY_DIVERGING";
 
+import type { SeasonalDeviationAnalysis } from "./utils/seasonalDeviationEngine";
+
+export type { SeasonalDeviationAnalysis };
+
 export type SeasonalityResult = {
   symbol: string;
   yearsUsed: number;
@@ -67,6 +71,8 @@ export type SeasonalityResult = {
   currentYearPerformance: number;
   /** Historical seasonal index at current date (0–100). */
   historicalPerformance: number;
+  /** Current Year vs 10Y expectation — institutional deviation layer. */
+  deviationAnalysis?: SeasonalDeviationAnalysis;
 };
 
 export type SeasonalityMarket = {

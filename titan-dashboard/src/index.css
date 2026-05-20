@@ -1126,7 +1126,102 @@
   }
 
   .titan-seasonality-line-current-year {
-    filter: drop-shadow(0 0 6px rgba(245, 245, 244, 0.35));
+    filter: drop-shadow(0 0 14px rgba(245, 245, 244, 0.5));
+  }
+
+  .titan-seasonality-chart-deviation-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border-radius: 2px;
+    border: 1px solid rgba(212, 175, 55, 0.22);
+    background: rgba(0, 0, 0, 0.35);
+    padding: 0.35rem 0.6rem;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #d4af37;
+  }
+
+  .titan-seasonality-chart-deviation-pill__sep {
+    opacity: 0.45;
+  }
+
+  .titan-seasonality-institutional {
+    margin-top: 0.25rem;
+  }
+
+  .titan-seasonality-deviation-card {
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: linear-gradient(155deg, rgba(12, 13, 18, 0.95), rgba(6, 7, 10, 0.92));
+    padding: 0.75rem 0.85rem;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  .titan-seasonality-deviation-card--neutral {
+    border-color: rgba(212, 175, 55, 0.12);
+  }
+
+  .titan-seasonality-deviation-card--failure {
+    border-color: rgba(196, 92, 122, 0.35);
+    box-shadow:
+      0 0 18px rgba(196, 92, 122, 0.12),
+      inset 0 0 12px rgba(196, 92, 122, 0.05);
+  }
+
+  .titan-seasonality-deviation-card__value {
+    font-family: var(--font-display, "Cinzel", serif);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    line-height: 1.35;
+  }
+
+  .titan-seasonality-deviation-card__pct {
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: #f5f5f4;
+  }
+
+  .titan-seasonality-deviation--low {
+    border-color: rgba(61, 184, 140, 0.25);
+    box-shadow: 0 0 14px rgba(61, 184, 140, 0.08);
+  }
+
+  .titan-seasonality-deviation--low .titan-seasonality-deviation-card__value {
+    color: #4fd4a0;
+  }
+
+  .titan-seasonality-deviation--moderate {
+    border-color: rgba(212, 175, 55, 0.3);
+    box-shadow: 0 0 16px rgba(212, 175, 55, 0.1);
+  }
+
+  .titan-seasonality-deviation--moderate .titan-seasonality-deviation-card__value {
+    color: #d4af37;
+  }
+
+  .titan-seasonality-deviation--high {
+    border-color: rgba(232, 149, 90, 0.4);
+    box-shadow: 0 0 20px rgba(232, 149, 90, 0.14);
+  }
+
+  .titan-seasonality-deviation--high .titan-seasonality-deviation-card__value {
+    color: #f0a96a;
+  }
+
+  .titan-seasonality-deviation--extreme {
+    border-color: rgba(196, 92, 122, 0.45);
+    box-shadow: 0 0 24px rgba(196, 92, 122, 0.18);
+  }
+
+  .titan-seasonality-deviation--extreme .titan-seasonality-deviation-card__value {
+    color: #e87898;
+    text-shadow: 0 0 12px rgba(196, 92, 122, 0.35);
   }
 
   .titan-scanner-primary {
