@@ -364,6 +364,10 @@ function zoneAccent(zone: CommercialZoneId): "bear" | "bull" | "neutral" {
   return "neutral";
 }
 
+function commercialZoneExtreme(zone: CommercialZoneId): boolean {
+  return zone === "extreme_short" || zone === "extreme_long";
+}
+
 function weekLabel(reportDate: string): string {
   const d = new Date(reportDate);
   if (Number.isNaN(d.getTime())) return reportDate;
@@ -387,14 +391,12 @@ function PositioningContext({
       <h3 className="titan-terminal-section__label">{t("positioning.sections.context")}</h3>
       <div className="titan-terminal-grid titan-terminal-grid--3 mt-4">
         <TerminalCard accent={commTone === "bear" ? "red" : commTone === "bull" ? "green" : "gold"} icon={<IconBuilding />} title={t("positioning.cards.commercial.title")}>
-          <div>
-            <p className="titan-terminal-metric">
-              {fmtBipolar(indexToBipolar(read.commercialIndex))}
-              <span className="titan-terminal-metric__sub"> {t("positioning.bipolarRange")}</span>
-            </p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-stone-500">{t("positioning.cards.commercial.subtitle")}</p>
+          <div className="mt-3">
+            <p className="titan-terminal-metric">{fmtBipolar(indexToBipolar(read.commercialIndex))}</p>
             <p className={`titan-terminal-state titan-terminal-state--${commTone}`}>{t(commercialStateKey(read.commercialZone))}</p>
           </div>
-          <p className="mt-3 text-[12px] leading-snug text-stone-500">{t("positioning.cards.commercial.desc")}</p>
+          <p className="mt-2 text-[10px] leading-relaxed text-stone-500">{t("positioning.cards.commercial.scaleHelper")}</p>
           <div className="mt-4">
             <BipolarRangeBar index0to100={read.commercialIndex} glow={read.commercialGlow} />
           </div>
@@ -420,16 +422,15 @@ function PositioningContext({
         </TerminalCard>
 
         <TerminalCard accent={retailTone === "bull" ? "green" : retailTone === "bear" ? "red" : "gold"} icon={<IconCrowd />} title={t("positioning.cards.retail.title")}>
-          <div>
-            <p className="titan-terminal-metric">
-              {fmtBipolar(indexToBipolar(read.retailIndex))}
-              <span className="titan-terminal-metric__sub"> {t("positioning.bipolarRange")}</span>
-            </p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-stone-500">{t("positioning.cards.retail.subtitle")}</p>
+          <div className="mt-3">
+            <p className="titan-terminal-metric">{fmtBipolar(indexToBipolar(read.retailIndex))}</p>
             <p className={`titan-terminal-state titan-terminal-state--${retailTone}`}>
               {t(`positioning.retailState.${retailPositioningLabel(read.retailZone)}`)}
             </p>
           </div>
-          <p className="mt-3 text-[12px] leading-snug text-stone-500">{t("positioning.cards.retail.desc")}</p>
+          <p className="mt-2 text-[10px] leading-relaxed text-stone-500">{t("positioning.cards.retail.scaleHelper")}</p>
+          <p className="mt-1 text-[10px] text-stone-600">{t("positioning.cards.retail.crowdNote")}</p>
           <div className="mt-4">
             <BipolarRangeBar index0to100={read.retailIndex} glow={read.commercialGlow} />
           </div>
@@ -467,17 +468,20 @@ function PositioningContext({
 }
 
 function SignalEngine({ read, t }: { read: TitanPositioningRead; t: (k: string) => string }) {
-  const revHeadline =
-    read.reversal !== "none"
-      ? t(`positioning.reversal.${read.reversal}`)
-      : read.extremePositioning
-        ? t("positioning.reversal.extremeNoCross")
-        : t("positioning.reversal.none");
+  const commExtreme = commercialZoneExtreme(read.commercialZone);
+  const noFlowCross = !read.smTurnDown && !read.smTurnUp;
 
-  const revSub =
-    read.extremePositioning && read.reversal === "none"
-      ? t("positioning.reversal.extremeSub")
-      : t(`positioning.reversal.hint.${read.reversal}`);
+  let revHeadline = t("positioning.reversal.panelNoConfirm");
+  let revSub = t("positioning.reversal.panelDescNeutral");
+
+  if (read.reversal === "confirmed_top" || read.reversal === "confirmed_bottom") {
+    revHeadline = t(`positioning.reversal.${read.reversal}`);
+    revSub = t("positioning.reversal.panelDescConfirmed");
+  } else if (read.reversal === "potential_top" || read.reversal === "potential_bottom") {
+    revSub = t("positioning.reversal.panelDescPotential");
+  } else if (read.extremePositioning) {
+    revSub = t("positioning.reversal.panelDescExtremeActive");
+  }
 
   return (
     <div className="titan-terminal-section mt-8 md:mt-10">
@@ -487,10 +491,9 @@ function SignalEngine({ read, t }: { read: TitanPositioningRead; t: (k: string) 
           <p className="titan-terminal-headline">{revHeadline}</p>
           <p className="mt-2 text-sm text-titan-gold/85">{revSub}</p>
           <ul className="mt-5 space-y-2.5">
-            <CheckItem checked={read.checklist.crossBelow75} label={t("positioning.checklist.crossBelow75")} />
-            <CheckItem checked={read.checklist.crossAbove25} label={t("positioning.checklist.crossAbove25")} />
-            <CheckItem checked={read.checklist.retailContrarian} label={t("positioning.checklist.retailContrarian")} />
-            <CheckItem checked={read.checklist.divergenceOptional} label={t("positioning.checklist.divergenceOptional")} />
+            <CheckItem checked={commExtreme} label={t("positioning.checklist.commercialExtreme")} />
+            <CheckItem checked={read.checklist.retailContrarian} label={t("positioning.checklist.retailCrowd")} />
+            <CheckItem checked={noFlowCross} label={t("positioning.checklist.noFlowCross")} />
           </ul>
         </TerminalCard>
 
