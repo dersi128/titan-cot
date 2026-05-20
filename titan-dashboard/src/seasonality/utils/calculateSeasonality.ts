@@ -287,5 +287,9 @@ export function calculateSeasonality(options: CalculateSeasonalityOptions): Seas
     currentCurveLevel: currentPoint?.smoothed ?? 50,
     averageReturnInWindow,
     overallWinRate,
+    currentYearCurve: [],
+    seasonalityAlignment: "ALIGNED",
+    currentYearPerformance: 0,
+    historicalPerformance: currentPoint?.smoothed ?? 50,
   };
 }
