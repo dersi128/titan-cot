@@ -604,6 +604,7 @@ export const csMessages: Messages = {
     },
     tableTitle: "Měsíční statistiky",
     dataNote: "Zdroj: denní OHLC přes datový adapter (aktivní mock provider)",
+    dataNoteApi: "Zdroj: TITAN Seasonality API ({{target}}) · mock OHLC dokud není live vendor",
     stats: {
       bias: "Seasonal Bias",
       strength: "Seasonal Strength",

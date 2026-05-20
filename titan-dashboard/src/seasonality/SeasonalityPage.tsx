@@ -2,9 +2,12 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTitanI18n } from "../i18n";
 import { DEFAULT_SEASONALITY_MARKET_ID, getSeasonalityMarket } from "./markets";
 import {
-  fetchSeasonalityComparison,
-  type SeasonalityComparison,
-} from "./services/seasonalityService";
+  fetchSeasonalityComparisonFromApi,
+  shouldUseSeasonalityApi,
+  describeSeasonalityApiTarget,
+} from "./seasonalityApi";
+import type { SeasonalityComparison } from "./services/seasonalityService";
+import { fetchSeasonalityComparison } from "./services/seasonalityService";
 import { DEFAULT_YEARS_LOOKBACK, type YearsLookback } from "./yearsLookback";
 import { SeasonalityHero } from "./components/SeasonalityHero";
 import { SeasonalityMainChart } from "./components/SeasonalityMainChart";
@@ -88,7 +91,10 @@ export function SeasonalityPage() {
             <SeasonalityMonthlyTable result={result} currentMonth={currentMonth} />
           </div>
           <p className="text-[10px] leading-relaxed text-stone-600">
-            {t("seasonality.dataNote")} · {t("seasonality.disclaimer")}
+            {shouldUseSeasonalityApi()
+              ? t("seasonality.dataNoteApi", { target: describeSeasonalityApiTarget() })
+              : t("seasonality.dataNote")}{" "}
+            · {t("seasonality.disclaimer")}
           </p>
         </div>
       ) : null}

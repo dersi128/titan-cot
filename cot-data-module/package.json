@@ -4,10 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "sync:seasonality": "node scripts/sync-seasonality.mjs",
+    "build": "npm run sync:seasonality && tsc -p tsconfig.json",
     "start": "tsx src/server.ts",
     "start:prod": "node dist/server.js",
-    "dev": "tsx watch src/server.ts"
+    "dev": "npm run sync:seasonality && tsx watch src/server.ts"
   },
   "dependencies": {
     "cors": "^2.8.6",

@@ -602,6 +602,7 @@ export const enMessages = {
     },
     tableTitle: "Monthly statistics",
     dataNote: "Source: daily OHLC via pluggable data adapter (mock provider active)",
+    dataNoteApi: "Source: TITAN Seasonality API ({{target}}) · mock OHLC until live vendor wired",
     stats: {
       bias: "Seasonal Bias",
       strength: "Seasonal Strength",

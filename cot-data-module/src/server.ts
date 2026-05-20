@@ -5,6 +5,11 @@ import { getCachedCotDashboard } from "./cotCache.js";
 import { loadCotBundle } from "./cotBundle.js";
 import { fetchGoldCotDashboardData } from "./cotGold.js";
 import { COT_MARKET_MAPPINGS, getCotMarketMapping } from "./cotMarketMap.js";
+import {
+  handleSeasonalityBundle,
+  handleSeasonalityMarkets,
+  handleSeasonalitySingle,
+} from "./seasonalityRoutes.js";
 
 const PORT = Number(process.env.PORT ?? 3000);
 
@@ -22,8 +27,19 @@ app.use(
 app.use(express.json());
 
 app.get("/health", (_request, response) => {
-  response.json({ status: "ok", cacheTtlMs: Number(process.env.COT_CACHE_TTL_MS ?? 15 * 60 * 1000) });
+  response.json({
+    status: "ok",
+    cotCacheTtlMs: Number(process.env.COT_CACHE_TTL_MS ?? 15 * 60 * 1000),
+    seasonalityCacheTtlMs: Number(process.env.SEASONALITY_CACHE_TTL_MS ?? 6 * 60 * 60 * 1000),
+    seasonalityOhlcProvider: process.env.SEASONALITY_OHLC_PROVIDER ?? "mock",
+  });
 });
+
+app.get("/api/seasonality/markets", asyncHandler(handleSeasonalityMarkets));
+
+app.get("/api/seasonality/:symbol/bundle", asyncHandler(handleSeasonalityBundle));
+
+app.get("/api/seasonality/:symbol", asyncHandler(handleSeasonalitySingle));
 
 app.get("/api/cot/mappings", (_request, response) => {
   response.json({
