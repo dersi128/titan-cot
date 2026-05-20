@@ -510,11 +510,11 @@
   }
 
   .titan-regime-pill--bull {
-    @apply border border-titan-bull/30 bg-titan-bull/8 text-emerald-300/95;
+    @apply border border-titan-bull/30 bg-titan-bull/10 text-emerald-300/95;
   }
 
   .titan-regime-pill--bear {
-    @apply border border-titan-bear/30 bg-titan-bear/8 text-rose-300/95;
+    @apply border border-titan-bear/30 bg-titan-bear/10 text-rose-300/95;
   }
 
   .titan-regime-pill--warn {
