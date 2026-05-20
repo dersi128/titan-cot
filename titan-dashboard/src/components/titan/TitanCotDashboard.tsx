@@ -7,10 +7,10 @@ import {
 import { describeCotApiTarget, loadAllMappedCotData } from "../../data/cotData";
 import type { CotDashboardData } from "../../types";
 import { TitanInstitutionalBackdrop } from "../TitanInstitutionalBackdrop";
-import { TitanLogo } from "../TitanLogo";
 import { buildScannerRows, GlobalCotScanner } from "./GlobalCotScanner";
-import { CotHeatmap } from "./CotHeatmap";
+import { buildHomeOverviewStats } from "../../lib/titanHomeOverview";
 import { MarketDetailPanel } from "./MarketDetailPanel";
+import { TitanRegimeOverview } from "./TitanRegimeOverview";
 import { TitanDetailErrorBoundary } from "./TitanDetailErrorBoundary";
 import { TitanInstitutionalRail } from "./TitanInstitutionalRail";
 import { LanguageSwitcher, useTitanI18n } from "../../i18n";
@@ -98,6 +98,10 @@ export function TitanCotDashboard() {
 
   const rows = useMemo(() => buildScannerRows(INSTITUTIONAL_MARKETS, bundle, errors), [bundle, errors]);
   const liveCount = useMemo(() => rows.filter((r) => r.status === "live").length, [rows]);
+  const homeStats = useMemo(
+    () => buildHomeOverviewStats(INSTITUTIONAL_MARKETS, bundle, rows),
+    [bundle, rows],
+  );
 
   const selectedSymbol = selectedMarket.symbol;
   const selectedData = bundle[selectedSymbol] ?? null;
@@ -156,16 +160,18 @@ export function TitanCotDashboard() {
                 </div>
               </div>
             ) : (
-              <div className="grid gap-6 lg:grid-cols-[1fr_auto_1fr] lg:items-center">
-                <div className="flex justify-center lg:justify-start">
-                  <TitanLogo showWordmark />
-                </div>
-                <div className="text-center">
-                  <h1 className="titan-hero-title">{t("header.institutionalCot")}</h1>
+              <div className="titan-home-hero flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                <div className="min-w-0 flex-1 text-center lg:text-left">
+                  <h1 className="titan-hero-title font-display text-2xl font-bold uppercase tracking-[0.12em] text-stone-50 md:text-3xl">
+                    {t("header.institutionalCot")}
+                  </h1>
+                  <p className="mt-2 text-sm tracking-wide text-stone-500">{t("home.heroSubtitle")}</p>
                 </div>
                 <div className="flex flex-wrap items-center justify-center gap-3 lg:justify-end">
                   <LanguageSwitcher />
-                  <span className="titan-ai-pill">{t("header.heroBadge")}</span>
+                  <span className="rounded-lg border border-titan-gold/20 bg-titan-black/40 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-titan-gold/90">
+                    {t("home.heroLegacy")}
+                  </span>
                   <TitanLivePill label={t("header.marketsLive", { count: liveCount })} />
                   <div className="rounded-xl border border-titan-gold/15 bg-titan-panel/80 px-4 py-3 shadow-insetGold backdrop-blur-md">
                     <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">
@@ -191,18 +197,13 @@ export function TitanCotDashboard() {
         ) : null}
 
         {view === "overview" ? (
-        <main className="mx-auto max-w-[1600px] px-4 py-8">
-          <div className="flex flex-col gap-6 xl:flex-row xl:items-start">
-            <div className="min-w-0 flex-1 space-y-6">
+        <main className="mx-auto max-w-[1600px] px-4 py-6 md:py-8">
+          <div className="flex flex-col gap-5 xl:flex-row xl:items-start">
+            <div className="min-w-0 flex-1 space-y-5">
+              <TitanRegimeOverview cards={homeStats.regimeCards} liveCount={homeStats.liveCount} />
               <GlobalCotScanner rows={rows} selectedMarket={selectedMarket} onSelectMarket={openMarket} />
-              <CotHeatmap
-                markets={INSTITUTIONAL_MARKETS}
-                bundle={bundle}
-                selectedMarket={selectedMarket}
-                onSelectMarket={openMarket}
-              />
             </div>
-            <TitanInstitutionalRail liveCount={liveCount} />
+            <TitanInstitutionalRail stats={homeStats} onSelectMarket={openMarket} />
           </div>
         </main>
         ) : null}

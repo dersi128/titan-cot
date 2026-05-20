@@ -519,6 +519,30 @@
     @apply border border-white/10 bg-white/5 text-titan-muted;
   }
 
+  .titan-regime-card--bull {
+    @apply border-emerald-500/20 bg-emerald-950/20 text-emerald-300/90;
+  }
+
+  .titan-regime-card--bear {
+    @apply border-rose-500/20 bg-rose-950/20 text-rose-300/90;
+  }
+
+  .titan-regime-card--warn {
+    @apply border-amber-500/25 bg-amber-950/20 text-amber-200/85;
+  }
+
+  .titan-regime-card--neutral {
+    @apply border-white/[0.08] bg-white/[0.03] text-stone-400;
+  }
+
+  .titan-regime-spark__bar {
+    min-height: 3px;
+  }
+
+  .titan-home-hero .titan-hero-title {
+    text-shadow: 0 0 40px rgba(212, 175, 55, 0.12);
+  }
+
   .titan-ai-pill {
     @apply inline-flex items-center rounded-full border border-titan-gold/30 bg-titan-gold/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-titan-goldBright;
   }

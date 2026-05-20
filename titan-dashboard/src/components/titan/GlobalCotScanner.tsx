@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import type { CotDashboardData } from "../../types";
 import {
   computeTitanDashboardScore,
@@ -7,7 +8,13 @@ import {
   verdictAccentClass,
   type TitanBiasVerdict,
 } from "../../lib/titanCotScore";
-import { resolveMarketRegime, type MarketRegimeId } from "../../lib/titanCommercialIndex";
+import {
+  commercialIndexZone,
+  evaluateTitanPositioning,
+  resolveMarketRegime,
+  type MarketRegimeId,
+} from "../../lib/titanCommercialIndex";
+import { computeInstitutionalConviction, convictionRankScore, CONVICTION_MAX } from "../../lib/titanConviction";
 import type { InstitutionalMarket } from "../../config/institutionalMarkets";
 import { useTitanI18n } from "../../i18n";
 import { TitanMarketIcon } from "./TitanMarketIcon";
@@ -20,6 +27,9 @@ export type ScannerRowModel = {
   comm26: number | null;
   retail26: number | null;
   regime: MarketRegimeId;
+  conviction: number;
+  persistenceWeeks: number;
+  isExtreme: boolean;
   status: "live" | "loading" | "error";
   errorMessage?: string;
 };
@@ -30,11 +40,18 @@ type GlobalCotScannerProps = {
   onSelectMarket: (market: InstitutionalMarket) => void;
 };
 
+export type ScannerRegimeFilter = MarketRegimeId | "all";
+
 function regimePillClass(regime: MarketRegimeId): string {
   if (regime === "accumulation" || regime === "trending") return "titan-regime-pill--bull";
   if (regime === "distribution") return "titan-regime-pill--bear";
   if (regime === "exhaustion" || regime === "transition") return "titan-regime-pill--warn";
   return "titan-regime-pill--neutral";
+}
+
+function isExtremeCommercial(index26w: number): boolean {
+  const z = commercialIndexZone(index26w);
+  return z === "extreme_short" || z === "extreme_long" || index26w <= 20 || index26w >= 80;
 }
 
 export function buildScannerRows(
@@ -46,6 +63,8 @@ export function buildScannerRows(
     const data = bundle[market.symbol];
     if (data) {
       const score = computeTitanDashboardScore(data);
+      const conviction = computeInstitutionalConviction(data, score).level;
+      const read = evaluateTitanPositioning(data);
       return {
         market,
         score,
@@ -53,6 +72,9 @@ export function buildScannerRows(
         comm26: data.commercials.index26w,
         retail26: data.retail.index26w,
         regime: resolveMarketRegime(data),
+        conviction,
+        persistenceWeeks: read?.commercialPersistenceWeeks ?? 0,
+        isExtreme: isExtremeCommercial(data.commercials.index26w),
         status: "live",
       };
     }
@@ -64,6 +86,9 @@ export function buildScannerRows(
         comm26: null,
         retail26: null,
         regime: "neutral",
+        conviction: 0,
+        persistenceWeeks: 0,
+        isExtreme: false,
         status: "error",
         errorMessage: errors[market.symbol],
       };
@@ -75,30 +100,126 @@ export function buildScannerRows(
       comm26: null,
       retail26: null,
       regime: "neutral",
+      conviction: 0,
+      isExtreme: false,
       status: "loading",
     };
   });
 }
 
+function convictionDots(level: number): string {
+  return "●".repeat(level) + "○".repeat(CONVICTION_MAX - level);
+}
+
 export function GlobalCotScanner({ rows, selectedMarket, onSelectMarket }: GlobalCotScannerProps) {
   const { t, messages } = useTitanI18n();
-  const sorted = [...rows].sort((a, b) => Math.abs(b.score) - Math.abs(a.score));
+  const [onlyExtremes, setOnlyExtremes] = useState(false);
+  const [regimeFilter, setRegimeFilter] = useState<ScannerRegimeFilter>("all");
+  const [categoryFilter, setCategoryFilter] = useState<InstitutionalMarket["category"] | "all">("all");
+  const [search, setSearch] = useState("");
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return rows.filter((row) => {
+      if (row.status !== "live") return true;
+      if (onlyExtremes && !row.isExtreme) return false;
+      if (regimeFilter !== "all" && row.regime !== regimeFilter) return false;
+      if (categoryFilter !== "all" && row.market.category !== categoryFilter) return false;
+      if (q) {
+        const hay = `${row.market.shortLabel} ${row.market.subtitle} ${row.market.symbol}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [rows, onlyExtremes, regimeFilter, categoryFilter, search]);
+
+  const sorted = useMemo(() => {
+    const live = filtered.filter((r) => r.status === "live");
+    const rest = filtered.filter((r) => r.status !== "live");
+    live.sort((a, b) => {
+      const rankA = convictionRankScore(a.score, a.conviction, a.persistenceWeeks);
+      const rankB = convictionRankScore(b.score, b.conviction, b.persistenceWeeks);
+      if (rankB !== rankA) return rankB - rankA;
+      return Math.abs(b.score) - Math.abs(a.score);
+    });
+    return [...live, ...rest];
+  }, [filtered]);
+
+  const categories = useMemo(() => {
+    const set = new Set<InstitutionalMarket["category"]>();
+    rows.forEach((r) => set.add(r.market.category));
+    return Array.from(set);
+  }, [rows]);
 
   return (
     <TitanPanel className="animate-fade-up overflow-hidden p-0">
-      <div className="border-b border-white/[0.06] px-6 py-5">
+      <div className="border-b border-white/[0.06] px-5 py-4 md:px-6 md:py-5">
         <TitanPanelHeader
           eyebrow={t("scanner.eyebrow")}
           description={
             <>
-              {t("scanner.marketsSorted", { count: rows.length })}{" "}
+              {t("scanner.marketsSorted", { count: sorted.filter((r) => r.status === "live").length })}{" "}
               <span className="text-titan-muted">{t("scanner.legacyOnly")}</span>
             </>
           }
         />
+        <div className="titan-scanner-filters mt-4 flex flex-wrap items-center gap-2">
+          <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-white/[0.08] bg-black/25 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-stone-400">
+            <input
+              type="checkbox"
+              className="accent-titan-gold"
+              checked={onlyExtremes}
+              onChange={(e) => setOnlyExtremes(e.target.checked)}
+            />
+            {t("home.filterOnlyExtremes")}
+          </label>
+          <select
+            className="rounded-lg border border-white/[0.08] bg-black/25 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-stone-300"
+            value={regimeFilter}
+            onChange={(e) => setRegimeFilter(e.target.value as ScannerRegimeFilter)}
+          >
+            <option value="all">{t("home.filterAllRegimes")}</option>
+            {(
+              [
+                "distribution",
+                "accumulation",
+                "trending",
+                "transition",
+                "neutral",
+                "rotation",
+                "exhaustion",
+              ] as const
+            ).map((r) => (
+              <option key={r} value={r}>
+                {t(`positioning.regime.${r}`)}
+              </option>
+            ))}
+          </select>
+          <select
+            className="rounded-lg border border-white/[0.08] bg-black/25 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-stone-300"
+            value={categoryFilter}
+            onChange={(e) =>
+              setCategoryFilter(e.target.value as InstitutionalMarket["category"] | "all")
+            }
+          >
+            <option value="all">{t("home.filterAllAssets")}</option>
+            {categories.map((c) => (
+              <option key={c} value={c}>
+                {messages.category[c]}
+              </option>
+            ))}
+          </select>
+          <input
+            type="search"
+            placeholder={t("home.filterSearch")}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="min-w-[140px] flex-1 rounded-lg border border-white/[0.08] bg-black/25 px-3 py-1.5 text-xs text-stone-200 placeholder:text-stone-600 md:max-w-[220px]"
+          />
+        </div>
       </div>
       <div className="titan-scanner-table-wrap">
-        <table className="titan-scanner-table w-full min-w-[900px] text-left text-sm">
+        <table className="titan-scanner-table w-full min-w-[1020px] text-left text-sm">
           <thead>
             <tr>
               <th className="px-6">{t("scanner.colMarket")}</th>
@@ -107,7 +228,8 @@ export function GlobalCotScanner({ rows, selectedMarket, onSelectMarket }: Globa
               <th>{t("scanner.colVerdict")}</th>
               <th className="text-right">{t("scanner.colComm26")}</th>
               <th className="text-right">{t("scanner.colRetail26")}</th>
-              <th className="px-6">{t("scanner.colRegime")}</th>
+              <th>{t("scanner.colRegime")}</th>
+              <th className="px-6 text-right">{t("scanner.colConviction")}</th>
             </tr>
           </thead>
           <tbody>
@@ -155,13 +277,17 @@ export function GlobalCotScanner({ rows, selectedMarket, onSelectMarket }: Globa
                       </div>
                     </div>
                   </td>
-                  <td className={`px-4 py-4 text-right font-mono text-2xl font-bold tabular-nums ${scoreHeatClass(row.score)}`}>
+                  <td
+                    className={`px-4 py-4 text-right font-mono text-2xl font-bold tabular-nums ${scoreHeatClass(row.score)}`}
+                  >
                     {row.status === "live" ? row.score : "—"}
                   </td>
                   <td className="hidden w-40 px-4 py-4 md:table-cell">
                     {row.status === "live" ? <TitanScoreBar score={row.score} /> : "—"}
                   </td>
-                  <td className={`max-w-[200px] px-4 py-4 text-[11px] font-semibold uppercase leading-snug tracking-wide ${verdictAccentClass(row.verdict)}`}>
+                  <td
+                    className={`max-w-[200px] px-4 py-4 text-[11px] font-semibold uppercase leading-snug tracking-wide ${verdictAccentClass(row.verdict)}`}
+                  >
                     {row.status === "live" ? row.verdict : "—"}
                   </td>
                   <td className="px-4 py-4 text-right font-mono text-base tabular-nums text-titan-text">
@@ -170,13 +296,31 @@ export function GlobalCotScanner({ rows, selectedMarket, onSelectMarket }: Globa
                   <td className="px-4 py-4 text-right font-mono text-base tabular-nums text-titan-text">
                     {row.retail26 !== null ? row.retail26.toFixed(0) : "—"}
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-4 py-4">
                     {row.status === "live" ? (
                       <span
                         className={`inline-flex rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${regimePillClass(row.regime)}`}
                       >
                         {t(`positioning.regime.${row.regime}`)}
                       </span>
+                    ) : (
+                      <span className="text-titan-muted">—</span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    {row.status === "live" ? (
+                      <div className="inline-flex flex-col items-end gap-0.5">
+                        <span className="font-mono text-sm font-semibold tabular-nums text-stone-200">
+                          {row.conviction}/{CONVICTION_MAX}
+                        </span>
+                        <span
+                          className="text-[10px] tracking-[0.12em] text-titan-gold/70"
+                          aria-hidden
+                          title={convictionDots(row.conviction)}
+                        >
+                          {convictionDots(row.conviction)}
+                        </span>
+                      </div>
                     ) : (
                       <span className="text-titan-muted">—</span>
                     )}

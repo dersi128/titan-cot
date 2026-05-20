@@ -1,4 +1,6 @@
-import { INSTITUTIONAL_MARKETS } from "../../config/institutionalMarkets";
+import type { HomeOverviewStats } from "../../lib/titanHomeOverview";
+import type { InstitutionalMarket } from "../../config/institutionalMarkets";
+import { scoreHeatClass } from "../../lib/titanCotScore";
 import { useTitanI18n } from "../../i18n";
 
 type RailCardProps = {
@@ -28,47 +30,95 @@ function RailCard({ title, value, sub, accent = "neutral" }: RailCardProps) {
   );
 }
 
-/** Decorative institutional widgets — visual context, not live macro feeds. */
-export function TitanInstitutionalRail({ liveCount }: { liveCount: number }) {
+function WatchlistRow({
+  entry,
+  onSelect,
+}: {
+  entry: HomeOverviewStats["strongestLongs"][number];
+  onSelect: (m: InstitutionalMarket) => void;
+}) {
+  const { t } = useTitanI18n();
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(entry.market)}
+      className="titan-extreme-row flex w-full items-center justify-between gap-2 rounded-lg border border-transparent px-2 py-1.5 text-left transition-colors hover:border-white/[0.08] hover:bg-white/[0.03]"
+    >
+      <span className="min-w-0 truncate font-display text-xs font-semibold tracking-wide text-stone-200">
+        {entry.market.shortLabel}
+      </span>
+      <span className="shrink-0 font-mono text-[10px] tabular-nums text-stone-500">
+        {entry.conviction}/{t("home.convictionMax")}
+      </span>
+      <span className={`shrink-0 font-mono text-sm font-semibold tabular-nums ${scoreHeatClass(entry.score)}`}>
+        {entry.score > 0 ? `+${entry.score}` : entry.score}
+      </span>
+    </button>
+  );
+}
+
+type TitanInstitutionalRailProps = {
+  stats: HomeOverviewStats;
+  onSelectMarket: (market: InstitutionalMarket) => void;
+};
+
+export function TitanInstitutionalRail({ stats, onSelectMarket }: TitanInstitutionalRailProps) {
   const { t } = useTitanI18n();
 
   return (
     <aside className="hidden w-full shrink-0 xl:block xl:w-[280px]">
       <div className="sticky top-28 space-y-3">
-        <div className="titan-glass-premium rounded-2xl p-4">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-titan-gold">
-            {t("rail.eyebrow")}
-          </p>
-          <p className="mt-1 text-sm text-titan-muted">{t("rail.sub")}</p>
-        </div>
-
-        <RailCard
-          title={t("rail.aiRegime")}
-          value={t("rail.aiRegimeValue")}
-          sub={t("rail.aiRegimeSub")}
-          accent="gold"
-        />
         <RailCard
           title={t("rail.smartMoney")}
-          value={`${liveCount}/${INSTITUTIONAL_MARKETS.length}`}
+          value={`${stats.liveCount}/${stats.totalMarkets}`}
           sub={t("rail.smartMoneySub")}
           accent="bull"
         />
-        <RailCard title={t("rail.dominance")} value="68%" sub={t("rail.dominanceSub")} accent="gold" />
-        <RailCard title={t("rail.macroRisk")} value={t("rail.macroRiskValue")} sub={t("rail.macroRiskSub")} />
-        <RailCard title={t("rail.dxy")} value="104.2" sub={t("rail.dxySub")} accent="neutral" />
+
+        <RailCard
+          title={t("rail.dominance")}
+          value={`${stats.commercialDominancePct}%`}
+          sub={t("rail.dominanceSub")}
+          accent="gold"
+        />
+
+        <RailCard
+          title={t("home.extremeMarketsTitle")}
+          value={String(stats.extremeMarketsCount)}
+          sub={t("home.extremeMarketsSub", { count: stats.extremeMarketsCount })}
+          accent="gold"
+        />
 
         <div className="titan-glass-premium rounded-2xl p-4">
-          <div className="flex items-center justify-between gap-2">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-titan-muted">
-              {t("rail.pressure")}
-            </p>
-            <span className="titan-ai-pill">{t("rail.aiLive")}</span>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-titan-gold">
+            {t("home.topExtremesTitle")}
+          </p>
+
+          <p className="mt-4 text-[9px] font-semibold uppercase tracking-wider text-emerald-400/90">
+            {t("home.strongestLongs")}
+          </p>
+          <div className="mt-2 space-y-0.5">
+            {stats.strongestLongs.length === 0 ? (
+              <p className="text-[11px] text-stone-600">—</p>
+            ) : (
+              stats.strongestLongs.map((e) => (
+                <WatchlistRow key={e.market.id} entry={e} onSelect={onSelectMarket} />
+              ))
+            )}
           </div>
-          <div className="mt-3 h-2 overflow-hidden rounded-full bg-black/40">
-            <span className="titan-pressure-bar block h-full w-[62%] rounded-full" />
+
+          <p className="mt-4 text-[9px] font-semibold uppercase tracking-wider text-rose-400/90">
+            {t("home.strongestShorts")}
+          </p>
+          <div className="mt-2 space-y-0.5">
+            {stats.strongestShorts.length === 0 ? (
+              <p className="text-[11px] text-stone-600">—</p>
+            ) : (
+              stats.strongestShorts.map((e) => (
+                <WatchlistRow key={e.market.id} entry={e} onSelect={onSelectMarket} />
+              ))
+            )}
           </div>
-          <p className="mt-2 text-[11px] text-titan-muted">{t("rail.pressureSub")}</p>
         </div>
       </div>
     </aside>
