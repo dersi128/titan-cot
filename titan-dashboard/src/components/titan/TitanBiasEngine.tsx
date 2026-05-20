@@ -55,10 +55,10 @@ export function TitanBiasEngineAnalytics({
       <div className="titan-bias-structural rounded-lg border border-white/[0.06] bg-titan-black/15 px-4 py-3">
         <p className="titan-bias-kicker text-titan-gold/85">{t("biasEngine.structuralTitle")}</p>
         <ul className="titan-bias-structural__list mt-2.5 space-y-1.5">
-          {scoring.key_drivers_structural.map((line) => (
-            <li key={line} className="titan-bias-bullet text-[13px] leading-snug text-stone-400">
+          {scoring.key_drivers_structural.map((id) => (
+            <li key={id} className="titan-bias-bullet text-[13px] leading-snug text-stone-400">
               <span className="titan-bias-bullet__dot" aria-hidden />
-              <span>{line}</span>
+              <span>{t(`biasEngine.structuralBullets.${id}`)}</span>
             </li>
           ))}
         </ul>

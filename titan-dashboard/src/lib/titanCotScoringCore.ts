@@ -103,11 +103,20 @@ export type TitanCotScoringResult = {
   components: TitanCotScoringComponents;
   drivers: TitanBiasDriverDetail[];
   primary_driver_id: BiasDriverId;
-  key_drivers_structural: string[];
+  key_drivers_structural: StructuralBulletId[];
   key_drivers_execution: string[];
   persistence_weeks_for_badge: number;
   persistence_side: "bull" | "bear" | "none";
 };
+
+export type StructuralBulletId =
+  | "commercials_heavy_short"
+  | "commercials_heavy_long"
+  | "extreme_territory"
+  | "flow_negative"
+  | "flow_positive"
+  | "persistence_elevated"
+  | "moderate_bias";
 
 const IDX_HI = 80;
 const IDX_LO = 20;
@@ -491,18 +500,18 @@ function buildKeyDrivers(
   components: TitanCotScoringComponents,
   _clamped: number,
   _retailPoints: number,
-): { structural: string[]; execution: string[] } {
-  const structural: string[] = [];
-  if (c.index26w < 35) structural.push("Commercials remain heavily net short.");
-  if (c.index26w > 65) structural.push("Commercials remain heavily net long.");
+): { structural: StructuralBulletId[]; execution: string[] } {
+  const structural: StructuralBulletId[] = [];
+  if (c.index26w < 35) structural.push("commercials_heavy_short");
+  if (c.index26w > 65) structural.push("commercials_heavy_long");
   if (c.index26w < IDX_LO || c.index26w > IDX_HI) {
-    structural.push("Positioning remains in extreme territory.");
+    structural.push("extreme_territory");
   }
-  if (components.commercialDeltaFlow < -10) structural.push("Delta flow remains negative across horizons.");
-  if (components.commercialDeltaFlow > 10) structural.push("Delta flow remains positive across horizons.");
-  if (persistWeeks >= 5) structural.push("Persistence remains elevated.");
+  if (components.commercialDeltaFlow < -10) structural.push("flow_negative");
+  if (components.commercialDeltaFlow > 10) structural.push("flow_positive");
+  if (persistWeeks >= 5) structural.push("persistence_elevated");
   if (structural.length === 0) {
-    structural.push("Bias is moderate — no extreme structural triggers.");
+    structural.push("moderate_bias");
   }
 
   const execution: string[] = [];

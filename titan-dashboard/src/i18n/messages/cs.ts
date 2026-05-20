@@ -433,6 +433,15 @@ export const csMessages: Messages = {
       contrarian_bear: "Contrarian Bearish",
       contrarian_bull: "Contrarian Bullish",
     },
+    structuralBullets: {
+      commercials_heavy_short: "Commercials setrvávají v silném net short.",
+      commercials_heavy_long: "Commercials setrvávají v silném net long.",
+      extreme_territory: "Positioning zůstává v extrémní zóně.",
+      flow_negative: "Delta flow zůstává záporný napříč horizonty.",
+      flow_positive: "Delta flow zůstává kladný napříč horizonty.",
+      persistence_elevated: "Persistence zůstává zvýšená.",
+      moderate_bias: "Bias je mírný — bez extrémních strukturálních triggerů.",
+    },
     bullets: {
       commercials_heavy_short: "Commercials zůstávají silně net short.",
       commercials_heavy_long: "Commercials zůstávají silně net long.",

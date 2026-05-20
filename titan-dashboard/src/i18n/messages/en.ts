@@ -431,6 +431,15 @@ export const enMessages = {
       contrarian_bear: "Contrarian Bearish",
       contrarian_bull: "Contrarian Bullish",
     },
+    structuralBullets: {
+      commercials_heavy_short: "Commercials remain heavily net short.",
+      commercials_heavy_long: "Commercials remain heavily net long.",
+      extreme_territory: "Positioning remains in extreme territory.",
+      flow_negative: "Delta flow remains negative across horizons.",
+      flow_positive: "Delta flow remains positive across horizons.",
+      persistence_elevated: "Persistence remains elevated.",
+      moderate_bias: "Bias is moderate — no extreme structural triggers.",
+    },
     bullets: {
       commercials_heavy_short: "Commercials remain heavily net short.",
       commercials_heavy_long: "Commercials remain heavily net long.",
