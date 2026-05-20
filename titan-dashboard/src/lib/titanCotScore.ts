@@ -80,8 +80,10 @@ export function scoreToTitanBiasVerdict(score: number): TitanBiasVerdict {
 }
 
 export function commercialTrend(data: CotDashboardData): PositioningTrend {
-  if (data.commercials.weeklyChange > 0) return "accumulation";
-  if (data.commercials.weeklyChange < 0) return "distribution";
+  const w = data.commercials?.weeklyChange;
+  if (w === undefined || !Number.isFinite(w)) return "flat";
+  if (w > 0) return "accumulation";
+  if (w < 0) return "distribution";
   return "flat";
 }
 

@@ -4,6 +4,7 @@ import {
   buildTitanBiasEngineView,
   driverBarSegments,
   type ImpactTone,
+  type TitanBiasEngineView,
 } from "../../lib/titanBiasEngineView";
 import { getTitanCotRead, scoreHeatClass, verdictAccentClass } from "../../lib/titanCotScore";
 import { useTitanI18n } from "../../i18n";
@@ -38,8 +39,16 @@ function impactToneClass(impact: ImpactTone): string {
 
 export function TitanBiasEngine({ market: _market, data, loading }: TitanBiasEngineProps) {
   const { t } = useTitanI18n();
-  const scoring = data ? getTitanCotRead(data) : null;
-  const view = data && scoring ? buildTitanBiasEngineView(data, scoring) : null;
+  let view: TitanBiasEngineView | null = null;
+  if (data && !loading) {
+    try {
+      const scoring = getTitanCotRead(data);
+      view = buildTitanBiasEngineView(data, scoring);
+    } catch (err) {
+      console.error("[TITAN] TitanBiasEngine: score/view failed", err);
+      view = null;
+    }
+  }
 
   const panelTone =
     view && view.score < 0 ? "bear" : view && view.score > 0 ? "bull" : "neutral";

@@ -92,6 +92,10 @@ function buildKeyDrivers(data: CotDashboardData, scoring: TitanCotScoringResult,
   const bullets: string[] = [];
   const c = data.commercials;
   const r = data.retail;
+  if (!c || !r) {
+    return ["commercials_mixed", "flow_mixed", "no_reversal"];
+  }
+
   const positioning = evaluateTitanPositioning(data);
 
   if (c.bias === "bearish" || c.index26w < 20) {
@@ -117,6 +121,7 @@ function buildKeyDrivers(data: CotDashboardData, scoring: TitanCotScoringResult,
   }
 
   if (
+    !positioning ||
     positioning.reversal === "none" ||
     positioning.reversal === "potential_top" ||
     positioning.reversal === "potential_bottom"

@@ -249,7 +249,11 @@ export function marketRegimeFromCot(data: CotDashboardData): MarketRegimeId {
   return "range";
 }
 
-export function evaluateTitanPositioning(data: CotDashboardData): TitanPositioningRead {
+export function evaluateTitanPositioning(data: CotDashboardData): TitanPositioningRead | null {
+  if (!data.commercials || !data.retail) {
+    return null;
+  }
+
   const commercialIndex = clampIndex(data.commercials.index26w);
   const retailIndex = clampIndex(data.retail.index26w);
   const history = data.history ?? [];
