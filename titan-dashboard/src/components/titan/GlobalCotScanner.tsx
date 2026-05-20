@@ -120,6 +120,7 @@ export function buildScannerRows(
       retail26: null,
       regime: "neutral",
       conviction: 0,
+      persistenceWeeks: 0,
       isExtreme: false,
       status: "loading",
     };

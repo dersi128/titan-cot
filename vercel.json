@@ -1,0 +1,16 @@
+{
+  "installCommand": "cd titan-dashboard && npm install",
+  "buildCommand": "cd titan-dashboard && npm run build",
+  "outputDirectory": "titan-dashboard/dist",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/api/cot/:match*",
+      "destination": "https://titan-cot.onrender.com/api/cot/:match*"
+    },
+    {
+      "source": "/health",
+      "destination": "https://titan-cot.onrender.com/health"
+    }
+  ]
+}
