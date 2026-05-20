@@ -9,6 +9,27 @@ export const MAX_OHLC_FETCH_YEARS = 20;
 
 export const YEARS_LOOKBACK_OPTIONS: readonly YearsLookback[] = [5, 10, 15, 20, "ALL"] as const;
 
+/** All windows rendered together on the seasonal chart. */
+export const CHART_COMPARISON_LOOKBACKS: readonly YearsLookback[] = YEARS_LOOKBACK_OPTIONS;
+
+/** Recharts dataKey per lookback window. */
+export const LOOKBACK_CHART_KEYS: Record<YearsLookback, string> = {
+  5: "curve5Y",
+  10: "curve10Y",
+  15: "curve15Y",
+  20: "curve20Y",
+  ALL: "curveAll",
+};
+
+/** Stroke colors — primary lookback uses full opacity via chart component. */
+export const LOOKBACK_CHART_COLORS: Record<YearsLookback, string> = {
+  5: "#57534e",
+  10: "#d4af37",
+  15: "#a8a29e",
+  20: "#9ca3af",
+  ALL: "#f0d060",
+};
+
 export function lookbackLabel(lookback: YearsLookback): string {
   return lookback === "ALL" ? "ALL" : `${lookback}Y`;
 }

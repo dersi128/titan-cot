@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTitanI18n } from "../i18n";
 import { DEFAULT_SEASONALITY_MARKET_ID, getSeasonalityMarket } from "./markets";
-import { fetchSeasonalityAnalysis } from "./services/seasonalityService";
-import type { SeasonalityResult } from "./types";
+import {
+  fetchSeasonalityComparison,
+  type SeasonalityComparison,
+} from "./services/seasonalityService";
 import { DEFAULT_YEARS_LOOKBACK, type YearsLookback } from "./yearsLookback";
 import { SeasonalityHero } from "./components/SeasonalityHero";
 import { SeasonalityMainChart } from "./components/SeasonalityMainChart";
@@ -13,22 +15,22 @@ import { SeasonalityStatsCards } from "./components/SeasonalityStatsCards";
 export function SeasonalityPage() {
   const { t } = useTitanI18n();
   const [marketId, setMarketId] = useState(DEFAULT_SEASONALITY_MARKET_ID);
-  const [lookback, setLookback] = useState<YearsLookback>(DEFAULT_YEARS_LOOKBACK);
-  const [result, setResult] = useState<SeasonalityResult | null>(null);
+  const [primaryLookback, setPrimaryLookback] = useState<YearsLookback>(DEFAULT_YEARS_LOOKBACK);
+  const [comparison, setComparison] = useState<SeasonalityComparison | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(
-    async (id: string, yearsLookback: YearsLookback) => {
+    async (id: string) => {
       const market = getSeasonalityMarket(id);
       if (!market) return;
       setLoading(true);
       setError(null);
       try {
-        const analysis = await fetchSeasonalityAnalysis(market.dataSymbol, { yearsLookback });
-        setResult(analysis);
+        const curves = await fetchSeasonalityComparison(market.dataSymbol);
+        setComparison(curves);
       } catch (err) {
-        setResult(null);
+        setComparison(null);
         setError(err instanceof Error ? err.message : t("seasonality.loadError"));
       } finally {
         setLoading(false);
@@ -38,8 +40,13 @@ export function SeasonalityPage() {
   );
 
   useEffect(() => {
-    void load(marketId, lookback);
-  }, [marketId, lookback, load]);
+    void load(marketId);
+  }, [marketId, load]);
+
+  const result = useMemo(() => {
+    if (!comparison) return null;
+    return comparison[primaryLookback] ?? comparison[DEFAULT_YEARS_LOOKBACK] ?? Object.values(comparison)[0] ?? null;
+  }, [comparison, primaryLookback]);
 
   const currentMonth = result
     ? new Date(result.currentDate).getMonth() + 1
@@ -60,19 +67,19 @@ export function SeasonalityPage() {
         </div>
       ) : null}
 
-      {loading && !result ? (
+      {loading && !comparison ? (
         <div className="titan-seasonality-loading rounded-lg border border-white/[0.06] px-4 py-12 text-center text-sm text-stone-500">
           {t("seasonality.loading")}
         </div>
       ) : null}
 
-      {result ? (
+      {comparison && result ? (
         <div className={`space-y-4${loading ? " opacity-80" : ""}`}>
           <SeasonalityMainChart
-            result={result}
+            comparison={comparison}
+            primaryLookback={primaryLookback}
+            onPrimaryLookbackChange={setPrimaryLookback}
             currentMonth={currentMonth}
-            lookback={lookback}
-            onLookbackChange={setLookback}
             lookbackDisabled={loading}
           />
           <SeasonalityStatsCards result={result} />
@@ -86,7 +93,7 @@ export function SeasonalityPage() {
         </div>
       ) : null}
 
-      {loading && result ? (
+      {loading && comparison ? (
         <p className="text-center text-[10px] uppercase tracking-wider text-stone-600">{t("seasonality.loading")}</p>
       ) : null}
     </div>
