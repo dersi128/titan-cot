@@ -3,6 +3,7 @@ import type { SeasonalityComparison } from "./services/seasonalityService";
 import type { SeasonalityResult } from "./types";
 import type { YearsLookback } from "./yearsLookback";
 import {
+  hasPresidentialSelection,
   isAllPresidentialPhases,
   type PresidentialCyclePhase,
 } from "./utils/presidentialCycle";
@@ -41,7 +42,9 @@ type SingleResponse = {
 };
 
 function cyclesQuery(phases?: PresidentialCyclePhase[] | null): string {
-  if (!phases || isAllPresidentialPhases(phases)) return "";
+  if (phases === null || phases === undefined) return "";
+  if (!hasPresidentialSelection(phases)) return "?cycles=none";
+  if (isAllPresidentialPhases(phases)) return "?cycles=all";
   return `?cycles=${encodeURIComponent(phases.join(","))}`;
 }
 

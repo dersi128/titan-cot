@@ -56,6 +56,12 @@ export async function handleSeasonalityBundle(req: Request, res: Response): Prom
   }
 
   const phases = parsePresidentialPhasesQuery(req.query.cycles);
+  if (Array.isArray(phases) && phases.length === 0) {
+    res.status(400).json({
+      error: "Select at least one presidential cycle phase (or omit cycles for all years).",
+    });
+    return;
+  }
   const cycleKey = presidentialPhasesCacheKey(phases);
 
   const cached = getCachedComparison(symbol, cycleKey);
@@ -85,6 +91,12 @@ export async function handleSeasonalitySingle(req: Request, res: Response): Prom
   }
 
   const phases = parsePresidentialPhasesQuery(req.query.cycles);
+  if (Array.isArray(phases) && phases.length === 0) {
+    res.status(400).json({
+      error: "Select at least one presidential cycle phase (or omit cycles for all years).",
+    });
+    return;
+  }
   const cycleKey = presidentialPhasesCacheKey(phases);
 
   const cached = getCachedSingle(symbol, lookback, cycleKey);

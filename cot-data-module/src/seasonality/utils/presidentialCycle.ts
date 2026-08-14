@@ -1,6 +1,5 @@
 import type { OhlcBar } from "../types.js";
 
-/** U.S. presidential cycle phases (Seasonax-style). */
 export type PresidentialCyclePhase = "election" | "post" | "midterm" | "pre";
 
 export const PRESIDENTIAL_CYCLE_PHASES: readonly PresidentialCyclePhase[] = [
@@ -10,13 +9,6 @@ export const PRESIDENTIAL_CYCLE_PHASES: readonly PresidentialCyclePhase[] = [
   "pre",
 ] as const;
 
-export const PRESIDENTIAL_CYCLE_LABELS: Record<PresidentialCyclePhase, string> = {
-  election: "Elections",
-  post: "Post Elections",
-  midterm: "Midterm Elections",
-  pre: "Pre Election",
-};
-
 export function presidentialPhaseForYear(year: number): PresidentialCyclePhase {
   const mod = ((year % 4) + 4) % 4;
   if (mod === 0) return "election";
@@ -25,19 +17,23 @@ export function presidentialPhaseForYear(year: number): PresidentialCyclePhase {
   return "pre";
 }
 
+export function hasPresidentialSelection(
+  phases: readonly PresidentialCyclePhase[] | null | undefined,
+): boolean {
+  return Array.isArray(phases) && phases.length > 0;
+}
+
 export function isAllPresidentialPhases(
   phases: readonly PresidentialCyclePhase[] | null | undefined,
 ): boolean {
-  if (!phases || phases.length === 0) return true;
-  return PRESIDENTIAL_CYCLE_PHASES.every((p) => phases.includes(p));
+  if (!hasPresidentialSelection(phases)) return false;
+  return PRESIDENTIAL_CYCLE_PHASES.every((p) => phases!.includes(p));
 }
 
 export function normalizePresidentialPhases(
   phases: readonly PresidentialCyclePhase[] | null | undefined,
 ): PresidentialCyclePhase[] {
-  if (!phases?.length || isAllPresidentialPhases(phases)) {
-    return [...PRESIDENTIAL_CYCLE_PHASES];
-  }
+  if (!hasPresidentialSelection(phases)) return [];
   const set = new Set(phases);
   return PRESIDENTIAL_CYCLE_PHASES.filter((p) => set.has(p));
 }
@@ -45,6 +41,8 @@ export function normalizePresidentialPhases(
 export function presidentialPhasesCacheKey(
   phases: readonly PresidentialCyclePhase[] | null | undefined,
 ): string {
+  if (phases === null || phases === undefined) return "all";
+  if (!hasPresidentialSelection(phases)) return "none";
   if (isAllPresidentialPhases(phases)) return "all";
   return normalizePresidentialPhases(phases).join("+");
 }
@@ -53,6 +51,8 @@ export function filterBarsByPresidentialPhases(
   bars: OhlcBar[],
   phases: readonly PresidentialCyclePhase[] | null | undefined,
 ): OhlcBar[] {
+  if (phases === null || phases === undefined) return bars;
+  if (phases.length === 0) return [];
   if (isAllPresidentialPhases(phases)) return bars;
   const allowed = new Set(normalizePresidentialPhases(phases));
   return bars.filter((bar) => {
@@ -68,7 +68,9 @@ export function parsePresidentialPhasesQuery(raw: unknown): PresidentialCyclePha
     .split(",")
     .map((p) => p.trim().toLowerCase())
     .filter(Boolean);
-  if (!parts.length || parts.includes("all")) return null;
+  if (!parts.length) return null;
+  if (parts.includes("none")) return [];
+  if (parts.includes("all")) return [...PRESIDENTIAL_CYCLE_PHASES];
   const valid = new Set<string>(PRESIDENTIAL_CYCLE_PHASES);
   const out: PresidentialCyclePhase[] = [];
   for (const p of parts) {
@@ -76,5 +78,5 @@ export function parsePresidentialPhasesQuery(raw: unknown): PresidentialCyclePha
       out.push(p as PresidentialCyclePhase);
     }
   }
-  return out.length ? out : null;
+  return out;
 }
