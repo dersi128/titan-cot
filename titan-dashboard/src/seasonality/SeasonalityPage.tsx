@@ -10,36 +10,43 @@ import type { SeasonalityComparison } from "./services/seasonalityService";
 import { fetchSeasonalityComparisonWithSource } from "./services/seasonalityService";
 import { DEFAULT_YEARS_LOOKBACK, type YearsLookback } from "./yearsLookback";
 import { attachSeasonalDeviationAnalysis } from "./utils/seasonalDeviationEngine";
+import {
+  PRESIDENTIAL_CYCLE_PHASES,
+  type PresidentialCyclePhase,
+} from "./utils/presidentialCycle";
 import { SeasonalityHero } from "./components/SeasonalityHero";
 import { SeasonalityDeviationSection } from "./components/SeasonalityDeviationSection";
 import { SeasonalityMainChart } from "./components/SeasonalityMainChart";
 import { SeasonalityMarketSelector } from "./components/SeasonalityMarketSelector";
 import { SeasonalityMonthlyTable } from "./components/SeasonalityMonthlyTable";
+import { SeasonalityPresidentialFilter } from "./components/SeasonalityPresidentialFilter";
 import { SeasonalityStatsCards } from "./components/SeasonalityStatsCards";
 
 export function SeasonalityPage() {
   const { t } = useTitanI18n();
   const [marketId, setMarketId] = useState(DEFAULT_SEASONALITY_MARKET_ID);
   const [lookback, setLookback] = useState<YearsLookback>(DEFAULT_YEARS_LOOKBACK);
+  const [cycles, setCycles] = useState<PresidentialCyclePhase[]>([...PRESIDENTIAL_CYCLE_PHASES]);
   const [comparison, setComparison] = useState<SeasonalityComparison | null>(null);
   const [dataSource, setDataSource] = useState("yahoo");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(
-    async (id: string) => {
+    async (id: string, phases: PresidentialCyclePhase[]) => {
       const market = getSeasonalityMarket(id);
       if (!market) return;
       setLoading(true);
       setError(null);
       try {
         if (shouldUseSeasonalityApi()) {
-          const curves = await fetchSeasonalityComparisonFromApi(market.dataSymbol);
+          const curves = await fetchSeasonalityComparisonFromApi(market.dataSymbol, phases);
           setComparison(curves);
           setDataSource("api");
         } else {
           const { comparison: curves, ohlcSource } = await fetchSeasonalityComparisonWithSource(
             market.dataSymbol,
+            { presidentialPhases: phases },
           );
           setComparison(curves);
           setDataSource(ohlcSource);
@@ -55,8 +62,8 @@ export function SeasonalityPage() {
   );
 
   useEffect(() => {
-    void load(marketId);
-  }, [marketId, load]);
+    void load(marketId, cycles);
+  }, [marketId, cycles, load]);
 
   const market = getSeasonalityMarket(marketId);
 
@@ -87,6 +94,10 @@ export function SeasonalityPage() {
       <div className="mb-4">
         <p className="titan-cmd-kicker mb-2">{t("seasonality.selectMarket")}</p>
         <SeasonalityMarketSelector activeId={marketId} onSelect={setMarketId} disabled={loading} />
+      </div>
+
+      <div className="mb-4">
+        <SeasonalityPresidentialFilter value={cycles} onChange={setCycles} disabled={loading} />
       </div>
 
       {error ? (

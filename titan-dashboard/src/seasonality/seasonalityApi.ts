@@ -2,6 +2,10 @@ import { getCotApiBase, describeCotApiTarget } from "../data/cotData";
 import type { SeasonalityComparison } from "./services/seasonalityService";
 import type { SeasonalityResult } from "./types";
 import type { YearsLookback } from "./yearsLookback";
+import {
+  isAllPresidentialPhases,
+  type PresidentialCyclePhase,
+} from "./utils/presidentialCycle";
 
 /**
  * Default: server seasonality API (Yahoo OHLC on Render).
@@ -36,11 +40,19 @@ type SingleResponse = {
   result: SeasonalityResult;
 };
 
+function cyclesQuery(phases?: PresidentialCyclePhase[] | null): string {
+  if (!phases || isAllPresidentialPhases(phases)) return "";
+  return `?cycles=${encodeURIComponent(phases.join(","))}`;
+}
+
 export async function fetchSeasonalityComparisonFromApi(
   symbol: string,
+  phases?: PresidentialCyclePhase[] | null,
 ): Promise<SeasonalityComparison> {
   const base = getSeasonalityApiBase();
-  const response = await fetch(`${base}/api/seasonality/${encodeURIComponent(symbol)}/bundle`);
+  const response = await fetch(
+    `${base}/api/seasonality/${encodeURIComponent(symbol)}/bundle${cyclesQuery(phases)}`,
+  );
 
   if (!response.ok) {
     throw new Error(
@@ -55,11 +67,14 @@ export async function fetchSeasonalityComparisonFromApi(
 export async function fetchSeasonalityAnalysisFromApi(
   symbol: string,
   lookback: YearsLookback,
+  phases?: PresidentialCyclePhase[] | null,
 ): Promise<SeasonalityResult> {
   const base = getSeasonalityApiBase();
   const q = lookback === "ALL" ? "ALL" : String(lookback);
+  const cycle = cyclesQuery(phases);
+  const join = cycle ? "&" : "?";
   const response = await fetch(
-    `${base}/api/seasonality/${encodeURIComponent(symbol)}?lookback=${encodeURIComponent(q)}`,
+    `${base}/api/seasonality/${encodeURIComponent(symbol)}${cycle}${join}lookback=${encodeURIComponent(q)}`,
   );
 
   if (!response.ok) {

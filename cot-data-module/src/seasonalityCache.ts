@@ -9,8 +9,14 @@ type CacheEntry<T> = { at: number; value: T };
 const comparisonCache = new Map<string, CacheEntry<SeasonalityComparison>>();
 const singleCache = new Map<string, CacheEntry<SeasonalityResult>>();
 
-function cacheKey(symbol: string, lookback?: YearsLookback, compare?: boolean): string {
-  return compare ? `${symbol}:compare` : `${symbol}:${lookback ?? "10"}`;
+function cacheKey(
+  symbol: string,
+  lookback?: YearsLookback,
+  compare?: boolean,
+  cycleKey = "all",
+): string {
+  const base = compare ? `${symbol}:compare` : `${symbol}:${lookback ?? "10"}`;
+  return `${base}:cyc:${cycleKey}`;
 }
 
 function getFresh<T>(map: Map<string, CacheEntry<T>>, key: string): T | null {
@@ -27,18 +33,34 @@ function set<T>(map: Map<string, CacheEntry<T>>, key: string, value: T): void {
   map.set(key, { at: Date.now(), value });
 }
 
-export function getCachedComparison(symbol: string): SeasonalityComparison | null {
-  return getFresh(comparisonCache, cacheKey(symbol, undefined, true));
+export function getCachedComparison(
+  symbol: string,
+  cycleKey = "all",
+): SeasonalityComparison | null {
+  return getFresh(comparisonCache, cacheKey(symbol, undefined, true, cycleKey));
 }
 
-export function setCachedComparison(symbol: string, value: SeasonalityComparison): void {
-  set(comparisonCache, cacheKey(symbol, undefined, true), value);
+export function setCachedComparison(
+  symbol: string,
+  value: SeasonalityComparison,
+  cycleKey = "all",
+): void {
+  set(comparisonCache, cacheKey(symbol, undefined, true, cycleKey), value);
 }
 
-export function getCachedSingle(symbol: string, lookback: YearsLookback): SeasonalityResult | null {
-  return getFresh(singleCache, cacheKey(symbol, lookback, false));
+export function getCachedSingle(
+  symbol: string,
+  lookback: YearsLookback,
+  cycleKey = "all",
+): SeasonalityResult | null {
+  return getFresh(singleCache, cacheKey(symbol, lookback, false, cycleKey));
 }
 
-export function setCachedSingle(symbol: string, lookback: YearsLookback, value: SeasonalityResult): void {
-  set(singleCache, cacheKey(symbol, lookback, false), value);
+export function setCachedSingle(
+  symbol: string,
+  lookback: YearsLookback,
+  value: SeasonalityResult,
+  cycleKey = "all",
+): void {
+  set(singleCache, cacheKey(symbol, lookback, false, cycleKey), value);
 }

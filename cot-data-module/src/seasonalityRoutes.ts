@@ -9,6 +9,11 @@ import {
 import type { YearsLookback } from "./seasonality/yearsLookback.js";
 import { YEARS_LOOKBACK_OPTIONS } from "./seasonality/yearsLookback.js";
 import {
+  parsePresidentialPhasesQuery,
+  presidentialPhasesCacheKey,
+  PRESIDENTIAL_CYCLE_PHASES,
+} from "./seasonality/utils/presidentialCycle.js";
+import {
   getCachedComparison,
   getCachedSingle,
   setCachedComparison,
@@ -37,6 +42,7 @@ export async function handleSeasonalityMarkets(_req: Request, res: Response): Pr
   res.json({
     markets: SEASONALITY_MARKETS,
     lookbacks: YEARS_LOOKBACK_OPTIONS,
+    presidentialCycles: PRESIDENTIAL_CYCLE_PHASES,
     dataSource: getConfiguredOhlcProviderId(),
     cacheTtlMs: Number(process.env.SEASONALITY_CACHE_TTL_MS ?? 6 * 60 * 60 * 1000),
   });
@@ -49,15 +55,20 @@ export async function handleSeasonalityBundle(req: Request, res: Response): Prom
     return;
   }
 
-  const cached = getCachedComparison(symbol);
+  const phases = parsePresidentialPhasesQuery(req.query.cycles);
+  const cycleKey = presidentialPhasesCacheKey(phases);
+
+  const cached = getCachedComparison(symbol, cycleKey);
   if (cached) {
-    res.json({ symbol, cached: true, comparison: cached });
+    res.json({ symbol, cached: true, cycles: cycleKey, comparison: cached });
     return;
   }
 
-  const comparison = await fetchSeasonalityComparison(symbol);
-  setCachedComparison(symbol, comparison);
-  res.json({ symbol, cached: false, comparison });
+  const comparison = await fetchSeasonalityComparison(symbol, {
+    presidentialPhases: phases,
+  });
+  setCachedComparison(symbol, comparison, cycleKey);
+  res.json({ symbol, cached: false, cycles: cycleKey, comparison });
 }
 
 export async function handleSeasonalitySingle(req: Request, res: Response): Promise<void> {
@@ -73,13 +84,19 @@ export async function handleSeasonalitySingle(req: Request, res: Response): Prom
     return;
   }
 
-  const cached = getCachedSingle(symbol, lookback);
+  const phases = parsePresidentialPhasesQuery(req.query.cycles);
+  const cycleKey = presidentialPhasesCacheKey(phases);
+
+  const cached = getCachedSingle(symbol, lookback, cycleKey);
   if (cached) {
-    res.json({ symbol, lookback, cached: true, result: cached });
+    res.json({ symbol, lookback, cached: true, cycles: cycleKey, result: cached });
     return;
   }
 
-  const result = await fetchSeasonalityAnalysis(symbol, { yearsLookback: lookback });
-  setCachedSingle(symbol, lookback, result);
-  res.json({ symbol, lookback, cached: false, result });
+  const result = await fetchSeasonalityAnalysis(symbol, {
+    yearsLookback: lookback,
+    presidentialPhases: phases,
+  });
+  setCachedSingle(symbol, lookback, result, cycleKey);
+  res.json({ symbol, lookback, cached: false, cycles: cycleKey, result });
 }
