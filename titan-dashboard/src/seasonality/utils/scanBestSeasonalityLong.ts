@@ -8,7 +8,7 @@ export type SeasonalityLongCandidate = {
   id: string;
   label: string;
   dataSymbol: string;
-  bias: SeasonalityResult["seasonalBias"];
+  bias: "BULLISH";
   strength: SeasonalStrength;
   score: number;
   winRate: number;
@@ -53,19 +53,19 @@ async function fetchOne(symbol: string): Promise<SeasonalityResult | null> {
 /** Parallel scan of seasonality presets; returns BULLISH longs ranked by score. */
 export async function scanBestSeasonalityLongs(): Promise<SeasonalityLongCandidate[]> {
   const settled = await Promise.all(
-    SEASONALITY_MARKETS.map(async (m) => {
+    SEASONALITY_MARKETS.map(async (m): Promise<SeasonalityLongCandidate | null> => {
       const result = await fetchOne(m.dataSymbol);
       if (!result || result.seasonalBias !== "BULLISH") return null;
       return {
         id: m.id,
         label: m.label,
         dataSymbol: m.dataSymbol,
-        bias: result.seasonalBias,
+        bias: "BULLISH",
         strength: result.seasonalStrength,
         score: rankScore(result),
         winRate: result.overallWinRate,
         avgReturnInWindow: result.averageReturnInWindow,
-      } satisfies SeasonalityLongCandidate;
+      };
     }),
   );
 

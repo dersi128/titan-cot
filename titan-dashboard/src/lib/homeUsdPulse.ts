@@ -1,4 +1,4 @@
-import type { CotDashboardData } from "../../types";
+import type { CotDashboardData } from "../types";
 
 export type UsdBiasLabel = "BULLISH" | "BEARISH" | "NEUTRAL";
 
