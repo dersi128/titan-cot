@@ -22,7 +22,9 @@ import {
   seasonaxYDomain,
 } from "../utils/seasonaxChartData";
 import { SeasonalityLookbackControl } from "./SeasonalityLookbackControl";
+import { SeasonalityPresidentialFilter } from "./SeasonalityPresidentialFilter";
 import { useTitanI18n } from "../../i18n";
+import type { PresidentialCyclePhase } from "../utils/presidentialCycle";
 
 type SeasonalityMainChartProps = {
   result: SeasonalityResult;
@@ -31,6 +33,9 @@ type SeasonalityMainChartProps = {
   lookback: YearsLookback;
   onLookbackChange: (lookback: YearsLookback) => void;
   currentMonth: number;
+  presidentialPhases: PresidentialCyclePhase[];
+  onPresidentialPhasesChange: (phases: PresidentialCyclePhase[]) => void;
+  filtersDisabled?: boolean;
 };
 
 const SEASONAX_CYAN = "#5BDBF0";
@@ -98,6 +103,9 @@ export function SeasonalityMainChart({
   lookback,
   onLookbackChange,
   currentMonth,
+  presidentialPhases,
+  onPresidentialPhasesChange,
+  filtersDisabled = false,
 }: SeasonalityMainChartProps) {
   const { t } = useTitanI18n();
 
@@ -145,6 +153,13 @@ export function SeasonalityMainChart({
 
   return (
     <div className="overflow-hidden rounded-lg border border-white/[0.06] bg-[#12151c]">
+      <SeasonalityPresidentialFilter
+        value={presidentialPhases}
+        onChange={onPresidentialPhasesChange}
+        disabled={filtersDisabled}
+        compact
+      />
+
       <div className="flex flex-col gap-3 border-b border-white/[0.05] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
         <SeasonalityLookbackControl value={lookback} onChange={onLookbackChange} />
       </div>

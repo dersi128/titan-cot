@@ -649,7 +649,7 @@ export const enMessages = {
     avgReturnByMonth: "Average Return by Month (%)",
     presidentialLabel: "U.S. Presidential Cycle",
     presidentialAll: "All",
-    presidentialHint: "Filters historical years by the 4-year U.S. presidential cycle (Seasonax-style).",
+    presidentialHint: "Click cycle phases — recalculates the seasonal average from those years only (Seasonax Filter).",
     presidential: {
       election: "Elections",
       post: "Post Elections",

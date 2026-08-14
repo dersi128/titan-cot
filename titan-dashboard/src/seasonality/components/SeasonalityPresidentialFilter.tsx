@@ -9,12 +9,15 @@ type SeasonalityPresidentialFilterProps = {
   value: PresidentialCyclePhase[];
   onChange: (phases: PresidentialCyclePhase[]) => void;
   disabled?: boolean;
+  /** Compact strip for inside the Seasonax chart card. */
+  compact?: boolean;
 };
 
 export function SeasonalityPresidentialFilter({
   value,
   onChange,
   disabled = false,
+  compact = false,
 }: SeasonalityPresidentialFilterProps) {
   const { t } = useTitanI18n();
   const allOn = isAllPresidentialPhases(value);
@@ -37,14 +40,22 @@ export function SeasonalityPresidentialFilter({
   const selectAll = () => onChange([...PRESIDENTIAL_CYCLE_PHASES]);
 
   return (
-    <div className="rounded-lg border border-white/[0.06] bg-[#0e1218] px-3 py-3">
+    <div
+      className={
+        compact
+          ? "border-b border-white/[0.06] bg-[#161a22] px-4 py-3"
+          : "rounded-lg border border-fuchsia-400/25 bg-fuchsia-500/[0.06] px-4 py-3"
+      }
+    >
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-        <p className="titan-cmd-kicker">{t("seasonality.presidentialLabel")}</p>
+        <p className="text-[12px] font-semibold tracking-wide text-fuchsia-200/95">
+          {t("seasonality.presidentialLabel")}
+        </p>
         <button
           type="button"
           disabled={disabled || allOn}
           onClick={selectAll}
-          className="text-[10px] uppercase tracking-wider text-stone-500 hover:text-stone-300 disabled:opacity-40"
+          className="rounded border border-white/10 px-2 py-0.5 text-[10px] uppercase tracking-wider text-stone-400 hover:border-white/25 hover:text-stone-200 disabled:opacity-40"
         >
           {t("seasonality.presidentialAll")}
         </button>
@@ -59,18 +70,20 @@ export function SeasonalityPresidentialFilter({
               disabled={disabled}
               aria-pressed={active}
               onClick={() => toggle(phase)}
-              className={`rounded-md border px-2.5 py-1.5 text-[11px] transition ${
+              className={`rounded-md border px-3 py-2 text-[12px] font-medium transition ${
                 active
-                  ? "border-fuchsia-400/50 bg-fuchsia-500/15 text-fuchsia-200"
-                  : "border-white/[0.08] bg-transparent text-stone-500 hover:border-white/20 hover:text-stone-300"
-              }`}
+                  ? "border-fuchsia-300/70 bg-fuchsia-500/25 text-fuchsia-100 shadow-[0_0_0_1px_rgba(240,171,252,0.25)]"
+                  : "border-white/10 bg-[#0b0f14] text-stone-400 hover:border-fuchsia-400/40 hover:text-stone-200"
+              } disabled:cursor-wait disabled:opacity-60`}
             >
               {t(`seasonality.presidential.${phase}`)}
             </button>
           );
         })}
       </div>
-      <p className="mt-2 text-[10px] text-stone-600">{t("seasonality.presidentialHint")}</p>
+      {!compact ? (
+        <p className="mt-2 text-[11px] text-stone-500">{t("seasonality.presidentialHint")}</p>
+      ) : null}
     </div>
   );
 }

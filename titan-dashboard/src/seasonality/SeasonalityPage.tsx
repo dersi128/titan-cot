@@ -96,9 +96,11 @@ export function SeasonalityPage() {
         <SeasonalityMarketSelector activeId={marketId} onSelect={setMarketId} disabled={loading} />
       </div>
 
-      <div className="mb-4">
-        <SeasonalityPresidentialFilter value={cycles} onChange={setCycles} disabled={loading} />
-      </div>
+      {!comparison ? (
+        <div className="mb-4">
+          <SeasonalityPresidentialFilter value={cycles} onChange={setCycles} disabled={false} />
+        </div>
+      ) : null}
 
       {error ? (
         <div className="mb-4 rounded-lg border border-rose-500/30 bg-rose-950/25 px-4 py-3 text-sm text-rose-200/90">
@@ -121,6 +123,9 @@ export function SeasonalityPage() {
             lookback={lookback}
             onLookbackChange={setLookback}
             currentMonth={currentMonth}
+            presidentialPhases={cycles}
+            onPresidentialPhasesChange={setCycles}
+            filtersDisabled={loading}
           />
           <SeasonalityStatsCards result={result} />
           {lookback === 10 ? <SeasonalityDeviationSection result={result} /> : null}
