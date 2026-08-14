@@ -32,7 +32,7 @@ app.get("/health", (_request, response) => {
     status: "ok",
     cotCacheTtlMs: Number(process.env.COT_CACHE_TTL_MS ?? 15 * 60 * 1000),
     seasonalityCacheTtlMs: Number(process.env.SEASONALITY_CACHE_TTL_MS ?? 6 * 60 * 60 * 1000),
-    seasonalityOhlcProvider: process.env.SEASONALITY_OHLC_PROVIDER ?? "mock",
+    seasonalityOhlcProvider: process.env.SEASONALITY_OHLC_PROVIDER ?? "yahoo",
     fredConfigured: isFredConfigured(),
     fredCacheTtlMs: Number(process.env.FRED_CACHE_TTL_MS ?? 6 * 60 * 60 * 1000),
   });

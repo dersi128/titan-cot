@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 
 import { SEASONALITY_MARKETS, getSeasonalityMarket } from "./seasonality/markets.js";
+import { getConfiguredOhlcProviderId } from "./seasonality/data/ohlcProviderConfig.js";
 import {
   fetchSeasonalityAnalysis,
   fetchSeasonalityComparison,
@@ -36,7 +37,7 @@ export async function handleSeasonalityMarkets(_req: Request, res: Response): Pr
   res.json({
     markets: SEASONALITY_MARKETS,
     lookbacks: YEARS_LOOKBACK_OPTIONS,
-    dataSource: process.env.SEASONALITY_OHLC_PROVIDER ?? "mock",
+    dataSource: getConfiguredOhlcProviderId(),
     cacheTtlMs: Number(process.env.SEASONALITY_CACHE_TTL_MS ?? 6 * 60 * 60 * 1000),
   });
 }

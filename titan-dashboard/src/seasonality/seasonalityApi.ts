@@ -3,10 +3,15 @@ import type { SeasonalityComparison } from "./services/seasonalityService";
 import type { SeasonalityResult } from "./types";
 import type { YearsLookback } from "./yearsLookback";
 
-/** Server API optional. Default: Yahoo OHLC in browser + local engine (free). */
+/**
+ * Default: server seasonality API (Yahoo OHLC on Render).
+ * Set VITE_USE_SEASONALITY_API=false to compute in-browser via /api/yahoo.
+ */
 export function shouldUseSeasonalityApi(): boolean {
   const flag = import.meta.env.VITE_USE_SEASONALITY_API?.trim().toLowerCase();
-  return flag === "true" || flag === "1";
+  if (flag === "false" || flag === "0") return false;
+  if (flag === "true" || flag === "1") return true;
+  return true;
 }
 
 export function getSeasonalityApiBase(): string {
