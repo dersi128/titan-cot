@@ -10,6 +10,11 @@ export default defineConfig({
         changeOrigin: true,
         secure: true,
       },
+      "/api/macro": {
+        target: "https://titan-cot.onrender.com",
+        changeOrigin: true,
+        secure: true,
+      },
       "/api/yahoo": {
         target: "https://query1.finance.yahoo.com",
         changeOrigin: true,

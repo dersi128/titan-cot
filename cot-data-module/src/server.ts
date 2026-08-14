@@ -10,6 +10,7 @@ import {
   handleSeasonalityMarkets,
   handleSeasonalitySingle,
 } from "./seasonalityRoutes.js";
+import { getMacroRates, isFredConfigured } from "./fredRates.js";
 
 const PORT = Number(process.env.PORT ?? 3000);
 
@@ -32,8 +33,14 @@ app.get("/health", (_request, response) => {
     cotCacheTtlMs: Number(process.env.COT_CACHE_TTL_MS ?? 15 * 60 * 1000),
     seasonalityCacheTtlMs: Number(process.env.SEASONALITY_CACHE_TTL_MS ?? 6 * 60 * 60 * 1000),
     seasonalityOhlcProvider: process.env.SEASONALITY_OHLC_PROVIDER ?? "mock",
+    fredConfigured: isFredConfigured(),
+    fredCacheTtlMs: Number(process.env.FRED_CACHE_TTL_MS ?? 6 * 60 * 60 * 1000),
   });
 });
+
+app.get("/api/macro/rates", asyncHandler(async (_request, response) => {
+  response.json(await getMacroRates());
+}));
 
 app.get("/api/seasonality/markets", asyncHandler(handleSeasonalityMarkets));
 

@@ -55,3 +55,10 @@ Future symbol routes can be added by wiring handlers into `cotHandlers` in `src/
 - Non-commercial bullish divergence adds points; bearish divergence subtracts points.
 - Increasing commercial weekly net change adds bullish points; decreasing weekly net change subtracts points.
 - Retail uses Non-Reportable positioning as confirmation only when it is opposite to the commercial bias; aligned retail positioning is treated as weak.
+
+## Macro rates (FRED)
+
+- `GET /api/macro/rates` — Fed funds (`DFF`) + US 2Y (`DGS2`)
+- Requires env `FRED_API_KEY` (free): https://fred.stlouisfed.org/docs/api/api_key.html
+- Cache default 6h (`FRED_CACHE_TTL_MS`)
+- Without the key the endpoint returns `status: "unconfigured"` (dashboard still works)

@@ -8,6 +8,14 @@
       "destination": "https://titan-cot.onrender.com/api/cot/:match*"
     },
     {
+      "source": "/api/seasonality/:match*",
+      "destination": "https://titan-cot.onrender.com/api/seasonality/:match*"
+    },
+    {
+      "source": "/api/macro/:match*",
+      "destination": "https://titan-cot.onrender.com/api/macro/:match*"
+    },
+    {
       "source": "/health",
       "destination": "https://titan-cot.onrender.com/health"
     }

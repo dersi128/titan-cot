@@ -17,6 +17,10 @@
       "destination": "https://titan-cot.onrender.com/api/seasonality/:match*"
     },
     {
+      "source": "/api/macro/:match*",
+      "destination": "https://titan-cot.onrender.com/api/macro/:match*"
+    },
+    {
       "source": "/api/yahoo/:match*",
       "destination": "https://query1.finance.yahoo.com/:match*"
     }

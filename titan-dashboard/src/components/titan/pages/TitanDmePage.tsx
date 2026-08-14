@@ -1,4 +1,4 @@
-import { useMemo, type CSSProperties } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import {
   Area,
   AreaChart,
@@ -12,9 +12,10 @@ import type { CotDashboardData } from "../../../types";
 import type { InstitutionalMarket } from "../../../config/institutionalMarkets";
 import { getInstitutionalMarketBySymbol } from "../../../config/institutionalMarkets";
 import { useTitanI18n } from "../../../i18n";
+import { loadMacroRates, type FredSeriesSnapshot, type MacroRatesResponse } from "../../../data/macroRates";
 import { buildDmeOverview } from "../../../lib/titanDmeOverview";
 import { formatHomeFlowDelta } from "../../../lib/titanHomeOverview";
-import { GlassCard } from "../ui/titanCmdShared";
+import { GlassCard, MiniCurve } from "../ui/titanCmdShared";
 import { TitanPageHeader } from "../ui/TitanPageHeader";
 
 type TitanDmePageProps = {
@@ -44,9 +45,92 @@ function fxTileStyle(usdFavoring: boolean, score: number): CSSProperties {
   };
 }
 
+function formatRate(value: number | null | undefined): string {
+  if (value === null || value === undefined || !Number.isFinite(value)) return "—";
+  return `${value.toFixed(2)}%`;
+}
+
+function formatRateChange(change: number | null | undefined): string {
+  if (change === null || change === undefined || !Number.isFinite(change)) return "—";
+  const sign = change > 0 ? "+" : "";
+  return `${sign}${change.toFixed(2)} pp`;
+}
+
+function RateCard({
+  title,
+  series,
+  emptyLabel,
+}: {
+  title: string;
+  series: FredSeriesSnapshot | null;
+  emptyLabel: string;
+}) {
+  const latest = series?.latest?.value ?? null;
+  const change = series?.change ?? null;
+  const spark = series?.spark?.length ? series.spark : [0, 0];
+  const tone = change === null ? "neutral" : change > 0 ? "bear" : change < 0 ? "bull" : "neutral";
+
+  return (
+    <GlassCard className="p-4">
+      <p className="titan-cmd-kicker">{title}</p>
+      <p className="mt-2 font-mono text-2xl font-semibold text-stone-100">{formatRate(latest)}</p>
+      <p
+        className={`mt-1 font-mono text-[12px] ${
+          change !== null && change > 0
+            ? "text-rose-400/90"
+            : change !== null && change < 0
+              ? "text-emerald-400/90"
+              : "text-stone-500"
+        }`}
+      >
+        {series ? formatRateChange(change) : emptyLabel}
+      </p>
+      {series?.latest?.date ? (
+        <p className="mt-1 text-[10px] text-stone-600">{series.latest.date}</p>
+      ) : null}
+      <div className="mt-3">
+        <MiniCurve points={spark} tone={tone} />
+      </div>
+    </GlassCard>
+  );
+}
+
 export function TitanDmePage({ bundle, onSelectMarket }: TitanDmePageProps) {
   const { t } = useTitanI18n();
   const dme = useMemo(() => buildDmeOverview(bundle), [bundle]);
+  const [rates, setRates] = useState<MacroRatesResponse | null>(null);
+  const [ratesError, setRatesError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const payload = await loadMacroRates();
+        if (!cancelled) {
+          setRates(payload);
+          setRatesError(null);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setRatesError(err instanceof Error ? err.message : "rates failed");
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const ratesStatusNote =
+    ratesError
+      ? t("pages.dme.ratesError")
+      : rates?.status === "unconfigured"
+        ? t("pages.dme.ratesUnconfigured")
+        : rates?.status === "error"
+          ? t("pages.dme.ratesError")
+          : rates?.status === "ok"
+            ? t("pages.dme.ratesSource")
+            : t("pages.dme.ratesLoading");
 
   const biasLabel =
     dme.dxyScore === null
@@ -132,6 +216,28 @@ export function TitanDmePage({ bundle, onSelectMarket }: TitanDmePageProps) {
           </div>
         </div>
       </GlassCard>
+
+      {/* Rates from FRED */}
+      <section>
+        <div className="mb-2 flex flex-wrap items-end justify-between gap-2 px-0.5">
+          <div>
+            <p className="titan-cmd-kicker">{t("pages.dme.ratesTitle")}</p>
+            <p className="titan-cmd-sub mt-1">{ratesStatusNote}</p>
+          </div>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <RateCard
+            title={t("pages.dme.fedFunds")}
+            series={rates?.status === "ok" || rates?.fedFunds ? rates.fedFunds : null}
+            emptyLabel={t("pages.dme.ratesEmpty")}
+          />
+          <RateCard
+            title={t("pages.dme.yield2y")}
+            series={rates?.status === "ok" || rates?.yield2y ? rates.yield2y : null}
+            emptyLabel={t("pages.dme.ratesEmpty")}
+          />
+        </div>
+      </section>
 
       {/* 2) USD vs world + pressure */}
       <div className="grid gap-3 lg:grid-cols-2">
