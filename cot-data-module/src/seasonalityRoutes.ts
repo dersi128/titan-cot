@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 
-import { SEASONALITY_MARKETS, getSeasonalityMarket } from "./seasonality/markets.js";
+import { SEASONALITY_MARKETS, resolveSeasonalitySymbol } from "./seasonality/markets.js";
 import { getConfiguredOhlcProviderId } from "./seasonality/data/ohlcProviderConfig.js";
 import {
   fetchSeasonalityAnalysis,
@@ -33,9 +33,7 @@ function parseLookback(raw: unknown): YearsLookback | null {
 function resolveSymbol(param: string | string[] | undefined): string | null {
   const raw = Array.isArray(param) ? param[0] : param;
   if (!raw) return null;
-  const upper = raw.toUpperCase();
-  const market = getSeasonalityMarket(upper) ?? SEASONALITY_MARKETS.find((m) => m.dataSymbol === upper);
-  return market?.dataSymbol ?? null;
+  return resolveSeasonalitySymbol(raw);
 }
 
 export async function handleSeasonalityMarkets(_req: Request, res: Response): Promise<void> {

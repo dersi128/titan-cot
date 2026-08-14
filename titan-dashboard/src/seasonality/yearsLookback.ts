@@ -10,7 +10,7 @@ export const DEFAULT_YEARS_LOOKBACK: YearsLookback = 10;
 /** Max years fetched from provider; lookback filters client-side. */
 export const MAX_OHLC_FETCH_YEARS = 20;
 
-export const YEARS_LOOKBACK_OPTIONS: readonly YearsLookback[] = [5, 10, 15, 20, "ALL"] as const;
+export const YEARS_LOOKBACK_OPTIONS: readonly YearsLookback[] = [5, 10, 15, 20] as const;
 
 /** Historical windows shown together on the seasonal chart (no ALL). */
 export const CHART_COMPARISON_LOOKBACKS: readonly ChartLookbackYears[] = [5, 10, 15, 20];

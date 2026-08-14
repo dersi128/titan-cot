@@ -6,9 +6,9 @@ export const DEFAULT_YEARS_LOOKBACK: YearsLookback = 10;
 
 export const MAX_OHLC_FETCH_YEARS = 20;
 
-export const YEARS_LOOKBACK_OPTIONS: readonly YearsLookback[] = [5, 10, 15, 20, "ALL"] as const;
+export const YEARS_LOOKBACK_OPTIONS: readonly YearsLookback[] = [5, 10, 15, 20] as const;
 
-export const CHART_COMPARISON_LOOKBACKS: readonly YearsLookback[] = YEARS_LOOKBACK_OPTIONS;
+export const CHART_COMPARISON_LOOKBACKS: readonly YearsLookback[] = [5, 10, 15, 20] as const;
 
 export function lookbackLabel(lookback: YearsLookback): string {
   return lookback === "ALL" ? "ALL" : `${lookback}Y`;

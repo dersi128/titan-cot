@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTitanI18n } from "../i18n";
-import { DEFAULT_SEASONALITY_MARKET_ID, getSeasonalityMarket } from "./markets";
+import { DEFAULT_SEASONALITY_MARKET_ID, resolveSeasonalityMarket } from "./markets";
 import {
   fetchSeasonalityComparisonFromApi,
   shouldUseSeasonalityApi,
@@ -34,7 +34,7 @@ export function SeasonalityPage() {
 
   const load = useCallback(
     async (id: string, phases: PresidentialCyclePhase[]) => {
-      const market = getSeasonalityMarket(id);
+      const market = resolveSeasonalityMarket(id);
       if (!market) return;
       setLoading(true);
       setError(null);
@@ -67,7 +67,7 @@ export function SeasonalityPage() {
     void load(marketId, cycles);
   }, [marketId, cycles, load]);
 
-  const market = getSeasonalityMarket(marketId);
+  const market = resolveSeasonalityMarket(marketId);
 
   const result = useMemo(() => {
     if (!comparison) return null;
