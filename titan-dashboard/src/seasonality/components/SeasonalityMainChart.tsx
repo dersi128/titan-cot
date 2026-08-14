@@ -1,11 +1,8 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
+  Area,
+  AreaChart,
   CartesianGrid,
-  Label,
-  Line,
-  LineChart,
-  ReferenceDot,
-  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -13,243 +10,152 @@ import {
 } from "recharts";
 import type { SeasonalityComparison } from "../services/seasonalityService";
 import type { SeasonalityResult } from "../types";
-import { lookbackColor, type ChartLookbackYears } from "../yearsLookback";
+import type { YearsLookback } from "../yearsLookback";
 import {
-  CHART_LOOKBACK_ORDER,
-  CURRENT_YEAR_CHART_KEY,
-  CURRENT_YEAR_LINE_COLOR,
-  lookbackChartKey,
-  MONTHS,
-} from "../utils/chartData";
-import { buildInstitutionalChartRows } from "../utils/institutionalChartData";
-import {
-  ROLLING_CHART_COLORS,
-  ROLLING_CHART_KEYS,
-  ROLLING_CHART_ORDER,
-} from "../utils/rollingChartData";
+  buildSeasonaxChartRows,
+  seasonaxChartTitle,
+  seasonaxYDomain,
+} from "../utils/seasonaxChartData";
+import { SeasonalityLookbackControl } from "./SeasonalityLookbackControl";
 import { useTitanI18n } from "../../i18n";
-import { SeasonalityChartLegend, type SeasonalityLegendFocus } from "./SeasonalityChartLegend";
-import { SeasonalityChartTooltip } from "./SeasonalityChartTooltip";
-import { SeasonalityChartZoneDefs, SeasonalityChartZones } from "./SeasonalityChartZones";
-import { SeasonalityYearMonthlyPanel } from "./SeasonalityYearMonthlyPanel";
 
 type SeasonalityMainChartProps = {
   result: SeasonalityResult;
   comparison: SeasonalityComparison;
-  currentMonth: number;
+  marketLabel: string;
+  lookback: YearsLookback;
+  onLookbackChange: (lookback: YearsLookback) => void;
 };
 
-const HISTORICAL_STROKE: Record<ChartLookbackYears, number> = { 5: 1.1, 10: 1.35, 15: 1.1, 20: 1.05 };
-const HISTORICAL_OPACITY: Record<ChartLookbackYears, number> = { 5: 0.3, 10: 0.48, 15: 0.3, 20: 0.26 };
-const PROJECTION_OPACITY = { 30: 0.42, 60: 0.52, 90: 0.58 } as const;
-const TITAN_GOLD = "#d4af37";
+const SEASONAX_CYAN = "#5BDBF0";
+const GRAD_ID = "seasonaxFill";
 
-function monthFromDoy(doy: number): number {
-  return new Date(2024, 0, doy).getMonth() + 1;
+function SeasonaxTooltip({
+  active,
+  payload,
+}: {
+  active?: boolean;
+  payload?: Array<{ payload?: { monthLabel?: string; index?: number; offset?: number } }>;
+}) {
+  if (!active || !payload?.length) return null;
+  const row = payload[0]?.payload;
+  if (!row || typeof row.index !== "number") return null;
+  return (
+    <div className="rounded-md border border-white/10 bg-[#12161c]/95 px-3 py-2 text-[12px] text-stone-200 shadow-lg backdrop-blur">
+      <p className="text-stone-400">{row.monthLabel}</p>
+      <p className="mt-0.5 font-mono text-[13px] text-[#5BDBF0]">
+        Index {row.index.toFixed(2)}
+      </p>
+    </div>
+  );
 }
 
-function lineOpacity(focus: SeasonalityLegendFocus, key: string, base: number): number {
-  if (focus === null) return base;
-  if (focus === CURRENT_YEAR_CHART_KEY) {
-    return key === CURRENT_YEAR_CHART_KEY ? 1 : base * 0.2;
-  }
-  return focus === key ? Math.min(1, base + 0.1) : key === CURRENT_YEAR_CHART_KEY ? 1 : base * 0.2;
-}
-
-export function SeasonalityMainChart({ result, comparison, currentMonth }: SeasonalityMainChartProps) {
+export function SeasonalityMainChart({
+  result,
+  comparison,
+  marketLabel,
+  lookback,
+  onLookbackChange,
+}: SeasonalityMainChartProps) {
   const { t } = useTitanI18n();
-  const [legendFocus, setLegendFocus] = useState<SeasonalityLegendFocus>(null);
 
-  const chartData = useMemo(
-    () => buildInstitutionalChartRows(result, comparison, currentMonth),
-    [result, comparison, currentMonth],
+  const activeResult = useMemo(() => {
+    return comparison[lookback] ?? result;
+  }, [comparison, lookback, result]);
+
+  const chartData = useMemo(() => buildSeasonaxChartRows(activeResult), [activeResult]);
+  const yDomain = useMemo(() => seasonaxYDomain(chartData), [chartData]);
+  const title = useMemo(
+    () => seasonaxChartTitle(marketLabel, lookback, activeResult.currentDate),
+    [marketLabel, lookback, activeResult.currentDate],
   );
 
-  const currentYear = new Date(result.currentDate).getFullYear();
-  const currentMonthKey = chartData.find((r) => r.isCurrent)?.month ?? chartData[0]?.month ?? MONTHS[0];
-
-  const windowBands = useMemo(() => {
-    // Bands on forward axis: only when both ends fall in the visible 12M window.
-    const labelByCal = new Map(chartData.map((r) => [r.monthIndex, r.month]));
-    const bands: { x1: string; x2: string; bias: "bullish" | "bearish" }[] = [];
-    const add = (w: (typeof result)["bullishWindows"][0], bias: "bullish" | "bearish") => {
-      const m1 = monthFromDoy(w.startDay);
-      const m2 = monthFromDoy(w.endDay);
-      const x1 = labelByCal.get(m1);
-      const x2 = labelByCal.get(m2);
-      if (!x1 || !x2) return;
-      bands.push({ x1, x2, bias });
-    };
-    result.bullishWindows.forEach((w) => add(w, "bullish"));
-    result.bearishWindows.forEach((w) => add(w, "bearish"));
-    return bands;
-  }, [result, chartData]);
-
-  const monthlyPanelRows = useMemo(
-    () =>
-      chartData.map((row) => ({
-        month: row.month,
-        pct: row.monthReturnPct ?? null,
-        vs10Y: typeof row.seasonalIndex === "number" ? row.seasonalIndex : null,
-        isCurrent: row.isCurrent,
-      })),
-    [chartData],
-  );
+  const endIndex = chartData.at(-1)?.index ?? null;
+  const changePct =
+    endIndex !== null ? (((endIndex / 100) - 1) * 100) : null;
 
   return (
-    <div className="titan-seasonality-chart rounded-lg border border-titan-gold/12 p-4">
-      <SeasonalityChartLegend
-        comparison={comparison}
-        focus={legendFocus}
-        onFocusChange={setLegendFocus}
-      />
-
-      <div className="mt-2">
-        <p className="titan-cmd-kicker">{t("seasonality.chartTitle")}</p>
-        <p className="mt-1 text-[10px] text-stone-600">{t("seasonality.chartSeasonalNote")}</p>
+    <div className="titan-seasonality-chart overflow-hidden rounded-lg border border-white/[0.06] bg-[#0e1218]">
+      <div className="flex flex-col gap-3 border-b border-white/[0.05] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <SeasonalityLookbackControl value={lookback} onChange={onLookbackChange} />
+        {changePct !== null ? (
+          <p
+            className={`font-mono text-[12px] ${
+              changePct >= 0 ? "text-emerald-400/90" : "text-rose-400/90"
+            }`}
+          >
+            {t("seasonality.seasonaxYearChange")}: {changePct >= 0 ? "+" : ""}
+            {changePct.toFixed(1)}%
+          </p>
+        ) : null}
       </div>
 
-      <div className="titan-seasonality-chart-layout mt-3">
-        <div className="titan-seasonality-chart-plot titan-seasonality-chart-plot--main h-[320px] min-w-0 flex-1 md:h-[380px]">
+      <div className="px-4 pt-4">
+        <p className="text-center text-[13px] font-medium tracking-wide text-stone-300 sm:text-[14px]">
+          {title}
+        </p>
+        <p className="mt-1 text-center text-[10px] text-stone-600">{t("seasonality.seasonaxNote")}</p>
+      </div>
+
+      <div className="relative h-[340px] w-full px-2 pb-2 sm:h-[400px]">
+        {chartData.length >= 2 ? (
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} margin={{ top: 24, right: 8, left: 0, bottom: 6 }}>
-              <SeasonalityChartZoneDefs />
-              <CartesianGrid stroke="rgba(255,255,255,0.05)" vertical={false} />
+            <AreaChart data={chartData} margin={{ top: 16, right: 18, left: 4, bottom: 8 }}>
+              <defs>
+                <linearGradient id={GRAD_ID} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={SEASONAX_CYAN} stopOpacity={0.28} />
+                  <stop offset="100%" stopColor={SEASONAX_CYAN} stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid stroke="rgba(148,163,184,0.12)" strokeDasharray="0" />
               <XAxis
-                dataKey="month"
-                tick={(props: { x?: number; y?: number; payload?: { value: string } }) => {
-                  const { x = 0, y = 0, payload } = props;
-                  const label = payload?.value ?? "";
-                  const isCurrent = label === currentMonthKey;
-                  return (
-                    <text
-                      x={x}
-                      y={y + 14}
-                      textAnchor="middle"
-                      fill={isCurrent ? TITAN_GOLD : "#78716c"}
-                      fontSize={isCurrent ? 11 : 10}
-                      fontWeight={isCurrent ? 700 : 500}
-                    >
-                      {label}
-                    </text>
-                  );
+                dataKey="offset"
+                type="number"
+                domain={["dataMin", "dataMax"]}
+                ticks={chartData.filter((r) => r.tick).map((r) => r.offset)}
+                tickFormatter={(offset) => {
+                  const row = chartData.find((r) => r.offset === offset);
+                  return row?.tick ?? "";
                 }}
-                axisLine={{ stroke: "rgba(255,255,255,0.1)" }}
+                tick={{ fill: "#94a3b8", fontSize: 11 }}
                 tickLine={false}
+                axisLine={{ stroke: "rgba(148,163,184,0.2)" }}
+                minTickGap={8}
               />
               <YAxis
-                domain={[0, 100]}
-                tick={{ fill: "#78716c", fontSize: 10 }}
-                axisLine={false}
+                domain={yDomain}
+                tick={{ fill: "#94a3b8", fontSize: 11 }}
                 tickLine={false}
-                width={36}
+                axisLine={false}
+                width={40}
+                tickFormatter={(v) => String(Math.round(Number(v)))}
                 label={{
-                  value: t("seasonality.chartYAxis"),
+                  value: t("seasonality.chartYAxisIndex"),
                   angle: -90,
                   position: "insideLeft",
-                  fill: "#57534e",
-                  fontSize: 9,
-                  offset: 10,
+                  fill: "#64748b",
+                  fontSize: 10,
+                  offset: 0,
                 }}
               />
-              <Tooltip content={<SeasonalityChartTooltip mode="monthly" />} cursor={{ stroke: "rgba(212,175,55,0.15)" }} />
-
-              <SeasonalityChartZones
-                bands={windowBands}
-                bullLabel={t("seasonality.chartLabelBull")}
-                bearLabel={t("seasonality.chartLabelBear")}
-              />
-
-              {CHART_LOOKBACK_ORDER.map((lb) => {
-                const key = lookbackChartKey(lb);
-                if (!comparison[lb]) return null;
-                return (
-                  <Line
-                    key={key}
-                    type="monotone"
-                    dataKey={key}
-                    stroke={lookbackColor(lb)}
-                    strokeWidth={HISTORICAL_STROKE[lb]}
-                    strokeOpacity={lineOpacity(legendFocus, key, HISTORICAL_OPACITY[lb])}
-                    dot={false}
-                    connectNulls
-                  />
-                );
-              })}
-
-              {ROLLING_CHART_ORDER.map((w) => {
-                const key = ROLLING_CHART_KEYS[w];
-                return (
-                  <Line
-                    key={key}
-                    type="monotone"
-                    dataKey={key}
-                    stroke={ROLLING_CHART_COLORS[w]}
-                    strokeWidth={w === 60 ? 1.65 : 1.25}
-                    strokeOpacity={lineOpacity(legendFocus, key, PROJECTION_OPACITY[w])}
-                    strokeDasharray={w === 90 ? "6 4" : undefined}
-                    dot={false}
-                    connectNulls
-                  />
-                );
-              })}
-
-              <Line
-                type="monotone"
-                dataKey={CURRENT_YEAR_CHART_KEY}
-                stroke={CURRENT_YEAR_LINE_COLOR}
-                strokeWidth={4}
-                className="titan-seasonality-line-current-year"
-                strokeOpacity={lineOpacity(legendFocus, CURRENT_YEAR_CHART_KEY, 1)}
+              <Tooltip content={<SeasonaxTooltip />} cursor={{ stroke: "rgba(91,219,240,0.25)" }} />
+              <Area
+                type="linear"
+                dataKey="index"
+                stroke={SEASONAX_CYAN}
+                strokeWidth={2}
+                fill={`url(#${GRAD_ID})`}
                 dot={false}
-                connectNulls={false}
-                activeDot={{ r: 5, fill: CURRENT_YEAR_LINE_COLOR, stroke: TITAN_GOLD, strokeWidth: 1.5 }}
+                isAnimationActive={false}
+                activeDot={{ r: 4, fill: SEASONAX_CYAN, stroke: "#0e1218", strokeWidth: 2 }}
               />
-
-              <ReferenceLine
-                x={currentMonthKey}
-                stroke={TITAN_GOLD}
-                strokeWidth={1.5}
-                strokeOpacity={0.85}
-                strokeDasharray="4 4"
-              >
-                <Label
-                  value={t("seasonality.todayMarker")}
-                  position="top"
-                  offset={10}
-                  fill={TITAN_GOLD}
-                  fontSize={8}
-                  fontWeight={700}
-                  style={{ letterSpacing: "0.14em" }}
-                />
-              </ReferenceLine>
-
-              {chartData
-                .filter((row) => row.isCurrent)
-                .map((row) => {
-                  const y = row[CURRENT_YEAR_CHART_KEY];
-                  if (typeof y !== "number") return null;
-                  return (
-                    <ReferenceDot
-                      key="live-anchor"
-                      x={row.month}
-                      y={y}
-                      r={5}
-                      fill={TITAN_GOLD}
-                      stroke="#0a0b0e"
-                      strokeWidth={2}
-                    />
-                  );
-                })}
-            </LineChart>
+            </AreaChart>
           </ResponsiveContainer>
-        </div>
-
-        <SeasonalityYearMonthlyPanel
-          year={currentYear}
-          rows={monthlyPanelRows}
-          ytdPct={result.currentYearPerformance}
-        />
+        ) : (
+          <div className="flex h-full items-center justify-center text-sm text-stone-500">
+            {t("seasonality.loading")}
+          </div>
+        )}
       </div>
     </div>
   );
