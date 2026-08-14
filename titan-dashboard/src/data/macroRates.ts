@@ -12,7 +12,9 @@ export type FredSeriesSnapshot = {
   latest: FredSeriesPoint | null;
   previous: FredSeriesPoint | null;
   change: number | null;
+  change1y: number | null;
   spark: number[];
+  history: FredSeriesPoint[];
 };
 
 export type MacroRatesResponse = {

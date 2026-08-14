@@ -15,7 +15,7 @@ import { useTitanI18n } from "../../../i18n";
 import { loadMacroRates, type FredSeriesSnapshot, type MacroRatesResponse } from "../../../data/macroRates";
 import { buildDmeOverview } from "../../../lib/titanDmeOverview";
 import { formatHomeFlowDelta } from "../../../lib/titanHomeOverview";
-import { GlassCard, MiniCurve } from "../ui/titanCmdShared";
+import { GlassCard } from "../ui/titanCmdShared";
 import { TitanPageHeader } from "../ui/TitanPageHeader";
 
 type TitanDmePageProps = {
@@ -60,15 +60,20 @@ function RateCard({
   title,
   series,
   emptyLabel,
+  change1yLabel,
 }: {
   title: string;
   series: FredSeriesSnapshot | null;
   emptyLabel: string;
+  change1yLabel: string;
 }) {
   const latest = series?.latest?.value ?? null;
   const change = series?.change ?? null;
-  const spark = series?.spark?.length ? series.spark : [0, 0];
-  const tone = change === null ? "neutral" : change > 0 ? "bear" : change < 0 ? "bull" : "neutral";
+  const change1y = series?.change1y ?? null;
+  const history = series?.history?.length
+    ? series.history
+    : series?.spark?.map((value, i) => ({ date: String(i), value })) ?? [];
+  const gradId = `rateFill-${series?.seriesId ?? "x"}`;
 
   return (
     <GlassCard className="p-4">
@@ -84,12 +89,64 @@ function RateCard({
         }`}
       >
         {series ? formatRateChange(change) : emptyLabel}
+        {series && change1y !== null ? (
+          <span className="ml-2 text-stone-500">
+            · {change1yLabel} {formatRateChange(change1y)}
+          </span>
+        ) : null}
       </p>
       {series?.latest?.date ? (
         <p className="mt-1 text-[10px] text-stone-600">{series.latest.date}</p>
       ) : null}
-      <div className="mt-3">
-        <MiniCurve points={spark} tone={tone} />
+      <div className="mt-3 h-[140px] w-full">
+        {history.length >= 2 ? (
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={history} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#d4af37" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="#d4af37" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid stroke="rgba(255,255,255,0.04)" vertical={false} />
+              <XAxis
+                dataKey="date"
+                tick={{ fill: "#78716c", fontSize: 9 }}
+                tickLine={false}
+                axisLine={false}
+                minTickGap={48}
+              />
+              <YAxis
+                domain={["auto", "auto"]}
+                tick={{ fill: "#78716c", fontSize: 9 }}
+                tickLine={false}
+                axisLine={false}
+                width={32}
+              />
+              <Tooltip
+                contentStyle={{
+                  background: "#121212",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  borderRadius: 8,
+                  fontSize: 12,
+                }}
+                formatter={(value) => [`${Number(value).toFixed(2)}%`, title]}
+              />
+              <Area
+                type="monotone"
+                dataKey="value"
+                stroke="#d4af37"
+                fill={`url(#${gradId})`}
+                strokeWidth={1.75}
+                dot={false}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="flex h-full items-center justify-center text-[11px] text-stone-600">
+            {emptyLabel}
+          </div>
+        )}
       </div>
     </GlassCard>
   );
@@ -230,11 +287,13 @@ export function TitanDmePage({ bundle, onSelectMarket }: TitanDmePageProps) {
             title={t("pages.dme.fedFunds")}
             series={rates?.status === "ok" || rates?.fedFunds ? rates.fedFunds : null}
             emptyLabel={t("pages.dme.ratesEmpty")}
+            change1yLabel={t("pages.dme.change1y")}
           />
           <RateCard
             title={t("pages.dme.yield2y")}
             series={rates?.status === "ok" || rates?.yield2y ? rates.yield2y : null}
             emptyLabel={t("pages.dme.ratesEmpty")}
+            change1yLabel={t("pages.dme.change1y")}
           />
         </div>
       </section>
