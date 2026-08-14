@@ -652,8 +652,8 @@ export const csMessages: Messages = {
     presidentialLabel: "Prezidentský cyklus USA",
     presidentialAll: "Vše",
     presidentialNone: "Nic",
-    presidentialPick: "Vyber aspoň jednu fázi cyklu — pak se spočítá sezónní graf.",
-    presidentialHint: "Default vypnuto. Zapni jen fáze, které chceš porovnat.",
+    presidentialPick: "Vypnuto = všechny roky v lookbacku (10Y / 15Y / 20Y). Zapni fáze jen když chceš filtrovat.",
+    presidentialHint: "Default vypnuto = celý lookback. Zapni fáze cyklu jen pro filtr.",
     presidential: {
       election: "Volby",
       post: "Po volbách",

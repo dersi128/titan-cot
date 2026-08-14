@@ -650,8 +650,8 @@ export const enMessages = {
     presidentialLabel: "U.S. Presidential Cycle",
     presidentialAll: "All",
     presidentialNone: "None",
-    presidentialPick: "Select at least one cycle phase — then the seasonal chart will compute.",
-    presidentialHint: "Off by default. Enable only the phases you want.",
+    presidentialPick: "Off = all years in the lookback (10Y / 15Y / 20Y). Enable phases only to filter.",
+    presidentialHint: "Off by default = full lookback. Enable cycle phases only when filtering.",
     presidential: {
       election: "Elections",
       post: "Post Elections",

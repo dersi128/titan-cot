@@ -22,7 +22,7 @@ export function presidentialPhaseForYear(year: number): PresidentialCyclePhase {
   return "pre";
 }
 
-/** Empty selection = none (user must opt in). */
+/** True when user enabled at least one cycle phase (active filter). */
 export function hasPresidentialSelection(
   phases: readonly PresidentialCyclePhase[] | null | undefined,
 ): boolean {
@@ -47,25 +47,20 @@ export function normalizePresidentialPhases(
 export function presidentialPhasesCacheKey(
   phases: readonly PresidentialCyclePhase[] | null | undefined,
 ): string {
-  // null/undefined = API omit → no filter (all years)
-  if (phases === null || phases === undefined) return "all";
-  if (!hasPresidentialSelection(phases)) return "none";
-  if (isAllPresidentialPhases(phases)) return "all";
+  // empty / null / undefined / all four → no presidential filter
+  if (!hasPresidentialSelection(phases) || isAllPresidentialPhases(phases)) return "all";
   return normalizePresidentialPhases(phases).join("+");
 }
 
 /**
  * Filter OHLC by selected presidential phases.
- * Empty selection → no bars (caller should not compute).
- * `null` (API omit) → no filter / all years.
+ * Empty / null / all four → no filter (full lookback years).
  */
 export function filterBarsByPresidentialPhases(
   bars: OhlcBar[],
   phases: readonly PresidentialCyclePhase[] | null | undefined,
 ): OhlcBar[] {
-  if (phases === null || phases === undefined) return bars;
-  if (phases.length === 0) return [];
-  if (isAllPresidentialPhases(phases)) return bars;
+  if (!hasPresidentialSelection(phases) || isAllPresidentialPhases(phases)) return bars;
   const allowed = new Set(normalizePresidentialPhases(phases));
   return bars.filter((bar) => {
     const year = Number(bar.date.slice(0, 4));
@@ -80,9 +75,7 @@ export function parsePresidentialPhasesQuery(raw: unknown): PresidentialCyclePha
     .split(",")
     .map((p) => p.trim().toLowerCase())
     .filter(Boolean);
-  if (!parts.length) return null;
-  if (parts.includes("none")) return [];
-  if (parts.includes("all")) return [...PRESIDENTIAL_CYCLE_PHASES];
+  if (!parts.length || parts.includes("none") || parts.includes("all")) return null;
   const valid = new Set<string>(PRESIDENTIAL_CYCLE_PHASES);
   const out: PresidentialCyclePhase[] = [];
   for (const p of parts) {
@@ -90,5 +83,5 @@ export function parsePresidentialPhasesQuery(raw: unknown): PresidentialCyclePha
       out.push(p as PresidentialCyclePhase);
     }
   }
-  return out;
+  return out.length ? out : null;
 }

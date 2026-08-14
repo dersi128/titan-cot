@@ -25,34 +25,30 @@ export function SeasonalityPage() {
   const { t } = useTitanI18n();
   const [marketId, setMarketId] = useState(DEFAULT_SEASONALITY_MARKET_ID);
   const [lookback, setLookback] = useState<YearsLookback>(DEFAULT_YEARS_LOOKBACK);
-  /** Default: none selected — user opts into presidential phases. */
+  /** Default: cycles off → full lookback years (10/15/20). */
   const [cycles, setCycles] = useState<PresidentialCyclePhase[]>([]);
   const [comparison, setComparison] = useState<SeasonalityComparison | null>(null);
   const [dataSource, setDataSource] = useState("yahoo");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(
     async (id: string, phases: PresidentialCyclePhase[]) => {
       const market = getSeasonalityMarket(id);
       if (!market) return;
-      if (!hasPresidentialSelection(phases)) {
-        setComparison(null);
-        setError(null);
-        setLoading(false);
-        return;
-      }
       setLoading(true);
       setError(null);
+      // Empty selection = no presidential filter → full lookback years.
+      const phaseFilter = hasPresidentialSelection(phases) ? phases : null;
       try {
         if (shouldUseSeasonalityApi()) {
-          const curves = await fetchSeasonalityComparisonFromApi(market.dataSymbol, phases);
+          const curves = await fetchSeasonalityComparisonFromApi(market.dataSymbol, phaseFilter);
           setComparison(curves);
           setDataSource("api");
         } else {
           const { comparison: curves, ohlcSource } = await fetchSeasonalityComparisonWithSource(
             market.dataSymbol,
-            { presidentialPhases: phases },
+            { presidentialPhases: phaseFilter },
           );
           setComparison(curves);
           setDataSource(ohlcSource);

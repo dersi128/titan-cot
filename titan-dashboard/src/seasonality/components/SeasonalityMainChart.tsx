@@ -25,7 +25,6 @@ import { SeasonalityLookbackControl } from "./SeasonalityLookbackControl";
 import { SeasonalityPresidentialFilter } from "./SeasonalityPresidentialFilter";
 import { useTitanI18n } from "../../i18n";
 import type { PresidentialCyclePhase } from "../utils/presidentialCycle";
-import { hasPresidentialSelection } from "../utils/presidentialCycle";
 
 type SeasonalityMainChartProps = {
   result: SeasonalityResult | null;
@@ -112,7 +111,6 @@ export function SeasonalityMainChart({
   loading = false,
 }: SeasonalityMainChartProps) {
   const { t } = useTitanI18n();
-  const hasCycles = hasPresidentialSelection(presidentialPhases);
 
   const activeResult = useMemo(() => {
     if (!comparison || !result) return null;
@@ -180,7 +178,7 @@ export function SeasonalityMainChart({
         <SeasonalityLookbackControl
           value={lookback}
           onChange={onLookbackChange}
-          disabled={!hasCycles || filtersDisabled}
+          disabled={filtersDisabled}
         />
       </div>
 
@@ -192,14 +190,7 @@ export function SeasonalityMainChart({
       </div>
 
       <div className="relative h-[340px] w-full px-2 pb-1 sm:h-[400px]">
-        {!hasCycles ? (
-          <div className="flex h-full flex-col items-center justify-center gap-2 px-6 text-center">
-            <p className="font-display text-[11px] uppercase tracking-[0.28em] text-titan-gold/80">
-              {t("seasonality.presidentialLabel")}
-            </p>
-            <p className="max-w-md text-sm text-stone-400">{t("seasonality.presidentialPick")}</p>
-          </div>
-        ) : loading && curveData.length < 2 ? (
+        {loading && curveData.length < 2 ? (
           <div className="flex h-full items-center justify-center text-sm text-stone-500">
             {t("seasonality.loading")}
           </div>
@@ -270,7 +261,7 @@ export function SeasonalityMainChart({
         )}
       </div>
 
-      {hasCycles && activeResult ? (
+      {activeResult ? (
         <div className="grid gap-3 border-t border-titan-gold/10 p-4 lg:grid-cols-2">
           <div className="rounded-xl border border-white/[0.06] bg-black/20 p-3">
             <p className="titan-cmd-kicker mb-2">{t("seasonality.avgReturnByWeekday")}</p>

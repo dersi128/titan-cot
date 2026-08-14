@@ -42,10 +42,8 @@ type SingleResponse = {
 };
 
 function cyclesQuery(phases?: PresidentialCyclePhase[] | null): string {
-  if (phases === null || phases === undefined) return "";
-  if (!hasPresidentialSelection(phases)) return "?cycles=none";
-  if (isAllPresidentialPhases(phases)) return "?cycles=all";
-  return `?cycles=${encodeURIComponent(phases.join(","))}`;
+  if (!hasPresidentialSelection(phases) || isAllPresidentialPhases(phases)) return "";
+  return `?cycles=${encodeURIComponent(phases!.join(","))}`;
 }
 
 export async function fetchSeasonalityComparisonFromApi(

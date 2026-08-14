@@ -41,9 +41,7 @@ export function normalizePresidentialPhases(
 export function presidentialPhasesCacheKey(
   phases: readonly PresidentialCyclePhase[] | null | undefined,
 ): string {
-  if (phases === null || phases === undefined) return "all";
-  if (!hasPresidentialSelection(phases)) return "none";
-  if (isAllPresidentialPhases(phases)) return "all";
+  if (!hasPresidentialSelection(phases) || isAllPresidentialPhases(phases)) return "all";
   return normalizePresidentialPhases(phases).join("+");
 }
 
@@ -51,9 +49,7 @@ export function filterBarsByPresidentialPhases(
   bars: OhlcBar[],
   phases: readonly PresidentialCyclePhase[] | null | undefined,
 ): OhlcBar[] {
-  if (phases === null || phases === undefined) return bars;
-  if (phases.length === 0) return [];
-  if (isAllPresidentialPhases(phases)) return bars;
+  if (!hasPresidentialSelection(phases) || isAllPresidentialPhases(phases)) return bars;
   const allowed = new Set(normalizePresidentialPhases(phases));
   return bars.filter((bar) => {
     const year = Number(bar.date.slice(0, 4));
@@ -68,9 +64,7 @@ export function parsePresidentialPhasesQuery(raw: unknown): PresidentialCyclePha
     .split(",")
     .map((p) => p.trim().toLowerCase())
     .filter(Boolean);
-  if (!parts.length) return null;
-  if (parts.includes("none")) return [];
-  if (parts.includes("all")) return [...PRESIDENTIAL_CYCLE_PHASES];
+  if (!parts.length || parts.includes("none") || parts.includes("all")) return null;
   const valid = new Set<string>(PRESIDENTIAL_CYCLE_PHASES);
   const out: PresidentialCyclePhase[] = [];
   for (const p of parts) {
@@ -78,5 +72,5 @@ export function parsePresidentialPhasesQuery(raw: unknown): PresidentialCyclePha
       out.push(p as PresidentialCyclePhase);
     }
   }
-  return out;
+  return out.length ? out : null;
 }
