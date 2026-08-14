@@ -109,6 +109,7 @@ export function SeasonalityPage() {
             marketLabel={market?.label ?? marketId}
             lookback={lookback}
             onLookbackChange={setLookback}
+            currentMonth={currentMonth}
           />
           <SeasonalityStatsCards result={result} />
           {lookback === 10 ? <SeasonalityDeviationSection result={result} /> : null}

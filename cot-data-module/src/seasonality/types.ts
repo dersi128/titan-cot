@@ -57,6 +57,14 @@ export type MonthlyStat = {
   bias: SeasonalBias;
 };
 
+export type WeekdayStat = {
+  weekday: number;
+  weekdayLabel: string;
+  avgReturn: number;
+  winRate: number;
+  bias: SeasonalBias;
+};
+
 import type { YearsLookback } from "./yearsLookback.js";
 
 export type SeasonalityAlignment = "ALIGNED" | "DIVERGING" | "STRONGLY_DIVERGING";
@@ -80,6 +88,7 @@ export type SeasonalityResult = {
   currentSeasonalWindow: SeasonalWindow | null;
   seasonalCurve: SeasonalCurvePoint[];
   monthlyStats: MonthlyStat[];
+  weekdayStats?: WeekdayStat[];
   winRateByMonth: Record<number, number>;
   averageReturnByMonth: Record<number, number>;
   currentCurveLevel: number;

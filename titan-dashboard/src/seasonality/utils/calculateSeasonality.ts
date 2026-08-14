@@ -1,82 +1,17 @@
 import type {
   MonthlyStat,
   OhlcBar,
-  SeasonalBias,
   SeasonalCurvePoint,
   SeasonalityResult,
   SeasonalWindow,
 } from "../types";
 import { DEFAULT_YEARS_LOOKBACK, type YearsLookback } from "../yearsLookback";
 import { computeRollingSeasonality } from "./rollingSeasonalityEngine";
-import { parseIso } from "./tradingDays";
-
-const MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-type DailyReturnRow = {
-  date: string;
-  year: number;
-  month: number;
-  dayOfYear: number;
-  ret: number;
-};
-
-function dayOfYear(date: Date): number {
-  const start = new Date(date.getFullYear(), 0, 0);
-  return Math.floor((date.getTime() - start.getTime()) / 86400000);
-}
-
-function computeDailyReturns(bars: OhlcBar[]): DailyReturnRow[] {
-  const sorted = [...bars].sort((a, b) => a.date.localeCompare(b.date));
-  const rows: DailyReturnRow[] = [];
-  for (let i = 1; i < sorted.length; i++) {
-    const prev = sorted[i - 1];
-    const cur = sorted[i];
-    if (prev.close <= 0 || cur.close <= 0) continue;
-    const d = parseIso(cur.date);
-    rows.push({
-      date: cur.date,
-      year: d.getFullYear(),
-      month: d.getMonth() + 1,
-      dayOfYear: dayOfYear(d),
-      ret: cur.close / prev.close - 1,
-    });
-  }
-  return rows;
-}
+import { buildCalendarMonthlyStats, buildWeekdayStats } from "./periodStats";
 
 function mean(values: number[]): number {
   if (values.length === 0) return 0;
   return values.reduce((a, b) => a + b, 0) / values.length;
-}
-
-function buildMonthlyStats(rows: DailyReturnRow[]): {
-  monthlyStats: MonthlyStat[];
-  winRateByMonth: Record<number, number>;
-  averageReturnByMonth: Record<number, number>;
-} {
-  const byMonth = new Map<number, number[]>();
-  for (const r of rows) {
-    const list = byMonth.get(r.month) ?? [];
-    list.push(r.ret);
-    byMonth.set(r.month, list);
-  }
-
-  const monthlyStats: MonthlyStat[] = [];
-  const winRateByMonth: Record<number, number> = {};
-  const averageReturnByMonth: Record<number, number> = {};
-
-  for (let m = 1; m <= 12; m++) {
-    const rets = byMonth.get(m) ?? [];
-    const avg = rets.length ? mean(rets) : 0;
-    const wins = rets.filter((x) => x > 0).length;
-    const winRate = rets.length ? (wins / rets.length) * 100 : 0;
-    const bias: SeasonalBias = avg > 0.0003 ? "BULLISH" : avg < -0.0003 ? "BEARISH" : "NEUTRAL";
-    winRateByMonth[m] = winRate;
-    averageReturnByMonth[m] = avg;
-    monthlyStats.push({ month: m, monthLabel: MONTH_LABELS[m - 1], avgReturn: avg, winRate, bias });
-  }
-
-  return { monthlyStats, winRateByMonth, averageReturnByMonth };
 }
 
 function findCurrentWindow(windows: SeasonalWindow[], bearish: SeasonalWindow[], tdy: number): SeasonalWindow | null {
@@ -121,15 +56,14 @@ export type CalculateSeasonalityOptions = {
 };
 
 /**
- * Rolling trading-day seasonality (v2) with legacy monthly stats for tables.
+ * Seasonality engine: Seasonax-style period bars + rolling metadata.
  */
 export function calculateSeasonality(options: CalculateSeasonalityOptions): SeasonalityResult {
   const { symbol, bars } = options;
   const asOf = options.asOfDate ?? bars[bars.length - 1]?.date ?? new Date().toISOString().slice(0, 10);
   const rolling = computeRollingSeasonality(bars, asOf);
-  const returns = computeDailyReturns(bars);
-  const years = new Set(returns.map((r) => r.year));
-  const { monthlyStats, winRateByMonth, averageReturnByMonth } = buildMonthlyStats(returns);
+  const { monthlyStats, winRateByMonth, averageReturnByMonth } = buildCalendarMonthlyStats(bars);
+  const weekdayStats = buildWeekdayStats(bars);
 
   const primaryCurve = rolling.fullYearCurve;
   const forwardCurve = rolling.momentumAdjustedCurve;
@@ -140,11 +74,17 @@ export function calculateSeasonality(options: CalculateSeasonalityOptions): Seas
     rolling.tradingDayOfYear,
   );
 
-  const windowReturns = returns.filter((r) => r.date >= asOf.slice(0, 4));
+  const sorted = [...bars].sort((a, b) => a.date.localeCompare(b.date));
+  const dailyRets: number[] = [];
+  for (let i = 1; i < sorted.length; i++) {
+    if (sorted[i - 1].close > 0 && sorted[i].close > 0) {
+      dailyRets.push(sorted[i].close / sorted[i - 1].close - 1);
+    }
+  }
 
   return {
     symbol,
-    yearsUsed: years.size,
+    yearsUsed: new Set(sorted.map((b) => b.date.slice(0, 4))).size,
     selectedLookback: options.yearsLookback ?? DEFAULT_YEARS_LOOKBACK,
     currentDate: asOf,
     seasonalBias: rolling.seasonalBias,
@@ -154,11 +94,12 @@ export function calculateSeasonality(options: CalculateSeasonalityOptions): Seas
     currentSeasonalWindow,
     seasonalCurve: primaryCurve,
     monthlyStats,
+    weekdayStats,
     winRateByMonth,
     averageReturnByMonth,
     currentCurveLevel: currentPoint.smoothed ?? 50,
-    averageReturnInWindow: windowReturns.length ? mean(windowReturns.map((r) => r.ret)) : 0,
-    overallWinRate: returns.length ? (returns.filter((r) => r.ret > 0).length / returns.length) * 100 : 0,
+    averageReturnInWindow: dailyRets.length ? mean(dailyRets) : 0,
+    overallWinRate: dailyRets.length ? (dailyRets.filter((r) => r > 0).length / dailyRets.length) * 100 : 0,
     currentYearCurve: [],
     seasonalityAlignment: "ALIGNED",
     currentYearPerformance: 0,
@@ -174,3 +115,5 @@ export function calculateSeasonality(options: CalculateSeasonalityOptions): Seas
     primaryRollingWindow: 60,
   };
 }
+
+export type { MonthlyStat };
