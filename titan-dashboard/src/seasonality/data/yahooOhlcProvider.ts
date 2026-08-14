@@ -22,7 +22,9 @@ type YahooChartResponse = {
 /** Vercel/vite proxy path → Yahoo (see vercel.json + vite.config). */
 function yahooChartUrl(ticker: string, years: number): string {
   const encoded = encodeURIComponent(ticker);
-  const range = years >= 20 ? "max" : `${Math.min(20, Math.max(5, years))}y`;
+  // Avoid range=max — Yahoo downsamples to monthly and breaks seasonality.
+  const capped = Math.min(20, Math.max(5, Math.round(years)));
+  const range = `${capped}y`;
   return `/api/yahoo/v8/finance/chart/${encoded}?interval=1d&range=${range}`;
 }
 

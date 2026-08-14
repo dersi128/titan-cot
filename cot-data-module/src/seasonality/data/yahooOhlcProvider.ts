@@ -24,7 +24,9 @@ const YAHOO_UA =
 
 function yahooChartUrl(ticker: string, years: number): string {
   const encoded = encodeURIComponent(ticker);
-  const range = years >= 20 ? "max" : `${Math.min(20, Math.max(5, years))}y`;
+  // Avoid range=max — Yahoo downsamples to monthly and breaks seasonality.
+  const capped = Math.min(20, Math.max(5, Math.round(years)));
+  const range = `${capped}y`;
   return `https://query1.finance.yahoo.com/v8/finance/chart/${encoded}?interval=1d&range=${range}`;
 }
 
