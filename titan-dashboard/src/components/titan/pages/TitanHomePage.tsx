@@ -3,8 +3,11 @@ import type { CotDashboardData } from "../../../types";
 import type { InstitutionalMarket } from "../../../config/institutionalMarkets";
 import { INSTITUTIONAL_MARKETS } from "../../../config/institutionalMarkets";
 import type { AppSection } from "../../../lib/titanAppRoute";
-import { buildHomeOverviewStats } from "../../../lib/titanHomeOverview";
-import { HOME_OVERVIEW_MOCK, HOME_REGIME_SHIFTS_MOCK } from "../../../lib/titanHomeMock";
+import {
+  buildHomeOverviewStats,
+  formatHomeFlowDelta,
+} from "../../../lib/titanHomeOverview";
+import { FLOW_MAP_CLASSES } from "../../../lib/titanHomeMock";
 import { convictionRankScore, CONVICTION_MAX } from "../../../lib/titanConviction";
 import { useTitanI18n } from "../../../i18n";
 import type { ScannerRowModel } from "../GlobalCotScanner";
@@ -16,7 +19,6 @@ import {
   regimePillClass,
   WatchlistPanel,
 } from "../ui/titanCmdShared";
-import { FLOW_MAP_CLASSES } from "../../../lib/titanHomeMock";
 
 type TitanHomePageProps = {
   rows: ScannerRowModel[];
@@ -83,9 +85,45 @@ export function TitanHomePage({ rows, bundle, onSelectMarket, onNavigate }: Tita
 
   const dominantRegimeCard = useMemo(() => {
     const top = [...stats.regimeCards].sort((a, b) => b.count - a.count).find((c) => c.count > 0);
-    if (!top) return HOME_OVERVIEW_MOCK.regime.value;
+    if (!top) return "—";
     return `${t(`positioning.regime.${top.regime}`)} · ${top.pct}%`;
   }, [stats.regimeCards, t]);
+
+  const dmeValue = stats.dme.available && stats.dme.regime
+    ? t(`positioning.regime.${stats.dme.regime}`)
+    : t("home.dmeUnavailable");
+
+  const dmeSub =
+    stats.dme.available && stats.dme.score !== null && stats.dme.commercial26w !== null
+      ? t("home.dmeSub", {
+          score: String(stats.dme.score),
+          index: String(stats.dme.commercial26w),
+        })
+      : t("home.dmeSubFallback");
+
+  const flowValue = formatHomeFlowDelta(stats.flow.avgCommercialWeeklyChange);
+  const flowSub =
+    stats.flow.avgCommercialWeeklyChange === null
+      ? t("home.flowSubEmpty")
+      : stats.flow.avgCommercialWeeklyChange > 0
+        ? t("home.flowSubBull", {
+            bull: String(stats.flow.bullishMarkets),
+            bear: String(stats.flow.bearishMarkets),
+          })
+        : stats.flow.avgCommercialWeeklyChange < 0
+          ? t("home.flowSubBear", {
+              bull: String(stats.flow.bullishMarkets),
+              bear: String(stats.flow.bearishMarkets),
+            })
+          : t("home.flowSubFlat", {
+              bull: String(stats.flow.bullishMarkets),
+              bear: String(stats.flow.bearishMarkets),
+            });
+
+  const breadthValue =
+    stats.breadth.liveCount > 0
+      ? `${stats.breadth.bullish} / ${stats.breadth.liveCount}`
+      : "—";
 
   return (
     <div className="titan-cmd space-y-4 md:space-y-5">
@@ -93,8 +131,8 @@ export function TitanHomePage({ rows, bundle, onSelectMarket, onNavigate }: Tita
         <div className="grid grid-cols-2 gap-2 lg:grid-cols-4 lg:gap-3">
           <GlassCard glow="gold">
             <p className="titan-cmd-kicker">{t("home.cmdDmeTitle")}</p>
-            <p className="titan-cmd-value mt-2">{HOME_OVERVIEW_MOCK.dme.value}</p>
-            <p className="titan-cmd-sub mt-1">{HOME_OVERVIEW_MOCK.dme.sub}</p>
+            <p className="titan-cmd-value mt-2">{dmeValue}</p>
+            <p className="titan-cmd-sub mt-1">{dmeSub}</p>
           </GlassCard>
           <GlassCard>
             <p className="titan-cmd-kicker">{t("home.cmdRegimeTitle")}</p>
@@ -103,14 +141,14 @@ export function TitanHomePage({ rows, bundle, onSelectMarket, onNavigate }: Tita
           </GlassCard>
           <GlassCard>
             <p className="titan-cmd-kicker">{t("home.cmdFlowTitle")}</p>
-            <p className="titan-cmd-value mt-2 font-mono">{HOME_OVERVIEW_MOCK.flow.value}</p>
-            <p className="titan-cmd-sub mt-1">{HOME_OVERVIEW_MOCK.flow.sub}</p>
+            <p className="titan-cmd-value mt-2 font-mono">{flowValue}</p>
+            <p className="titan-cmd-sub mt-1">{flowSub}</p>
           </GlassCard>
           <GlassCard>
             <p className="titan-cmd-kicker">{t("home.cmdBreadthTitle")}</p>
-            <p className="titan-cmd-value mt-2 font-mono">{HOME_OVERVIEW_MOCK.breadth.value}</p>
+            <p className="titan-cmd-value mt-2 font-mono">{breadthValue}</p>
             <p className="titan-cmd-sub mt-1">
-              {stats.commercialDominancePct}% {t("home.dominanceCaption")}
+              {t("home.breadthSub", { pct: String(stats.breadth.longSkewPct) })}
             </p>
           </GlassCard>
         </div>
@@ -178,26 +216,38 @@ export function TitanHomePage({ rows, bundle, onSelectMarket, onNavigate }: Tita
         <GlassCard className="p-3">
           <h3 className="titan-cmd-kicker">{t("home.cmdRegimeShifts")}</h3>
           <ul className="mt-2.5 space-y-2">
-            {HOME_REGIME_SHIFTS_MOCK.map((s) => (
-              <li key={s.market} className="rounded border border-white/[0.05] bg-black/25 px-2 py-1.5">
-                <p className="font-display text-[11px] font-semibold tracking-wide text-stone-200">{s.market}</p>
-                <p className="mt-0.5 text-[10px] text-stone-500">
-                  <span className="text-stone-600">{s.from}</span>
-                  <span className="mx-1 text-titan-gold/60">→</span>
-                  <span
-                    className={
-                      s.tone === "bull"
-                        ? "text-emerald-400/90"
-                        : s.tone === "bear"
-                          ? "text-rose-400/90"
-                          : "text-amber-300/90"
-                    }
+            {stats.regimeShifts.length === 0 ? (
+              <li className="py-3 text-[11px] text-stone-600">{t("home.noRegimeShifts")}</li>
+            ) : (
+              stats.regimeShifts.map((s) => (
+                <li key={s.market.id}>
+                  <button
+                    type="button"
+                    onClick={() => onSelectMarket(s.market)}
+                    className="w-full rounded border border-white/[0.05] bg-black/25 px-2 py-1.5 text-left transition hover:border-white/10"
                   >
-                    {s.to}
-                  </span>
-                </p>
-              </li>
-            ))}
+                    <p className="font-display text-[11px] font-semibold tracking-wide text-stone-200">
+                      {s.market.shortLabel}
+                    </p>
+                    <p className="mt-0.5 text-[10px] text-stone-500">
+                      <span className="text-stone-600">{t(`positioning.zones.${s.from}`)}</span>
+                      <span className="mx-1 text-titan-gold/60">→</span>
+                      <span
+                        className={
+                          s.tone === "bull"
+                            ? "text-emerald-400/90"
+                            : s.tone === "bear"
+                              ? "text-rose-400/90"
+                              : "text-amber-300/90"
+                        }
+                      >
+                        {t(`positioning.zones.${s.to}`)}
+                      </span>
+                    </p>
+                  </button>
+                </li>
+              ))
+            )}
           </ul>
         </GlassCard>
       </section>
