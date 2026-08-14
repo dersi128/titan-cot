@@ -778,6 +778,7 @@ export const enMessages = {
       currentYear: "Current year",
       watchTitle: "Watch list",
       watchSub: "Live desk checklist · real data",
+      thisMonth: "This month",
       watch: {
         monthFlow: "Monthly flow · {{month}}",
         aligned: "Tracking seasonal map",

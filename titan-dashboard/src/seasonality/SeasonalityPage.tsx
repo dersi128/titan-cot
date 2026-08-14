@@ -17,7 +17,6 @@ import {
 import { SeasonalityDashboard } from "./components/SeasonalityDashboard";
 import { SeasonalityMainChart } from "./components/SeasonalityMainChart";
 import { SeasonalityMarketSelector } from "./components/SeasonalityMarketSelector";
-import { SeasonalityMonthlyTable } from "./components/SeasonalityMonthlyTable";
 
 export function SeasonalityPage() {
   const { t } = useTitanI18n();
@@ -90,17 +89,19 @@ export function SeasonalityPage() {
         </div>
       ) : null}
 
+      <div className="mb-4">
+        <p className="titan-cmd-kicker mb-2">{t("seasonality.selectMarket")}</p>
+        <SeasonalityMarketSelector activeId={marketId} onSelect={setMarketId} disabled={loading} />
+      </div>
+
       <div className={`space-y-4${loading ? " opacity-90" : ""}`}>
         {result && comparison ? (
           <>
             <SeasonalityDashboard
               result={result}
               comparison={comparison}
-              marketId={marketId}
-              marketLabel={market?.label ?? marketId}
-              onMarketChange={setMarketId}
+              currentMonth={currentMonth}
             />
-
             <SeasonalityMainChart
               result={result}
               comparison={comparison}
@@ -113,19 +114,6 @@ export function SeasonalityPage() {
               filtersDisabled={loading}
               loading={loading}
             />
-
-            <div>
-              <p className="titan-cmd-kicker mb-2 px-0.5">{t("seasonality.selectMarket")}</p>
-              <SeasonalityMarketSelector
-                activeId={marketId}
-                onSelect={setMarketId}
-                disabled={loading}
-              />
-            </div>
-            <div>
-              <p className="titan-cmd-kicker mb-2 px-0.5">{t("seasonality.tableTitle")}</p>
-              <SeasonalityMonthlyTable result={result} currentMonth={currentMonth} />
-            </div>
             <p className="text-[10px] leading-relaxed text-stone-600">
               {shouldUseSeasonalityApi()
                 ? t("seasonality.dataNoteApi", { target: describeSeasonalityApiTarget() })

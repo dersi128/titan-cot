@@ -780,6 +780,7 @@ export const csMessages: Messages = {
       currentYear: "Aktuální rok",
       watchTitle: "Co sledovat",
       watchSub: "Live desk checklist · reálná data",
+      thisMonth: "Tento měsíc",
       watch: {
         monthFlow: "Měsíční flow · {{month}}",
         aligned: "Shoda se sezónní mapou",

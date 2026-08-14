@@ -2,10 +2,7 @@ import { useMemo } from "react";
 import {
   Area,
   AreaChart,
-  Bar,
-  BarChart,
   CartesianGrid,
-  Cell,
   ReferenceLine,
   ResponsiveContainer,
   Tooltip,
@@ -40,14 +37,7 @@ type SeasonalityMainChartProps = {
 };
 
 const TITAN_GOLD = "#d4af37";
-const POS = "#34d399";
-const NEG = "#fb7185";
 const GRAD_ID = "titanSeasonFill";
-
-function pct(v: number): string {
-  const x = v * 100;
-  return `${x >= 0 ? "+" : ""}${x.toFixed(2)}%`;
-}
 
 function CurveTip({
   active,
@@ -72,39 +62,12 @@ function CurveTip({
   );
 }
 
-function BarTip({
-  active,
-  payload,
-  label,
-}: {
-  active?: boolean;
-  payload?: Array<{ value?: number; payload?: { winRate?: number } }>;
-  label?: string;
-}) {
-  if (!active || !payload?.length) return null;
-  const v = payload[0]?.value;
-  const win = payload[0]?.payload?.winRate;
-  if (typeof v !== "number") return null;
-  return (
-    <div className="rounded-lg border border-titan-gold/20 bg-[#0c0d10]/95 px-3 py-2 text-[12px] text-stone-200 shadow-card">
-      <p className="text-stone-500">{label}</p>
-      <p className="mt-0.5 font-mono text-[13px]" style={{ color: v >= 0 ? POS : NEG }}>
-        {pct(v)}
-      </p>
-      {typeof win === "number" ? (
-        <p className="mt-0.5 text-[10px] text-stone-600">Win {win.toFixed(0)}%</p>
-      ) : null}
-    </div>
-  );
-}
-
 export function SeasonalityMainChart({
   result,
   comparison,
   marketLabel,
   lookback,
   onLookbackChange,
-  currentMonth,
   presidentialPhases,
   onPresidentialPhasesChange,
   filtersDisabled = false,
@@ -136,60 +99,27 @@ export function SeasonalityMainChart({
     [curveData],
   );
 
-  const monthData = useMemo(
-    () =>
-      (activeResult?.monthlyStats ?? []).map((m) => ({
-        label: m.monthLabel,
-        month: m.month,
-        avgReturn: m.avgReturn,
-        winRate: m.winRate,
-        isCurrent: m.month === currentMonth,
-      })),
-    [activeResult?.monthlyStats, currentMonth],
-  );
-
-  const weekdayData = useMemo(
-    () =>
-      (activeResult?.weekdayStats ?? []).map((w) => ({
-        label: w.weekdayLabel,
-        avgReturn: w.avgReturn,
-        winRate: w.winRate,
-      })),
-    [activeResult?.weekdayStats],
-  );
-
-  const todayWeekday = useMemo(() => {
-    if (!activeResult) return null;
-    const d = new Date(activeResult.currentDate);
-    const js = d.getDay();
-    return js >= 1 && js <= 5 ? ["Mon", "Tue", "Wed", "Thu", "Fri"][js - 1] : null;
-  }, [activeResult]);
-
   return (
     <div className="overflow-hidden rounded-xl border border-titan-gold/15 bg-titan-panel/80 shadow-card backdrop-blur-md">
-      <SeasonalityPresidentialFilter
-        value={presidentialPhases}
-        onChange={onPresidentialPhasesChange}
-        disabled={filtersDisabled}
-        compact
-      />
-
-      <div className="flex flex-col gap-3 border-b border-white/[0.05] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-2 border-b border-white/[0.05] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
         <SeasonalityLookbackControl
           value={lookback}
           onChange={onLookbackChange}
           disabled={filtersDisabled}
         />
+        <SeasonalityPresidentialFilter
+          value={presidentialPhases}
+          onChange={onPresidentialPhasesChange}
+          disabled={filtersDisabled}
+          compact
+        />
       </div>
 
-      <div className="px-4 pt-4">
-        <p className="text-center font-display text-[11px] font-semibold uppercase tracking-[0.22em] text-titan-gold/90">
-          {t("seasonality.chartTitle")}
-        </p>
-        <p className="mt-1 text-center text-[13px] text-stone-300">{title}</p>
+      <div className="px-4 pt-3">
+        <p className="text-[13px] text-stone-400">{title}</p>
       </div>
 
-      <div className="relative h-[340px] w-full px-2 pb-1 sm:h-[400px]">
+      <div className="relative h-[320px] w-full px-2 pb-3 sm:h-[380px]">
         {loading && curveData.length < 2 ? (
           <div className="flex h-full items-center justify-center text-sm text-stone-500">
             {t("seasonality.loading")}
@@ -260,87 +190,6 @@ export function SeasonalityMainChart({
           </div>
         )}
       </div>
-
-      {activeResult ? (
-        <div className="grid gap-3 border-t border-titan-gold/10 p-4 lg:grid-cols-2">
-          <div className="rounded-xl border border-white/[0.06] bg-black/20 p-3">
-            <p className="titan-cmd-kicker mb-2">{t("seasonality.avgReturnByWeekday")}</p>
-            <div className="h-[190px] w-full">
-              {weekdayData.length ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={weekdayData} margin={{ top: 8, right: 8, left: 0, bottom: 4 }}>
-                    <CartesianGrid stroke="rgba(255,255,255,0.04)" vertical={false} />
-                    <XAxis
-                      dataKey="label"
-                      tick={{ fill: "#78716c", fontSize: 11 }}
-                      tickLine={false}
-                      axisLine={{ stroke: "rgba(255,255,255,0.08)" }}
-                    />
-                    <YAxis
-                      tick={{ fill: "#78716c", fontSize: 10 }}
-                      tickLine={false}
-                      axisLine={false}
-                      width={42}
-                      tickFormatter={(v) => `${(Number(v) * 100).toFixed(2)}`}
-                    />
-                    <Tooltip content={<BarTip />} cursor={{ fill: "rgba(212,175,55,0.04)" }} />
-                    <ReferenceLine y={0} stroke="rgba(255,255,255,0.12)" />
-                    <Bar dataKey="avgReturn" radius={[4, 4, 0, 0]} maxBarSize={36}>
-                      {weekdayData.map((row) => (
-                        <Cell
-                          key={row.label}
-                          fill={row.avgReturn >= 0 ? POS : NEG}
-                          fillOpacity={todayWeekday === row.label ? 1 : 0.72}
-                          stroke={todayWeekday === row.label ? TITAN_GOLD : "transparent"}
-                          strokeWidth={todayWeekday === row.label ? 1.5 : 0}
-                        />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              ) : null}
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-white/[0.06] bg-black/20 p-3">
-            <p className="titan-cmd-kicker mb-2">{t("seasonality.avgReturnByMonth")}</p>
-            <div className="h-[190px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={monthData} margin={{ top: 8, right: 8, left: 0, bottom: 4 }}>
-                  <CartesianGrid stroke="rgba(255,255,255,0.04)" vertical={false} />
-                  <XAxis
-                    dataKey="label"
-                    tick={{ fill: "#78716c", fontSize: 10 }}
-                    tickLine={false}
-                    axisLine={{ stroke: "rgba(255,255,255,0.08)" }}
-                    interval={0}
-                  />
-                  <YAxis
-                    tick={{ fill: "#78716c", fontSize: 10 }}
-                    tickLine={false}
-                    axisLine={false}
-                    width={42}
-                    tickFormatter={(v) => `${(Number(v) * 100).toFixed(1)}`}
-                  />
-                  <Tooltip content={<BarTip />} cursor={{ fill: "rgba(212,175,55,0.04)" }} />
-                  <ReferenceLine y={0} stroke="rgba(255,255,255,0.12)" />
-                  <Bar dataKey="avgReturn" radius={[4, 4, 0, 0]} maxBarSize={28}>
-                    {monthData.map((row) => (
-                      <Cell
-                        key={row.label}
-                        fill={row.avgReturn >= 0 ? POS : NEG}
-                        fillOpacity={row.isCurrent ? 1 : 0.72}
-                        stroke={row.isCurrent ? TITAN_GOLD : "transparent"}
-                        strokeWidth={row.isCurrent ? 1.5 : 0}
-                      />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 }
