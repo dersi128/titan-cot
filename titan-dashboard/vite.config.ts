@@ -1,17 +1,24 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
+const RENDER = "https://titan-cot.onrender.com";
+
 export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
       "/api/cot": {
-        target: "https://titan-cot.onrender.com",
+        target: RENDER,
         changeOrigin: true,
         secure: true,
       },
       "/api/macro": {
-        target: "https://titan-cot.onrender.com",
+        target: RENDER,
+        changeOrigin: true,
+        secure: true,
+      },
+      "/api/seasonality": {
+        target: RENDER,
         changeOrigin: true,
         secure: true,
       },

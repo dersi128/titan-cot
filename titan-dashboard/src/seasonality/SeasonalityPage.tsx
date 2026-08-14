@@ -14,18 +14,15 @@ import {
   type PresidentialCyclePhase,
   hasPresidentialSelection,
 } from "./utils/presidentialCycle";
-import { SeasonalityHero } from "./components/SeasonalityHero";
-import { SeasonalityDeviationSection } from "./components/SeasonalityDeviationSection";
+import { SeasonalityDashboard } from "./components/SeasonalityDashboard";
 import { SeasonalityMainChart } from "./components/SeasonalityMainChart";
 import { SeasonalityMarketSelector } from "./components/SeasonalityMarketSelector";
 import { SeasonalityMonthlyTable } from "./components/SeasonalityMonthlyTable";
-import { SeasonalityStatsCards } from "./components/SeasonalityStatsCards";
 
 export function SeasonalityPage() {
   const { t } = useTitanI18n();
   const [marketId, setMarketId] = useState(DEFAULT_SEASONALITY_MARKET_ID);
   const [lookback, setLookback] = useState<YearsLookback>(DEFAULT_YEARS_LOOKBACK);
-  /** Default: cycles off → full lookback years (10/15/20). */
   const [cycles, setCycles] = useState<PresidentialCyclePhase[]>([]);
   const [comparison, setComparison] = useState<SeasonalityComparison | null>(null);
   const [dataSource, setDataSource] = useState("yahoo");
@@ -38,7 +35,6 @@ export function SeasonalityPage() {
       if (!market) return;
       setLoading(true);
       setError(null);
-      // Empty selection = no presidential filter → full lookback years.
       const phaseFilter = hasPresidentialSelection(phases) ? phases : null;
       try {
         if (shouldUseSeasonalityApi()) {
@@ -78,11 +74,8 @@ export function SeasonalityPage() {
       Object.values(comparison)[0] ??
       null;
     if (!base) return null;
-    if (lookback === 10) {
-      if (base.deviationAnalysis) return base;
-      return attachSeasonalDeviationAnalysis(base);
-    }
-    return base;
+    if (base.deviationAnalysis) return base;
+    return attachSeasonalDeviationAnalysis(base);
   }, [comparison, lookback]);
 
   const currentMonth = result
@@ -91,13 +84,6 @@ export function SeasonalityPage() {
 
   return (
     <div className="titan-seasonality animate-fade-up">
-      <SeasonalityHero />
-
-      <div className="mb-4">
-        <p className="titan-cmd-kicker mb-2">{t("seasonality.selectMarket")}</p>
-        <SeasonalityMarketSelector activeId={marketId} onSelect={setMarketId} disabled={loading} />
-      </div>
-
       {error ? (
         <div className="mb-4 rounded-lg border border-rose-500/30 bg-rose-950/25 px-4 py-3 text-sm text-rose-200/90">
           {error}
@@ -105,23 +91,37 @@ export function SeasonalityPage() {
       ) : null}
 
       <div className={`space-y-4${loading ? " opacity-90" : ""}`}>
-        <SeasonalityMainChart
-          result={result}
-          comparison={comparison}
-          marketLabel={market?.label ?? marketId}
-          lookback={lookback}
-          onLookbackChange={setLookback}
-          currentMonth={currentMonth}
-          presidentialPhases={cycles}
-          onPresidentialPhasesChange={setCycles}
-          filtersDisabled={loading}
-          loading={loading}
-        />
-
-        {result ? (
+        {result && comparison ? (
           <>
-            <SeasonalityStatsCards result={result} />
-            {lookback === 10 ? <SeasonalityDeviationSection result={result} /> : null}
+            <SeasonalityDashboard
+              result={result}
+              comparison={comparison}
+              marketId={marketId}
+              marketLabel={market?.label ?? marketId}
+              onMarketChange={setMarketId}
+            />
+
+            <SeasonalityMainChart
+              result={result}
+              comparison={comparison}
+              marketLabel={market?.label ?? marketId}
+              lookback={lookback}
+              onLookbackChange={setLookback}
+              currentMonth={currentMonth}
+              presidentialPhases={cycles}
+              onPresidentialPhasesChange={setCycles}
+              filtersDisabled={loading}
+              loading={loading}
+            />
+
+            <div>
+              <p className="titan-cmd-kicker mb-2 px-0.5">{t("seasonality.selectMarket")}</p>
+              <SeasonalityMarketSelector
+                activeId={marketId}
+                onSelect={setMarketId}
+                disabled={loading}
+              />
+            </div>
             <div>
               <p className="titan-cmd-kicker mb-2 px-0.5">{t("seasonality.tableTitle")}</p>
               <SeasonalityMonthlyTable result={result} currentMonth={currentMonth} />
@@ -135,6 +135,10 @@ export function SeasonalityPage() {
               · {t("seasonality.disclaimer")}
             </p>
           </>
+        ) : loading ? (
+          <div className="rounded-xl border border-titan-gold/15 bg-titan-panel/60 px-5 py-10 text-center text-sm text-stone-500">
+            {t("seasonality.loading")}
+          </div>
         ) : null}
       </div>
     </div>

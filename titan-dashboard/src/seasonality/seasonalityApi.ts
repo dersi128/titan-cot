@@ -51,18 +51,35 @@ export async function fetchSeasonalityComparisonFromApi(
   phases?: PresidentialCyclePhase[] | null,
 ): Promise<SeasonalityComparison> {
   const base = getSeasonalityApiBase();
-  const response = await fetch(
-    `${base}/api/seasonality/${encodeURIComponent(symbol)}/bundle${cyclesQuery(phases)}`,
-  );
-
-  if (!response.ok) {
-    throw new Error(
-      `Seasonality API ${describeSeasonalityApiTarget()} → ${response.status}. Check VITE_COT_API_URL or cot-data-module on Render.`,
+  const controller = new AbortController();
+  const timer = window.setTimeout(() => controller.abort(), 90_000);
+  try {
+    const response = await fetch(
+      `${base}/api/seasonality/${encodeURIComponent(symbol)}/bundle${cyclesQuery(phases)}`,
+      { signal: controller.signal },
     );
-  }
 
-  const payload = (await response.json()) as BundleResponse;
-  return payload.comparison;
+    if (!response.ok) {
+      throw new Error(
+        `Seasonality API ${describeSeasonalityApiTarget()} → ${response.status}. Check VITE_COT_API_URL or cot-data-module on Render.`,
+      );
+    }
+
+    const payload = (await response.json()) as BundleResponse;
+    if (!payload?.comparison || typeof payload.comparison !== "object") {
+      throw new Error("Seasonality API returned empty comparison payload.");
+    }
+    return payload.comparison;
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError") {
+      throw new Error(
+        `Seasonality API timeout (90s) · ${describeSeasonalityApiTarget()}. Render může startovat — zkus znovu.`,
+      );
+    }
+    throw err;
+  } finally {
+    window.clearTimeout(timer);
+  }
 }
 
 export async function fetchSeasonalityAnalysisFromApi(

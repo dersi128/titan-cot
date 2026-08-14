@@ -1,27 +1,44 @@
 import type { CotDashboardData } from "../types";
 import { normalizeCotDashboardData } from "../lib/titanCotScore";
 
-const DEFAULT_API = "http://localhost:3000";
+const DEFAULT_API = "";
 const RENDER_API = "https://titan-cot.onrender.com";
 
-/** Set in Vercel: VITE_COT_API_URL=https://titan-cot.onrender.com (no trailing slash) */
+/**
+ * API base for COT / seasonality / macro.
+ * Browser always uses same-origin (`/api/...`) so Vite/Vercel proxy → Render.
+ * That avoids CORS failures when VITE_COT_API_URL points at onrender.com.
+ * Absolute URL is only for local cot-data-module (localhost) or non-browser tooling.
+ */
 export function getCotApiBase(): string {
-  const fromEnv = import.meta.env.VITE_COT_API_URL?.trim();
-  if (fromEnv) return fromEnv.replace(/\/$/, "");
-  if (import.meta.env.PROD && typeof window !== "undefined") {
-    return window.location.origin;
+  const fromEnv = import.meta.env.VITE_COT_API_URL?.trim().replace(/\/$/, "") ?? "";
+
+  if (fromEnv && /localhost|127\.0\.0\.1/i.test(fromEnv)) {
+    return fromEnv;
   }
+
+  if (typeof window !== "undefined") {
+    return "";
+  }
+
+  if (fromEnv) return fromEnv;
   return DEFAULT_API;
 }
 
 export function describeCotApiTarget(): string {
-  const base = getCotApiBase();
-  if (base === DEFAULT_API) return "localhost:3000 (spusť cot-data-module)";
-  if (base === RENDER_API || base.includes("onrender.com")) return base;
-  if (typeof window !== "undefined" && base === window.location.origin) {
-    return `${base} → proxy na Render`;
+  const fromEnv = import.meta.env.VITE_COT_API_URL?.trim().replace(/\/$/, "") ?? "";
+  if (fromEnv && /localhost|127\.0\.0\.1/i.test(fromEnv)) {
+    return fromEnv;
   }
-  return base;
+  if (typeof window !== "undefined") {
+    const host = window.location.hostname;
+    if (host === "localhost" || host === "127.0.0.1") {
+      return "Vite proxy → titan-cot.onrender.com";
+    }
+    return `${window.location.origin} → proxy na Render`;
+  }
+  if (fromEnv) return fromEnv;
+  return RENDER_API;
 }
 
 export type CotUnavailableResponse = {
