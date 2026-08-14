@@ -466,7 +466,9 @@ export function TitanCotDashboard() {
 
             {section === "seasonality" ? <TitanSeasonalityPage /> : null}
 
-            {section === "dme" ? <TitanDmePage /> : null}
+            {section === "dme" ? (
+              <TitanDmePage bundle={bundle} onSelectMarket={openMarket} />
+            ) : null}
 
           </main>
 
