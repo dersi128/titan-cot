@@ -629,7 +629,7 @@ export const csMessages: Messages = {
   seasonality: {
     heroEyebrow: "Historický OHLC framework",
     heroTitle: "TITAN Seasonality",
-    heroSub: "Historická sezónní struktura · live path aktuálního roku · kotvené 30D / 60D / 90D na společném indexu 0–100.",
+    heroSub: "Historická sezónní struktura · live path · 12měsíční projekce (od teď do příštího roku) · 30D / 60D / 90D na indexu 0–100.",
     engineBadge: "Institucionální sezónnost · společná normalizace · bez macro overlay",
     disclaimer: "Sezónnost je pouze historická tendence. Není to execution signál.",
     selectMarket: "Trh",
@@ -640,10 +640,10 @@ export const csMessages: Messages = {
     historicalWindow: "Historické okno: {{period}}",
     historicalWindowCompare: "Souběžný overlay: 5Y · 10Y · 15Y · 20Y · ALL",
     historicalWindowPrimary: "Statistiky a okna: {{period}}",
-    chartTitle: "12měsíční sezónní křivka (normalizováno 0–100)",
+    chartTitle: "12 měsíců dopředu (teď → příští rok · index 0–100)",
     chartTitleRolling: "Rolling sezónní projekce (trading days)",
     chartSeasonalNote:
-      "Všechny křivky sdílí škálu 0–100. Projekce navazují na live kotvu v TODAY — bez resetu za markerem. Měsíční % a vs 10Y → vpravo.",
+      "Osa: 12 měsíců od TODAY do stejného měsíce příštího roku (→ = další rok). Projekce 30/60/90D pokrývají celý rok; historické křivky jsou sezónní mapa na stejnou osu.",
     chartYAxis: "Sezónní index",
     chartYAxisRolling: "Indexová úroveň",
     chartTooltipRolling: "Rolling projekce · T+N trading days od dneška",

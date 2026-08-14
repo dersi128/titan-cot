@@ -66,19 +66,24 @@ export function SeasonalityMainChart({ result, comparison, currentMonth }: Seaso
   );
 
   const currentYear = new Date(result.currentDate).getFullYear();
-  const currentMonthKey = MONTHS[currentMonth - 1] ?? MONTHS[0];
+  const currentMonthKey = chartData.find((r) => r.isCurrent)?.month ?? chartData[0]?.month ?? MONTHS[0];
 
   const windowBands = useMemo(() => {
+    // Bands on forward axis: only when both ends fall in the visible 12M window.
+    const labelByCal = new Map(chartData.map((r) => [r.monthIndex, r.month]));
     const bands: { x1: string; x2: string; bias: "bullish" | "bearish" }[] = [];
     const add = (w: (typeof result)["bullishWindows"][0], bias: "bullish" | "bearish") => {
       const m1 = monthFromDoy(w.startDay);
       const m2 = monthFromDoy(w.endDay);
-      bands.push({ x1: MONTHS[m1 - 1], x2: MONTHS[m2 - 1], bias });
+      const x1 = labelByCal.get(m1);
+      const x2 = labelByCal.get(m2);
+      if (!x1 || !x2) return;
+      bands.push({ x1, x2, bias });
     };
     result.bullishWindows.forEach((w) => add(w, "bullish"));
     result.bearishWindows.forEach((w) => add(w, "bearish"));
     return bands;
-  }, [result]);
+  }, [result, chartData]);
 
   const monthlyPanelRows = useMemo(
     () =>

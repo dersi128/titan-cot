@@ -627,7 +627,7 @@ export const enMessages = {
   seasonality: {
     heroEyebrow: "Historical OHLC framework",
     heroTitle: "TITAN Seasonality",
-    heroSub: "Historical seasonal structure · current-year live path · anchored 30D / 60D / 90D forward paths on a shared 0–100 index.",
+    heroSub: "Historical seasonal structure · live path · 12-month forward projections (into next year) · 30D / 60D / 90D on a shared 0–100 index.",
     engineBadge: "Institutional seasonality · shared normalization · no macro overlays",
     disclaimer: "Seasonality is historical tendency only. Not an execution signal.",
     selectMarket: "Market",
@@ -638,10 +638,10 @@ export const enMessages = {
     historicalWindow: "Historical window: {{period}}",
     historicalWindowCompare: "Parallel overlay: 5Y · 10Y · 15Y · 20Y · ALL",
     historicalWindowPrimary: "Stats & windows: {{period}}",
-    chartTitle: "12-month seasonal curve (normalized 0–100)",
+    chartTitle: "12 months forward (now → next year · index 0–100)",
     chartTitleRolling: "Rolling seasonal projection (trading days)",
     chartSeasonalNote:
-      "All curves share one 0–100 scale. Projections continue from the live anchor at TODAY — no reset after the marker. Monthly % and vs 10Y index → right panel.",
+      "Axis: 12 months from TODAY into the same month next year (→ = next year). 30/60/90D projections span the full year; historical curves are remapped onto the same axis.",
     chartYAxis: "Seasonal index",
     chartYAxisRolling: "Indexed level",
     chartTooltipRolling: "Rolling projection index · T+N trading days from today",

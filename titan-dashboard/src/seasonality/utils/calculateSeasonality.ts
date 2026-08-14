@@ -4,16 +4,13 @@ import type {
   SeasonalBias,
   SeasonalCurvePoint,
   SeasonalityResult,
-  SeasonalStrength,
   SeasonalWindow,
 } from "../types";
 import { DEFAULT_YEARS_LOOKBACK, type YearsLookback } from "../yearsLookback";
-import { circularMovingAverage } from "./smoothing";
 import { computeRollingSeasonality } from "./rollingSeasonalityEngine";
-import { buildTradingDaySeries, parseIso } from "./tradingDays";
+import { parseIso } from "./tradingDays";
 
 const MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const SMOOTH_WINDOW = 10;
 
 type DailyReturnRow = {
   date: string;
@@ -134,8 +131,9 @@ export function calculateSeasonality(options: CalculateSeasonalityOptions): Seas
   const years = new Set(returns.map((r) => r.year));
   const { monthlyStats, winRateByMonth, averageReturnByMonth } = buildMonthlyStats(returns);
 
-  const primaryCurve = rolling.momentumAdjustedCurve;
-  const currentPoint = primaryCurve[0] ?? { smoothed: 50 };
+  const primaryCurve = rolling.fullYearCurve;
+  const forwardCurve = rolling.momentumAdjustedCurve;
+  const currentPoint = forwardCurve[0] ?? primaryCurve[0] ?? { smoothed: 50 };
   const currentSeasonalWindow = findCurrentWindow(
     rolling.bullishWindows,
     rolling.bearishWindows,

@@ -14,6 +14,8 @@ import { slopeAround, classifyBias, classifyStrength } from "./rollingSeasonalit
 
 export type RollingSeasonalityOutput = {
   tradingDayOfYear: number;
+  /** Full ~12M seasonal shape (TDY 1 → 252) for Jan–next-year chart context. */
+  fullYearCurve: SeasonalCurvePoint[];
   rollingProjections: Record<RollingWindowDays, SeasonalCurvePoint[]>;
   momentumAdjustedCurve: SeasonalCurvePoint[];
   trendStrength: number;
@@ -28,7 +30,9 @@ export type RollingSeasonalityOutput = {
 };
 
 const ROLLING_WINDOWS: RollingWindowDays[] = [30, 60, 90];
-const SMOOTH = 5;
+/** ~12 calendar months of trading days (into next year when starting mid-year). */
+const FULL_YEAR_TD = 252;
+const SMOOTH_BY_WINDOW: Record<RollingWindowDays, number> = { 30: 3, 60: 5, 90: 9 };
 
 function mean(values: number[]): number {
   if (!values.length) return 0;
@@ -56,11 +60,19 @@ function blendToFixedLength(values: number[], len: number): number[] {
   return out;
 }
 
+function monthFromTdy(tdy: number): number {
+  return Math.min(12, Math.max(1, Math.ceil(wrapTdy(tdy) / 21)));
+}
+
+/**
+ * Forward path from the same TDY in past years, spanning ~12 months
+ * (wraps into the following calendar year when needed).
+ */
 function buildRollingProjection(
   rows: TradingDayRow[],
   startTdy: number,
-  horizon: RollingWindowDays,
   asOfYear: number,
+  window: RollingWindowDays,
 ): SeasonalCurvePoint[] {
   const byYear = new Map<number, TradingDayRow[]>();
   for (const r of rows) {
@@ -70,15 +82,19 @@ function buildRollingProjection(
   }
 
   const paths: { weight: number; cum: number[] }[] = [];
+  const horizon = FULL_YEAR_TD;
 
   for (const [year, yearRows] of byYear) {
     if (year >= asOfYear) continue;
     const w = yearWeight(asOfYear - year);
-    const start = yearRows.find((r) => r.tdy === startTdy) ?? yearRows.find((r) => r.tdy >= startTdy);
+    const sorted = [...yearRows].sort((a, b) => a.tdy - b.tdy);
+    const start = sorted.find((r) => r.tdy === startTdy) ?? sorted.find((r) => r.tdy >= startTdy);
     if (!start) continue;
-    const idx = yearRows.indexOf(start);
-    const slice = yearRows.slice(idx, idx + horizon + 1);
-    if (slice.length < 8) continue;
+    const idx = sorted.indexOf(start);
+    const nextYear = byYear.get(year + 1);
+    const nextSorted = nextYear ? [...nextYear].sort((a, b) => a.tdy - b.tdy) : [];
+    const slice = [...sorted.slice(idx), ...nextSorted].slice(0, horizon + 1);
+    if (slice.length < 21) continue;
 
     const cum: number[] = [100];
     for (let i = 1; i < slice.length; i++) {
@@ -104,11 +120,11 @@ function buildRollingProjection(
   }
 
   const fixed = blendToFixedLength(blended, horizon + 1);
-  const smoothed = circularMovingAverage(fixed, SMOOTH);
+  const smoothed = circularMovingAverage(fixed, SMOOTH_BY_WINDOW[window]);
 
   return smoothed.map((smoothedVal, i) => ({
     dayOfYear: wrapTdy(startTdy + i),
-    month: Math.min(12, Math.ceil((startTdy + i) / 21)),
+    month: monthFromTdy(startTdy + i),
     value: fixed[i] ?? 100,
     smoothed: smoothedVal,
     tradingDayOffset: i,
@@ -127,25 +143,24 @@ function buildWeightedTdyReturns(rows: TradingDayRow[], asOfYear: number): Map<n
   return map;
 }
 
-function buildPrimarySeasonalPath(
+/** Calendar seasonal path from TDY 1 through a full trading year (~12 months). */
+function buildFullYearSeasonalPath(
   avgByTdy: Map<number, { sum: number; weight: number }>,
-  startTdy: number,
-  len: number,
 ): SeasonalCurvePoint[] {
   const raw: number[] = [];
   let level = 100;
-  for (let i = 0; i < len; i++) {
-    const tdy = wrapTdy(startTdy + i);
+  for (let i = 0; i < FULL_YEAR_TD; i++) {
+    const tdy = wrapTdy(1 + i);
     const bucket = avgByTdy.get(tdy);
     const avgRet = bucket && bucket.weight > 0 ? bucket.sum / bucket.weight : 0;
     level *= 1 + avgRet;
     raw.push(level);
   }
-  const smoothed = circularMovingAverage(raw, SMOOTH);
+  const smoothed = circularMovingAverage(raw, 5);
   const display = scaleToDisplay(smoothed);
   return display.map((smoothedVal, i) => ({
-    dayOfYear: wrapTdy(startTdy + i),
-    month: Math.min(12, Math.ceil((startTdy + i) / 21)),
+    dayOfYear: wrapTdy(1 + i),
+    month: monthFromTdy(1 + i),
     value: raw[i],
     smoothed: smoothedVal,
     tradingDayOffset: i,
@@ -237,13 +252,15 @@ export function computeRollingSeasonality(bars: OhlcBar[], asOfDate?: string): R
   const currentRow = yearRows.at(-1);
   const startTdy = currentRow?.tdy ?? 1;
 
+  const avgByTdy = buildWeightedTdyReturns(rows, asOfYear);
+  const fullYearCurve = buildFullYearSeasonalPath(avgByTdy);
+
   const rollingProjections = {} as Record<RollingWindowDays, SeasonalCurvePoint[]>;
   for (const w of ROLLING_WINDOWS) {
-    rollingProjections[w] = buildRollingProjection(rows, startTdy, w, asOfYear);
+    rollingProjections[w] = buildRollingProjection(rows, startTdy, asOfYear, w);
   }
 
-  const avgByTdy = buildWeightedTdyReturns(rows, asOfYear);
-  const base60 = rollingProjections[60].length ? rollingProjections[60] : buildPrimarySeasonalPath(avgByTdy, startTdy, 90);
+  const base60 = rollingProjections[60].length ? rollingProjections[60] : fullYearCurve;
   const ytdRows = rows.filter((r) => r.year === asOfYear && r.date <= asOf);
   const trendStrength = computeTrendStrength(ytdRows);
   const volatilityRegime = computeVolatilityRegime(yearRows);
@@ -252,15 +269,16 @@ export function computeRollingSeasonality(bars: OhlcBar[], asOfDate?: string): R
 
   return {
     tradingDayOfYear: startTdy,
+    fullYearCurve,
     rollingProjections,
     momentumAdjustedCurve,
     trendStrength,
     volatilityRegime,
     seasonalEvents: [],
     intramonthBuckets: buildIntramonthBuckets(rows, asOfYear),
-    primaryCurve: momentumAdjustedCurve,
-    bullishWindows: detectWindowsFromCurve(momentumAdjustedCurve, "bullish"),
-    bearishWindows: detectWindowsFromCurve(momentumAdjustedCurve, "bearish"),
+    primaryCurve: fullYearCurve,
+    bullishWindows: detectWindowsFromCurve(fullYearCurve, "bullish"),
+    bearishWindows: detectWindowsFromCurve(fullYearCurve, "bearish"),
     seasonalBias: classifyBias(slope),
     seasonalStrength: classifyStrength(slope),
   };
