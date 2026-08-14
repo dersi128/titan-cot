@@ -5,12 +5,15 @@ import { lookbackLabel } from "../yearsLookback";
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 export type SeasonaxChartRow = {
-  offset: number;
-  /** Sparse month tick label (empty for in-between days). */
+  /** Trading-day index within the seasonal year (0 ≈ early Jan). */
+  tdy: number;
+  /** Sparse month tick (Jan…Dec). */
   tick: string;
-  /** Always available for tooltip. */
   monthLabel: string;
+  month: number;
+  /** Cumulative seasonal index (Seasonax: start ≈ 100). */
   index: number;
+  isToday: boolean;
 };
 
 function parseIso(iso: string): Date {
@@ -20,24 +23,17 @@ function parseIso(iso: string): Date {
 
 function formatSeasonaxDate(iso: string): string {
   const d = parseIso(iso);
-  const day = d.getDate();
-  const mon = MONTHS[d.getMonth()];
-  const year = d.getFullYear();
-  return `${day} ${mon} ${year}`;
+  return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
 }
 
-/** Historical sample window shown in Seasonax-style titles. */
 export function seasonaxSampleRange(
   asOfDate: string,
   lookback: YearsLookback,
 ): { startIso: string; endIso: string; startLabel: string; endLabel: string } {
   const end = parseIso(asOfDate);
   const start = new Date(end);
-  if (lookback === "ALL") {
-    start.setFullYear(start.getFullYear() - 20);
-  } else {
-    start.setFullYear(start.getFullYear() - lookback);
-  }
+  if (lookback === "ALL") start.setFullYear(start.getFullYear() - 20);
+  else start.setFullYear(start.getFullYear() - lookback);
   const startIso = start.toISOString().slice(0, 10);
   return {
     startIso,
@@ -57,61 +53,91 @@ export function seasonaxChartTitle(
   return `Seasonal Trend of ${marketLabel} Over ${period} (${range.startLabel} - ${range.endLabel})`;
 }
 
+function pickCalendarCurve(result: SeasonalityResult): SeasonalCurvePoint[] {
+  const curve =
+    result.seasonalCurve?.length
+      ? result.seasonalCurve
+      : result.momentumAdjustedCurve?.length
+        ? result.momentumAdjustedCurve
+        : [];
+  return [...curve].sort((a, b) => {
+    const ao = a.tradingDayOffset ?? a.dayOfYear;
+    const bo = b.tradingDayOffset ?? b.dayOfYear;
+    return ao - bo;
+  });
+}
+
 /**
- * Seasonax-style path: average seasonal index starting at 100,
- * ~12 months forward from today (trading-day resolution).
+ * Seasonax calendar path: Jan → Dec, index starts at 100 at year start.
+ * Pink "today" sits on the current trading day within that year.
  */
 export function buildSeasonaxChartRows(result: SeasonalityResult): SeasonaxChartRow[] {
-  const curve: SeasonalCurvePoint[] =
-    result.rollingProjections?.[60] ??
-    result.rollingProjections?.[90] ??
-    result.rollingProjections?.[30] ??
-    result.momentumAdjustedCurve ??
-    [];
-
+  const curve = pickCalendarCurve(result);
   if (curve.length < 2) return [];
 
-  const sorted = [...curve].sort((a, b) => (a.tradingDayOffset ?? 0) - (b.tradingDayOffset ?? 0));
+  const todayTdy = Math.max(1, result.tradingDayOfYear ?? 1);
   const rows: SeasonaxChartRow[] = [];
   let lastMonth = -1;
 
-  for (const p of sorted) {
-    const offset = p.tradingDayOffset ?? 0;
+  for (const p of curve) {
+    const tdy = (p.tradingDayOffset ?? p.dayOfYear - 1) + 1;
     const month = p.month;
     const monthLabel = MONTHS[month - 1] ?? "";
     const showTick = month !== lastMonth;
     if (showTick) lastMonth = month;
+    const raw = p.value > 0 ? p.value : p.smoothed;
 
     rows.push({
-      offset,
+      tdy,
       tick: showTick ? monthLabel : "",
       monthLabel,
-      index: p.value > 0 ? p.value : p.smoothed,
+      month,
+      index: raw,
+      isToday: tdy === todayTdy,
     });
   }
 
-  // Force first point to 100 (Seasonax convention).
-  if (rows.length && rows[0].index !== 0) {
-    const base = rows[0].index || 100;
-    if (Math.abs(base - 100) > 0.01) {
-      for (const row of rows) {
-        row.index = (row.index / base) * 100;
+  // Rebase so January/start = 100 (Seasonax convention).
+  const base = rows[0]?.index || 100;
+  if (base > 0 && Math.abs(base - 100) > 0.001) {
+    for (const row of rows) row.index = (row.index / base) * 100;
+  } else if (rows[0]) {
+    rows[0].index = 100;
+  }
+
+  // Ensure exactly one today marker (nearest TDY).
+  if (!rows.some((r) => r.isToday)) {
+    let best = 0;
+    let bestDist = Infinity;
+    for (let i = 0; i < rows.length; i++) {
+      const dist = Math.abs(rows[i].tdy - todayTdy);
+      if (dist < bestDist) {
+        bestDist = dist;
+        best = i;
       }
-    } else {
-      rows[0].index = 100;
     }
+    rows.forEach((r, i) => {
+      r.isToday = i === best;
+    });
   }
 
   return rows;
 }
 
 export function seasonaxYDomain(rows: SeasonaxChartRow[]): [number, number] {
-  if (!rows.length) return [100, 110];
+  if (!rows.length) return [99, 101];
   const vals = rows.map((r) => r.index);
-  const min = Math.min(...vals, 100);
-  const max = Math.max(...vals, 100);
-  const pad = Math.max(1, (max - min) * 0.08);
-  const lo = Math.floor((min - pad) / 2) * 2;
-  const hi = Math.ceil((max + pad) / 2) * 2;
-  return [Math.min(lo, 100), Math.max(hi, 102)];
+  const min = Math.min(...vals);
+  const max = Math.max(...vals);
+  const span = Math.max(0.5, max - min);
+  const pad = span * 0.15;
+  const lo = min - pad;
+  const hi = max + pad;
+  // Nice round ticks around Seasonax-style tight index bands.
+  const step = span < 3 ? 0.5 : span < 8 ? 1 : 2;
+  return [Math.floor(lo / step) * step, Math.ceil(hi / step) * step];
+}
+
+export function seasonaxTodayTdy(rows: SeasonaxChartRow[]): number | null {
+  return rows.find((r) => r.isToday)?.tdy ?? null;
 }

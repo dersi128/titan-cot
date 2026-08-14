@@ -627,8 +627,8 @@ export const enMessages = {
   seasonality: {
     heroEyebrow: "Historical OHLC framework",
     heroTitle: "TITAN Seasonality",
-    heroSub: "Seasonax-style · average returns by month and weekday · no curve.",
-    engineBadge: "Institutional seasonality · bar charts · no macro overlays",
+    heroSub: "Seasonax layout · Jan–Dec seasonal trend · TODAY marker · weekday/month return bars.",
+    engineBadge: "Seasonax-style seasonality · Yahoo OHLC",
     disclaimer: "Seasonality is historical tendency only. Not an execution signal.",
     selectMarket: "Market",
     loading: "Computing seasonality stats from OHLC history…",

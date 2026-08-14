@@ -629,8 +629,8 @@ export const csMessages: Messages = {
   seasonality: {
     heroEyebrow: "Historický OHLC framework",
     heroTitle: "TITAN Seasonality",
-    heroSub: "Seasonax styl · průměrné returny podle měsíce a dne v týdnu · bez křivky.",
-    engineBadge: "Institucionální sezónnost · bar charts · bez macro overlay",
+    heroSub: "Seasonax layout · Jan–Dec sezónní trend · TODAY · sloupce weekday/měsíc.",
+    engineBadge: "Seasonax styl · Yahoo OHLC",
     disclaimer: "Sezónnost je pouze historická tendence. Není to execution signál.",
     selectMarket: "Trh",
     loading: "Počítám sezónní statistiky z OHLC historie…",
