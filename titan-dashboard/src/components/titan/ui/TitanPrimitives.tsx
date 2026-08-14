@@ -145,6 +145,54 @@ export function TitanScoreGauge({ score }: { score: number }) {
   );
 }
 
+/** 0–100 ring for USD / pulse cards (maps high = bullish). */
+export function TitanScoreRing100({
+  score,
+  label = "USD",
+}: {
+  score: number | null;
+  label?: string;
+}) {
+  const clamped = score === null ? null : Math.max(0, Math.min(100, Math.round(score)));
+  const pct = clamped === null ? 0 : clamped / 100;
+  const circumference = 2 * Math.PI * 42;
+  const offset = circumference * (1 - pct);
+  const stroke =
+    clamped === null
+      ? "#57534e"
+      : clamped >= 60
+        ? "#34d399"
+        : clamped <= 40
+          ? "#fb7185"
+          : "#d4af37";
+
+  return (
+    <figure className="relative m-0 h-[100px] w-[100px] shrink-0">
+      <svg viewBox="0 0 96 96" className="h-full w-full -rotate-90" aria-hidden>
+        <circle cx="48" cy="48" r="42" fill="none" stroke="#1c1c22" strokeWidth="6" />
+        <circle
+          cx="48"
+          cy="48"
+          r="42"
+          fill="none"
+          stroke={stroke}
+          strokeWidth="6"
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          className="transition-all duration-700 ease-out"
+        />
+      </svg>
+      <figcaption className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="font-mono text-2xl font-semibold tabular-nums text-stone-50">
+          {clamped === null ? "—" : clamped}
+        </span>
+        <span className="text-[9px] uppercase tracking-widest text-stone-500">{label}</span>
+      </figcaption>
+    </figure>
+  );
+}
+
 export function TitanScoreBar({ score }: { score: number }) {
   const clamped = Math.max(-100, Math.min(100, score));
   const half = Math.abs(clamped) / 2;

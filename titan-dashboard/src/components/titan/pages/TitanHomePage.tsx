@@ -11,6 +11,7 @@ import { FLOW_MAP_CLASSES } from "../../../lib/titanHomeMock";
 import { convictionRankScore, CONVICTION_MAX } from "../../../lib/titanConviction";
 import { useTitanI18n } from "../../../i18n";
 import type { ScannerRowModel } from "../GlobalCotScanner";
+import { HomePulseCards } from "../home/HomePulseCards";
 import {
   buildFlowMapFromRows,
   ConvictionMini,
@@ -127,6 +128,8 @@ export function TitanHomePage({ rows, bundle, onSelectMarket, onNavigate }: Tita
 
   return (
     <div className="titan-cmd space-y-4 md:space-y-5">
+      <HomePulseCards bundle={bundle} onNavigate={onNavigate} />
+
       <section className="titan-cmd-overview" aria-label={t("home.cmdOverview")}>
         <div className="grid grid-cols-2 gap-2 lg:grid-cols-4 lg:gap-3">
           <GlassCard glow="gold">
