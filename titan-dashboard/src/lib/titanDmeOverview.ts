@@ -38,8 +38,12 @@ export type DmeOverview = {
   usdFavoringCount: number;
   fxLiveCount: number;
   fxExtremeCount: number;
+  /** USD-favoring share 0–100 for progress bar */
+  usdBiasPct: number;
   /** Last N points of DXY commercial 26W index (real history). */
   dxyIndexSpark: number[];
+  /** Dated series for the main DXY chart */
+  dxyChart: Array<{ date: string; index: number }>;
   panels: DmeFxPanel[];
 };
 
@@ -70,7 +74,21 @@ export function buildDmeOverview(bundle: Record<string, CotDashboardData>): DmeO
     dxy && Number.isFinite(dxy.commercials.weeklyChange) ? dxy.commercials.weeklyChange : null;
 
   const series = dxy ? buildCommercialIndexSeries(dxy.history ?? []) : [];
-  const dxyIndexSpark = series.slice(-12).map((v) => Math.round(v));
+  const history = dxy?.history ?? [];
+  const dxyChart: Array<{ date: string; index: number }> = [];
+  if (history.length >= 26 && series.length > 0) {
+    const start = 25;
+    for (let i = 0; i < series.length; i += 1) {
+      const point = history[start + i];
+      if (!point) continue;
+      dxyChart.push({
+        date: point.reportDate.slice(0, 10),
+        index: Math.round(series[i]!),
+      });
+    }
+  }
+  const chartTail = dxyChart.slice(-52);
+  const dxyIndexSpark = chartTail.slice(-12).map((p) => p.index);
 
   const panels: DmeFxPanel[] = DME_FX_MARKETS.map((market) => {
     const data = bundle[market.symbol];
@@ -98,6 +116,8 @@ export function buildDmeOverview(bundle: Record<string, CotDashboardData>): DmeO
   const livePanels = panels.filter((p) => p.status === "live");
   const usdFavoringCount = livePanels.filter((p) => p.usdFavoring).length;
   const fxExtremeCount = livePanels.filter((p) => Math.abs(p.score) >= 40).length;
+  const usdBiasPct =
+    livePanels.length > 0 ? Math.round((usdFavoringCount / livePanels.length) * 100) : 0;
 
   return {
     dxyAvailable,
@@ -110,7 +130,9 @@ export function buildDmeOverview(bundle: Record<string, CotDashboardData>): DmeO
     usdFavoringCount,
     fxLiveCount: livePanels.length,
     fxExtremeCount,
+    usdBiasPct,
     dxyIndexSpark: dxyIndexSpark.length >= 2 ? dxyIndexSpark : [50, 50],
+    dxyChart: chartTail.length >= 2 ? chartTail : [],
     panels,
   };
 }
