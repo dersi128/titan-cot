@@ -16,16 +16,8 @@ export type SeasonalityLongCandidate = {
   avgReturnInWindow: number;
 };
 
-/** Wider desk than the seasonality quick-picks — enough markets for a top-5 list. */
-const SCAN_MARKETS: readonly { id: string; label: string; dataSymbol: string }[] = [
-  ...SEASONALITY_MARKETS,
-  { id: "NATGAS", label: "Nat Gas", dataSymbol: "NATGAS" },
-  { id: "COPPER", label: "Copper", dataSymbol: "HG=F" },
-  { id: "COFFEE", label: "Coffee", dataSymbol: "COFFEE" },
-  { id: "COCOA", label: "Cocoa", dataSymbol: "COCOA" },
-  { id: "AUD", label: "AUDUSD", dataSymbol: "AUD" },
-  { id: "CAD", label: "USDCAD", dataSymbol: "USDCAD" },
-];
+/** Same universe as the seasonality market menu (no extra off-menu symbols). */
+const SCAN_MARKETS = SEASONALITY_MARKETS;
 
 export const SEASONAL_LONG_TOP_N = 5;
 
