@@ -63,6 +63,41 @@ export function TitanHomePage({ rows, bundle, onSelectMarket, onNavigate }: Tita
 
   return (
     <div className="titan-cmd space-y-3 md:space-y-4">
+      <section aria-label={t("home.cmdFlowMap")}>
+        <GlassCard className="p-3">
+          <h3 className="titan-cmd-kicker">{t("home.cmdFlowMap")}</h3>
+          <ul className="mt-3 grid gap-1.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            {FLOW_MAP_CLASSES.map((cls) => {
+              const cell = flowMap[cls];
+              return (
+                <li
+                  key={cls}
+                  className="titan-cmd-flow-row grid grid-cols-[4.5rem_1fr_auto] items-center gap-2 rounded border border-white/[0.04] px-2 py-1.5"
+                >
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">
+                    {t(`home.cmdFlowClass.${cls}`)}
+                  </span>
+                  {cell ? (
+                    <>
+                      <span
+                        className={`titan-regime-pill inline-flex max-w-full items-center justify-center px-1.5 py-0.5 text-[8px] font-bold uppercase ${regimePillClass(cell.regime)}`}
+                      >
+                        {t(`positioning.regime.${cell.regime}`)}
+                      </span>
+                      <span className={`text-right font-mono text-[10px] font-semibold uppercase ${flowToneClass(cell.direction)}`}>
+                        {t(`home.cmdFlowDir.${cell.direction}`)}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="col-span-2 text-[10px] text-stone-600">—</span>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </GlassCard>
+      </section>
+
       <HomePulseCards bundle={bundle} onNavigate={onNavigate} />
 
       <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4" aria-label={t("home.cmdConvictionStrip")}>
@@ -141,41 +176,6 @@ export function TitanHomePage({ rows, bundle, onSelectMarket, onNavigate }: Tita
                 </li>
               ))
             )}
-          </ul>
-        </GlassCard>
-      </section>
-
-      <section className="lg:col-span-3" aria-label={t("home.cmdFlowMap")}>
-        <GlassCard className="p-3">
-          <h3 className="titan-cmd-kicker">{t("home.cmdFlowMap")}</h3>
-          <ul className="mt-3 grid gap-1.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-            {FLOW_MAP_CLASSES.map((cls) => {
-              const cell = flowMap[cls];
-              return (
-                <li
-                  key={cls}
-                  className="titan-cmd-flow-row grid grid-cols-[4.5rem_1fr_auto] items-center gap-2 rounded border border-white/[0.04] px-2 py-1.5"
-                >
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">
-                    {t(`home.cmdFlowClass.${cls}`)}
-                  </span>
-                  {cell ? (
-                    <>
-                      <span
-                        className={`titan-regime-pill inline-flex max-w-full items-center justify-center px-1.5 py-0.5 text-[8px] font-bold uppercase ${regimePillClass(cell.regime)}`}
-                      >
-                        {t(`positioning.regime.${cell.regime}`)}
-                      </span>
-                      <span className={`text-right font-mono text-[10px] font-semibold uppercase ${flowToneClass(cell.direction)}`}>
-                        {t(`home.cmdFlowDir.${cell.direction}`)}
-                      </span>
-                    </>
-                  ) : (
-                    <span className="col-span-2 text-[10px] text-stone-600">—</span>
-                  )}
-                </li>
-              );
-            })}
           </ul>
         </GlassCard>
       </section>
