@@ -642,6 +642,9 @@
     border: none;
     background: transparent;
     box-shadow: none;
+    border-radius: 50%;
+    overflow: hidden;
+    isolation: isolate;
   }
 
   .titan-home-hero-v2__logo-ring .titan-home-hero-v2__logo,
@@ -651,10 +654,12 @@
     height: 5.75rem !important;
     width: 5.75rem !important;
     max-width: 5.75rem !important;
-    object-fit: contain;
+    object-fit: cover;
     object-position: center;
     background: transparent;
     border-radius: 50%;
+    /* Crop residual black padding outside the metallic badge */
+    transform: scale(1.06);
     filter: drop-shadow(0 6px 18px rgba(46, 168, 255, 0.28));
   }
 
