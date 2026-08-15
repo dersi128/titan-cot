@@ -392,6 +392,8 @@
     max-width: min(42vw, 7.5rem);
     object-fit: contain;
     object-position: center;
+    background: transparent;
+    border-radius: 50%;
     filter: drop-shadow(0 4px 18px rgba(46, 168, 255, 0.22));
   }
 
@@ -651,7 +653,9 @@
     max-width: 5.75rem !important;
     object-fit: contain;
     object-position: center;
-    filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.55));
+    background: transparent;
+    border-radius: 50%;
+    filter: drop-shadow(0 6px 18px rgba(46, 168, 255, 0.28));
   }
 
   @media (min-width: 768px) {

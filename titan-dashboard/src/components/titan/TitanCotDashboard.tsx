@@ -410,7 +410,12 @@ export function TitanCotDashboard() {
 
               <>
 
-                <TitanHomeHero liveCount={liveCount} refreshSec={REFRESH_MS / 1000} refreshLabel={refreshLabel} />
+                <TitanHomeHero
+                  section={section}
+                  liveCount={liveCount}
+                  refreshSec={REFRESH_MS / 1000}
+                  refreshLabel={refreshLabel}
+                />
 
                 <div className="mx-auto max-w-[1680px]">
 

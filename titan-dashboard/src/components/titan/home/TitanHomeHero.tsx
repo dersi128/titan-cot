@@ -2,14 +2,34 @@ import { TitanLogo } from "../../TitanLogo";
 import { LanguageSwitcher, useTitanI18n } from "../../../i18n";
 import { TitanLivePill } from "../ui/TitanPrimitives";
 import { UserButton } from "@clerk/clerk-react";
+import type { AppSection } from "../../../lib/titanAppRoute";
 
 type TitanHomeHeroProps = {
+  section: AppSection;
   liveCount: number;
   refreshSec: number;
   refreshLabel: string;
 };
 
-export function TitanHomeHero({ liveCount, refreshSec, refreshLabel }: TitanHomeHeroProps) {
+function sectionEyebrowKey(section: AppSection): string {
+  switch (section) {
+    case "home":
+      return "nav.home";
+    case "scanner":
+      return "nav.scanner";
+    case "seasonality":
+      return "nav.seasonality";
+    case "dme":
+      return "nav.dme";
+  }
+}
+
+export function TitanHomeHero({
+  section,
+  liveCount,
+  refreshSec,
+  refreshLabel,
+}: TitanHomeHeroProps) {
   const { t } = useTitanI18n();
 
   return (
@@ -20,7 +40,7 @@ export function TitanHomeHero({ liveCount, refreshSec, refreshLabel }: TitanHome
         </div>
         <div className="min-w-0 border-l border-titan-gold/15 pl-5 md:pl-6">
           <p className="font-display text-[10px] font-semibold uppercase tracking-[0.14em] text-titan-gold/80">
-            {t("home.heroEyebrow")}
+            {t(sectionEyebrowKey(section))}
           </p>
           <h1 className="titan-home-hero-v2__title mt-2 font-display text-2xl font-bold uppercase tracking-[0.08em] text-stone-50 md:text-[1.65rem] lg:text-[1.85rem]">
             {t("header.institutionalCot")}
