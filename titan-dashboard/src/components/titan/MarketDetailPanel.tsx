@@ -11,10 +11,14 @@ import {
 import type { CotDashboardData } from "../../types";
 import type { InstitutionalMarket } from "../../config/institutionalMarkets";
 import { evaluateTitanPositioning } from "../../lib/titanCommercialIndex";
+import {
+  commercialIndexToneClass,
+  formatCommercialIndex,
+} from "../../lib/titanCotIndexSettings";
+import { formatContractsDelta } from "../../lib/titanDmeOverview";
 import { MarketDetailHeroBias } from "./MarketDetailHeroBias";
 import { TitanBiasEngine } from "./TitanBiasEngine";
 import { TitanPositioningCore, TitanPositioningSignal } from "./TitanMarketEngine";
-import { TradingViewChart } from "./TradingViewChart";
 import { useTitanI18n } from "../../i18n";
 import { TitanPanel } from "./ui/TitanPrimitives";
 
@@ -46,20 +50,86 @@ type CotChartPoint = {
   retailNet: number;
 };
 
+function flowTone(v: number | null | undefined): string {
+  if (v === null || v === undefined || !Number.isFinite(v)) return "text-stone-300";
+  if (v > 0) return "text-emerald-400";
+  if (v < 0) return "text-rose-400";
+  return "text-stone-300";
+}
+
+function CommercialIndexPanel({ data, tr }: { data: CotDashboardData; tr: (key: string, params?: Record<string, string>) => string }) {
+  const read = evaluateTitanPositioning(data);
+  const c = data.commercials;
+  const persist = read?.commercialPersistenceWeeks ?? 0;
+
+  const rows: Array<{ label: string; value: string; valueClass?: string }> = [
+    {
+      label: tr("detail.indexPanel.comm26"),
+      value: formatCommercialIndex(c.index26w),
+      valueClass: commercialIndexToneClass(c.index26w),
+    },
+    {
+      label: tr("detail.indexPanel.comm52"),
+      value: formatCommercialIndex(c.index52w),
+      valueClass: commercialIndexToneClass(c.index52w),
+    },
+    {
+      label: tr("detail.indexPanel.delta1w"),
+      value: formatContractsDelta(c.weeklyChange),
+      valueClass: flowTone(c.weeklyChange),
+    },
+    {
+      label: tr("detail.indexPanel.delta4w"),
+      value: formatContractsDelta(c.delta4w),
+      valueClass: flowTone(c.delta4w),
+    },
+    {
+      label: tr("detail.indexPanel.delta13w"),
+      value: formatContractsDelta(c.delta13w),
+      valueClass: flowTone(c.delta13w),
+    },
+    {
+      label: tr("detail.indexPanel.persistence"),
+      value:
+        persist > 0
+          ? tr("detail.indexPanel.persistenceWeeks", { count: String(persist) })
+          : tr("detail.indexPanel.persistenceNone"),
+    },
+  ];
+
+  return (
+    <section className="rounded-xl border border-white/[0.07] bg-black/25 p-4 md:p-5">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-500">
+        {tr("detail.indexPanel.title")}
+      </p>
+      <p className="mt-1 text-[11px] text-stone-600">{tr("detail.indexPanel.caption")}</p>
+      <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+        {rows.map((row) => (
+          <div key={row.label} className="rounded-lg border border-white/[0.06] bg-black/30 px-3 py-2.5">
+            <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-stone-600">{row.label}</p>
+            <p className={`mt-1 font-mono text-base font-semibold tabular-nums leading-tight ${row.valueClass ?? "text-stone-100"}`}>
+              {row.value}
+            </p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function CompactMetricsStrip({ data, tr }: { data: CotDashboardData; tr: (key: string) => string }) {
   const read = evaluateTitanPositioning(data);
   if (!read) return null;
 
   const cells: { label: string; value: string }[] = [
-    { label: tr("detail.metricStripComm26"), value: data.commercials.index26w.toFixed(0) },
-    { label: tr("detail.metricStripRetail26"), value: data.retail.index26w.toFixed(0) },
-    { label: tr("detail.metricStripDelta13"), value: fmtLocaleInt(data.commercials.delta13w) },
     { label: tr("detail.metricStripRegime"), value: tr(`positioning.regime.${read.regime}`) },
     { label: tr("detail.metricStripDivergence"), value: tr(`positioning.divergence.headline.${read.divergence}`) },
+    { label: tr("detail.metricStripRetail26"), value: formatCommercialIndex(data.retail.index26w) },
+    { label: tr("detail.metricStripDelta13"), value: fmtLocaleInt(data.commercials.delta13w) },
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
       {cells.map((c) => (
         <div key={c.label} className="rounded-lg border border-white/[0.06] bg-black/30 px-3 py-2.5">
           <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-stone-600">{c.label}</p>
@@ -71,12 +141,10 @@ function CompactMetricsStrip({ data, tr }: { data: CotDashboardData; tr: (key: s
 }
 
 function ChartsSection({
-  market,
   trimmed,
   loading,
   tr,
 }: {
-  market: InstitutionalMarket;
   trimmed: CotChartPoint[];
   loading: boolean;
   tr: (key: string) => string;
@@ -149,8 +217,6 @@ function ChartsSection({
           )}
         </div>
       </div>
-
-      <TradingViewChart market={market} selectionKey={market.symbol} compact />
     </section>
   );
 }
@@ -186,14 +252,14 @@ export function MarketDetailPanel({ market, data, loading, error }: MarketDetail
 
         {data ? (
           <>
-            <ChartsSection market={market} trimmed={trimmed} loading={loading} tr={t} />
+            <CommercialIndexPanel data={data} tr={t} />
+            <ChartsSection trimmed={trimmed} loading={loading} tr={t} />
             <div className="border-t border-white/[0.06] pt-5">
               <CompactMetricsStrip data={data} tr={t} />
             </div>
           </>
         ) : null}
       </div>
-
     </TitanPanel>
   );
 }
