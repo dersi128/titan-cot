@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
-import { SignedIn, SignedOut, SignIn, useAuth, useClerk } from "@clerk/clerk-react";
+import { SignedIn, SignedOut, SignIn, SignUp, useAuth, useClerk } from "@clerk/clerk-react";
 import { TitanInstitutionalBackdrop } from "../components/TitanInstitutionalBackdrop";
 import { TitanLogo } from "../components/TitanLogo";
 import { LanguageSwitcher, useTitanI18n } from "../i18n";
@@ -9,17 +9,33 @@ type TitanAuthGateProps = {
   children: ReactNode;
 };
 
+type AuthMode = "sign-in" | "sign-up" | "waitlist";
+
 const SESSION_LOAD_TIMEOUT_MS = 10_000;
-const WAITLIST_HASH = "#waitlist";
 
 function isValidPublishableKey(key: string | undefined): key is string {
   const v = key?.trim() ?? "";
   return v.startsWith("pk_test_") || v.startsWith("pk_live_");
 }
 
-function readWaitlistHash(): boolean {
+function pathAuthMode(): AuthMode | null {
+  if (typeof window === "undefined") return null;
+  const path = window.location.pathname.replace(/\/+$/, "").toLowerCase();
+  if (path.endsWith("/sign-up") || path.includes("/sign-up/")) return "sign-up";
+  if (path.endsWith("/sign-in") || path.includes("/sign-in/")) return "sign-in";
+  if (path.endsWith("/waitlist")) return "waitlist";
+  return null;
+}
+
+function hasInviteTicket(): boolean {
   if (typeof window === "undefined") return false;
-  return window.location.hash.toLowerCase().includes("waitlist");
+  const q = new URLSearchParams(window.location.search);
+  return Boolean(q.get("__clerk_ticket") || q.get("__clerk_invitation_status"));
+}
+
+function resolveInitialMode(): AuthMode {
+  if (hasInviteTicket()) return "sign-up";
+  return pathAuthMode() ?? (window.location.hash.toLowerCase().includes("waitlist") ? "waitlist" : "sign-in");
 }
 
 function AuthShell({ children }: { children: ReactNode }) {
@@ -148,26 +164,37 @@ function TitanWaitlistForm() {
   );
 }
 
+function authTitleKey(mode: AuthMode, invited: boolean): string {
+  if (mode === "sign-up") return invited ? "auth.inviteTitle" : "auth.signUpTitle";
+  if (mode === "waitlist") return "auth.waitlistTitle";
+  return "auth.signInTitle";
+}
+
 function AuthLanding() {
   const { t } = useTitanI18n();
-  const [mode, setMode] = useState<"sign-in" | "waitlist">(() =>
-    readWaitlistHash() ? "waitlist" : "sign-in",
-  );
+  const invited = hasInviteTicket();
+  const [mode, setMode] = useState<AuthMode>(() => resolveInitialMode());
 
   useEffect(() => {
-    const sync = () => setMode(readWaitlistHash() ? "waitlist" : "sign-in");
+    const sync = () => setMode(resolveInitialMode());
+    window.addEventListener("popstate", sync);
     window.addEventListener("hashchange", sync);
-    return () => window.removeEventListener("hashchange", sync);
+    return () => {
+      window.removeEventListener("popstate", sync);
+      window.removeEventListener("hashchange", sync);
+    };
   }, []);
 
-  const selectMode = (next: "sign-in" | "waitlist") => {
+  const selectMode = (next: AuthMode) => {
+    if (invited && next !== "sign-up") return;
     setMode(next);
-    if (next === "waitlist") {
-      if (!readWaitlistHash()) window.location.hash = "waitlist";
-    } else if (readWaitlistHash()) {
-      window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
-    }
+    const target =
+      next === "sign-up" ? "/sign-up" : next === "waitlist" ? "/waitlist" : "/sign-in";
+    const url = `${target}${window.location.search}`;
+    window.history.replaceState(null, "", url);
   };
+
+  const title = t(authTitleKey(mode, invited));
 
   return (
     <AuthShell>
@@ -187,7 +214,7 @@ function AuthLanding() {
             {t("auth.heroTitle")}
           </h1>
           <p className="mt-4 max-w-md text-[14px] leading-relaxed text-stone-400 lg:text-[15px]">
-            {t("auth.subtitle")}
+            {invited ? t("auth.inviteSubtitle") : t("auth.subtitle")}
           </p>
           <ul className="mt-8 hidden gap-3 text-left sm:grid">
             <li className="titan-auth-feature">{t("auth.feature1")}</li>
@@ -203,37 +230,50 @@ function AuthLanding() {
                 <p className="font-display text-[10px] font-semibold uppercase tracking-[0.18em] text-titan-gold/80">
                   {t("auth.access")}
                 </p>
-                <h2 className="mt-1 font-display text-lg font-semibold tracking-wide text-stone-100">
-                  {mode === "sign-in" ? t("auth.signInTitle") : t("auth.waitlistTitle")}
-                </h2>
+                <h2 className="mt-1 font-display text-lg font-semibold tracking-wide text-stone-100">{title}</h2>
               </div>
             </div>
 
-            <div className="titan-auth-tabs mt-4 mb-5 flex rounded-lg border border-white/10 bg-black/35 p-1">
-              <button
-                type="button"
-                onClick={() => selectMode("sign-in")}
-                className={`titan-auth-tabs__btn ${mode === "sign-in" ? "is-active" : ""}`}
-              >
-                {t("auth.signIn")}
-              </button>
-              <button
-                type="button"
-                onClick={() => selectMode("waitlist")}
-                className={`titan-auth-tabs__btn ${mode === "waitlist" ? "is-active" : ""}`}
-              >
-                {t("auth.waitlist")}
-              </button>
-            </div>
+            {!invited ? (
+              <div className="titan-auth-tabs mt-4 mb-5 flex rounded-lg border border-white/10 bg-black/35 p-1">
+                <button
+                  type="button"
+                  onClick={() => selectMode("sign-in")}
+                  className={`titan-auth-tabs__btn ${mode === "sign-in" ? "is-active" : ""}`}
+                >
+                  {t("auth.signIn")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => selectMode("waitlist")}
+                  className={`titan-auth-tabs__btn ${mode === "waitlist" ? "is-active" : ""}`}
+                >
+                  {t("auth.waitlist")}
+                </button>
+              </div>
+            ) : (
+              <div className="mt-4 mb-5" />
+            )}
 
             <div className="titan-auth-clerk flex justify-center">
               {mode === "sign-in" ? (
                 <SignIn
-                  routing="hash"
+                  routing="path"
+                  path="/sign-in"
                   appearance={titanClerkAppearance}
                   forceRedirectUrl="/"
                   fallbackRedirectUrl="/"
-                  waitlistUrl={WAITLIST_HASH}
+                  signUpUrl="/sign-up"
+                  waitlistUrl="/waitlist"
+                />
+              ) : mode === "sign-up" ? (
+                <SignUp
+                  routing="path"
+                  path="/sign-up"
+                  appearance={titanClerkAppearance}
+                  forceRedirectUrl="/"
+                  fallbackRedirectUrl="/"
+                  signInUrl="/sign-in"
                 />
               ) : (
                 <TitanWaitlistForm />

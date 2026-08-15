@@ -30,6 +30,26 @@
     {
       "source": "/api/yahoo/:match*",
       "destination": "https://query1.finance.yahoo.com/:match*"
+    },
+    {
+      "source": "/sign-in",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/sign-in/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/sign-up",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/sign-up/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/waitlist",
+      "destination": "/index.html"
     }
   ]
 }
