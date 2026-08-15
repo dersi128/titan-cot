@@ -41,8 +41,8 @@ export function SeasonalityPresidentialFilter({
     <div
       className={
         compact
-          ? "border-b border-titan-gold/15 bg-titan-panel/40 px-4 py-3"
-          : "rounded-xl border border-titan-gold/20 bg-titan-panel/70 px-4 py-3 shadow-insetGold"
+          ? "border-b border-white/[0.06] bg-transparent px-4 py-3"
+          : "titan-neon-glass px-4 py-3"
       }
     >
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">

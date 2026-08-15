@@ -16,7 +16,7 @@ export function SeasonalityMonthlyTable({ result, currentMonth }: SeasonalityMon
   const { t } = useTitanI18n();
 
   return (
-    <div className="titan-seasonality-table-wrap overflow-x-auto rounded-lg border border-white/[0.06]">
+    <div className="titan-seasonality-table-wrap overflow-x-auto">
       <table className="titan-seasonality-table w-full min-w-[480px] text-left text-[12px]">
         <thead>
           <tr>

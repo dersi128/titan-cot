@@ -17,7 +17,7 @@ export function TitanScannerPage({ liveCount, scanner }: TitanScannerPageProps) 
         title={t("pages.scanner.title")}
         description={t("pages.scanner.description")}
         aside={
-          <span className="rounded border border-titan-gold/20 bg-titan-black/50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-titan-gold/90">
+          <span className="rounded border border-[#2ea8ff]/40 bg-[#070b12]/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#7dd3fc] shadow-[0_0_18px_-6px_rgba(46,168,255,0.3)]">
             {t("header.marketsLive", { count: liveCount })}
           </span>
         }

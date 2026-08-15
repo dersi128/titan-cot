@@ -157,7 +157,7 @@ export function SeasonalityPage() {
             </p>
           </>
         ) : loading ? (
-          <div className="rounded-xl border border-titan-gold/15 bg-titan-panel/60 px-5 py-10 text-center text-sm text-stone-500">
+          <div className="titan-seasonality-panel px-5 py-10 text-center text-sm text-stone-500">
             {t("seasonality.loading")}
           </div>
         ) : null}

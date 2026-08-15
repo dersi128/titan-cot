@@ -387,7 +387,7 @@ export function SeasonalityMainChart({
       : null;
 
   return (
-    <div className="overflow-hidden rounded-xl border border-titan-gold/15 bg-titan-panel/80 shadow-card backdrop-blur-md">
+    <div className="titan-seasonality-chart overflow-hidden">
       <div className="flex flex-col gap-2 border-b border-white/[0.05] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
         <SeasonalityLookbackControl
           value={lookback}

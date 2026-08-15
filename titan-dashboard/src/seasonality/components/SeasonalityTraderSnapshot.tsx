@@ -13,9 +13,9 @@ function biasTone(bias: SeasonalityResult["seasonalBias"]): string {
 }
 
 function biasGlow(bias: SeasonalityResult["seasonalBias"]): string {
-  if (bias === "BULLISH") return "border-emerald-500/30 bg-emerald-500/[0.07]";
-  if (bias === "BEARISH") return "border-rose-500/30 bg-rose-500/[0.07]";
-  return "border-titan-gold/20 bg-titan-panel/60";
+  if (bias === "BULLISH") return "titan-neon-glass titan-neon-glass--glow-bull";
+  if (bias === "BEARISH") return "titan-neon-glass titan-neon-glass--glow-bear";
+  return "titan-neon-glass";
 }
 
 function alignmentTone(a: string): string {
@@ -62,7 +62,7 @@ export function SeasonalityTraderSnapshot({ result, currentMonth }: SeasonalityT
           });
 
   return (
-    <section className={`overflow-hidden rounded-xl border shadow-card ${biasGlow(displayBias)}`}>
+    <section className={`overflow-hidden ${biasGlow(displayBias)}`}>
       <div className="grid gap-0 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
         {/* 5-second hero verdict */}
         <div className="border-b border-white/[0.06] p-5 lg:border-b-0 lg:border-r lg:border-white/[0.06]">

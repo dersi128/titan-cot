@@ -69,7 +69,7 @@ export function SeasonalityDashboard({ result, comparison, currentMonth }: Props
   })();
 
   return (
-    <section className="rounded-xl border border-titan-gold/15 bg-titan-panel/70 px-4 py-4 shadow-card backdrop-blur-md sm:px-5">
+    <section className="titan-seasonality-panel px-4 py-4 sm:px-5">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="titan-cmd-kicker">{t("seasonality.dash.biasTitle")}</p>

@@ -12,7 +12,7 @@ export function SeasonalityTimingPanel({ result }: SeasonalityTimingPanelProps) 
   const vol = result.volatilityRegime ?? "NORMAL";
 
   return (
-    <div className="titan-seasonality-timing mt-3 rounded border border-white/[0.06] bg-black/20 p-3">
+    <div className="titan-neon-glass titan-seasonality-timing mt-3 p-3">
       <p className="titan-cmd-kicker mb-2">{t("seasonality.timing.title")}</p>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <div className="titan-seasonality-timing__cell">

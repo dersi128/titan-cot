@@ -15,7 +15,7 @@ export function SeasonalityDeviationSection({ result }: SeasonalityDeviationSect
   if (!deviation) return null;
 
   return (
-    <section className="titan-seasonality-deviation-section rounded-lg border border-white/[0.08] bg-black/25 p-4">
+    <section className="titan-seasonality-deviation-section p-4">
       <div className="flex flex-wrap items-center gap-2 border-b border-white/[0.06] pb-3">
         <p className="titan-cmd-kicker">{t("seasonality.deviation.sectionTitle")}</p>
         <SeasonalityAlignmentBadge alignment={alignment} />
