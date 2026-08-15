@@ -30,10 +30,10 @@ function UsdBiasMascot({ bias }: { bias: UsdBiasLabel }) {
     <img
       src={src}
       alt={alt}
-      width={160}
-      height={120}
+      width={120}
+      height={90}
       decoding="async"
-      className="pointer-events-none h-[4.75rem] w-auto max-w-[7.5rem] shrink-0 object-contain object-right opacity-95 -scale-x-100 sm:h-[5.5rem] sm:max-w-[8.5rem]"
+      className="pointer-events-none h-14 w-auto max-w-[5.5rem] shrink-0 object-contain object-right opacity-95 -scale-x-100 sm:h-16 sm:max-w-[6.5rem]"
       aria-hidden
     />
   );
@@ -47,35 +47,35 @@ function OpportunityRows({
   onOpenMarket: (marketId: string) => void;
 }) {
   return (
-    <ul className="mt-2 space-y-1">
+    <ul className="mt-1.5 divide-y divide-white/[0.04]">
       {rows.map((row, i) => {
-        const pct = Math.max(8, Math.min(100, row.score));
+        const pct = Math.max(6, Math.min(100, row.score));
         const isLong = row.side === "LONG";
-        const bar = isLong ? "bg-emerald-400/80" : "bg-rose-400/75";
+        const bar = isLong ? "bg-emerald-400/75" : "bg-rose-400/70";
         const labelTone = isLong ? "text-emerald-300" : "text-rose-300";
         return (
           <li key={`${row.side}-${row.id}`}>
             <button
               type="button"
               onClick={() => onOpenMarket(row.dataSymbol)}
-              className="grid w-full grid-cols-[1.1rem_minmax(0,1fr)_2.4rem] items-center gap-x-2 rounded px-1 py-1 text-left transition hover:bg-white/[0.05]"
+              className="grid w-full grid-cols-[0.9rem_minmax(0,1fr)_1.75rem] items-center gap-x-1.5 py-1 text-left transition hover:bg-white/[0.04]"
             >
-              <span className="font-mono text-[10px] tabular-nums text-stone-600">{i + 1}</span>
+              <span className="font-mono text-[9px] tabular-nums text-stone-600">{i + 1}</span>
               <div className="min-w-0">
-                <div className="flex items-baseline gap-1.5">
-                  <span className={`truncate font-display text-[12px] font-semibold tracking-wide ${labelTone}`}>
+                <div className="flex min-w-0 items-baseline gap-1.5">
+                  <span className={`truncate font-display text-[11px] font-semibold tracking-wide ${labelTone}`}>
                     {row.label}
                   </span>
-                  <span className="shrink-0 text-[9px] uppercase tracking-wider text-stone-600">
-                    {row.daysUntilStart > 0 ? `T-${row.daysUntilStart}` : row.strength}
+                  <span className="truncate text-[9px] text-stone-600">
+                    {row.windowLabel.replace(/\s+/g, " ")}
+                    {row.daysUntilStart > 0 ? ` · T-${row.daysUntilStart}` : ""}
                   </span>
                 </div>
-                <p className="truncate text-[9px] text-stone-600">{row.windowLabel}</p>
-                <div className="mt-1 h-1 overflow-hidden rounded-full bg-white/[0.06]">
+                <div className="mt-0.5 h-0.5 overflow-hidden rounded-full bg-white/[0.05]">
                   <div className={`h-full rounded-full ${bar}`} style={{ width: `${pct}%` }} />
                 </div>
               </div>
-              <span className="text-right font-mono text-[11px] font-semibold tabular-nums text-stone-200">
+              <span className="text-right font-mono text-[10px] font-semibold tabular-nums text-stone-300">
                 {row.score}
               </span>
             </button>
@@ -83,6 +83,44 @@ function OpportunityRows({
         );
       })}
     </ul>
+  );
+}
+
+function SeasonPanel({
+  title,
+  loading,
+  empty,
+  rows,
+  onOpenList,
+  onOpenMarket,
+}: {
+  title: string;
+  loading: boolean;
+  empty: string;
+  rows: SeasonalityOpportunity[];
+  onOpenList: () => void;
+  onOpenMarket: (marketId: string) => void;
+}) {
+  return (
+    <article className="titan-cmd-card min-w-0 w-full">
+      <div className="px-2 py-1.5 sm:px-2.5 sm:py-2">
+        <button
+          type="button"
+          onClick={onOpenList}
+          className="flex w-full items-baseline justify-between gap-2 text-left"
+        >
+          <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-titan-gold/80">{title}</p>
+          <p className="font-mono text-[8px] uppercase tracking-wider text-stone-600">Score</p>
+        </button>
+        {loading ? (
+          <p className="mt-1.5 text-[11px] text-stone-500">{empty}</p>
+        ) : rows.length > 0 ? (
+          <OpportunityRows rows={rows} onOpenMarket={onOpenMarket} />
+        ) : (
+          <p className="mt-1.5 text-[11px] leading-snug text-stone-500">{empty}</p>
+        )}
+      </div>
+    </article>
   );
 }
 
@@ -114,20 +152,25 @@ export function HomePulseCards({ bundle, onNavigate }: HomePulseCardsProps) {
     onNavigate("seasonality", { seasonalityMarket: marketId });
 
   return (
-    <section className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)_minmax(0,1.15fr)]" aria-label={t("home.pulseTitle")}>
+    <section
+      className="grid gap-2 lg:grid-cols-[minmax(15rem,0.95fr)_minmax(0,1.4fr)]"
+      aria-label={t("home.pulseTitle")}
+    >
       <button
         type="button"
         onClick={() => onNavigate("dme")}
-        className="titan-cmd-card w-full self-stretch text-left transition hover:border-white/15"
+        className="titan-cmd-card w-full text-left transition hover:border-white/15"
       >
-        <div className="flex h-full items-center gap-3 p-1 sm:gap-4 sm:p-2">
+        <div className="flex h-full items-center gap-2.5 px-2 py-1.5 sm:gap-3 sm:px-2.5 sm:py-2">
           <TitanScoreRing100 score={usd.score100} label="USD" />
           <div className="min-w-0 flex-1">
-            <p className="titan-cmd-kicker">{t("home.pulseDmeTitle")}</p>
-            <p className={`mt-1 font-display text-xl font-semibold tracking-wide ${biasTone(usd.bias)}`}>
+            <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-titan-gold/80">
+              {t("home.pulseDmeTitle")}
+            </p>
+            <p className={`mt-0.5 font-display text-lg font-semibold tracking-wide ${biasTone(usd.bias)}`}>
               {t(`home.pulseUsdBias.${usd.bias}`)}
             </p>
-            <p className="mt-1 text-[12px] text-stone-500">
+            <p className="mt-0.5 text-[11px] text-stone-500">
               {usd.score100 === null
                 ? t("home.pulseDmeUnavailable")
                 : t("home.pulseDmeSub", { score: String(usd.score100) })}
@@ -137,45 +180,28 @@ export function HomePulseCards({ bundle, onNavigate }: HomePulseCardsProps) {
         </div>
       </button>
 
-      <article className="titan-cmd-card w-full self-stretch">
-        <div className="flex h-full flex-col p-1 sm:p-2">
-          <button
-            type="button"
-            onClick={() => onNavigate("seasonality")}
-            className="flex w-full items-end justify-between gap-2 text-left"
-          >
-            <p className="titan-cmd-kicker">{t("home.pulseSeasonLongTitle")}</p>
-            <p className="font-mono text-[9px] uppercase tracking-wider text-stone-600">Score</p>
-          </button>
-          {!scanDone ? (
-            <p className="mt-3 text-[13px] text-stone-500">{t("home.pulseSeasonLoading")}</p>
-          ) : longs.length > 0 ? (
-            <OpportunityRows rows={longs} onOpenMarket={openSeason} />
-          ) : (
-            <p className="mt-3 text-[13px] text-stone-500">{t("home.pulseSeasonLongEmpty")}</p>
-          )}
-        </div>
-      </article>
-
-      <article className="titan-cmd-card w-full self-stretch">
-        <div className="flex h-full flex-col p-1 sm:p-2">
-          <button
-            type="button"
-            onClick={() => onNavigate("seasonality")}
-            className="flex w-full items-end justify-between gap-2 text-left"
-          >
-            <p className="titan-cmd-kicker">{t("home.pulseSeasonShortTitle")}</p>
-            <p className="font-mono text-[9px] uppercase tracking-wider text-stone-600">Score</p>
-          </button>
-          {!scanDone ? (
-            <p className="mt-3 text-[13px] text-stone-500">{t("home.pulseSeasonLoading")}</p>
-          ) : shorts.length > 0 ? (
-            <OpportunityRows rows={shorts} onOpenMarket={openSeason} />
-          ) : (
-            <p className="mt-3 text-[13px] text-stone-500">{t("home.pulseSeasonShortEmpty")}</p>
-          )}
-        </div>
-      </article>
+      <div className="grid min-w-0 gap-2 sm:grid-cols-2">
+        <SeasonPanel
+          title={t("home.pulseSeasonLongTitle")}
+          loading={!scanDone}
+          empty={
+            !scanDone ? t("home.pulseSeasonLoading") : t("home.pulseSeasonLongEmpty")
+          }
+          rows={longs}
+          onOpenList={() => onNavigate("seasonality")}
+          onOpenMarket={openSeason}
+        />
+        <SeasonPanel
+          title={t("home.pulseSeasonShortTitle")}
+          loading={!scanDone}
+          empty={
+            !scanDone ? t("home.pulseSeasonLoading") : t("home.pulseSeasonShortEmpty")
+          }
+          rows={shorts}
+          onOpenList={() => onNavigate("seasonality")}
+          onOpenMarket={openSeason}
+        />
+      </div>
     </section>
   );
 }
