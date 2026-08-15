@@ -1,5 +1,12 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
-import { SignedIn, SignedOut, SignIn, SignUp, useAuth, useClerk } from "@clerk/clerk-react";
+import {
+  SignedIn,
+  SignedOut,
+  SignIn,
+  useAuth,
+  useClerk,
+  useSignUp,
+} from "@clerk/clerk-react";
 import { TitanInstitutionalBackdrop } from "../components/TitanInstitutionalBackdrop";
 import { TitanLogo } from "../components/TitanLogo";
 import { LanguageSwitcher, useTitanI18n } from "../i18n";
@@ -27,14 +34,14 @@ function pathAuthMode(): AuthMode | null {
   return null;
 }
 
-function hasInviteTicket(): boolean {
-  if (typeof window === "undefined") return false;
+function readInviteTicket(): string | null {
+  if (typeof window === "undefined") return null;
   const q = new URLSearchParams(window.location.search);
-  return Boolean(q.get("__clerk_ticket") || q.get("__clerk_invitation_status"));
+  return q.get("__clerk_ticket");
 }
 
 function resolveInitialMode(): AuthMode {
-  if (hasInviteTicket()) return "sign-up";
+  if (readInviteTicket()) return "sign-up";
   return pathAuthMode() ?? (window.location.hash.toLowerCase().includes("waitlist") ? "waitlist" : "sign-in");
 }
 
@@ -90,7 +97,6 @@ function AuthSessionStuck() {
   return <AuthErrorCard title={t("auth.sessionStuckTitle")} body={t("auth.sessionStuckBody")} />;
 }
 
-/** Same-origin waitlist — no redirect to accounts.dev Account Portal. */
 function TitanWaitlistForm() {
   const { t } = useTitanI18n();
   const clerk = useClerk();
@@ -164,6 +170,103 @@ function TitanWaitlistForm() {
   );
 }
 
+/** Accept Clerk waitlist/user invite via __clerk_ticket (no Account Portal). */
+function TitanInviteAcceptForm({ ticket }: { ticket: string }) {
+  const { t } = useTitanI18n();
+  const { isLoaded, signUp, setActive } = useSignUp();
+  const [password, setPassword] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const onSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!isLoaded || !signUp || !password.trim()) return;
+    setStatus("loading");
+    setErrorMsg("");
+    try {
+      const attempt = await signUp.create({
+        strategy: "ticket",
+        ticket,
+        password: password.trim(),
+      });
+      if (attempt.status === "complete" && attempt.createdSessionId) {
+        await setActive({ session: attempt.createdSessionId });
+        window.location.assign("/");
+        return;
+      }
+      setErrorMsg(t("auth.inviteIncomplete"));
+      setStatus("error");
+    } catch (err) {
+      const msg =
+        err && typeof err === "object" && "errors" in err
+          ? String(
+              (err as { errors?: Array<{ longMessage?: string; message?: string }> }).errors?.[0]
+                ?.longMessage ??
+                (err as { errors?: Array<{ message?: string }> }).errors?.[0]?.message ??
+                "",
+            )
+          : err instanceof Error
+            ? err.message
+            : "";
+      setErrorMsg(msg || t("auth.inviteError"));
+      setStatus("error");
+    }
+  };
+
+  return (
+    <form className="w-full max-w-[360px] space-y-3" onSubmit={(e) => void onSubmit(e)}>
+      <p className="text-[12px] leading-relaxed text-stone-400">{t("auth.inviteFormHint")}</p>
+      <label className="block">
+        <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.12em] text-stone-500">
+          {t("auth.invitePassword")}
+        </span>
+        <input
+          type="password"
+          required
+          autoComplete="new-password"
+          minLength={8}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          disabled={status === "loading" || !isLoaded}
+          placeholder={t("auth.invitePasswordPlaceholder")}
+          className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2.5 text-[14px] text-stone-100 outline-none placeholder:text-stone-600 focus:border-sky-400/40"
+        />
+      </label>
+      <div id="clerk-captcha" />
+      {status === "error" && errorMsg ? (
+        <p className="text-[12px] text-rose-300">{errorMsg}</p>
+      ) : null}
+      <button
+        type="submit"
+        disabled={status === "loading" || !isLoaded || password.trim().length < 8}
+        className="w-full rounded-lg bg-sky-500 px-3 py-2.5 text-[13px] font-semibold text-white transition hover:bg-sky-400 disabled:opacity-50"
+      >
+        {status === "loading" ? t("auth.inviteSubmitting") : t("auth.inviteSubmit")}
+      </button>
+    </form>
+  );
+}
+
+function InviteMissingTicket() {
+  const { t } = useTitanI18n();
+  return (
+    <div className="w-full max-w-[360px] rounded-lg border border-amber-500/25 bg-amber-950/20 px-4 py-5">
+      <p className="text-[14px] font-semibold text-amber-100">{t("auth.inviteMissingTitle")}</p>
+      <p className="mt-2 text-[12px] leading-relaxed text-stone-400">{t("auth.inviteMissingBody")}</p>
+      <button
+        type="button"
+        className="mt-4 w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-[12px] font-semibold text-stone-200"
+        onClick={() => {
+          window.history.replaceState(null, "", "/waitlist");
+          window.location.reload();
+        }}
+      >
+        {t("auth.waitlist")}
+      </button>
+    </div>
+  );
+}
+
 function authTitleKey(mode: AuthMode, invited: boolean): string {
   if (mode === "sign-up") return invited ? "auth.inviteTitle" : "auth.signUpTitle";
   if (mode === "waitlist") return "auth.waitlistTitle";
@@ -172,7 +275,8 @@ function authTitleKey(mode: AuthMode, invited: boolean): string {
 
 function AuthLanding() {
   const { t } = useTitanI18n();
-  const invited = hasInviteTicket();
+  const ticket = readInviteTicket();
+  const invited = Boolean(ticket);
   const [mode, setMode] = useState<AuthMode>(() => resolveInitialMode());
 
   useEffect(() => {
@@ -190,8 +294,7 @@ function AuthLanding() {
     setMode(next);
     const target =
       next === "sign-up" ? "/sign-up" : next === "waitlist" ? "/waitlist" : "/sign-in";
-    const url = `${target}${window.location.search}`;
-    window.history.replaceState(null, "", url);
+    window.history.replaceState(null, "", `${target}${window.location.search}`);
   };
 
   const title = t(authTitleKey(mode, invited));
@@ -267,14 +370,11 @@ function AuthLanding() {
                   waitlistUrl="/waitlist"
                 />
               ) : mode === "sign-up" ? (
-                <SignUp
-                  routing="path"
-                  path="/sign-up"
-                  appearance={titanClerkAppearance}
-                  forceRedirectUrl="/"
-                  fallbackRedirectUrl="/"
-                  signInUrl="/sign-in"
-                />
+                ticket ? (
+                  <TitanInviteAcceptForm ticket={ticket} />
+                ) : (
+                  <InviteMissingTicket />
+                )
               ) : (
                 <TitanWaitlistForm />
               )}
