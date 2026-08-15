@@ -16,6 +16,19 @@ export type SeasonalityLongCandidate = {
   avgReturnInWindow: number;
 };
 
+/** Wider desk than the seasonality quick-picks — enough markets for a top-5 list. */
+const SCAN_MARKETS: readonly { id: string; label: string; dataSymbol: string }[] = [
+  ...SEASONALITY_MARKETS,
+  { id: "NATGAS", label: "Nat Gas", dataSymbol: "NATGAS" },
+  { id: "COPPER", label: "Copper", dataSymbol: "HG=F" },
+  { id: "COFFEE", label: "Coffee", dataSymbol: "COFFEE" },
+  { id: "COCOA", label: "Cocoa", dataSymbol: "COCOA" },
+  { id: "AUD", label: "AUDUSD", dataSymbol: "AUD" },
+  { id: "CAD", label: "USDCAD", dataSymbol: "USDCAD" },
+];
+
+export const SEASONAL_LONG_TOP_N = 5;
+
 const STRENGTH_FALLBACK: Record<SeasonalStrength, number> = {
   LOW: 28,
   MODERATE: 55,
@@ -44,7 +57,6 @@ function rankScore(result: SeasonalityResult): number {
 function qualifiesAsSeasonalLong(result: SeasonalityResult, score: number): boolean {
   if (result.seasonalBias === "BEARISH") return false;
   if (result.seasonalBias === "BULLISH") return true;
-  // Soft long: positive seasonal window + decent score / win rate
   const avg = result.averageReturnInWindow;
   const wr = result.overallWinRate;
   if (avg > 0 && score >= 50) return true;
@@ -84,7 +96,7 @@ async function mapPool<T, R>(items: readonly T[], limit: number, fn: (item: T) =
 }
 
 async function runScan(): Promise<SeasonalityLongCandidate[]> {
-  const settled = await mapPool(SEASONALITY_MARKETS, CONCURRENCY, async (m) => {
+  const settled = await mapPool(SCAN_MARKETS, CONCURRENCY, async (m) => {
     const result = await fetchOne(m.dataSymbol);
     if (!result) return null;
     const score = rankScore(result);
@@ -107,7 +119,8 @@ async function runScan(): Promise<SeasonalityLongCandidate[]> {
     .sort((a, b) => {
       const bullBoost = (c: SeasonalityLongCandidate) => (c.bias === "BULLISH" ? 20 : 0);
       return b.score + bullBoost(b) - (a.score + bullBoost(a));
-    });
+    })
+    .slice(0, SEASONAL_LONG_TOP_N);
 }
 
 /** Parallel scan of seasonality presets; returns long-leaning setups ranked by score. */

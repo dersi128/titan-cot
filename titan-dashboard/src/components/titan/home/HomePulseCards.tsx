@@ -39,18 +39,67 @@ function UsdBiasMascot({ bias }: { bias: UsdBiasLabel }) {
   );
 }
 
+function SeasonalLongRows({
+  rows,
+}: {
+  rows: SeasonalityLongCandidate[];
+}) {
+  return (
+    <ul className="mt-2.5 space-y-1">
+      {rows.map((row, i) => {
+        const pct = Math.max(8, Math.min(100, row.score));
+        const bar =
+          row.bias === "BULLISH"
+            ? "bg-emerald-400/80"
+            : "bg-sky-400/70";
+        const labelTone =
+          row.bias === "BULLISH" ? "text-emerald-300" : "text-sky-200";
+        return (
+          <li
+            key={row.id}
+            className="grid grid-cols-[1.1rem_minmax(0,1fr)_2.6rem_2.4rem] items-center gap-x-2 rounded px-1 py-1 hover:bg-white/[0.03]"
+          >
+            <span className="font-mono text-[10px] tabular-nums text-stone-600">{i + 1}</span>
+            <div className="min-w-0">
+              <div className="flex items-baseline gap-1.5">
+                <span className={`truncate font-display text-[12px] font-semibold tracking-wide ${labelTone}`}>
+                  {row.label}
+                </span>
+                <span className="shrink-0 text-[9px] uppercase tracking-wider text-stone-600">
+                  {row.strength}
+                </span>
+              </div>
+              <div className="mt-1 h-1 overflow-hidden rounded-full bg-white/[0.06]">
+                <div className={`h-full rounded-full ${bar}`} style={{ width: `${pct}%` }} />
+              </div>
+            </div>
+            <span className="text-right font-mono text-[11px] font-semibold tabular-nums text-stone-200">
+              {row.score}
+            </span>
+            <span className="text-right font-mono text-[10px] tabular-nums text-stone-500">
+              {row.winRate.toFixed(0)}%
+            </span>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 function PulseCard({
   children,
   onClick,
+  className = "",
 }: {
   children: React.ReactNode;
   onClick: () => void;
+  className?: string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="titan-cmd-card w-full text-left transition hover:border-white/15"
+      className={`titan-cmd-card w-full text-left transition hover:border-white/15 ${className}`}
     >
       {children}
     </button>
@@ -79,13 +128,15 @@ export function HomePulseCards({ bundle, onNavigate }: HomePulseCardsProps) {
     };
   }, []);
 
-  const best = longs?.[0] ?? null;
-  const second = longs?.[1] ?? null;
+  const topLongs = longs ?? [];
 
   return (
-    <section className="grid gap-3 sm:grid-cols-2" aria-label={t("home.pulseTitle")}>
-      <PulseCard onClick={() => onNavigate("dme")}>
-        <div className="flex items-center gap-3 p-1 sm:gap-4 sm:p-2">
+    <section
+      className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)]"
+      aria-label={t("home.pulseTitle")}
+    >
+      <PulseCard onClick={() => onNavigate("dme")} className="self-stretch">
+        <div className="flex h-full items-center gap-3 p-1 sm:gap-4 sm:p-2">
           <TitanScoreRing100 score={usd.score100} label="USD" />
           <div className="min-w-0 flex-1">
             <p className="titan-cmd-kicker">{t("home.pulseDmeTitle")}</p>
@@ -102,36 +153,20 @@ export function HomePulseCards({ bundle, onNavigate }: HomePulseCardsProps) {
         </div>
       </PulseCard>
 
-      <PulseCard onClick={() => onNavigate("seasonality")}>
-        <div className="flex h-full min-h-[100px] flex-col justify-center p-1 sm:p-2">
-          <p className="titan-cmd-kicker">{t("home.pulseSeasonTitle")}</p>
+      <PulseCard onClick={() => onNavigate("seasonality")} className="self-stretch">
+        <div className="flex h-full flex-col p-1 sm:p-2">
+          <div className="flex items-end justify-between gap-2">
+            <p className="titan-cmd-kicker">{t("home.pulseSeasonTitle")}</p>
+            {scanDone && topLongs.length > 0 ? (
+              <p className="font-mono text-[9px] uppercase tracking-wider text-stone-600">
+                {t("home.pulseSeasonCols")}
+              </p>
+            ) : null}
+          </div>
           {!scanDone ? (
             <p className="mt-3 text-[13px] text-stone-500">{t("home.pulseSeasonLoading")}</p>
-          ) : best ? (
-            <>
-              <p
-                className={`mt-2 font-display text-xl font-semibold tracking-wide ${
-                  best.bias === "BULLISH" ? "text-emerald-400" : "text-sky-300"
-                }`}
-              >
-                {best.label}
-                <span className="ml-2 font-mono text-base text-stone-300">{best.score}/100</span>
-              </p>
-              <p className="mt-1 text-[12px] text-stone-500">
-                {t("home.pulseSeasonReason", {
-                  strength: t(`seasonality.strength.${best.strength}`),
-                  wr: best.winRate.toFixed(0),
-                })}
-              </p>
-              {second ? (
-                <p className="mt-2 text-[11px] text-stone-600">
-                  {t("home.pulseSeasonSecond", {
-                    label: second.label,
-                    score: String(second.score),
-                  })}
-                </p>
-              ) : null}
-            </>
+          ) : topLongs.length > 0 ? (
+            <SeasonalLongRows rows={topLongs} />
           ) : (
             <p className="mt-3 text-[13px] text-stone-500">{t("home.pulseSeasonEmpty")}</p>
           )}
