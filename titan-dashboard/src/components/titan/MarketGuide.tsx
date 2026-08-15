@@ -17,10 +17,6 @@ export function MarketGuide({ market }: MarketGuideProps) {
           {t("guide.title", { market: market.shortLabel })}
         </p>
         <h2 className="mt-1 text-base font-semibold text-stone-100">{t("guide.heading")}</h2>
-        <p className="mt-2 text-sm leading-relaxed text-stone-500">
-          {t("guide.intro")}{" "}
-          <span className="text-titan-goldDim">{t("guide.introDisclaimer")}</span> {t("guide.introNoSignal")}
-        </p>
       </header>
       <ul className="grid gap-3 sm:grid-cols-2">
         {GUIDE_KEYS.map((key) => (
@@ -31,7 +27,6 @@ export function MarketGuide({ market }: MarketGuideProps) {
             <p className="text-[11px] font-semibold uppercase tracking-wider text-titan-goldBright/90">
               {t(`guide.items.${key}.title`)}
             </p>
-            <p className="mt-1.5 text-[13px] leading-snug text-stone-500">{t(`guide.items.${key}.body`)}</p>
           </li>
         ))}
       </ul>

@@ -100,7 +100,6 @@ export function SeasonalityTraderSnapshot({ result, currentMonth }: SeasonalityT
           <p className={`mt-2 font-display text-2xl font-semibold ${alignmentTone(alignment)}`}>
             {t(`seasonality.snap.align.${alignment}`)}
           </p>
-          <p className="mt-1 text-[12px] text-stone-500">{t(`seasonality.snap.alignHint.${alignment}`)}</p>
         </div>
 
         {/* Next best month hint */}

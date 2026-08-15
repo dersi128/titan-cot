@@ -64,11 +64,6 @@ export function TitanBiasEngineAnalytics({
         </ul>
       </div>
 
-      <p className="titan-bias-execution-note px-0.5 text-[11px] leading-relaxed text-stone-600">
-        {t("biasEngine.executionLine1")}
-        <span className="block text-stone-700">{t("biasEngine.executionLine2")}</span>
-      </p>
-
       <div className="titan-bias-transparency">
         <button
           type="button"
@@ -143,25 +138,6 @@ export function TitanBiasEngineAnalytics({
                 </tbody>
               </table>
             </div>
-
-            <ul className="space-y-2">
-              {scoring.drivers.map((d) => (
-                <li
-                  key={d.id}
-                  className="rounded-lg border border-white/[0.05] bg-black/20 px-3 py-2.5 text-xs text-stone-500"
-                >
-                  <p className="font-medium text-stone-400">
-                    {driverLabel(t, d.id)}
-                    {d.is_primary ? (
-                      <span className="ml-2 text-[9px] uppercase tracking-wider text-titan-gold/70">
-                        {t("biasEngine.primaryTag")}
-                      </span>
-                    ) : null}
-                  </p>
-                  <p className="mt-1 leading-relaxed">{d.explanation}</p>
-                </li>
-              ))}
-            </ul>
           </div>
         ) : null}
       </div>

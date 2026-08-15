@@ -89,11 +89,6 @@ export function SeasonalityPresidentialFilter({
           );
         })}
       </div>
-      {!compact ? (
-        <p className="mt-2 text-[11px] text-stone-500">{t("seasonality.presidentialHint")}</p>
-      ) : noneOn ? (
-        <p className="mt-2 text-[11px] text-titan-gold/70">{t("seasonality.presidentialPick")}</p>
-      ) : null}
     </div>
   );
 }

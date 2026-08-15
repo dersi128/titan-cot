@@ -69,12 +69,6 @@ export function CotDetailReport({
 
       {ready && cotData ? (
         <>
-          <p className="cot-detail-disclaimer">
-            Positioning only — directional bias, not buy/sell timing. Not investment advice.
-          </p>
-          {cotData.plainEnglishExplanation ? (
-            <p className="cot-detail-explanation">{cotData.plainEnglishExplanation}</p>
-          ) : null}
           <div className="cot-detail-meta">
             <span>Report date · {cotData.reportDate}</span>
             {cotData.cftcMarketName ? <span>CFTC · {cotData.cftcMarketName}</span> : null}

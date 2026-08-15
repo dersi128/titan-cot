@@ -25,7 +25,6 @@ export function CotScannerPreview({ rows, activeSymbol, onSelectMarket, onOpenFu
           Expand
         </button>
       </div>
-      <p className="cot-preview-hint">By |score|. Click row to open detail.</p>
       <div className="cot-preview-table">
         <div className="cot-preview-row cot-preview-head-row">
           <span>Mkt</span>

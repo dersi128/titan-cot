@@ -23,7 +23,6 @@ export function SeasonalityYearMonthlyPanel({ year, rows, ytdPct }: SeasonalityY
   return (
     <aside className="titan-seasonality-year-panel" aria-label={t("seasonality.yearPanel.title", { year })}>
       <p className="titan-cmd-kicker">{t("seasonality.yearPanel.title", { year })}</p>
-      <p className="mt-1 text-[9px] leading-snug text-stone-600">{t("seasonality.yearPanel.sub")}</p>
       <p className="titan-seasonality-year-panel__ytd mt-3">
         <span className="titan-cmd-kicker">{t("seasonality.yearPanel.ytd")}</span>
         <span className={ytdPct >= 0 ? "text-emerald-400/95" : "text-rose-400/95"}>{fmtPct(ytdPct)}</span>

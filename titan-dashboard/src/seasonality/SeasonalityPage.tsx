@@ -152,8 +152,7 @@ export function SeasonalityPage() {
                 ? t("seasonality.dataNoteApi", { target: describeSeasonalityApiTarget() })
                 : dataSource === "yahoo"
                   ? t("seasonality.dataNoteYahoo")
-                  : t("seasonality.dataNote")}{" "}
-              · {t("seasonality.disclaimer")}
+                  : t("seasonality.dataNote")}
             </p>
           </>
         ) : loading ? (

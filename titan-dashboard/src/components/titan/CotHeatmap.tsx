@@ -54,16 +54,7 @@ export function CotHeatmap({ markets, bundle, selectedMarket, onSelectMarket }: 
 
   return (
     <TitanPanel delayMs={80}>
-      <TitanPanelHeader
-        eyebrow={t("heatmap.eyebrow")}
-        description={
-          <>
-            <span className="text-emerald-400/90">{t("heatmap.descGreen")}</span> {t("heatmap.descGreenRest")}{" "}
-            <span className="text-rose-400/90">{t("heatmap.descRed")}</span> {t("heatmap.descRedRest")}{" "}
-            <span className="text-amber-400/85">{t("heatmap.descAmber")}</span> {t("heatmap.descAmberRest")}
-          </>
-        }
-      />
+      <TitanPanelHeader eyebrow={t("heatmap.eyebrow")} />
       <div className="grid grid-cols-2 gap-2.5 p-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
         {markets.map((m) => {
           const data = bundle[m.symbol];

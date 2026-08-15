@@ -61,7 +61,6 @@ export function SeasonalityStatsCards({ result }: SeasonalityStatsCardsProps) {
 
   return (
     <div>
-      <p className="mb-2 px-0.5 text-[10px] text-stone-600">{t("seasonality.primaryBiasNote")}</p>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
       <StatCard
         label={t("seasonality.stats.bias")}

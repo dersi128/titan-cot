@@ -26,7 +26,6 @@ export function SeasonalityDeviationSection({ result }: SeasonalityDeviationSect
           {deviation.deviationPct.toFixed(1)} pts
         </span>
       </div>
-      <p className="mt-2 text-[10px] text-stone-600">{t("seasonality.deviation.sectionSub")}</p>
       <div className="mt-4">
         <SeasonalityInstitutionalPanels result={result} />
       </div>

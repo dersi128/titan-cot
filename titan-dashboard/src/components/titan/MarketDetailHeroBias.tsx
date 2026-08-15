@@ -83,8 +83,6 @@ export function MarketDetailHeroBias({ market, data, loading }: MarketDetailHero
                   <p className="mt-2 max-w-[240px] text-[10px] leading-relaxed text-stone-600">
                     {t("detail.heroBiasLabel")}{" "}
                     <span className="text-stone-400">{biasContextLabel(data.commercials.bias, t)}</span>
-                    <span className="text-stone-700"> · </span>
-                    {t("biasEngine.biasOnly")}
                   </p>
                 </div>
               </div>
@@ -134,15 +132,10 @@ export function MarketDetailHeroBias({ market, data, loading }: MarketDetailHero
 
             {positioningRead ? (
               <div className="titan-hero-bias-block__regime mt-3 rounded-xl border border-white/[0.06] bg-black/25 px-4 py-2.5 md:mt-4">
-                <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
-                  <div>
-                    <p className="titan-bias-kicker">{t("biasEngine.marketRegimeLabel")}</p>
-                    <p className="mt-0.5 font-display text-sm font-semibold uppercase tracking-[0.12em] text-titan-gold/95">
-                      {t(`positioning.regime.${positioningRead.regime}`)}
-                    </p>
-                  </div>
-                  <p className="text-xs leading-relaxed text-stone-500 sm:max-w-[55%] sm:text-right">
-                    {t(`positioning.regime.hint.${positioningRead.regime}`)}
+                <div>
+                  <p className="titan-bias-kicker">{t("biasEngine.marketRegimeLabel")}</p>
+                  <p className="mt-0.5 font-display text-sm font-semibold uppercase tracking-[0.12em] text-titan-gold/95">
+                    {t(`positioning.regime.${positioningRead.regime}`)}
                   </p>
                 </div>
               </div>

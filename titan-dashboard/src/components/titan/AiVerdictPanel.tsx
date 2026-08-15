@@ -163,7 +163,6 @@ export function AiVerdictPanel({ market, data, loading, variant = "standalone" }
           <h3 className="font-display text-[10px] font-semibold uppercase tracking-[0.22em] text-titan-gold">
             {t("verdict.panelTitle")}
           </h3>
-          <p className="mt-0.5 text-xs text-stone-500">{t("verdict.panelSub")}</p>
         </header>
         {body}
       </div>
@@ -176,7 +175,6 @@ export function AiVerdictPanel({ market, data, loading, variant = "standalone" }
         <h2 className="font-display text-xs font-semibold uppercase tracking-[0.2em] text-titan-gold">
           {t("verdict.panelStandalone")}
         </h2>
-        <p className="mt-1 text-sm text-stone-500">{t("verdict.panelStandaloneSub")}</p>
       </header>
       {body}
     </aside>

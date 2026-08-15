@@ -387,7 +387,6 @@ function PositioningContext({
             <p className="titan-terminal-metric">{fmtBipolar(indexToBipolar(read.commercialIndex))}</p>
             <p className={`titan-terminal-state titan-terminal-state--${commTone}`}>{t(commercialStateKey(read.commercialZone))}</p>
           </div>
-          <p className="mt-2 text-[10px] leading-relaxed text-stone-500">{t("positioning.cards.commercial.scaleHelper")}</p>
           <div className="mt-4">
             <BipolarRangeBar index0to100={read.commercialIndex} glow={read.commercialGlow} />
           </div>
@@ -420,8 +419,6 @@ function PositioningContext({
               {t(`positioning.retailState.${retailPositioningLabel(read.retailZone)}`)}
             </p>
           </div>
-          <p className="mt-2 text-[10px] leading-relaxed text-stone-500">{t("positioning.cards.retail.scaleHelper")}</p>
-          <p className="mt-1 text-[10px] text-stone-600">{t("positioning.cards.retail.crowdNote")}</p>
           <div className="mt-4">
             <BipolarRangeBar index0to100={read.retailIndex} glow={read.commercialGlow} />
           </div>
@@ -451,7 +448,6 @@ function PositioningContext({
           <div className="mt-4">
             <DeltaFlowTable rows={read.deltaFlow} t={t} />
           </div>
-          <p className="mt-4 text-[12px] leading-snug text-stone-500">{t("positioning.cards.delta.desc")}</p>
         </TerminalCard>
       </div>
     </div>
@@ -463,15 +459,9 @@ function SignalEngine({ read, t }: { read: TitanPositioningRead; t: (k: string) 
   const noFlowCross = !read.smTurnDown && !read.smTurnUp;
 
   let revHeadline = t("positioning.reversal.panelNoConfirm");
-  let revSub = t("positioning.reversal.panelDescNeutral");
 
   if (read.reversal === "confirmed_top" || read.reversal === "confirmed_bottom") {
     revHeadline = t(`positioning.reversal.${read.reversal}`);
-    revSub = t("positioning.reversal.panelDescConfirmed");
-  } else if (read.reversal === "potential_top" || read.reversal === "potential_bottom") {
-    revSub = t("positioning.reversal.panelDescPotential");
-  } else if (read.extremePositioning) {
-    revSub = t("positioning.reversal.panelDescExtremeActive");
   }
 
   return (
@@ -480,7 +470,6 @@ function SignalEngine({ read, t }: { read: TitanPositioningRead; t: (k: string) 
       <div className="titan-terminal-grid titan-terminal-grid--3 mt-3">
         <TerminalCard accent="gold" icon={<IconReversal />} title={t("positioning.cards.reversal.title")} className="titan-terminal-card--secondary">
           <p className="titan-terminal-headline">{revHeadline}</p>
-          <p className="mt-2 text-sm text-titan-gold/85">{revSub}</p>
           <ul className="mt-5 space-y-2.5">
             <CheckItem checked={commExtreme} label={t("positioning.checklist.commercialExtreme")} />
             <CheckItem checked={read.checklist.retailContrarian} label={t("positioning.checklist.retailCrowd")} />
@@ -490,7 +479,6 @@ function SignalEngine({ read, t }: { read: TitanPositioningRead; t: (k: string) 
 
         <TerminalCard accent="purple" icon={<IconDivergence />} title={t("positioning.cards.divergence.title")} className="titan-terminal-card--secondary">
           <p className="titan-terminal-headline">{t(`positioning.divergence.headline.${read.divergence}`)}</p>
-          <p className="mt-2 text-sm text-stone-400">{t(`positioning.divergence.hint.${read.divergence}`)}</p>
           <div className="mt-5 grid grid-cols-2 gap-2">
             <div className="titan-terminal-mini-stat">
               <p className="titan-terminal-kicker">{t("positioning.divergence.structureContext")}</p>
@@ -509,7 +497,6 @@ function SignalEngine({ read, t }: { read: TitanPositioningRead; t: (k: string) 
 
         <TerminalCard accent="blue" icon={<IconRegime />} title={t("positioning.cards.regime.title")} className="titan-terminal-card--secondary">
           <p className="titan-terminal-headline">{t(`positioning.regime.${read.regime}`)}</p>
-          <p className="mt-2 text-sm text-stone-400">{t(`positioning.regime.hint.${read.regime}`)}</p>
           <div className="titan-regime-segments mt-5" role="group" aria-label={t("positioning.cards.regime.title")}>
             {(
               [
@@ -527,7 +514,6 @@ function SignalEngine({ read, t }: { read: TitanPositioningRead; t: (k: string) 
               </span>
             ))}
           </div>
-          <p className="mt-4 text-[11px] leading-snug text-stone-600">{t("positioning.regime.footer")}</p>
         </TerminalCard>
       </div>
     </div>

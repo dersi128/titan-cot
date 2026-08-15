@@ -216,7 +216,6 @@ export function TitanDmePage({ bundle, onSelectMarket }: TitanDmePageProps) {
       <TitanPageHeader
         eyebrow={t("pages.dme.eyebrow")}
         title={t("pages.dme.title")}
-        description={t("pages.dme.description")}
       />
 
       {/* 1) Hero DXY */}
@@ -326,7 +325,6 @@ export function TitanDmePage({ bundle, onSelectMarket }: TitanDmePageProps) {
         <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
           <div>
             <p className="titan-cmd-kicker">{t("pages.dme.chartTitle")}</p>
-            <p className="titan-cmd-sub mt-1">{t("pages.dme.chartSub")}</p>
           </div>
           <p className="font-mono text-[10px] uppercase tracking-wider text-stone-600">
             {t("pages.dme.chartWindow")}
@@ -424,8 +422,6 @@ export function TitanDmePage({ bundle, onSelectMarket }: TitanDmePageProps) {
           ))}
         </div>
       </section>
-
-      <p className="px-0.5 text-[11px] text-stone-600">{t("pages.dme.footerNote")}</p>
     </div>
   );
 }

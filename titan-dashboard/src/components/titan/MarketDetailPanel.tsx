@@ -194,9 +194,6 @@ export function MarketDetailPanel({ market, data, loading, error }: MarketDetail
         ) : null}
       </div>
 
-      <footer className="border-t border-white/[0.06] px-5 py-4 text-center md:px-7">
-        <p className="text-[11px] leading-relaxed text-stone-500">{t("detail.footerDisclaimer")}</p>
-      </footer>
     </TitanPanel>
   );
 }
