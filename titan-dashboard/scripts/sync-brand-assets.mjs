@@ -1,6 +1,7 @@
 /**
  * Copies public/brand/* → src/assets/brand/ so Vite bundles images into dist/.
  * Fixes double extensions like titan-logo.png.png → titan-logo.png
+ * Prefer canonical names (titan-logo.png) over *.png.png so old dupes cannot overwrite.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -18,6 +19,11 @@ function normalizeBrandFilename(name) {
   return name;
 }
 
+function isDoubleExtension(name) {
+  const lower = name.toLowerCase();
+  return lower.endsWith(".png.png") || lower.endsWith(".jpg.png") || lower.endsWith(".jpeg.png");
+}
+
 if (!fs.existsSync(fromDir)) {
   console.error("Missing folder:", fromDir);
   process.exit(1);
@@ -25,11 +31,16 @@ if (!fs.existsSync(fromDir)) {
 
 fs.mkdirSync(toDir, { recursive: true });
 
+const files = fs
+  .readdirSync(fromDir)
+  .filter((name) => !name.startsWith("."))
+  .filter((name) => fs.statSync(path.join(fromDir, name)).isFile())
+  // Double-extension leftovers first, canonical names last → they win on overwrite
+  .sort((a, b) => Number(isDoubleExtension(b)) - Number(isDoubleExtension(a)));
+
 let count = 0;
-for (const name of fs.readdirSync(fromDir)) {
-  if (name.startsWith(".")) continue;
+for (const name of files) {
   const src = path.join(fromDir, name);
-  if (!fs.statSync(src).isFile()) continue;
   const destName = normalizeBrandFilename(name);
   fs.copyFileSync(src, path.join(toDir, destName));
   count += 1;
