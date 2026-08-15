@@ -2245,7 +2245,140 @@
   .titan-pressure-bar,
   .animate-fade-up,
   .animate-float,
-  .animate-ray {
+  .animate-ray,
+  .titan-auth-brand__logo-wrap,
+  .titan-auth-panel {
     animation: none !important;
+  }
+}
+
+/* ——— Auth gate ——— */
+.titan-auth-page {
+  background: #050505;
+}
+
+.titan-auth-page__veil {
+  background:
+    radial-gradient(ellipse 70% 55% at 18% 35%, rgba(46, 168, 255, 0.12), transparent 58%),
+    radial-gradient(ellipse 55% 45% at 82% 60%, rgba(46, 168, 255, 0.06), transparent 55%),
+    linear-gradient(180deg, rgba(5, 5, 5, 0.35) 0%, rgba(5, 5, 5, 0.72) 100%);
+}
+
+.titan-auth-brand__logo-wrap {
+  display: inline-flex;
+  padding: 0.85rem;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(46, 168, 255, 0.22);
+  background: rgba(8, 10, 14, 0.55);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 18px 40px -28px rgba(46, 168, 255, 0.55);
+  animation: titan-auth-rise 0.7s ease-out both;
+}
+
+.titan-auth-logo {
+  filter: drop-shadow(0 0 18px rgba(46, 168, 255, 0.28));
+}
+
+.titan-auth-brand__title {
+  text-shadow: 0 0 40px rgba(46, 168, 255, 0.18);
+  animation: titan-auth-rise 0.75s ease-out 0.05s both;
+}
+
+.titan-auth-feature {
+  position: relative;
+  padding: 0.7rem 0.9rem 0.7rem 1.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 0.65rem;
+  background: rgba(8, 10, 14, 0.45);
+  color: #a8a29e;
+  font-size: 12.5px;
+  line-height: 1.45;
+  backdrop-filter: blur(8px);
+}
+
+.titan-auth-feature::before {
+  content: "";
+  position: absolute;
+  left: 0.85rem;
+  top: 50%;
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 999px;
+  background: #2ea8ff;
+  box-shadow: 0 0 10px rgba(46, 168, 255, 0.65);
+  transform: translateY(-50%);
+}
+
+.titan-auth-panel {
+  animation: titan-auth-rise 0.8s ease-out 0.08s both;
+}
+
+.titan-auth-panel__inner {
+  border: 1px solid rgba(46, 168, 255, 0.18);
+  border-radius: 1rem;
+  background:
+    linear-gradient(160deg, rgba(16, 18, 24, 0.92), rgba(8, 10, 14, 0.88));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 28px 60px -36px rgba(0, 0, 0, 0.9),
+    0 0 0 1px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(18px);
+  padding: 1.35rem 1.25rem 1.15rem;
+}
+
+@media (min-width: 640px) {
+  .titan-auth-panel__inner {
+    padding: 1.55rem 1.45rem 1.25rem;
+  }
+}
+
+.titan-auth-tabs__btn {
+  flex: 1;
+  border-radius: 0.4rem;
+  padding: 0.55rem 0.65rem;
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #78716c;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.titan-auth-tabs__btn:hover {
+  color: #d6d3d1;
+}
+
+.titan-auth-tabs__btn.is-active {
+  color: #2ea8ff;
+  background: rgba(46, 168, 255, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(46, 168, 255, 0.22);
+}
+
+.titan-auth-clerk .cl-rootBox,
+.titan-auth-clerk .cl-cardBox,
+.titan-auth-clerk .cl-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+.titan-auth-clerk .cl-footer,
+.titan-auth-clerk .cl-internal-b3fm6y {
+  display: none !important;
+}
+
+@keyframes titan-auth-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

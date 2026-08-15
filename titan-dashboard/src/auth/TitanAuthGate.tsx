@@ -1,31 +1,49 @@
 import { useState, type ReactNode } from "react";
 import { SignedIn, SignedOut, SignIn, SignUp, useAuth } from "@clerk/clerk-react";
+import { TitanInstitutionalBackdrop } from "../components/TitanInstitutionalBackdrop";
 import { TitanLogo } from "../components/TitanLogo";
-import { useTitanI18n } from "../i18n";
+import { LanguageSwitcher, useTitanI18n } from "../i18n";
 import { titanClerkAppearance } from "./clerkAppearance";
 
 type TitanAuthGateProps = {
   children: ReactNode;
 };
 
+function AuthShell({ children }: { children: ReactNode }) {
+  return (
+    <div className="titan-auth-page relative min-h-screen overflow-hidden">
+      <TitanInstitutionalBackdrop />
+      <div className="titan-auth-page__veil pointer-events-none absolute inset-0 z-[1]" />
+      <div className="relative z-10">{children}</div>
+    </div>
+  );
+}
+
 function AuthLoading() {
   const { t } = useTitanI18n();
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#07080a] text-sm text-stone-500">
-      {t("auth.loading")}
-    </div>
+    <AuthShell>
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-4">
+        <TitanLogo className="titan-auth-logo h-16 w-auto opacity-90" showWordmark={false} />
+        <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-stone-500">
+          {t("auth.loading")}
+        </p>
+      </div>
+    </AuthShell>
   );
 }
 
 function AuthMissingKey() {
   const { t } = useTitanI18n();
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#07080a] px-4">
-      <div className="max-w-md rounded-xl border border-rose-500/30 bg-rose-950/20 px-5 py-4 text-sm text-rose-100/90">
-        <p className="font-semibold text-rose-200">{t("auth.missingKeyTitle")}</p>
-        <p className="mt-2 text-rose-100/70">{t("auth.missingKeyBody")}</p>
+    <AuthShell>
+      <div className="flex min-h-screen items-center justify-center px-4">
+        <div className="max-w-md rounded-xl border border-rose-500/30 bg-rose-950/35 px-5 py-4 text-sm text-rose-100/90 backdrop-blur-md">
+          <p className="font-semibold text-rose-200">{t("auth.missingKeyTitle")}</p>
+          <p className="mt-2 text-rose-100/70">{t("auth.missingKeyBody")}</p>
+        </div>
       </div>
-    </div>
+    </AuthShell>
   );
 }
 
@@ -34,72 +52,87 @@ function AuthLanding() {
   const [mode, setMode] = useState<"sign-in" | "sign-up">("sign-in");
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#07080a] px-4 py-10">
-      <div
-        className="pointer-events-none absolute inset-0 opacity-40"
-        style={{
-          background:
-            "radial-gradient(ellipse 80% 50% at 50% -10%, rgba(46,168,255,0.18), transparent 55%)",
-        }}
-      />
-      <div className="relative z-10 w-full max-w-[420px]">
-        <div className="mb-8 flex flex-col items-center text-center">
-          <TitanLogo className="h-14 w-auto" showWordmark={false} />
-          <p className="mt-4 font-display text-[10px] font-semibold uppercase tracking-[0.18em] text-titan-gold/85">
+    <AuthShell>
+      <div className="absolute right-4 top-4 z-20 sm:right-6 sm:top-6">
+        <LanguageSwitcher />
+      </div>
+
+      <div className="mx-auto grid min-h-screen w-full max-w-[1120px] items-center gap-10 px-5 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 lg:px-8 lg:py-10">
+        <section className="titan-auth-brand mx-auto max-w-lg text-center lg:mx-0 lg:text-left">
+          <div className="titan-auth-brand__logo-wrap mx-auto lg:mx-0">
+            <TitanLogo className="titan-auth-logo h-[4.5rem] w-auto sm:h-20" showWordmark={false} />
+          </div>
+          <p className="mt-7 font-display text-[11px] font-semibold uppercase tracking-[0.22em] text-titan-gold/90">
             {t("auth.eyebrow")}
           </p>
-          <h1 className="mt-2 font-display text-2xl font-bold tracking-wide text-stone-50">
-            {t("auth.title")}
+          <h1 className="titan-auth-brand__title mt-3 font-display text-[2rem] font-bold uppercase leading-[1.05] tracking-[0.06em] text-stone-50 sm:text-[2.45rem]">
+            {t("auth.heroTitle")}
           </h1>
-          <p className="mt-2 max-w-sm text-[13px] leading-relaxed text-stone-500">
+          <p className="mt-4 max-w-md text-[14px] leading-relaxed text-stone-400 lg:text-[15px]">
             {t("auth.subtitle")}
           </p>
-        </div>
+          <ul className="mt-8 hidden gap-3 text-left sm:grid">
+            <li className="titan-auth-feature">{t("auth.feature1")}</li>
+            <li className="titan-auth-feature">{t("auth.feature2")}</li>
+            <li className="titan-auth-feature">{t("auth.feature3")}</li>
+          </ul>
+        </section>
 
-        <div className="mb-4 flex rounded-lg border border-white/10 bg-black/30 p-1">
-          <button
-            type="button"
-            onClick={() => setMode("sign-in")}
-            className={`flex-1 rounded-md px-3 py-2 text-[11px] font-semibold uppercase tracking-wider transition ${
-              mode === "sign-in"
-                ? "bg-titan-gold/15 text-titan-gold"
-                : "text-stone-500 hover:text-stone-300"
-            }`}
-          >
-            {t("auth.signIn")}
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode("sign-up")}
-            className={`flex-1 rounded-md px-3 py-2 text-[11px] font-semibold uppercase tracking-wider transition ${
-              mode === "sign-up"
-                ? "bg-titan-gold/15 text-titan-gold"
-                : "text-stone-500 hover:text-stone-300"
-            }`}
-          >
-            {t("auth.signUp")}
-          </button>
-        </div>
+        <section className="titan-auth-panel mx-auto w-full max-w-[440px] lg:mx-0 lg:justify-self-end">
+          <div className="titan-auth-panel__inner">
+            <div className="mb-1 flex items-end justify-between gap-3">
+              <div>
+                <p className="font-display text-[10px] font-semibold uppercase tracking-[0.18em] text-titan-gold/80">
+                  {t("auth.access")}
+                </p>
+                <h2 className="mt-1 font-display text-lg font-semibold tracking-wide text-stone-100">
+                  {mode === "sign-in" ? t("auth.signInTitle") : t("auth.signUpTitle")}
+                </h2>
+              </div>
+            </div>
 
-        <div className="flex justify-center">
-          {mode === "sign-in" ? (
-            <SignIn
-              routing="hash"
-              appearance={titanClerkAppearance}
-              forceRedirectUrl="/"
-              fallbackRedirectUrl="/"
-            />
-          ) : (
-            <SignUp
-              routing="hash"
-              appearance={titanClerkAppearance}
-              forceRedirectUrl="/"
-              fallbackRedirectUrl="/"
-            />
-          )}
-        </div>
+            <div className="titan-auth-tabs mt-4 mb-5 flex rounded-lg border border-white/10 bg-black/35 p-1">
+              <button
+                type="button"
+                onClick={() => setMode("sign-in")}
+                className={`titan-auth-tabs__btn ${mode === "sign-in" ? "is-active" : ""}`}
+              >
+                {t("auth.signIn")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode("sign-up")}
+                className={`titan-auth-tabs__btn ${mode === "sign-up" ? "is-active" : ""}`}
+              >
+                {t("auth.signUp")}
+              </button>
+            </div>
+
+            <div className="titan-auth-clerk flex justify-center">
+              {mode === "sign-in" ? (
+                <SignIn
+                  routing="hash"
+                  appearance={titanClerkAppearance}
+                  forceRedirectUrl="/"
+                  fallbackRedirectUrl="/"
+                />
+              ) : (
+                <SignUp
+                  routing="hash"
+                  appearance={titanClerkAppearance}
+                  forceRedirectUrl="/"
+                  fallbackRedirectUrl="/"
+                />
+              )}
+            </div>
+
+            <p className="mt-5 text-center text-[11px] leading-relaxed text-stone-600">
+              {t("auth.disclaimer")}
+            </p>
+          </div>
+        </section>
       </div>
-    </div>
+    </AuthShell>
   );
 }
 
