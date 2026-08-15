@@ -12,6 +12,10 @@ export type FredSeriesSnapshot = {
   latest: FredSeriesPoint | null;
   previous: FredSeriesPoint | null;
   change: number | null;
+  /** Approx 1W change in percentage points */
+  change1w: number | null;
+  /** Approx 1M change in percentage points */
+  change1m: number | null;
   /** Approx 1Y change in percentage points */
   change1y: number | null;
   spark: number[];
@@ -26,6 +30,8 @@ export type MacroRatesResponse = {
   message?: string;
   fedFunds: FredSeriesSnapshot | null;
   yield2y: FredSeriesSnapshot | null;
+  yield5y: FredSeriesSnapshot | null;
+  yield10y: FredSeriesSnapshot | null;
 };
 
 type FredObservation = {
@@ -119,6 +125,14 @@ function findClosestBefore(
   return null;
 }
 
+function changeVsDaysAgo(points: FredSeriesPoint[], latest: FredSeriesPoint, days: number): number | null {
+  const target = new Date(`${latest.date}T00:00:00Z`);
+  target.setUTCDate(target.getUTCDate() - days);
+  const prior = findClosestBefore(points, target.toISOString().slice(0, 10));
+  if (!prior) return null;
+  return Number((latest.value - prior.value).toFixed(3));
+}
+
 function toSnapshot(
   seriesId: string,
   label: string,
@@ -129,12 +143,13 @@ function toSnapshot(
   const change =
     latest && previous ? Number((latest.value - previous.value).toFixed(3)) : null;
 
+  let change1w: number | null = null;
+  let change1m: number | null = null;
   let change1y: number | null = null;
   if (latest) {
-    const target = new Date(`${latest.date}T00:00:00Z`);
-    target.setUTCFullYear(target.getUTCFullYear() - 1);
-    const prior = findClosestBefore(points, target.toISOString().slice(0, 10));
-    if (prior) change1y = Number((latest.value - prior.value).toFixed(3));
+    change1w = changeVsDaysAgo(points, latest, 7);
+    change1m = changeVsDaysAgo(points, latest, 30);
+    change1y = changeVsDaysAgo(points, latest, 365);
   }
 
   return {
@@ -144,9 +159,24 @@ function toSnapshot(
     latest,
     previous,
     change,
+    change1w,
+    change1m,
     change1y,
     spark: points.slice(-SPARK_POINTS).map((p) => p.value),
     history: sampleForChart(points, CHART_POINTS),
+  };
+}
+
+function emptyRates(status: MacroRatesResponse["status"], message?: string): MacroRatesResponse {
+  return {
+    status,
+    source: "fred",
+    updatedAt: null,
+    message,
+    fedFunds: null,
+    yield2y: null,
+    yield5y: null,
+    yield10y: null,
   };
 }
 
@@ -157,14 +187,10 @@ export function isFredConfigured(): boolean {
 export async function getMacroRates(): Promise<MacroRatesResponse> {
   const apiKey = process.env.FRED_API_KEY?.trim();
   if (!apiKey) {
-    return {
-      status: "unconfigured",
-      source: "fred",
-      updatedAt: null,
-      message: "Set FRED_API_KEY on the API host (free key from fred.stlouisfed.org).",
-      fedFunds: null,
-      yield2y: null,
-    };
+    return emptyRates(
+      "unconfigured",
+      "Set FRED_API_KEY on the API host (free key from fred.stlouisfed.org).",
+    );
   }
 
   const now = Date.now();
@@ -173,9 +199,11 @@ export async function getMacroRates(): Promise<MacroRatesResponse> {
   }
 
   try {
-    const [dff, dgs2] = await Promise.all([
+    const [dff, dgs2, dgs5, dgs10] = await Promise.all([
       fetchFredSeries("DFF", apiKey),
       fetchFredSeries("DGS2", apiKey),
+      fetchFredSeries("DGS5", apiKey),
+      fetchFredSeries("DGS10", apiKey),
     ]);
 
     const payload: MacroRatesResponse = {
@@ -184,6 +212,8 @@ export async function getMacroRates(): Promise<MacroRatesResponse> {
       updatedAt: new Date().toISOString(),
       fedFunds: toSnapshot("DFF", "Fed funds (effective)", dff),
       yield2y: toSnapshot("DGS2", "US 2Y Treasury", dgs2),
+      yield5y: toSnapshot("DGS5", "US 5Y Treasury", dgs5),
+      yield10y: toSnapshot("DGS10", "US 10Y Treasury", dgs10),
     };
 
     cache = { expiresAt: now + CACHE_TTL_MS, payload };
@@ -196,13 +226,6 @@ export async function getMacroRates(): Promise<MacroRatesResponse> {
         message: `Stale cache · ${message}`,
       };
     }
-    return {
-      status: "error",
-      source: "fred",
-      updatedAt: null,
-      message,
-      fedFunds: null,
-      yield2y: null,
-    };
+    return emptyRates("error", message);
   }
 }

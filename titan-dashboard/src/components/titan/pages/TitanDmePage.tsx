@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Area,
   AreaChart,
   CartesianGrid,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -13,8 +14,16 @@ import type { InstitutionalMarket } from "../../../config/institutionalMarkets";
 import { getInstitutionalMarketBySymbol } from "../../../config/institutionalMarkets";
 import { useTitanI18n } from "../../../i18n";
 import { loadMacroRates, type FredSeriesSnapshot, type MacroRatesResponse } from "../../../data/macroRates";
-import { buildDmeOverview } from "../../../lib/titanDmeOverview";
-import { formatHomeFlowDelta } from "../../../lib/titanHomeOverview";
+import {
+  buildDmeOverview,
+  computeMacroAlignment,
+  formatContractsDelta,
+  ratesLeanFromChanges,
+  type DmeChartMode,
+  type MacroAlignmentId,
+  type RatesLeanId,
+  type UsdStanceId,
+} from "../../../lib/titanDmeOverview";
 import { GlassCard } from "../ui/titanCmdShared";
 import { TitanPageHeader } from "../ui/TitanPageHeader";
 
@@ -23,26 +32,27 @@ type TitanDmePageProps = {
   onSelectMarket: (market: InstitutionalMarket) => void;
 };
 
-function scoreToneClass(score: number | null): string {
-  if (score === null) return "text-stone-300";
-  if (score >= 25) return "text-emerald-400";
-  if (score <= -25) return "text-rose-400";
-  return "text-amber-300/90";
+function tonePos(id: string): string {
+  if (id === "bullish" || id === "strong_bullish" || id === "usd_plus" || id === "usd_favoring" || id === "rising" || id === "strong" || id === "moderate") {
+    return "text-emerald-400";
+  }
+  if (id === "bearish" || id === "strong_bearish" || id === "usd_minus" || id === "fx_favoring" || id === "falling" || id === "weak") {
+    return "text-rose-400";
+  }
+  return "text-stone-400";
 }
 
-function fxTileStyle(usdFavoring: boolean, score: number): CSSProperties {
-  const intensity = Math.min(Math.abs(score) / 80, 1);
-  const alpha = 0.08 + intensity * 0.18;
-  if (usdFavoring) {
-    return {
-      borderColor: "rgba(16, 185, 129, 0.35)",
-      background: `rgba(16, 185, 129, ${alpha})`,
-    };
+function pillClass(kind: "bull" | "bear" | "neutral" | "info"): string {
+  if (kind === "bull") {
+    return "border-emerald-500/35 bg-emerald-500/10 text-emerald-300";
   }
-  return {
-    borderColor: "rgba(244, 63, 94, 0.35)",
-    background: `rgba(244, 63, 94, ${alpha})`,
-  };
+  if (kind === "bear") {
+    return "border-rose-500/35 bg-rose-500/10 text-rose-300";
+  }
+  if (kind === "info") {
+    return "border-sky-500/30 bg-sky-500/10 text-sky-200";
+  }
+  return "border-white/10 bg-white/[0.03] text-stone-300";
 }
 
 function formatRate(value: number | null | undefined): string {
@@ -50,127 +60,109 @@ function formatRate(value: number | null | undefined): string {
   return `${value.toFixed(2)}%`;
 }
 
-function formatRateChange(change: number | null | undefined): string {
-  if (change === null || change === undefined || !Number.isFinite(change)) return "—";
-  const sign = change > 0 ? "+" : "";
-  return `${sign}${change.toFixed(2)} pp`;
+/** Convert percentage-point change to basis points for display. */
+function formatBp(changePp: number | null | undefined): string {
+  if (changePp === null || changePp === undefined || !Number.isFinite(changePp)) return "—";
+  const bp = Math.round(changePp * 100);
+  return `${bp > 0 ? "+" : ""}${bp} bp`;
 }
 
-function RateCard({
+function deltaTone(changePp: number | null | undefined): string {
+  if (changePp === null || changePp === undefined || !Number.isFinite(changePp)) return "text-stone-500";
+  if (changePp > 0.005) return "text-emerald-400";
+  if (changePp < -0.005) return "text-rose-400";
+  return "text-stone-500";
+}
+
+function deltaArrow(changePp: number | null | undefined): string {
+  if (changePp === null || changePp === undefined || !Number.isFinite(changePp)) return "";
+  if (changePp > 0.005) return "↑";
+  if (changePp < -0.005) return "↓";
+  return "→";
+}
+
+function HeroPill({
+  label,
+  value,
+  kind,
+}: {
+  label: string;
+  value: string;
+  kind: "bull" | "bear" | "neutral" | "info";
+}) {
+  return (
+    <div className={`inline-flex min-w-0 flex-col rounded-md border px-3 py-2 ${pillClass(kind)}`}>
+      <span className="text-[9px] font-semibold uppercase tracking-[0.14em] opacity-70">{label}</span>
+      <span className="mt-0.5 font-display text-[13px] font-semibold uppercase tracking-[0.06em]">{value}</span>
+    </div>
+  );
+}
+
+function MetricRow({ label, value, valueClass }: { label: string; value: string; valueClass?: string }) {
+  return (
+    <div className="flex items-baseline justify-between gap-3 border-b border-white/[0.04] py-2 last:border-b-0">
+      <span className="text-[11px] font-medium uppercase tracking-[0.08em] text-stone-500">{label}</span>
+      <span className={`font-mono text-[13px] font-semibold tabular-nums ${valueClass ?? "text-stone-100"}`}>
+        {value}
+      </span>
+    </div>
+  );
+}
+
+function YieldRow({
   title,
   series,
-  emptyLabel,
-  change1yLabel,
 }: {
   title: string;
-  series: FredSeriesSnapshot | null;
-  emptyLabel: string;
-  change1yLabel: string;
+  series: FredSeriesSnapshot | null | undefined;
 }) {
   const latest = series?.latest?.value ?? null;
-  const change = series?.change ?? null;
-  const change1y = series?.change1y ?? null;
-  const history = series?.history?.length
-    ? series.history
-    : series?.spark?.map((value, i) => ({ date: String(i), value })) ?? [];
-  const gradId = `rateFill-${series?.seriesId ?? "x"}`;
-
+  const d1w = series?.change1w ?? null;
+  const d1m = series?.change1m ?? null;
   return (
-    <GlassCard className="p-4">
-      <p className="titan-cmd-kicker">{title}</p>
-      <p className="mt-2 font-mono text-2xl font-semibold text-stone-100">{formatRate(latest)}</p>
-      <p
-        className={`mt-1 font-mono text-[12px] ${
-          change !== null && change > 0
-            ? "text-rose-400/90"
-            : change !== null && change < 0
-              ? "text-emerald-400/90"
-              : "text-stone-500"
-        }`}
-      >
-        {series ? formatRateChange(change) : emptyLabel}
-        {series && change1y !== null ? (
-          <span className="ml-2 text-stone-500">
-            · {change1yLabel} {formatRateChange(change1y)}
-          </span>
-        ) : null}
-      </p>
-      {series?.latest?.date ? (
-        <p className="mt-1 text-[10px] text-stone-600">{series.latest.date}</p>
-      ) : null}
-      <div className="mt-3 h-[140px] w-full">
-        {history.length >= 2 ? (
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={history} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
-              <defs>
-                <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#2ea8ff" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="#2ea8ff" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid stroke="rgba(255,255,255,0.04)" vertical={false} />
-              <XAxis
-                dataKey="date"
-                tick={{ fill: "#78716c", fontSize: 9 }}
-                tickLine={false}
-                axisLine={false}
-                minTickGap={48}
-              />
-              <YAxis
-                domain={["auto", "auto"]}
-                tick={{ fill: "#78716c", fontSize: 9 }}
-                tickLine={false}
-                axisLine={false}
-                width={32}
-              />
-              <Tooltip
-                contentStyle={{
-                  background: "#121212",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  borderRadius: 8,
-                  fontSize: 12,
-                }}
-                formatter={(value) => [`${Number(value).toFixed(2)}%`, title]}
-              />
-              <Area
-                type="monotone"
-                dataKey="value"
-                stroke="#2ea8ff"
-                fill={`url(#${gradId})`}
-                strokeWidth={1.75}
-                dot={false}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        ) : (
-          <div className="flex h-full items-center justify-center text-[11px] text-stone-600">
-            {emptyLabel}
-          </div>
-        )}
+    <div className="border-b border-white/[0.04] py-2.5 last:border-b-0">
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="text-[11px] font-medium uppercase tracking-[0.08em] text-stone-500">{title}</span>
+        <span className="font-mono text-[15px] font-semibold text-stone-100">{formatRate(latest)}</span>
       </div>
-    </GlassCard>
+      <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 font-mono text-[11px]">
+        <span className={deltaTone(d1w)}>
+          {deltaArrow(d1w)} {formatBp(d1w)} / 1W
+        </span>
+        <span className={deltaTone(d1m)}>
+          {deltaArrow(d1m)} {formatBp(d1m)} / 1M
+        </span>
+      </div>
+    </div>
   );
+}
+
+function stanceLabel(stance: UsdStanceId, t: (k: string) => string): string {
+  if (stance === "usd_plus") return t("pages.dme.stance.usdPlus");
+  if (stance === "usd_minus") return t("pages.dme.stance.usdMinus");
+  return t("pages.dme.stance.neutral");
+}
+
+function alignmentKind(id: MacroAlignmentId): "bull" | "bear" | "neutral" | "info" {
+  if (id === "strong" || id === "moderate") return "bull";
+  if (id === "weak") return "bear";
+  return "neutral";
 }
 
 export function TitanDmePage({ bundle, onSelectMarket }: TitanDmePageProps) {
   const { t } = useTitanI18n();
   const dme = useMemo(() => buildDmeOverview(bundle), [bundle]);
   const [rates, setRates] = useState<MacroRatesResponse | null>(null);
-  const [ratesError, setRatesError] = useState<string | null>(null);
+  const [chartMode, setChartMode] = useState<DmeChartMode>("index26w");
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
       try {
         const payload = await loadMacroRates();
-        if (!cancelled) {
-          setRates(payload);
-          setRatesError(null);
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setRatesError(err instanceof Error ? err.message : "rates failed");
-        }
+        if (!cancelled) setRates(payload);
+      } catch {
+        if (!cancelled) setRates(null);
       }
     })();
     return () => {
@@ -178,165 +170,307 @@ export function TitanDmePage({ bundle, onSelectMarket }: TitanDmePageProps) {
     };
   }, []);
 
-  const ratesStatusNote =
-    ratesError
-      ? t("pages.dme.ratesError")
-      : rates?.status === "unconfigured"
-        ? t("pages.dme.ratesUnconfigured")
-        : rates?.status === "error"
-          ? t("pages.dme.ratesError")
-          : rates?.status === "ok"
-            ? t("pages.dme.ratesSource")
-            : t("pages.dme.ratesLoading");
+  const yield2y = rates?.yield2y ?? null;
+  const yield5y = rates?.yield5y ?? null;
+  const yield10y = rates?.yield10y ?? null;
+  const fedFunds = rates?.fedFunds ?? null;
 
-  const biasLabel =
-    dme.dxyScore === null
-      ? "—"
-      : dme.dxyScore >= 25
-        ? t("pages.dme.biasUsdFirm")
-        : dme.dxyScore <= -25
-          ? t("pages.dme.biasUsdSoft")
-          : t("pages.dme.biasUsdNeutral");
+  const ratesLean: RatesLeanId = useMemo(
+    () =>
+      ratesLeanFromChanges([
+        yield2y?.change1w,
+        yield5y?.change1w,
+        yield10y?.change1w,
+      ]),
+    [yield2y?.change1w, yield5y?.change1w, yield10y?.change1w],
+  );
 
-  const verdict = dme.dxyAvailable
-    ? t("pages.dme.verdict", {
-        pressure: t(`pages.dme.pressure.${dme.dollarPressure}`),
-        usd: String(dme.usdFavoringCount),
-        total: String(dme.fxLiveCount),
-      })
-    : t("pages.dme.liveSubFallback");
+  const alignment = useMemo(
+    () =>
+      computeMacroAlignment({
+        usdPositioning: dme.usdPositioning,
+        breadthLean: dme.breadthLean,
+        ratesLean,
+      }),
+    [dme.usdPositioning, dme.breadthLean, ratesLean],
+  );
+
+  const chartData = useMemo(() => {
+    const rows = dme.historyChart;
+    if (chartMode === "index26w") {
+      return rows
+        .filter((p) => p.index26w !== null)
+        .slice(-104)
+        .map((p) => ({ date: p.date, value: p.index26w as number }));
+    }
+    if (chartMode === "index52w") {
+      return rows
+        .filter((p) => p.index52w !== null)
+        .slice(-104)
+        .map((p) => ({ date: p.date, value: p.index52w as number }));
+    }
+    if (chartMode === "delta4w") {
+      return rows
+        .filter((p) => p.delta4w !== null)
+        .slice(-104)
+        .map((p) => ({ date: p.date, value: p.delta4w as number }));
+    }
+    return rows.slice(-104).map((p) => ({ date: p.date, value: p.net }));
+  }, [dme.historyChart, chartMode]);
+
+  const chartIsIndex = chartMode === "index26w" || chartMode === "index52w";
+  const lastChart = chartData.length > 0 ? chartData[chartData.length - 1] : null;
 
   const openDxy = () => {
     const market = getInstitutionalMarketBySymbol("DX1!");
     if (market) onSelectMarket(market);
   };
 
+  const scoreText =
+    dme.dxyScore === null ? "—" : `${dme.dxyScore > 0 ? "+" : ""}${dme.dxyScore}`;
+
+  const posKind =
+    dme.usdPositioning === "bullish" ? "bull" : dme.usdPositioning === "bearish" ? "bear" : "neutral";
+
+  const flowTone = (v: number | null) => {
+    if (v === null || !Number.isFinite(v)) return "text-stone-400";
+    if (v > 0) return "text-emerald-400";
+    if (v < 0) return "text-rose-400";
+    return "text-stone-400";
+  };
+
+  const chartModes: Array<{ id: DmeChartMode; label: string }> = [
+    { id: "index26w", label: t("pages.dme.chartMode.index26w") },
+    { id: "index52w", label: t("pages.dme.chartMode.index52w") },
+    { id: "net", label: t("pages.dme.chartMode.net") },
+    { id: "delta4w", label: t("pages.dme.chartMode.delta4w") },
+  ];
+
   return (
-    <div className="titan-page-module animate-fade-up space-y-3">
+    <div className="titan-page-module titan-dme-v2 animate-fade-up space-y-4 md:space-y-5">
       <TitanPageHeader
         eyebrow={t("pages.dme.eyebrow")}
-        title={t("pages.dme.title")}
-      />
-
-      {/* 1) Hero DXY */}
-      <GlassCard glow="gold" className="p-4 md:p-5">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <p className="titan-cmd-kicker">{t("pages.dme.regimeHeadline")}</p>
-            <p className={`mt-2 font-display text-2xl font-semibold tracking-tight md:text-3xl ${scoreToneClass(dme.dxyScore)}`}>
-              {biasLabel}
-            </p>
-            <p className="titan-cmd-sub mt-2 max-w-2xl text-[13px] leading-relaxed text-stone-400">
-              {verdict}
-            </p>
-          </div>
+        title={t("pages.dme.titleHero")}
+        description={t("pages.dme.subtitle")}
+        aside={
           <button type="button" className="titan-cmd-dme-btn" onClick={openDxy}>
             {t("pages.dme.openDxy")}
           </button>
-        </div>
+        }
+      />
 
-        <div className="mt-4 grid grid-cols-2 gap-2 md:grid-cols-4">
-          <div className="rounded-lg border border-white/[0.06] bg-black/30 px-3 py-2.5">
-            <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-stone-600">
-              {t("pages.dme.metricScore")}
-            </p>
-            <p className={`mt-1 font-mono text-lg font-semibold ${scoreToneClass(dme.dxyScore)}`}>
-              {dme.dxyScore === null ? "—" : `${dme.dxyScore > 0 ? "+" : ""}${dme.dxyScore}`}
-            </p>
+      {/* Hero */}
+      <GlassCard className="p-4 md:p-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-wrap gap-2.5">
+            <HeroPill
+              label={t("pages.dme.hero.usdPositioning")}
+              value={t(`pages.dme.positioning.${dme.usdPositioning}`)}
+              kind={posKind}
+            />
+            <HeroPill
+              label={t("pages.dme.hero.macroAlignment")}
+              value={t(`pages.dme.alignment.${alignment}`)}
+              kind={alignmentKind(alignment)}
+            />
           </div>
-          <div className="rounded-lg border border-white/[0.06] bg-black/30 px-3 py-2.5">
-            <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-stone-600">
-              {t("pages.dme.metricComm26")}
-            </p>
-            <p className="mt-1 font-mono text-lg font-semibold text-stone-200">
-              {dme.dxyCommercial26w ?? "—"}
-            </p>
-          </div>
-          <div className="rounded-lg border border-white/[0.06] bg-black/30 px-3 py-2.5">
-            <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-stone-600">
-              {t("pages.dme.dxyFlow")}
-            </p>
-            <p className="mt-1 font-mono text-lg font-semibold text-stone-200">
-              {formatHomeFlowDelta(
-                dme.dxyWeeklyChange === null ? null : Math.round(dme.dxyWeeklyChange),
-              )}
-            </p>
-          </div>
-          <div className="rounded-lg border border-white/[0.06] bg-black/30 px-3 py-2.5">
-            <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-stone-600">
-              {t("home.cmdDme.dxyRegime")}
-            </p>
-            <p className="mt-1 font-mono text-[13px] font-semibold text-stone-200">
-              {dme.dxyRegime ? t(`positioning.regime.${dme.dxyRegime}`) : "—"}
-            </p>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-[12px] text-stone-300">
+            <span>
+              <span className="text-stone-500">DXY COT </span>
+              <span className={tonePos(dme.usdPositioning)}>{scoreText}</span>
+            </span>
+            <span className="text-stone-700">|</span>
+            <span>
+              <span className="text-stone-500">{t("pages.dme.hero.breadth")} </span>
+              <span className="text-stone-100">
+                {dme.usdFavoringCount}/{dme.fxLiveCount || 7} USD+
+              </span>
+            </span>
+            <span className="text-stone-700">|</span>
+            <span className={deltaTone(yield2y?.change1w)}>
+              US 2Y {deltaArrow(yield2y?.change1w) || "—"}
+            </span>
+            <span className={deltaTone(yield10y?.change1w)}>
+              US 10Y {deltaArrow(yield10y?.change1w) || "—"}
+            </span>
           </div>
         </div>
       </GlassCard>
 
-      {/* Rates from FRED */}
-      <section>
-        <div className="mb-2 flex flex-wrap items-end justify-between gap-2 px-0.5">
-          <div>
-            <p className="titan-cmd-kicker">{t("pages.dme.ratesTitle")}</p>
-            <p className="titan-cmd-sub mt-1">{ratesStatusNote}</p>
+      {/* Three columns */}
+      <div className="grid gap-3 lg:grid-cols-3 lg:gap-4">
+        {/* DXY COT */}
+        <GlassCard glow={posKind === "bull" ? "bull" : posKind === "bear" ? "bear" : undefined} className="flex flex-col p-4 md:p-5">
+          <p className="titan-cmd-kicker">{t("pages.dme.panels.dxyCot")}</p>
+          <div className="mt-3 flex-1">
+            <MetricRow label={t("pages.dme.metrics.comm26")} value={dme.dxyCommercial26w === null ? "—" : String(dme.dxyCommercial26w)} />
+            <MetricRow label={t("pages.dme.metrics.comm52")} value={dme.dxyCommercial52w === null ? "—" : String(dme.dxyCommercial52w)} />
+            <MetricRow
+              label={t("pages.dme.metrics.delta1w")}
+              value={formatContractsDelta(dme.dxyWeeklyChange)}
+              valueClass={flowTone(dme.dxyWeeklyChange)}
+            />
+            <MetricRow
+              label={t("pages.dme.metrics.delta4w")}
+              value={formatContractsDelta(dme.dxyDelta4w)}
+              valueClass={flowTone(dme.dxyDelta4w)}
+            />
+            <MetricRow
+              label={t("pages.dme.metrics.delta13w")}
+              value={formatContractsDelta(dme.dxyDelta13w)}
+              valueClass={flowTone(dme.dxyDelta13w)}
+            />
+            <MetricRow
+              label={t("pages.dme.metrics.persistence")}
+              value={
+                dme.dxyPersistenceWeeks > 0
+                  ? t("pages.dme.metrics.persistenceWeeks", { count: String(dme.dxyPersistenceWeeks) })
+                  : t("pages.dme.metrics.persistenceNone")
+              }
+            />
           </div>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <RateCard
-            title={t("pages.dme.fedFunds")}
-            series={rates?.status === "ok" || rates?.fedFunds ? rates.fedFunds : null}
-            emptyLabel={t("pages.dme.ratesEmpty")}
-            change1yLabel={t("pages.dme.change1y")}
-          />
-          <RateCard
-            title={t("pages.dme.yield2y")}
-            series={rates?.status === "ok" || rates?.yield2y ? rates.yield2y : null}
-            emptyLabel={t("pages.dme.ratesEmpty")}
-            change1yLabel={t("pages.dme.change1y")}
-          />
-        </div>
-      </section>
-
-      {/* 2) USD vs world */}
-      <GlassCard className="p-4">
-        <p className="titan-cmd-kicker">{t("pages.dme.usdVsWorld")}</p>
-        <p className="mt-2 font-display text-lg font-semibold text-stone-100">
-          {t(`pages.dme.breadth.${dme.fxBreadth}`)}
-        </p>
-        <p className="titan-cmd-sub mt-1">
-          {t("pages.dme.breadthSub", {
-            usd: String(dme.usdFavoringCount),
-            total: String(dme.fxLiveCount),
-          })}
-        </p>
-        <div className="mt-4 h-2.5 max-w-xl overflow-hidden rounded-full bg-stone-800/90">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-emerald-500/80 to-titan-gold/80 transition-all duration-500"
-            style={{ width: `${dme.usdBiasPct}%` }}
-          />
+            className={`mt-4 rounded-md border px-3 py-2.5 text-center font-display text-[12px] font-semibold uppercase tracking-[0.08em] ${pillClass(posKind)}`}
+          >
+            {t(`pages.dme.cotVerdict.${dme.cotVerdict}`)}
+          </div>
+        </GlassCard>
+
+        {/* USD Breadth */}
+        <GlassCard className="flex flex-col p-4 md:p-5">
+          <p className="titan-cmd-kicker">{t("pages.dme.panels.breadth")}</p>
+          <p className={`mt-3 font-display text-2xl font-semibold tracking-tight ${tonePos(dme.breadthLean)}`}>
+            {dme.usdFavoringCount} / {dme.fxLiveCount || 7} {t("pages.dme.breadthHeadline")}
+          </p>
+          <ul className="mt-4 flex-1 space-y-1.5">
+            {dme.panels.map((p) => (
+              <li key={p.market.id}>
+                <button
+                  type="button"
+                  disabled={p.status !== "live"}
+                  onClick={() => onSelectMarket(p.market)}
+                  className="flex w-full items-center justify-between gap-2 rounded-md border border-transparent px-2 py-1.5 text-left transition hover:border-white/[0.06] hover:bg-white/[0.03] disabled:cursor-default disabled:opacity-50"
+                >
+                  <span className="text-[12px] font-semibold uppercase tracking-[0.1em] text-stone-200">
+                    {p.market.shortLabel}
+                  </span>
+                  <span
+                    className={`font-mono text-[12px] font-semibold ${
+                      p.stance === "usd_plus"
+                        ? "text-emerald-400"
+                        : p.stance === "usd_minus"
+                          ? "text-rose-400"
+                          : "text-stone-500"
+                    }`}
+                  >
+                    {p.status === "live" ? stanceLabel(p.stance, t) : "—"}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </GlassCard>
+
+        {/* US Rates */}
+        <GlassCard className="flex flex-col p-4 md:p-5">
+          <p className="titan-cmd-kicker">{t("pages.dme.panels.rates")}</p>
+          <div className="mt-3 flex-1">
+            <div className="border-b border-white/[0.04] py-2.5">
+              <div className="flex items-baseline justify-between gap-2">
+                <span className="text-[11px] font-medium uppercase tracking-[0.08em] text-stone-500">
+                  {t("pages.dme.fedFunds")}
+                </span>
+                <span className="font-mono text-[15px] font-semibold text-stone-100">
+                  {formatRate(fedFunds?.latest?.value)}
+                </span>
+              </div>
+            </div>
+            <YieldRow title={t("pages.dme.yield2y")} series={yield2y} />
+            <YieldRow title={t("pages.dme.yield5y")} series={yield5y} />
+            <YieldRow title={t("pages.dme.yield10y")} series={yield10y} />
+          </div>
+          {!rates || rates.status !== "ok" ? (
+            <p className="mt-3 text-[11px] text-stone-600">
+              {rates?.status === "unconfigured"
+                ? t("pages.dme.ratesUnconfigured")
+                : rates?.status === "error"
+                  ? t("pages.dme.ratesError")
+                  : t("pages.dme.ratesLoading")}
+            </p>
+          ) : null}
+        </GlassCard>
+      </div>
+
+      {/* Positioning agreement */}
+      <GlassCard className="p-4 md:p-5">
+        <p className="titan-cmd-kicker">{t("pages.dme.panels.agreement")}</p>
+        <div className="mt-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="grid flex-1 gap-2 sm:grid-cols-3">
+            <div className="rounded-md border border-white/[0.06] bg-black/20 px-3 py-2.5">
+              <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-stone-500">
+                {t("pages.dme.agreement.dxyCot")}
+              </p>
+              <p className={`mt-1 font-display text-[13px] font-semibold uppercase tracking-[0.06em] ${tonePos(dme.usdPositioning)}`}>
+                {t(`pages.dme.positioning.${dme.usdPositioning}`)}
+              </p>
+            </div>
+            <div className="rounded-md border border-white/[0.06] bg-black/20 px-3 py-2.5">
+              <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-stone-500">
+                {t("pages.dme.agreement.fxBreadth")}
+              </p>
+              <p className={`mt-1 font-display text-[13px] font-semibold uppercase tracking-[0.06em] ${tonePos(dme.breadthLean)}`}>
+                {t(`pages.dme.breadthLean.${dme.breadthLean}`)}
+              </p>
+            </div>
+            <div className="rounded-md border border-white/[0.06] bg-black/20 px-3 py-2.5">
+              <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-stone-500">
+                {t("pages.dme.agreement.rates")}
+              </p>
+              <p className={`mt-1 font-display text-[13px] font-semibold uppercase tracking-[0.06em] ${tonePos(ratesLean)}`}>
+                {t(`pages.dme.ratesLean.${ratesLean}`)}
+              </p>
+            </div>
+          </div>
+          <div
+            className={`shrink-0 rounded-md border px-5 py-3 text-center font-display text-sm font-semibold uppercase tracking-[0.1em] ${pillClass(alignmentKind(alignment))}`}
+          >
+            {t(`pages.dme.alignment.${alignment}`)}
+          </div>
         </div>
-        <p className="mt-2 font-mono text-[11px] text-stone-500">
-          {t("pages.dme.usdBiasPct", { pct: String(dme.usdBiasPct) })}
-        </p>
       </GlassCard>
 
-      {/* 3) DXY history chart */}
-      <GlassCard className="p-4">
-        <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
+      {/* History chart */}
+      <GlassCard className="p-4 md:p-5">
+        <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="titan-cmd-kicker">{t("pages.dme.chartTitle")}</p>
+            <p className="mt-1 text-[12px] text-stone-500">{t(`pages.dme.chartModeHint.${chartMode}`)}</p>
           </div>
-          <p className="font-mono text-[10px] uppercase tracking-wider text-stone-600">
-            {t("pages.dme.chartWindow")}
-          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {chartModes.map((mode) => (
+              <button
+                key={mode.id}
+                type="button"
+                onClick={() => setChartMode(mode.id)}
+                className={`rounded border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] transition ${
+                  chartMode === mode.id
+                    ? "border-sky-400/45 bg-sky-500/15 text-sky-200"
+                    : "border-white/[0.08] bg-transparent text-stone-500 hover:border-white/15 hover:text-stone-300"
+                }`}
+              >
+                {mode.label}
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="h-[220px] w-full md:h-[280px]">
-          {dme.dxyChart.length >= 2 ? (
+
+        <div className="h-[240px] w-full md:h-[300px]">
+          {chartData.length >= 2 ? (
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={dme.dxyChart} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+              <AreaChart data={chartData} margin={{ top: 10, right: 12, left: 0, bottom: 0 }}>
                 <defs>
-                  <linearGradient id="dmeDxyFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#2ea8ff" stopOpacity={0.35} />
+                  <linearGradient id="dmeHistFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#2ea8ff" stopOpacity={0.28} />
                     <stop offset="100%" stopColor="#2ea8ff" stopOpacity={0} />
                   </linearGradient>
                 </defs>
@@ -346,18 +480,24 @@ export function TitanDmePage({ bundle, onSelectMarket }: TitanDmePageProps) {
                   tick={{ fill: "#78716c", fontSize: 10 }}
                   tickLine={false}
                   axisLine={false}
-                  minTickGap={40}
+                  minTickGap={48}
                 />
                 <YAxis
-                  domain={[0, 100]}
+                  domain={chartIsIndex ? [0, 100] : ["auto", "auto"]}
                   tick={{ fill: "#78716c", fontSize: 10 }}
                   tickLine={false}
                   axisLine={false}
-                  width={28}
+                  width={40}
                 />
+                {chartIsIndex ? (
+                  <>
+                    <ReferenceLine y={80} stroke="rgba(16,185,129,0.18)" strokeDasharray="3 4" />
+                    <ReferenceLine y={20} stroke="rgba(244,63,94,0.18)" strokeDasharray="3 4" />
+                  </>
+                ) : null}
                 <Tooltip
                   contentStyle={{
-                    background: "#121212",
+                    background: "#0c1018",
                     border: "1px solid rgba(255,255,255,0.08)",
                     borderRadius: 8,
                     fontSize: 12,
@@ -366,13 +506,13 @@ export function TitanDmePage({ bundle, onSelectMarket }: TitanDmePageProps) {
                 />
                 <Area
                   type="monotone"
-                  dataKey="index"
-                  name={t("pages.dme.metricComm26")}
+                  dataKey="value"
+                  name={chartModes.find((m) => m.id === chartMode)?.label}
                   stroke="#2ea8ff"
-                  fill="url(#dmeDxyFill)"
+                  fill="url(#dmeHistFill)"
                   strokeWidth={2}
                   dot={false}
-                  activeDot={{ r: 3, fill: "#2ea8ff" }}
+                  activeDot={{ r: 3.5, fill: "#34d399", stroke: "#0c1018", strokeWidth: 2 }}
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -382,46 +522,12 @@ export function TitanDmePage({ bundle, onSelectMarket }: TitanDmePageProps) {
             </div>
           )}
         </div>
+        {lastChart && chartIsIndex ? (
+          <p className="mt-2 text-right font-mono text-[12px] text-emerald-400/90">
+            {t("pages.dme.chartLatest", { value: String(lastChart.value) })}
+          </p>
+        ) : null}
       </GlassCard>
-
-      {/* 4) FX heatmap */}
-      <section>
-        <p className="titan-cmd-kicker mb-2 px-0.5">{t("pages.dme.fxMatrix")}</p>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
-          {dme.panels.map((p) => (
-            <button
-              key={p.market.id}
-              type="button"
-              disabled={p.status !== "live"}
-              onClick={() => onSelectMarket(p.market)}
-              className="text-left disabled:cursor-default"
-            >
-              <div
-                className="rounded-xl border px-3 py-3 transition hover:brightness-110"
-                style={
-                  p.status === "live"
-                    ? fxTileStyle(p.usdFavoring, p.score)
-                    : { borderColor: "rgba(255,255,255,0.05)", background: "rgba(0,0,0,0.25)" }
-                }
-              >
-                <p className="text-[10px] font-bold uppercase tracking-wider text-stone-200">
-                  {p.market.shortLabel}
-                </p>
-                <p className="mt-1.5 font-mono text-base font-semibold text-stone-50">
-                  {p.status === "live" ? `${p.score > 0 ? "+" : ""}${p.score}` : "—"}
-                </p>
-                <p className="mt-1 text-[9px] font-semibold uppercase tracking-wider text-stone-400">
-                  {p.status === "live"
-                    ? p.usdFavoring
-                      ? t("pages.dme.usdSoftFx")
-                      : t("pages.dme.fxBid")
-                    : t("pages.dme.fxMissing")}
-                </p>
-              </div>
-            </button>
-          ))}
-        </div>
-      </section>
     </div>
   );
 }

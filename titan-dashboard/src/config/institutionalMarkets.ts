@@ -17,6 +17,7 @@ export const INSTITUTIONAL_MARKETS: readonly InstitutionalMarket[] = [
   { id: "AUD", symbol: "6A1!", shortLabel: "AUD", subtitle: "Australian Dollar", category: "forex" },
   { id: "CAD", symbol: "6C1!", shortLabel: "CAD", subtitle: "Canadian Dollar", category: "forex" },
   { id: "CHF", symbol: "6S1!", shortLabel: "CHF", subtitle: "Swiss Franc", category: "forex" },
+  { id: "NZD", symbol: "6N1!", shortLabel: "NZD", subtitle: "New Zealand Dollar", category: "forex" },
   // Metals
   { id: "GOLD", symbol: "GC1!", shortLabel: "GOLD", subtitle: "Gold", category: "metals" },
   { id: "SILVER", symbol: "SI1!", shortLabel: "SILVER", subtitle: "Silver", category: "metals" },

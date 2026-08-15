@@ -142,6 +142,13 @@ export const COT_MARKET_MAPPINGS: CotMarketMapping[] = [
     cftcContractMarketCode: "092741",
   },
   {
+    futuresSymbol: "6N1!",
+    displayName: "NEW ZEALAND DOLLAR",
+    apiSlug: "new-zealand-dollar",
+    aliases: ["nzd", "6n", "6n1", "6n1!"],
+    cftcContractMarketCode: "112741",
+  },
+  {
     futuresSymbol: "CC1!",
     displayName: "COCOA",
     apiSlug: "cocoa",

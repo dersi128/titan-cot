@@ -12,6 +12,8 @@ export type FredSeriesSnapshot = {
   latest: FredSeriesPoint | null;
   previous: FredSeriesPoint | null;
   change: number | null;
+  change1w?: number | null;
+  change1m?: number | null;
   change1y: number | null;
   spark: number[];
   history: FredSeriesPoint[];
@@ -24,6 +26,8 @@ export type MacroRatesResponse = {
   message?: string;
   fedFunds: FredSeriesSnapshot | null;
   yield2y: FredSeriesSnapshot | null;
+  yield5y?: FredSeriesSnapshot | null;
+  yield10y?: FredSeriesSnapshot | null;
 };
 
 export async function loadMacroRates(): Promise<MacroRatesResponse> {
