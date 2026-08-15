@@ -675,9 +675,7 @@
   }
 
   .titan-home-hero-v2__title {
-    text-shadow:
-      0 0 24px rgba(46, 168, 255, 0.4),
-      0 0 48px rgba(46, 168, 255, 0.2);
+    text-shadow: 0 0 28px rgba(46, 168, 255, 0.22);
   }
 
   .titan-home-hero-v2__badge {
@@ -700,26 +698,26 @@
   }
 
   .titan-cmd {
-    --titan-cmd-glow: rgba(46, 168, 255, 0.45);
+    --titan-cmd-glow: rgba(46, 168, 255, 0.28);
   }
 
   .titan-cmd-kicker {
     font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.16em;
+    font-weight: 650;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: #5bbcff;
-    text-shadow: 0 0 12px rgba(46, 168, 255, 0.55);
+    color: rgba(125, 211, 252, 0.88);
+    text-shadow: 0 0 10px rgba(46, 168, 255, 0.25);
   }
 
   .titan-cmd-card--glow-bull .titan-cmd-kicker {
-    color: #34d399;
-    text-shadow: 0 0 12px rgba(0, 208, 132, 0.55);
+    color: rgba(52, 211, 153, 0.92);
+    text-shadow: 0 0 10px rgba(0, 208, 132, 0.28);
   }
 
   .titan-cmd-card--glow-bear .titan-cmd-kicker {
-    color: #fb7185;
-    text-shadow: 0 0 12px rgba(255, 77, 109, 0.5);
+    color: rgba(251, 113, 133, 0.92);
+    text-shadow: 0 0 10px rgba(255, 77, 109, 0.25);
   }
 
   .titan-cmd-value {
@@ -736,29 +734,27 @@
     color: #78716c;
   }
 
+  /* Refined neon — visible but not loud; used by all GlassCard panels */
   .titan-cmd-card {
     position: relative;
     isolation: isolate;
-    border-radius: 0.75rem;
-    border: 1.5px solid rgba(46, 168, 255, 0.55);
+    border-radius: 0.7rem;
+    border: 1px solid rgba(46, 168, 255, 0.38);
     background:
-      linear-gradient(160deg, rgba(18, 28, 44, 0.95), rgba(4, 8, 16, 0.98)),
-      rgba(6, 10, 18, 0.95);
-    padding: 0.8rem 0.9rem;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+      linear-gradient(158deg, rgba(16, 22, 34, 0.94), rgba(5, 9, 16, 0.97)),
+      rgba(7, 11, 18, 0.92);
+    padding: 0.75rem 0.85rem;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
     box-shadow:
-      inset 0 1px 0 rgba(125, 211, 252, 0.22),
-      inset 0 0 40px -12px rgba(46, 168, 255, 0.18),
-      0 0 0 1px rgba(46, 168, 255, 0.2),
-      0 0 28px rgba(46, 168, 255, 0.28),
-      0 0 56px -8px rgba(46, 168, 255, 0.35),
-      0 18px 40px -24px rgba(0, 0, 0, 0.95);
+      inset 0 1px 0 rgba(125, 211, 252, 0.12),
+      0 0 0 1px rgba(46, 168, 255, 0.1),
+      0 0 18px -6px rgba(46, 168, 255, 0.28),
+      0 14px 30px -22px rgba(0, 0, 0, 0.92);
     transition:
-      border-color 0.22s ease,
-      box-shadow 0.22s ease,
-      transform 0.22s ease,
-      background 0.22s ease;
+      border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      transform 0.2s ease;
   }
 
   .titan-cmd-card::before {
@@ -767,20 +763,12 @@
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    background:
-      radial-gradient(ellipse 90% 60% at 50% -10%, rgba(46, 168, 255, 0.28), transparent 62%),
-      linear-gradient(180deg, rgba(46, 168, 255, 0.06), transparent 40%);
+    background: radial-gradient(ellipse 85% 50% at 50% -8%, rgba(46, 168, 255, 0.14), transparent 65%);
     z-index: 0;
   }
 
   .titan-cmd-card::after {
-    content: "";
-    pointer-events: none;
-    position: absolute;
-    inset: -1px;
-    border-radius: inherit;
-    box-shadow: 0 0 24px 2px rgba(46, 168, 255, 0.22);
-    z-index: -1;
+    content: none;
   }
 
   .titan-cmd-card > * {
@@ -789,92 +777,70 @@
   }
 
   .titan-cmd-card:hover {
-    border-color: rgba(91, 188, 255, 0.9);
-    transform: translateY(-2px);
+    border-color: rgba(46, 168, 255, 0.55);
+    transform: translateY(-1px);
     box-shadow:
-      inset 0 1px 0 rgba(125, 211, 252, 0.3),
-      0 0 0 1px rgba(46, 168, 255, 0.35),
-      0 0 36px rgba(46, 168, 255, 0.42),
-      0 0 72px -6px rgba(46, 168, 255, 0.4),
-      0 22px 44px -20px rgba(0, 0, 0, 0.95);
+      inset 0 1px 0 rgba(125, 211, 252, 0.16),
+      0 0 0 1px rgba(46, 168, 255, 0.16),
+      0 0 24px -4px rgba(46, 168, 255, 0.34),
+      0 16px 34px -20px rgba(0, 0, 0, 0.94);
   }
 
   .titan-cmd-card--glow-gold {
-    border-color: rgba(91, 188, 255, 0.75);
+    border-color: rgba(46, 168, 255, 0.48);
     box-shadow:
-      inset 0 1px 0 rgba(125, 211, 252, 0.28),
-      0 0 0 1px rgba(46, 168, 255, 0.3),
-      0 0 32px rgba(46, 168, 255, 0.4),
-      0 0 64px -6px rgba(46, 168, 255, 0.45),
-      0 18px 40px -24px rgba(0, 0, 0, 0.95);
+      inset 0 1px 0 rgba(125, 211, 252, 0.14),
+      0 0 0 1px rgba(46, 168, 255, 0.14),
+      0 0 20px -4px rgba(46, 168, 255, 0.32),
+      0 14px 30px -22px rgba(0, 0, 0, 0.92);
   }
 
   .titan-cmd-card--glow-bull {
-    border-color: rgba(16, 185, 129, 0.7);
+    border-color: rgba(0, 208, 132, 0.45);
     background:
-      linear-gradient(160deg, rgba(8, 40, 30, 0.96), rgba(4, 14, 12, 0.98)),
-      rgba(4, 20, 16, 0.95);
+      linear-gradient(158deg, rgba(8, 32, 24, 0.94), rgba(5, 12, 12, 0.97)),
+      rgba(5, 16, 14, 0.92);
     box-shadow:
-      inset 0 1px 0 rgba(52, 211, 153, 0.28),
-      inset 0 0 40px -10px rgba(0, 208, 132, 0.25),
-      0 0 0 1px rgba(0, 208, 132, 0.25),
-      0 0 28px rgba(0, 208, 132, 0.35),
-      0 0 56px -6px rgba(0, 208, 132, 0.4),
-      0 18px 40px -24px rgba(0, 0, 0, 0.95);
+      inset 0 1px 0 rgba(52, 211, 153, 0.14),
+      0 0 0 1px rgba(0, 208, 132, 0.12),
+      0 0 20px -4px rgba(0, 208, 132, 0.3),
+      0 14px 30px -22px rgba(0, 0, 0, 0.92);
   }
 
   .titan-cmd-card--glow-bull::before {
-    background:
-      radial-gradient(ellipse 90% 60% at 50% -10%, rgba(0, 208, 132, 0.32), transparent 62%),
-      linear-gradient(180deg, rgba(0, 208, 132, 0.08), transparent 40%);
-  }
-
-  .titan-cmd-card--glow-bull::after {
-    box-shadow: 0 0 28px 2px rgba(0, 208, 132, 0.28);
+    background: radial-gradient(ellipse 85% 50% at 50% -8%, rgba(0, 208, 132, 0.16), transparent 65%);
   }
 
   .titan-cmd-card--glow-bull:hover {
-    border-color: rgba(52, 211, 153, 0.95);
+    border-color: rgba(0, 208, 132, 0.6);
     box-shadow:
-      inset 0 1px 0 rgba(52, 211, 153, 0.35),
-      0 0 0 1px rgba(0, 208, 132, 0.4),
-      0 0 40px rgba(0, 208, 132, 0.5),
-      0 0 72px -4px rgba(0, 208, 132, 0.45),
-      0 22px 44px -20px rgba(0, 0, 0, 0.95);
+      inset 0 1px 0 rgba(52, 211, 153, 0.18),
+      0 0 26px -4px rgba(0, 208, 132, 0.36),
+      0 16px 34px -20px rgba(0, 0, 0, 0.94);
   }
 
   .titan-cmd-card--glow-bear {
-    border-color: rgba(251, 113, 133, 0.7);
+    border-color: rgba(255, 77, 109, 0.45);
     background:
-      linear-gradient(160deg, rgba(44, 12, 22, 0.96), rgba(14, 4, 10, 0.98)),
-      rgba(20, 6, 12, 0.95);
+      linear-gradient(158deg, rgba(34, 12, 18, 0.94), rgba(12, 5, 10, 0.97)),
+      rgba(16, 7, 12, 0.92);
     box-shadow:
-      inset 0 1px 0 rgba(251, 113, 133, 0.28),
-      inset 0 0 40px -10px rgba(255, 77, 109, 0.25),
-      0 0 0 1px rgba(255, 77, 109, 0.25),
-      0 0 28px rgba(255, 77, 109, 0.32),
-      0 0 56px -6px rgba(255, 77, 109, 0.38),
-      0 18px 40px -24px rgba(0, 0, 0, 0.95);
+      inset 0 1px 0 rgba(251, 113, 133, 0.14),
+      0 0 0 1px rgba(255, 77, 109, 0.12),
+      0 0 20px -4px rgba(255, 77, 109, 0.28),
+      0 14px 30px -22px rgba(0, 0, 0, 0.92);
   }
 
   .titan-cmd-card--glow-bear::before {
-    background:
-      radial-gradient(ellipse 90% 60% at 50% -10%, rgba(255, 77, 109, 0.3), transparent 62%),
-      linear-gradient(180deg, rgba(255, 77, 109, 0.08), transparent 40%);
-  }
-
-  .titan-cmd-card--glow-bear::after {
-    box-shadow: 0 0 28px 2px rgba(255, 77, 109, 0.26);
+    background: radial-gradient(ellipse 85% 50% at 50% -8%, rgba(255, 77, 109, 0.15), transparent 65%);
   }
 
   .titan-cmd-card--glow-bear:hover {
-    border-color: rgba(251, 113, 133, 0.95);
+    border-color: rgba(255, 77, 109, 0.6);
     box-shadow:
-      inset 0 1px 0 rgba(251, 113, 133, 0.35),
-      0 0 0 1px rgba(255, 77, 109, 0.4),
-      0 0 40px rgba(255, 77, 109, 0.48),
-      0 0 72px -4px rgba(255, 77, 109, 0.42),
-      0 22px 44px -20px rgba(0, 0, 0, 0.95);
+      inset 0 1px 0 rgba(251, 113, 133, 0.18),
+      0 0 26px -4px rgba(255, 77, 109, 0.34),
+      0 16px 34px -20px rgba(0, 0, 0, 0.94);
   }
 
   .titan-cmd-card--pulse {
@@ -976,38 +942,32 @@
   }
 
   .titan-app-nav__item--active {
-    border-color: #5bbcff;
+    border-color: rgba(46, 168, 255, 0.75);
     background:
-      linear-gradient(180deg, rgba(46, 168, 255, 0.28), rgba(46, 168, 255, 0.1));
-    color: #e0f2fe;
-    text-shadow: 0 0 14px rgba(46, 168, 255, 0.75);
-    transform: translateY(-1px);
+      linear-gradient(180deg, rgba(46, 168, 255, 0.18), rgba(46, 168, 255, 0.08));
+    color: #bae6fd;
+    text-shadow: 0 0 10px rgba(46, 168, 255, 0.35);
+    transform: none;
     box-shadow:
-      0 0 0 2px rgba(46, 168, 255, 0.45),
-      0 0 22px 2px rgba(46, 168, 255, 0.55),
-      0 0 48px -4px rgba(46, 168, 255, 0.5),
-      inset 0 1px 0 rgba(186, 230, 253, 0.35),
-      inset 0 0 24px -6px rgba(46, 168, 255, 0.45);
-    animation: titanNavActiveGlow 2.2s ease-in-out infinite;
+      0 0 0 1px rgba(46, 168, 255, 0.28),
+      0 0 16px -2px rgba(46, 168, 255, 0.4),
+      inset 0 1px 0 rgba(186, 230, 253, 0.2);
+    animation: titanNavActiveGlow 3s ease-in-out infinite;
   }
 
   @keyframes titanNavActiveGlow {
     0%,
     100% {
       box-shadow:
-        0 0 0 2px rgba(46, 168, 255, 0.4),
-        0 0 18px 1px rgba(46, 168, 255, 0.45),
-        0 0 40px -4px rgba(46, 168, 255, 0.4),
-        inset 0 1px 0 rgba(186, 230, 253, 0.28),
-        inset 0 0 20px -6px rgba(46, 168, 255, 0.35);
+        0 0 0 1px rgba(46, 168, 255, 0.25),
+        0 0 14px -2px rgba(46, 168, 255, 0.32),
+        inset 0 1px 0 rgba(186, 230, 253, 0.16);
     }
     50% {
       box-shadow:
-        0 0 0 2px rgba(91, 188, 255, 0.7),
-        0 0 28px 4px rgba(46, 168, 255, 0.7),
-        0 0 56px 0 rgba(46, 168, 255, 0.55),
-        inset 0 1px 0 rgba(186, 230, 253, 0.45),
-        inset 0 0 28px -4px rgba(46, 168, 255, 0.55);
+        0 0 0 1px rgba(46, 168, 255, 0.4),
+        0 0 20px 0 rgba(46, 168, 255, 0.45),
+        inset 0 1px 0 rgba(186, 230, 253, 0.24);
     }
   }
 
