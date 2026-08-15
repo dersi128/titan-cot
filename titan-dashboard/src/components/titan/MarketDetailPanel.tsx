@@ -102,7 +102,6 @@ function CommercialIndexPanel({ data, tr }: { data: CotDashboardData; tr: (key: 
       <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-500">
         {tr("detail.indexPanel.title")}
       </p>
-      <p className="mt-1 text-[11px] text-stone-600">{tr("detail.indexPanel.caption")}</p>
       <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
         {rows.map((row) => (
           <div key={row.label} className="rounded-lg border border-white/[0.06] bg-black/30 px-3 py-2.5">

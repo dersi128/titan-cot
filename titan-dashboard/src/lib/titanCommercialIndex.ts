@@ -15,7 +15,6 @@ import {
   horizonPanelTrend,
 } from "../components/titan/deltaFlowHorizon";
 
-/** Index thresholds (26W rolling, 0–100 scale). */
 export const THR_HIGH = 75;
 export const THR_LOW = 25;
 
@@ -118,7 +117,6 @@ function bandToLegacyZone(band: CotIndexBandId): CommercialZoneId {
   }
 }
 
-/** Glow intensity — stronger near extremes (unbounded index OK). */
 export function commercialGlowIntensity(index: number): number {
   if (!Number.isFinite(index)) return 24;
   const band = commercialIndexBand(index);
@@ -127,10 +125,6 @@ export function commercialGlowIntensity(index: number): number {
   return Math.round(Math.min(60, Math.abs(index - 50) * 0.8 + 16));
 }
 
-/**
- * Rolling commercial index series using prior lookback only.
- * Point at history[i] uses min/max of history[i-26 .. i-1] (26 prior reports).
- */
 export function buildCommercialIndexSeries(history: CotHistoryPoint[]): number[] {
   if (history.length < 27) return [];
   const out: number[] = [];
@@ -153,7 +147,6 @@ export function buildRetailIndexSeries(history: CotHistoryPoint[]): number[] {
   return out;
 }
 
-/** 52W prior-window commercial index series (first point at history[52]). */
 export function buildCommercialIndex52Series(history: CotHistoryPoint[]): number[] {
   if (history.length < 53) return [];
   const out: number[] = [];

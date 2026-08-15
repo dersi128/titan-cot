@@ -23,25 +23,6 @@ export const csMessages: Messages = {
     refreshSec: "Obnova {{sec}}s",
     updated: "Aktualizováno {{time}}",
     connection: "Připojení",
-    settings: "Nastavení",
-  },
-  settings: {
-    eyebrow: "Research settings",
-    title: "Commercial Index Zones",
-    cotIndexHint:
-      "Index je neomezený vůči prior lookback rozsahu (není %). Prahy jen barví a popisují zóny.",
-    close: "Zavřít",
-    save: "Uložit",
-    reset: "Obnovit defaulty",
-    defaults: "Defaulty: {{values}}",
-    fields: {
-      extremeLow: "Extreme low",
-      lowExtreme: "Low extreme marker",
-      neutralLow: "Neutral low",
-      neutralHigh: "Neutral high",
-      highExtreme: "High extreme marker",
-      extremeHigh: "Extreme high",
-    },
   },
   auth: {
     eyebrow: "Institutional terminal",
@@ -124,7 +105,6 @@ export const csMessages: Messages = {
     notEnoughHistory: "Nedostatek historie pro graf.",
     indexPanel: {
       title: "Commercial COT Index",
-      caption: "Neomezený vs prior lookback rozsah — není %",
       comm26: "Commercial 26T",
       comm52: "Commercial 52T",
       delta1w: "Δ1T",
@@ -674,8 +654,8 @@ export const csMessages: Messages = {
         delta4w: "Δ4T",
       },
       chartModeHint: {
-        index26w: "DXY Commercial 26T Index (neomezený vs prior rozsah)",
-        index52w: "DXY Commercial 52T Index (neomezený vs prior rozsah)",
+        index26w: "DXY Commercial 26T Index",
+        index52w: "DXY Commercial 52T Index",
         net: "DXY Commercial net kontrakty",
         delta4w: "DXY Commercial Δ4T",
       },

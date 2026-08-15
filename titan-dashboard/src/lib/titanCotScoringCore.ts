@@ -122,12 +122,6 @@ const IDX_HI = 80;
 const IDX_LO = 20;
 const BIAS_DISCLAIMER = "Bias only, not execution.";
 
-/**
- * Commercial / group COT index vs a prior lookback range (not a %).
- * `priorNets` must be the previous N completed reports — exclude `currentNet`
- * so breakouts can print below 0 or above 100.
- * Does not clamp to 0–100.
- */
 export function calculateCotIndex(priorNets: number[], currentNet: number): number {
   if (priorNets.length === 0) return 50;
   const min = Math.min(...priorNets);
@@ -136,7 +130,6 @@ export function calculateCotIndex(priorNets: number[], currentNet: number): numb
   return Math.round(((currentNet - min) / (max - min)) * 10000) / 100;
 }
 
-/** Index current net against the prior `lookback` observations in `series`. */
 export function calculateCotIndexAgainstPrior(
   series: number[],
   lookback: number,

@@ -110,10 +110,6 @@ function safeNum(n: number | undefined | null): number {
   return n;
 }
 
-/**
- * Commercial / group COT index vs a prior lookback range (not a %).
- * `priorNets` must exclude `currentNet` so breakouts can print outside 0–100.
- */
 export function calculateCotIndex(priorNets: number[], currentNet: number): number {
   if (priorNets.length === 0) return 50;
   const min = Math.min(...priorNets);

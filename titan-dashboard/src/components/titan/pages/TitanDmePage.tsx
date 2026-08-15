@@ -26,9 +26,8 @@ import {
 } from "../../../lib/titanDmeOverview";
 import {
   commercialIndexToneClass,
+  DEFAULT_COT_INDEX_ZONE_THRESHOLDS,
   formatCommercialIndex,
-  getCotIndexZoneThresholds,
-  subscribeCotIndexZoneThresholds,
 } from "../../../lib/titanCotIndexSettings";
 import { GlassCard } from "../ui/titanCmdShared";
 import { TitanPageHeader } from "../ui/TitanPageHeader";
@@ -192,10 +191,7 @@ export function TitanDmePage({ bundle, onSelectMarket }: TitanDmePageProps) {
   const dme = useMemo(() => buildDmeOverview(bundle), [bundle]);
   const [rates, setRates] = useState<MacroRatesResponse | null>(null);
   const [chartMode, setChartMode] = useState<DmeChartMode>("index26w");
-  const [zoneTick, setZoneTick] = useState(0);
-
-  useEffect(() => subscribeCotIndexZoneThresholds(() => setZoneTick((n) => n + 1)), []);
-  const zones = useMemo(() => getCotIndexZoneThresholds(), [zoneTick]);
+  const zones = DEFAULT_COT_INDEX_ZONE_THRESHOLDS;
 
   useEffect(() => {
     let cancelled = false;
