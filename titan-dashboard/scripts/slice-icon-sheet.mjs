@@ -5,13 +5,37 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
-
-const src =
-  process.argv[2] ||
-  "C:/Users/dersi/.cursor/projects/c-Users-dersi-Documents-titan-cot-git/assets/c__Users_dersi_AppData_Roaming_Cursor_User_workspaceStorage_bac34fd398a69078f50e4d8001a9cbce_images_image-61ab0a62-b63c-42c9-b29e-8d51087fb578.png";
-
 const outDir = path.join(root, "public", "markets", "icons");
 fs.mkdirSync(outDir, { recursive: true });
+
+/** Named 3×3 presets (row-major market ids / spare names). */
+const PRESETS = {
+  indicesEnergy: [
+    ["SP500", "NAS100", "DOW"],
+    ["RUSSELL", "VIX", "OIL"],
+    ["BRENT", "NATGAS", "GASOLINE"],
+  ],
+  metalsGrains: [
+    ["HEATOIL", "GOLD", "SILVER"],
+    ["COPPER", "PLATINUM", "PALLADIUM"],
+    ["CORN", "WHEAT", "SOYBEANS"],
+  ],
+  softsLivestock: [
+    ["SOYMEAL", "SOYOIL", "COFFEE"],
+    ["COTTON", "SUGAR", "COCOA"],
+    ["CATTLE", "FEEDERCATTLE", "HOGS"],
+  ],
+};
+
+const src = process.argv[2];
+const presetName = process.argv[3] || "indicesEnergy";
+const grid = PRESETS[presetName];
+
+if (!src || !grid) {
+  console.error("Usage: node scripts/slice-icon-sheet.mjs <sheet.png> <preset>");
+  console.error("Presets:", Object.keys(PRESETS).join(", "));
+  process.exit(1);
+}
 
 const meta = await sharp(src).metadata();
 const W = meta.width ?? 1024;
@@ -22,13 +46,6 @@ const cellW = Math.floor(W / cols);
 const cellH = Math.floor(H / rows);
 const inset = Math.round(cellW * 0.02);
 const size = 256;
-
-/** row-major labels → market id (or spare name) */
-const grid = [
-  ["SP500", "NAS100", "DOW"],
-  ["RUSSELL", "VIX", "OIL"],
-  ["BRENT", "NATGAS", "GASOLINE"],
-];
 
 for (let r = 0; r < rows; r++) {
   for (let c = 0; c < cols; c++) {
@@ -54,4 +71,4 @@ for (let r = 0; r < rows; r++) {
   }
 }
 
-console.log(`\nDone → ${outDir}`);
+console.log(`\nDone (${presetName}) → ${outDir}`);

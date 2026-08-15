@@ -1,8 +1,22 @@
 [
+  "CATTLE",
+  "COCOA",
+  "COFFEE",
+  "COPPER",
+  "CORN",
+  "COTTON",
   "DOW",
+  "GOLD",
+  "HOGS",
   "NAS100",
   "NATGAS",
   "OIL",
+  "PALLADIUM",
+  "PLATINUM",
   "RUSSELL",
-  "SP500"
+  "SILVER",
+  "SOYBEANS",
+  "SP500",
+  "SUGAR",
+  "WHEAT"
 ]
