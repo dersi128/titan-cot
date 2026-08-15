@@ -1,5 +1,5 @@
-import { useEffect, useState, type ReactNode } from "react";
-import { SignedIn, SignedOut, SignIn, Waitlist, useAuth } from "@clerk/clerk-react";
+import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { SignedIn, SignedOut, SignIn, useAuth, useClerk } from "@clerk/clerk-react";
 import { TitanInstitutionalBackdrop } from "../components/TitanInstitutionalBackdrop";
 import { TitanLogo } from "../components/TitanLogo";
 import { LanguageSwitcher, useTitanI18n } from "../i18n";
@@ -10,10 +10,16 @@ type TitanAuthGateProps = {
 };
 
 const SESSION_LOAD_TIMEOUT_MS = 10_000;
+const WAITLIST_HASH = "#waitlist";
 
 function isValidPublishableKey(key: string | undefined): key is string {
   const v = key?.trim() ?? "";
   return v.startsWith("pk_test_") || v.startsWith("pk_live_");
+}
+
+function readWaitlistHash(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.location.hash.toLowerCase().includes("waitlist");
 }
 
 function AuthShell({ children }: { children: ReactNode }) {
@@ -68,9 +74,100 @@ function AuthSessionStuck() {
   return <AuthErrorCard title={t("auth.sessionStuckTitle")} body={t("auth.sessionStuckBody")} />;
 }
 
+/** Same-origin waitlist — no redirect to accounts.dev Account Portal. */
+function TitanWaitlistForm() {
+  const { t } = useTitanI18n();
+  const clerk = useClerk();
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const onSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    const emailAddress = email.trim();
+    if (!emailAddress) return;
+    setStatus("loading");
+    setErrorMsg("");
+    try {
+      await clerk.joinWaitlist({ emailAddress });
+      setStatus("done");
+    } catch (err) {
+      const msg =
+        err && typeof err === "object" && "errors" in err
+          ? String(
+              (err as { errors?: Array<{ longMessage?: string; message?: string }> }).errors?.[0]
+                ?.longMessage ??
+                (err as { errors?: Array<{ message?: string }> }).errors?.[0]?.message ??
+                "",
+            )
+          : err instanceof Error
+            ? err.message
+            : "";
+      setErrorMsg(msg || t("auth.waitlistError"));
+      setStatus("error");
+    }
+  };
+
+  if (status === "done") {
+    return (
+      <div className="w-full max-w-[360px] rounded-lg border border-emerald-500/25 bg-emerald-950/20 px-4 py-5 text-center">
+        <p className="text-[14px] font-semibold text-emerald-200">{t("auth.waitlistSuccessTitle")}</p>
+        <p className="mt-2 text-[12px] leading-relaxed text-stone-400">{t("auth.waitlistSuccessBody")}</p>
+      </div>
+    );
+  }
+
+  return (
+    <form className="w-full max-w-[360px] space-y-3" onSubmit={(e) => void onSubmit(e)}>
+      <label className="block">
+        <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.12em] text-stone-500">
+          {t("auth.waitlistEmail")}
+        </span>
+        <input
+          type="email"
+          required
+          autoComplete="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          disabled={status === "loading"}
+          placeholder={t("auth.waitlistEmailPlaceholder")}
+          className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2.5 text-[14px] text-stone-100 outline-none placeholder:text-stone-600 focus:border-sky-400/40"
+        />
+      </label>
+      {status === "error" && errorMsg ? (
+        <p className="text-[12px] text-rose-300">{errorMsg}</p>
+      ) : null}
+      <button
+        type="submit"
+        disabled={status === "loading" || !email.trim()}
+        className="w-full rounded-lg bg-sky-500 px-3 py-2.5 text-[13px] font-semibold text-white transition hover:bg-sky-400 disabled:opacity-50"
+      >
+        {status === "loading" ? t("auth.waitlistSubmitting") : t("auth.waitlistSubmit")}
+      </button>
+    </form>
+  );
+}
+
 function AuthLanding() {
   const { t } = useTitanI18n();
-  const [mode, setMode] = useState<"sign-in" | "waitlist">("sign-in");
+  const [mode, setMode] = useState<"sign-in" | "waitlist">(() =>
+    readWaitlistHash() ? "waitlist" : "sign-in",
+  );
+
+  useEffect(() => {
+    const sync = () => setMode(readWaitlistHash() ? "waitlist" : "sign-in");
+    window.addEventListener("hashchange", sync);
+    return () => window.removeEventListener("hashchange", sync);
+  }, []);
+
+  const selectMode = (next: "sign-in" | "waitlist") => {
+    setMode(next);
+    if (next === "waitlist") {
+      if (!readWaitlistHash()) window.location.hash = "waitlist";
+    } else if (readWaitlistHash()) {
+      window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+    }
+  };
 
   return (
     <AuthShell>
@@ -115,14 +212,14 @@ function AuthLanding() {
             <div className="titan-auth-tabs mt-4 mb-5 flex rounded-lg border border-white/10 bg-black/35 p-1">
               <button
                 type="button"
-                onClick={() => setMode("sign-in")}
+                onClick={() => selectMode("sign-in")}
                 className={`titan-auth-tabs__btn ${mode === "sign-in" ? "is-active" : ""}`}
               >
                 {t("auth.signIn")}
               </button>
               <button
                 type="button"
-                onClick={() => setMode("waitlist")}
+                onClick={() => selectMode("waitlist")}
                 className={`titan-auth-tabs__btn ${mode === "waitlist" ? "is-active" : ""}`}
               >
                 {t("auth.waitlist")}
@@ -136,9 +233,10 @@ function AuthLanding() {
                   appearance={titanClerkAppearance}
                   forceRedirectUrl="/"
                   fallbackRedirectUrl="/"
+                  waitlistUrl={WAITLIST_HASH}
                 />
               ) : (
-                <Waitlist appearance={titanClerkAppearance} />
+                <TitanWaitlistForm />
               )}
             </div>
 
@@ -179,10 +277,8 @@ function AuthSessionGate({ children }: { children: ReactNode }) {
 }
 
 export function TitanAuthGate({ children }: TitanAuthGateProps) {
-  const key = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY?.trim();
-  if (!key) return <AuthMissingKey />;
-  if (!isValidPublishableKey(key)) return <AuthInvalidKey />;
-
+  if (!hasClerkPublishableKey()) return <AuthMissingKey />;
+  if (!isValidPublishableKey(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY)) return <AuthInvalidKey />;
   return <AuthSessionGate>{children}</AuthSessionGate>;
 }
 

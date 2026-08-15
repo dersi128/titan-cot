@@ -13,6 +13,12 @@ const clerkProxyUrl = publishableKey.startsWith("pk_live_")
   ? "https://titan-cot.vercel.app/__clerk"
   : undefined;
 
+/** Keep waitlist on our app — avoid Clerk Account Portal /waitlist 404. */
+const waitlistUrl =
+  typeof window !== "undefined"
+    ? `${window.location.origin}/#waitlist`
+    : "https://titan-cot.vercel.app/#waitlist";
+
 const tree = (
   <StrictMode>
     <App />
@@ -24,6 +30,7 @@ createRoot(document.getElementById("root")!).render(
     <ClerkProvider
       publishableKey={publishableKey}
       proxyUrl={clerkProxyUrl}
+      waitlistUrl={waitlistUrl}
       appearance={titanClerkAppearance}
     >
       {tree}
