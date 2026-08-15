@@ -4,9 +4,25 @@
 
 - [ ] 1. GitHub repo (obě složky nebo monorepo)
 - [ ] 2. Render → API běží (`/health` → `{"status":"ok"}`)
-- [ ] 3. Vercel → dashboard + `VITE_COT_API_URL`
+- [ ] 3. Vercel → dashboard + Clerk klíč (viz níže)
 - [ ] 4. Render → `CORS_ORIGIN` = Vercel URL → redeploy
-- [ ] 5. Pošli kamarádům Vercel odkaz
+- [ ] 5. Pošli kamarádům Vercel odkaz (musí se registrovat / přihlásit)
+
+---
+
+## Auth (Clerk) — povinné
+
+Dashboard je za přihlášením. Kdokoli se může zaregistrovat.
+
+1. Vytvoř appku na [clerk.com](https://dashboard.clerk.com) (Sign up zapnuté).
+2. Zkopíruj **Publishable key** (`pk_…`).
+3. Clerk → Allowed origins / domains: `http://localhost:5173`, `https://titan-cot.vercel.app`.
+4. Vercel → Project → **Settings → Environment Variables**:
+   - `VITE_CLERK_PUBLISHABLE_KEY` = `pk_…`
+5. Redeploy Vercel (Vite env se peče do buildu).
+6. Lokálně: stejný klíč do `titan-dashboard/.env`.
+
+Bez klíče uvidíš hlášku „Clerk key missing“.
 
 ---
 

@@ -1,6 +1,7 @@
 import { TitanLogo } from "../../TitanLogo";
 import { LanguageSwitcher, useTitanI18n } from "../../../i18n";
 import { TitanLivePill } from "../ui/TitanPrimitives";
+import { UserButton } from "@clerk/clerk-react";
 
 type TitanHomeHeroProps = {
   liveCount: number;
@@ -32,6 +33,7 @@ export function TitanHomeHero({ liveCount, refreshSec, refreshLabel }: TitanHome
 
       <div className="titan-home-hero-v2__meta flex flex-wrap items-center justify-end gap-2.5">
         <LanguageSwitcher />
+        <UserButton afterSignOutUrl="/" />
         <span className="titan-home-hero-v2__badge">{t("home.heroLegacy")}</span>
         <TitanLivePill label={t("header.marketsLive", { count: liveCount })} />
         <div className="titan-home-hero-v2__clock rounded-lg border border-titan-gold/15 bg-titan-panel/80 px-3 py-2 shadow-insetGold backdrop-blur-md">

@@ -38,6 +38,8 @@ import { LanguageSwitcher, useTitanI18n } from "../../i18n";
 
 import { TitanLivePill } from "./ui/TitanPrimitives";
 
+import { UserButton } from "@clerk/clerk-react";
+
 import {
 
   parseAppSectionFromHash,
@@ -377,6 +379,8 @@ export function TitanCotDashboard() {
                 <div className="flex flex-wrap items-center gap-3 lg:justify-end">
 
                   <LanguageSwitcher />
+
+                  <UserButton afterSignOutUrl="/" />
 
                   <TitanLivePill label={t("header.marketsLive", { count: liveCount })} />
 

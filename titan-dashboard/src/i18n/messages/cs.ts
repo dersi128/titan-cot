@@ -24,6 +24,17 @@ export const csMessages: Messages = {
     updated: "Aktualizováno {{time}}",
     connection: "Připojení",
   },
+  auth: {
+    eyebrow: "TITAN COT",
+    title: "Přihlas se pro pokračování",
+    subtitle: "Vytvoř si účet zdarma nebo se přihlas a otevři institutional COT dashboard.",
+    signIn: "Přihlásit",
+    signUp: "Vytvořit účet",
+    loading: "Kontrola session…",
+    missingKeyTitle: "Chybí Clerk klíč",
+    missingKeyBody:
+      "Nastav VITE_CLERK_PUBLISHABLE_KEY v .env (lokálně) a ve Vercel Environment Variables, pak rebuild.",
+  },
   errors: {
     loadCftc: "Nepodařilo se načíst data CFTC.",
     apiConnect:

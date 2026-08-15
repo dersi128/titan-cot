@@ -22,6 +22,17 @@ export const enMessages = {
     updated: "Updated {{time}}",
     connection: "Connection",
   },
+  auth: {
+    eyebrow: "TITAN COT",
+    title: "Sign in to continue",
+    subtitle: "Create a free account or sign in to open the institutional COT dashboard.",
+    signIn: "Sign in",
+    signUp: "Create account",
+    loading: "Checking session…",
+    missingKeyTitle: "Clerk key missing",
+    missingKeyBody:
+      "Set VITE_CLERK_PUBLISHABLE_KEY in .env (local) and Vercel Environment Variables, then rebuild.",
+  },
   errors: {
     loadCftc: "Failed to load CFTC data.",
     apiConnect:
