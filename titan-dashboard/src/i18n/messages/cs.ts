@@ -42,6 +42,12 @@ export const csMessages: Messages = {
     missingKeyTitle: "Chybí Clerk klíč",
     missingKeyBody:
       "Nastav VITE_CLERK_PUBLISHABLE_KEY v .env (lokálně) a ve Vercel Environment Variables, pak rebuild.",
+    invalidKeyTitle: "Neplatný Clerk klíč",
+    invalidKeyBody:
+      "VITE_CLERK_PUBLISHABLE_KEY musí začínat pk_test_ nebo pk_live_ (ne sk_… a ne název proměnné).",
+    sessionStuckTitle: "Clerk session visí",
+    sessionStuckBody:
+      "Production (pk_live) na *.vercel.app často nejde bez vlastní domény. Vrať na Vercelu Development pk_test_… a Redeploy.",
   },
   errors: {
     loadCftc: "Nepodařilo se načíst data CFTC.",

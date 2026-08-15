@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { SignedIn, SignedOut, SignIn, SignUp, useAuth } from "@clerk/clerk-react";
 import { TitanInstitutionalBackdrop } from "../components/TitanInstitutionalBackdrop";
 import { TitanLogo } from "../components/TitanLogo";
@@ -8,6 +8,13 @@ import { titanClerkAppearance } from "./clerkAppearance";
 type TitanAuthGateProps = {
   children: ReactNode;
 };
+
+const SESSION_LOAD_TIMEOUT_MS = 10_000;
+
+function isValidPublishableKey(key: string | undefined): key is string {
+  const v = key?.trim() ?? "";
+  return v.startsWith("pk_test_") || v.startsWith("pk_live_");
+}
 
 function AuthShell({ children }: { children: ReactNode }) {
   return (
@@ -33,18 +40,32 @@ function AuthLoading() {
   );
 }
 
-function AuthMissingKey() {
-  const { t } = useTitanI18n();
+function AuthErrorCard({ title, body }: { title: string; body: string }) {
   return (
     <AuthShell>
       <div className="flex min-h-screen items-center justify-center px-4">
         <div className="max-w-md rounded-xl border border-rose-500/30 bg-rose-950/35 px-5 py-4 text-sm text-rose-100/90 backdrop-blur-md">
-          <p className="font-semibold text-rose-200">{t("auth.missingKeyTitle")}</p>
-          <p className="mt-2 text-rose-100/70">{t("auth.missingKeyBody")}</p>
+          <p className="font-semibold text-rose-200">{title}</p>
+          <p className="mt-2 text-rose-100/70">{body}</p>
         </div>
       </div>
     </AuthShell>
   );
+}
+
+function AuthMissingKey() {
+  const { t } = useTitanI18n();
+  return <AuthErrorCard title={t("auth.missingKeyTitle")} body={t("auth.missingKeyBody")} />;
+}
+
+function AuthInvalidKey() {
+  const { t } = useTitanI18n();
+  return <AuthErrorCard title={t("auth.invalidKeyTitle")} body={t("auth.invalidKeyBody")} />;
+}
+
+function AuthSessionStuck() {
+  const { t } = useTitanI18n();
+  return <AuthErrorCard title={t("auth.sessionStuckTitle")} body={t("auth.sessionStuckBody")} />;
 }
 
 function AuthLanding() {
@@ -138,6 +159,18 @@ function AuthLanding() {
 
 function AuthSessionGate({ children }: { children: ReactNode }) {
   const { isLoaded } = useAuth();
+  const [timedOut, setTimedOut] = useState(false);
+
+  useEffect(() => {
+    if (isLoaded) {
+      setTimedOut(false);
+      return;
+    }
+    const id = window.setTimeout(() => setTimedOut(true), SESSION_LOAD_TIMEOUT_MS);
+    return () => window.clearTimeout(id);
+  }, [isLoaded]);
+
+  if (!isLoaded && timedOut) return <AuthSessionStuck />;
   if (!isLoaded) return <AuthLoading />;
 
   return (
@@ -153,10 +186,11 @@ function AuthSessionGate({ children }: { children: ReactNode }) {
 export function TitanAuthGate({ children }: TitanAuthGateProps) {
   const key = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY?.trim();
   if (!key) return <AuthMissingKey />;
+  if (!isValidPublishableKey(key)) return <AuthInvalidKey />;
 
   return <AuthSessionGate>{children}</AuthSessionGate>;
 }
 
 export function hasClerkPublishableKey(): boolean {
-  return Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY?.trim());
+  return isValidPublishableKey(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
 }

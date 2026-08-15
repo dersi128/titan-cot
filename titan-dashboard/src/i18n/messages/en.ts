@@ -40,6 +40,12 @@ export const enMessages = {
     missingKeyTitle: "Clerk key missing",
     missingKeyBody:
       "Set VITE_CLERK_PUBLISHABLE_KEY in .env (local) and Vercel Environment Variables, then rebuild.",
+    invalidKeyTitle: "Invalid Clerk key",
+    invalidKeyBody:
+      "VITE_CLERK_PUBLISHABLE_KEY must start with pk_test_ or pk_live_ (not sk_… and not the variable name).",
+    sessionStuckTitle: "Clerk session stuck",
+    sessionStuckBody:
+      "Production (pk_live) often fails on *.vercel.app without a custom domain. Switch Vercel back to Development pk_test_… and Redeploy.",
   },
   errors: {
     loadCftc: "Failed to load CFTC data.",
