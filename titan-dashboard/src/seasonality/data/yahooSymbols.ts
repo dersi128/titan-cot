@@ -4,14 +4,25 @@ export const YAHOO_TICKERS: Record<string, string> = {
   SILVER: "SI=F",
   OIL: "CL=F",
   NATGAS: "NG=F",
+  COPPER: "HG=F",
+  PLATINUM: "PL=F",
+  PALLADIUM: "PA=F",
   COCOA: "CC=F",
   COFFEE: "KC=F",
   COTTON: "CT=F",
+  SUGAR: "SB=F",
+  WHEAT: "ZW=F",
+  CORN: "ZC=F",
+  SOYBEANS: "ZS=F",
   NAS100: "MNQ=F",
   NQ: "NQ=F",
   SPX: "^GSPC",
   SP500: "^GSPC",
   ES: "ES=F",
+  DOW: "YM=F",
+  DJI: "^DJI",
+  RTY: "RTY=F",
+  RUSSELL: "RTY=F",
   AUD: "AUDUSD=X",
   EUR: "EURUSD=X",
   EURUSD: "EURUSD=X",
@@ -20,7 +31,16 @@ export const YAHOO_TICKERS: Record<string, string> = {
   USDJPY: "USDJPY=X",
   JPY: "USDJPY=X",
   EURJPY: "EURJPY=X",
+  GBPJPY: "GBPJPY=X",
+  AUDJPY: "AUDJPY=X",
+  CADJPY: "CADJPY=X",
+  CHFJPY: "CHFJPY=X",
   EURGBP: "EURGBP=X",
+  EURCHF: "EURCHF=X",
+  EURAUD: "EURAUD=X",
+  GBPAUD: "GBPAUD=X",
+  AUDCAD: "AUDCAD=X",
+  AUDNZD: "AUDNZD=X",
   AUDUSD: "AUDUSD=X",
   USDCAD: "USDCAD=X",
   USDCHF: "USDCHF=X",
@@ -44,7 +64,6 @@ const FX_PAIR = /^[A-Z]{6}$/;
 export function resolveYahooTicker(symbol: string): string {
   const key = symbol.trim().toUpperCase();
   if (YAHOO_TICKERS[key]) return YAHOO_TICKERS[key];
-  // EURJPY → EURJPY=X
   if (FX_PAIR.test(key) && !key.includes("=")) return `${key}=X`;
   return key;
 }
