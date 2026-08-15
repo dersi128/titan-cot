@@ -53,6 +53,7 @@ export const csMessages: Messages = {
     waitlistSubmitting: "Odesílám…",
     waitlistSuccessTitle: "Jsi na listině",
     waitlistSuccessBody: "Až přístup schválíme, přijde ti e-mail.",
+    waitlistSuccessAuto: "Teď jen čekej — jsi ve frontě. Znovu se registrovat nemusíš.",
     waitlistError: "Nepodařilo se přidat na listinu. Zkus to znovu.",
     feature1: "Live CFTC legacy positioning napříč mapovanými trhy",
     feature2: "Sezónní okna s historickým win-rate nástrojem",

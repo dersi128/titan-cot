@@ -51,6 +51,7 @@ export const enMessages = {
     waitlistSubmitting: "Submitting…",
     waitlistSuccessTitle: "You're on the list",
     waitlistSuccessBody: "We'll email you when access is approved.",
+    waitlistSuccessAuto: "Hang tight — you're in the queue. No need to sign up again.",
     waitlistError: "Could not join the waitlist. Try again.",
     feature1: "Live CFTC legacy positioning across mapped markets",
     feature2: "Seasonal windows with historical win-rate tools",

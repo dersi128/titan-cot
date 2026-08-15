@@ -104,6 +104,16 @@ function TitanWaitlistForm() {
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
 
+  const notifyAdmin = (emailAddress: string) => {
+    void fetch("/api/waitlist-notify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: emailAddress }),
+    }).catch(() => {
+      /* non-blocking */
+    });
+  };
+
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const emailAddress = email.trim();
@@ -112,6 +122,7 @@ function TitanWaitlistForm() {
     setErrorMsg("");
     try {
       await clerk.joinWaitlist({ emailAddress });
+      notifyAdmin(emailAddress);
       setStatus("done");
     } catch (err) {
       const msg =
@@ -135,6 +146,7 @@ function TitanWaitlistForm() {
       <div className="w-full max-w-[360px] rounded-lg border border-emerald-500/25 bg-emerald-950/20 px-4 py-5 text-center">
         <p className="text-[14px] font-semibold text-emerald-200">{t("auth.waitlistSuccessTitle")}</p>
         <p className="mt-2 text-[12px] leading-relaxed text-stone-400">{t("auth.waitlistSuccessBody")}</p>
+        <p className="mt-3 text-[11px] leading-relaxed text-stone-500">{t("auth.waitlistSuccessAuto")}</p>
       </div>
     );
   }
