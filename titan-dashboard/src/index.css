@@ -165,9 +165,20 @@
     filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.55));
   }
 
-  /* PNG tiles — stejná velikost, ořez textu dole, pro vzhled */
-  .titan-market-icon--photo,
+  /* Vector tiles — clean terminal badges (no photo / no glow spam) */
   .titan-market-icon--vector {
+    @apply overflow-hidden rounded-[10px] border-0;
+    flex: 0 0 auto;
+    background:
+      linear-gradient(165deg, rgba(255, 255, 255, 0.04), transparent 42%),
+      radial-gradient(ellipse 85% 70% at 50% 12%, rgba(var(--icon-accent), 0.16), #07080c 78%);
+    box-shadow:
+      0 0 0 1px rgba(var(--icon-accent), 0.32),
+      inset 0 1px 0 rgba(255, 255, 255, 0.07),
+      0 4px 12px -8px rgba(0, 0, 0, 0.75);
+  }
+
+  .titan-market-icon--photo {
     @apply overflow-hidden rounded-[11px] border-0;
     flex: 0 0 auto;
     background: radial-gradient(ellipse 90% 70% at 50% 18%, rgba(var(--icon-accent), 0.14), #050508 72%);
@@ -179,17 +190,17 @@
 
   .titan-market-icon--photo.titan-market-icon--sm,
   .titan-market-icon--vector.titan-market-icon--sm {
-    @apply h-11 w-11;
+    @apply h-10 w-10;
   }
 
   .titan-market-icon--photo.titan-market-icon--md,
   .titan-market-icon--vector.titan-market-icon--md {
-    @apply h-12 w-12;
+    @apply h-11 w-11;
   }
 
   .titan-market-icon--photo.titan-market-icon--lg,
   .titan-market-icon--vector.titan-market-icon--lg {
-    @apply h-14 w-14;
+    @apply h-[3.25rem] w-[3.25rem];
   }
 
   .titan-market-icon--photo .titan-market-icon__content,
@@ -213,26 +224,77 @@
   }
 
   .titan-market-icon--vector .titan-market-icon__ring-outer {
-    @apply rounded-[10px];
+    @apply rounded-[9px];
     inset: 1px;
+    border-color: rgba(255, 255, 255, 0.06);
+    box-shadow: none;
   }
 
   .titan-market-icon--vector .titan-market-icon__ring-inner {
-    @apply rounded-[9px];
+    @apply rounded-[8px];
     inset: 3px;
+    border-color: rgba(255, 255, 255, 0.04);
+    box-shadow: none;
   }
 
   .titan-market-icon--vector .titan-market-icon__glass {
-    @apply rounded-[10px];
+    @apply rounded-[9px];
+    background: linear-gradient(155deg, rgba(255, 255, 255, 0.08), transparent 45%);
+    backdrop-filter: none;
   }
 
   .titan-market-icon--vector .titan-market-icon__glow {
-    @apply rounded-[10px];
-    opacity: 0.4;
+    @apply rounded-[9px];
+    opacity: 0.28;
+    filter: blur(8px);
   }
 
   .titan-market-icon--vector .titan-market-icon__content {
-    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5));
+    color: rgba(236, 242, 255, 0.92);
+    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.55));
+  }
+
+  /* Forex flags — full-bleed circular nation marks */
+  .titan-market-icon--flag {
+    @apply overflow-hidden rounded-full border-0;
+    flex: 0 0 auto;
+    background: #0a0a0c;
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.12),
+      0 4px 12px -6px rgba(0, 0, 0, 0.75);
+  }
+
+  .titan-market-icon--flag.titan-market-icon--sm {
+    @apply h-10 w-10;
+  }
+
+  .titan-market-icon--flag.titan-market-icon--md {
+    @apply h-11 w-11;
+  }
+
+  .titan-market-icon--flag.titan-market-icon--lg {
+    @apply h-[3.25rem] w-[3.25rem];
+  }
+
+  .titan-market-icon--flag .titan-market-icon__content {
+    @apply absolute inset-0;
+    filter: none;
+  }
+
+  .titan-market-icon__flag {
+    @apply block h-full w-full;
+  }
+
+  .titan-market-icon--flag.titan-market-icon--bull {
+    box-shadow:
+      0 0 0 1.5px rgba(0, 208, 132, 0.55),
+      0 4px 12px -6px rgba(0, 0, 0, 0.75);
+  }
+
+  .titan-market-icon--flag.titan-market-icon--bear {
+    box-shadow:
+      0 0 0 1.5px rgba(255, 77, 109, 0.55),
+      0 4px 12px -6px rgba(0, 0, 0, 0.75);
   }
 
   .titan-market-icon--bull {
@@ -346,9 +408,9 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center 42%;
-    opacity: 0.85;
-    filter: saturate(0.95) contrast(1.02) brightness(0.92);
+    object-position: center 45%;
+    opacity: 0.92;
+    filter: saturate(1.05) contrast(1.05) brightness(0.88);
   }
 
   .titan-institutional-backdrop__map {
@@ -369,7 +431,10 @@
   .titan-institutional-backdrop__mesh {
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(46, 168, 255, 0.035), transparent 55%);
+    background:
+      radial-gradient(ellipse 70% 45% at 18% 78%, rgba(16, 185, 129, 0.07), transparent 55%),
+      radial-gradient(ellipse 70% 45% at 82% 78%, rgba(244, 63, 94, 0.07), transparent 55%),
+      radial-gradient(ellipse 80% 50% at 50% 0%, rgba(46, 168, 255, 0.04), transparent 55%);
   }
 
   .titan-institutional-backdrop__rays {
@@ -378,22 +443,22 @@
     background: linear-gradient(
       115deg,
       transparent 30%,
-      rgba(46, 168, 255, 0.02) 45%,
-      rgba(46, 168, 255, 0.04) 50%,
-      rgba(46, 168, 255, 0.015) 55%,
+      rgba(234, 179, 8, 0.025) 45%,
+      rgba(46, 168, 255, 0.035) 50%,
+      rgba(234, 179, 8, 0.02) 55%,
       transparent 70%
     );
     animation: none;
-    opacity: 0.5;
+    opacity: 0.55;
     pointer-events: none;
   }
 
   .titan-institutional-backdrop__particles {
     position: absolute;
     inset: 0;
-    background-image: radial-gradient(circle, rgba(46, 168, 255, 0.25) 1px, transparent 1px);
-    background-size: 48px 48px;
-    opacity: 0.03;
+    background-image: radial-gradient(circle, rgba(125, 211, 252, 0.3) 1px, transparent 1px);
+    background-size: 52px 52px;
+    opacity: 0.025;
     mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 20%, transparent 75%);
   }
 
@@ -401,8 +466,8 @@
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(ellipse 95% 75% at 50% 42%, transparent 0%, rgba(5, 5, 5, 0.18) 48%, rgba(5, 5, 5, 0.72) 100%),
-      linear-gradient(180deg, rgba(5, 5, 5, 0.4) 0%, rgba(5, 5, 5, 0.22) 45%, rgba(5, 5, 5, 0.78) 100%);
+      radial-gradient(ellipse 90% 70% at 50% 40%, transparent 0%, rgba(5, 5, 8, 0.12) 52%, rgba(5, 5, 8, 0.62) 100%),
+      linear-gradient(180deg, rgba(5, 5, 8, 0.28) 0%, rgba(5, 5, 8, 0.1) 42%, rgba(5, 5, 8, 0.58) 100%);
   }
 
   .titan-content-layer {

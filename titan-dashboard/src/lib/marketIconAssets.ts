@@ -7,7 +7,7 @@ const modules = import.meta.glob<string>("../assets/markets/icons/*.png", {
 });
 
 const BUNDLED = new Map<string, string>();
-const AVAILABLE = new Set(iconIds.map((id) => id.toUpperCase()));
+const AVAILABLE = new Set((iconIds as string[]).map((id) => id.toUpperCase()));
 
 for (const [path, url] of Object.entries(modules)) {
   const match = path.match(/\/([^/]+)\.png$/i);
