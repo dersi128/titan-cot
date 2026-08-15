@@ -33,7 +33,24 @@ export type CotPositioningVerdictId =
   | "strong_bearish";
 export type RatesLeanId = "rising" | "falling" | "flat" | "unknown";
 export type BreadthLeanId = "usd_favoring" | "fx_favoring" | "mixed";
-export type MacroAlignmentId = "strong" | "moderate" | "mixed" | "weak";
+export type MacroAlignmentId =
+  | "strong_bullish"
+  | "moderate_bullish"
+  | "strong_bearish"
+  | "moderate_bearish"
+  | "mixed"
+  | "none";
+
+export type AlignmentContribution = {
+  dxy: -1 | 0 | 1;
+  breadth: -1 | 0 | 1;
+  rates: -1 | 0 | 1;
+};
+
+export type MacroAlignmentResult = {
+  id: MacroAlignmentId;
+  contributions: AlignmentContribution;
+};
 export type DmeChartMode = "index26w" | "index52w" | "net" | "delta4w";
 
 export type DmeFxPanel = {
@@ -273,35 +290,41 @@ export function ratesLeanFromChanges(changes: Array<number | null | undefined>):
 /**
  * Alignment = agreement of input leans only (not a price probability).
  * +1 USD-supportive, −1 USD-opposing, 0 neutral/unknown.
+ * Result always carries direction when components agree.
  */
 export function computeMacroAlignment(input: {
   usdPositioning: UsdPositioningId;
   breadthLean: BreadthLeanId;
   ratesLean: RatesLeanId;
-}): MacroAlignmentId {
-  const signs: number[] = [];
-  if (input.usdPositioning === "bullish") signs.push(1);
-  else if (input.usdPositioning === "bearish") signs.push(-1);
-  else signs.push(0);
+}): MacroAlignmentResult {
+  const dxy: AlignmentContribution["dxy"] =
+    input.usdPositioning === "bullish" ? 1 : input.usdPositioning === "bearish" ? -1 : 0;
+  const breadth: AlignmentContribution["breadth"] =
+    input.breadthLean === "usd_favoring" ? 1 : input.breadthLean === "fx_favoring" ? -1 : 0;
+  const rates: AlignmentContribution["rates"] =
+    input.ratesLean === "rising" ? 1 : input.ratesLean === "falling" ? -1 : 0;
 
-  if (input.breadthLean === "usd_favoring") signs.push(1);
-  else if (input.breadthLean === "fx_favoring") signs.push(-1);
-  else signs.push(0);
+  const contributions: AlignmentContribution = { dxy, breadth, rates };
+  const active = [dxy, breadth, rates].filter((s): s is -1 | 1 => s !== 0);
 
-  if (input.ratesLean === "rising") signs.push(1);
-  else if (input.ratesLean === "falling") signs.push(-1);
-  else signs.push(0);
+  if (active.length === 0) {
+    return { id: "none", contributions };
+  }
 
-  const active = signs.filter((s) => s !== 0);
-  if (active.length === 0) return "weak";
   const first = active[0]!;
   const aligned = active.every((s) => s === first);
-  if (aligned) {
-    if (active.length === 3) return "strong";
-    if (active.length === 2) return "moderate";
-    return "weak";
+  if (!aligned) {
+    return { id: "mixed", contributions };
   }
-  return "mixed";
+
+  if (active.length === 3) {
+    return { id: first === 1 ? "strong_bullish" : "strong_bearish", contributions };
+  }
+  if (active.length === 2) {
+    return { id: first === 1 ? "moderate_bullish" : "moderate_bearish", contributions };
+  }
+  // Only one directional signal — not enough agreement to claim alignment
+  return { id: "none", contributions };
 }
 
 export function formatContractsDelta(value: number | null | undefined): string {

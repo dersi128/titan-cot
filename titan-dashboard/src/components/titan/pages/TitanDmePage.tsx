@@ -33,21 +33,39 @@ type TitanDmePageProps = {
 };
 
 function tonePos(id: string): string {
-  if (id === "bullish" || id === "strong_bullish" || id === "usd_plus" || id === "usd_favoring" || id === "rising" || id === "strong" || id === "moderate") {
+  if (
+    id === "bullish" ||
+    id === "strong_bullish" ||
+    id === "moderate_bullish" ||
+    id === "usd_plus" ||
+    id === "usd_favoring" ||
+    id === "rising"
+  ) {
     return "text-emerald-400";
   }
-  if (id === "bearish" || id === "strong_bearish" || id === "usd_minus" || id === "fx_favoring" || id === "falling" || id === "weak") {
+  if (
+    id === "bearish" ||
+    id === "strong_bearish" ||
+    id === "moderate_bearish" ||
+    id === "usd_minus" ||
+    id === "fx_favoring" ||
+    id === "falling"
+  ) {
     return "text-rose-400";
   }
+  if (id === "mixed") return "text-amber-300";
   return "text-stone-400";
 }
 
-function pillClass(kind: "bull" | "bear" | "neutral" | "info"): string {
+function pillClass(kind: "bull" | "bear" | "neutral" | "info" | "mixed"): string {
   if (kind === "bull") {
     return "border-emerald-500/35 bg-emerald-500/10 text-emerald-300";
   }
   if (kind === "bear") {
     return "border-rose-500/35 bg-rose-500/10 text-rose-300";
+  }
+  if (kind === "mixed") {
+    return "border-amber-500/35 bg-amber-500/10 text-amber-200";
   }
   if (kind === "info") {
     return "border-sky-500/30 bg-sky-500/10 text-sky-200";
@@ -88,7 +106,7 @@ function HeroPill({
 }: {
   label: string;
   value: string;
-  kind: "bull" | "bear" | "neutral" | "info";
+  kind: "bull" | "bear" | "neutral" | "info" | "mixed";
 }) {
   return (
     <div className={`inline-flex min-w-0 flex-col rounded-md border px-3 py-2 ${pillClass(kind)}`}>
@@ -143,9 +161,10 @@ function stanceLabel(stance: UsdStanceId, t: (k: string) => string): string {
   return t("pages.dme.stance.neutral");
 }
 
-function alignmentKind(id: MacroAlignmentId): "bull" | "bear" | "neutral" | "info" {
-  if (id === "strong" || id === "moderate") return "bull";
-  if (id === "weak") return "bear";
+function alignmentKind(id: MacroAlignmentId): "bull" | "bear" | "neutral" | "mixed" {
+  if (id === "strong_bullish" || id === "moderate_bullish") return "bull";
+  if (id === "strong_bearish" || id === "moderate_bearish") return "bear";
+  if (id === "mixed") return "mixed";
   return "neutral";
 }
 
@@ -185,7 +204,7 @@ export function TitanDmePage({ bundle, onSelectMarket }: TitanDmePageProps) {
     [yield2y?.change1w, yield5y?.change1w, yield10y?.change1w],
   );
 
-  const alignment = useMemo(
+  const alignmentResult = useMemo(
     () =>
       computeMacroAlignment({
         usdPositioning: dme.usdPositioning,
@@ -194,6 +213,7 @@ export function TitanDmePage({ bundle, onSelectMarket }: TitanDmePageProps) {
       }),
     [dme.usdPositioning, dme.breadthLean, ratesLean],
   );
+  const alignment = alignmentResult.id;
 
   const chartData = useMemo(() => {
     const rows = dme.historyChart;
@@ -437,6 +457,14 @@ export function TitanDmePage({ bundle, onSelectMarket }: TitanDmePageProps) {
             {t(`pages.dme.alignment.${alignment}`)}
           </div>
         </div>
+        {import.meta.env.DEV ? (
+          <pre className="mt-4 overflow-x-auto rounded-md border border-white/[0.06] bg-black/40 p-3 font-mono text-[11px] leading-relaxed text-stone-400">
+            {`DXY contribution: ${alignmentResult.contributions.dxy}
+FX breadth contribution: ${alignmentResult.contributions.breadth}
+Rates contribution: ${alignmentResult.contributions.rates}
+Final alignment: ${t(`pages.dme.alignment.${alignment}`)}`}
+          </pre>
+        ) : null}
       </GlassCard>
 
       {/* History chart */}
