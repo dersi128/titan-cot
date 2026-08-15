@@ -36,7 +36,7 @@ export function TitanHomeHero({ liveCount, refreshSec, refreshLabel }: TitanHome
         <UserButton afterSignOutUrl="/" />
         <span className="titan-home-hero-v2__badge">{t("home.heroLegacy")}</span>
         <TitanLivePill label={t("header.marketsLive", { count: liveCount })} />
-        <div className="titan-home-hero-v2__clock rounded-lg border border-titan-gold/15 bg-titan-panel/80 px-3 py-2 shadow-insetGold backdrop-blur-md">
+        <div className="titan-home-hero-v2__clock rounded-lg border border-titan-gold/30 bg-titan-panel/90 px-3 py-2 shadow-insetGold backdrop-blur-md">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">{t("header.data")}</p>
           <p className="mt-0.5 font-mono text-sm font-medium text-titan-goldBright">
             {t("header.refreshSec", { sec: refreshSec })}

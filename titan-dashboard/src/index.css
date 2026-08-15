@@ -610,8 +610,10 @@
   }
 
   .titan-header-bar--home {
-    @apply border-b border-white/[0.06] py-0;
-    background: linear-gradient(180deg, rgba(8, 8, 10, 0.97), rgba(5, 5, 5, 0.92));
+    @apply border-b border-titan-gold/10 py-0;
+    background:
+      radial-gradient(ellipse 70% 120% at 12% 0%, rgba(46, 168, 255, 0.07), transparent 55%),
+      linear-gradient(180deg, rgba(4, 8, 16, 0.98), rgba(2, 4, 10, 0.96));
   }
 
   .titan-home-hero-v2 {
@@ -678,26 +680,41 @@
 
   .titan-home-hero-v2__badge {
     border-radius: 2px;
-    border: 1px solid rgba(46, 168, 255, 0.22);
-    background: rgba(5, 5, 5, 0.55);
+    border: 1px solid rgba(46, 168, 255, 0.35);
+    background: rgba(46, 168, 255, 0.08);
     padding: 0.4rem 0.65rem;
     font-size: 9px;
     font-weight: 600;
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: rgba(46, 168, 255, 0.9);
+    color: rgba(125, 211, 252, 0.95);
+    box-shadow:
+      inset 0 1px 0 rgba(125, 211, 252, 0.12),
+      0 0 14px -6px rgba(46, 168, 255, 0.45);
   }
 
   .titan-home-main {
     width: 100%;
   }
 
+  .titan-cmd {
+    --titan-cmd-glow: rgba(46, 168, 255, 0.22);
+  }
+
   .titan-cmd-kicker {
     font-size: 9px;
     font-weight: 600;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: rgba(168, 162, 158, 0.9);
+    color: rgba(125, 211, 252, 0.78);
+  }
+
+  .titan-cmd-card--glow-bull .titan-cmd-kicker {
+    color: rgba(52, 211, 153, 0.88);
+  }
+
+  .titan-cmd-card--glow-bear .titan-cmd-kicker {
+    color: rgba(251, 113, 133, 0.88);
   }
 
   .titan-cmd-value {
@@ -715,31 +732,136 @@
   }
 
   .titan-cmd-card {
-    border-radius: 0.5rem;
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    background: rgba(12, 14, 18, 0.92);
+    position: relative;
+    isolation: isolate;
+    border-radius: 0.65rem;
+    border: 1px solid rgba(46, 168, 255, 0.28);
+    background:
+      linear-gradient(155deg, rgba(16, 22, 34, 0.92), rgba(6, 10, 18, 0.96)),
+      rgba(8, 12, 20, 0.88);
     padding: 0.75rem 0.85rem;
-    box-shadow: none;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow:
+      inset 0 1px 0 rgba(125, 211, 252, 0.1),
+      inset 0 0 0 1px rgba(46, 168, 255, 0.05),
+      0 0 22px -10px rgba(46, 168, 255, 0.28),
+      0 14px 32px -22px rgba(0, 0, 0, 0.9);
+    transition:
+      border-color 0.22s ease,
+      box-shadow 0.22s ease,
+      transform 0.22s ease,
+      background 0.22s ease;
+  }
+
+  .titan-cmd-card::before {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(ellipse 85% 55% at 50% -5%, rgba(46, 168, 255, 0.1), transparent 68%);
+    opacity: 0.9;
+    z-index: 0;
+  }
+
+  .titan-cmd-card > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .titan-cmd-card:hover {
+    border-color: rgba(46, 168, 255, 0.48);
+    transform: translateY(-1px);
+    box-shadow:
+      inset 0 1px 0 rgba(125, 211, 252, 0.14),
+      inset 0 0 0 1px rgba(46, 168, 255, 0.08),
+      0 0 32px -8px rgba(46, 168, 255, 0.38),
+      0 18px 36px -20px rgba(0, 0, 0, 0.92);
   }
 
   .titan-cmd-card--glow-gold {
-    border-color: rgba(46, 168, 255, 0.2);
-    box-shadow: inset 0 1px 0 rgba(46, 168, 255, 0.06);
+    border-color: rgba(46, 168, 255, 0.42);
+    box-shadow:
+      inset 0 1px 0 rgba(125, 211, 252, 0.14),
+      inset 0 0 24px -16px rgba(46, 168, 255, 0.2),
+      0 0 28px -8px rgba(46, 168, 255, 0.36),
+      0 14px 32px -22px rgba(0, 0, 0, 0.9);
   }
 
   .titan-cmd-card--glow-bull {
-    border-color: rgba(0, 208, 132, 0.2);
-    box-shadow: inset 0 1px 0 rgba(0, 208, 132, 0.05);
+    border-color: rgba(0, 208, 132, 0.42);
+    background:
+      linear-gradient(155deg, rgba(10, 28, 22, 0.92), rgba(6, 12, 14, 0.96)),
+      rgba(6, 16, 14, 0.9);
+    box-shadow:
+      inset 0 1px 0 rgba(0, 208, 132, 0.14),
+      inset 0 0 24px -14px rgba(0, 208, 132, 0.18),
+      0 0 28px -8px rgba(0, 208, 132, 0.32),
+      0 14px 32px -22px rgba(0, 0, 0, 0.9);
+  }
+
+  .titan-cmd-card--glow-bull::before {
+    background: radial-gradient(ellipse 85% 55% at 50% -5%, rgba(0, 208, 132, 0.12), transparent 68%);
+  }
+
+  .titan-cmd-card--glow-bull:hover {
+    border-color: rgba(0, 208, 132, 0.58);
+    box-shadow:
+      inset 0 1px 0 rgba(0, 208, 132, 0.18),
+      0 0 34px -8px rgba(0, 208, 132, 0.4),
+      0 18px 36px -20px rgba(0, 0, 0, 0.92);
   }
 
   .titan-cmd-card--glow-bear {
-    border-color: rgba(255, 77, 109, 0.2);
-    box-shadow: inset 0 1px 0 rgba(255, 77, 109, 0.05);
+    border-color: rgba(255, 77, 109, 0.42);
+    background:
+      linear-gradient(155deg, rgba(28, 12, 18, 0.92), rgba(12, 6, 10, 0.96)),
+      rgba(16, 8, 12, 0.9);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 77, 109, 0.14),
+      inset 0 0 24px -14px rgba(255, 77, 109, 0.18),
+      0 0 28px -8px rgba(255, 77, 109, 0.3),
+      0 14px 32px -22px rgba(0, 0, 0, 0.9);
+  }
+
+  .titan-cmd-card--glow-bear::before {
+    background: radial-gradient(ellipse 85% 55% at 50% -5%, rgba(255, 77, 109, 0.12), transparent 68%);
+  }
+
+  .titan-cmd-card--glow-bear:hover {
+    border-color: rgba(255, 77, 109, 0.58);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 77, 109, 0.18),
+      0 0 34px -8px rgba(255, 77, 109, 0.38),
+      0 18px 36px -20px rgba(0, 0, 0, 0.92);
+  }
+
+  .titan-cmd-card--pulse {
+    min-height: 100%;
+  }
+
+  .titan-cmd-watch__row {
+    border: 1px solid transparent;
+    border-radius: 0.35rem;
+    transition:
+      background 0.15s ease,
+      border-color 0.15s ease;
   }
 
   .titan-cmd-watch__row:hover {
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(255, 255, 255, 0.06);
+    background: rgba(46, 168, 255, 0.06);
+    border-color: rgba(46, 168, 255, 0.12);
+  }
+
+  .titan-cmd-card--glow-bull .titan-cmd-watch__row:hover {
+    background: rgba(0, 208, 132, 0.07);
+    border-color: rgba(0, 208, 132, 0.14);
+  }
+
+  .titan-cmd-card--glow-bear .titan-cmd-watch__row:hover {
+    background: rgba(255, 77, 109, 0.07);
+    border-color: rgba(255, 77, 109, 0.14);
   }
 
   .titan-cmd-dme-btn {
@@ -759,7 +881,18 @@
   }
 
   .titan-cmd-flow-row {
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(4, 8, 14, 0.45);
+    border-color: rgba(46, 168, 255, 0.1);
+    transition:
+      border-color 0.15s ease,
+      background 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+  .titan-cmd-flow-row:hover {
+    border-color: rgba(46, 168, 255, 0.22);
+    background: rgba(46, 168, 255, 0.05);
+    box-shadow: inset 0 1px 0 rgba(125, 211, 252, 0.06);
   }
 
   .titan-cmd-scanner-label {
@@ -768,42 +901,68 @@
 
   .titan-app-nav {
     margin-top: 0.65rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
-    padding-top: 0.5rem;
+    border-top: 1px solid rgba(46, 168, 255, 0.1);
+    padding-top: 0.55rem;
   }
 
   .titan-app-nav__inner {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.35rem;
+    gap: 0.4rem;
   }
 
   .titan-app-nav__item {
-    border-radius: 2px;
+    border-radius: 0.35rem;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(8, 8, 10, 0.85);
-    padding: 0.45rem 0.85rem;
+    background: rgba(6, 10, 16, 0.88);
+    padding: 0.48rem 0.9rem;
     font-size: 10px;
     font-weight: 600;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: #a8a29e;
     transition:
-      border-color 0.15s ease,
-      color 0.15s ease,
-      background 0.15s ease;
+      border-color 0.2s ease,
+      color 0.2s ease,
+      background 0.2s ease,
+      box-shadow 0.2s ease;
   }
 
   .titan-app-nav__item:hover {
-    border-color: rgba(46, 168, 255, 0.35);
-    color: #f5f5f4;
+    border-color: rgba(46, 168, 255, 0.4);
+    color: #e8eef4;
+    background: rgba(46, 168, 255, 0.05);
   }
 
   .titan-app-nav__item--active {
-    border-color: rgba(46, 168, 255, 0.4);
-    background: rgba(46, 168, 255, 0.06);
+    border-color: rgba(46, 168, 255, 0.85);
+    background:
+      linear-gradient(180deg, rgba(46, 168, 255, 0.16), rgba(46, 168, 255, 0.07));
     color: #7dd3fc;
-    box-shadow: inset 0 -2px 0 rgba(46, 168, 255, 0.75);
+    box-shadow:
+      0 0 0 1px rgba(46, 168, 255, 0.35),
+      0 0 18px -2px rgba(46, 168, 255, 0.55),
+      inset 0 1px 0 rgba(125, 211, 252, 0.22),
+      inset 0 0 18px -10px rgba(46, 168, 255, 0.35);
+    animation: titanNavActiveGlow 2.8s ease-in-out infinite;
+  }
+
+  @keyframes titanNavActiveGlow {
+    0%,
+    100% {
+      box-shadow:
+        0 0 0 1px rgba(46, 168, 255, 0.32),
+        0 0 16px -2px rgba(46, 168, 255, 0.45),
+        inset 0 1px 0 rgba(125, 211, 252, 0.18),
+        inset 0 0 18px -10px rgba(46, 168, 255, 0.28);
+    }
+    50% {
+      box-shadow:
+        0 0 0 1px rgba(46, 168, 255, 0.48),
+        0 0 22px 0 rgba(46, 168, 255, 0.62),
+        inset 0 1px 0 rgba(125, 211, 252, 0.28),
+        inset 0 0 22px -8px rgba(46, 168, 255, 0.42);
+    }
   }
 
   .titan-module-card {
@@ -2247,7 +2406,8 @@
   .animate-float,
   .animate-ray,
   .titan-auth-brand__logo-wrap,
-  .titan-auth-panel {
+  .titan-auth-panel,
+  .titan-app-nav__item--active {
     animation: none !important;
   }
 }

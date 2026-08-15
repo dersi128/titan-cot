@@ -22,6 +22,12 @@ function biasTone(bias: string): string {
   return "text-amber-300";
 }
 
+function biasGlow(bias: UsdBiasLabel): string {
+  if (bias === "BULLISH") return "titan-cmd-card--glow-bull";
+  if (bias === "BEARISH") return "titan-cmd-card--glow-bear";
+  return "titan-cmd-card--glow-gold";
+}
+
 function UsdBiasMascot({ bias }: { bias: UsdBiasLabel }) {
   if (bias === "NEUTRAL") return null;
   const src = bias === "BULLISH" ? bullArt : bearArt;
@@ -51,7 +57,7 @@ function OpportunityRows({
       {rows.map((row, i) => {
         const pct = Math.max(6, Math.min(100, row.score));
         const isLong = row.side === "LONG";
-        const bar = isLong ? "bg-emerald-400/75" : "bg-rose-400/70";
+        const bar = isLong ? "bg-emerald-400/90" : "bg-rose-400/85";
         const labelTone = isLong ? "text-emerald-300" : "text-rose-300";
         return (
           <li key={`${row.side}-${row.id}`}>
@@ -71,8 +77,16 @@ function OpportunityRows({
                     {row.daysUntilStart > 0 ? ` · T-${row.daysUntilStart}` : ""}
                   </span>
                 </div>
-                <div className="mt-0.5 h-0.5 overflow-hidden rounded-full bg-white/[0.05]">
-                  <div className={`h-full rounded-full ${bar}`} style={{ width: `${pct}%` }} />
+                <div className="mt-0.5 h-0.5 overflow-hidden rounded-full bg-white/[0.06]">
+                  <div
+                    className={`h-full rounded-full ${bar}`}
+                    style={{
+                      width: `${pct}%`,
+                      boxShadow: isLong
+                        ? "0 0 8px rgba(0, 208, 132, 0.45)"
+                        : "0 0 8px rgba(255, 77, 109, 0.4)",
+                    }}
+                  />
                 </div>
               </div>
               <span className="text-right font-mono text-[10px] font-semibold tabular-nums text-stone-300">
@@ -91,6 +105,7 @@ function SeasonPanel({
   loading,
   empty,
   rows,
+  tone,
   onOpenList,
   onOpenMarket,
 }: {
@@ -98,18 +113,21 @@ function SeasonPanel({
   loading: boolean;
   empty: string;
   rows: SeasonalityOpportunity[];
+  tone: "bull" | "bear";
   onOpenList: () => void;
   onOpenMarket: (marketId: string) => void;
 }) {
+  const glow = tone === "bull" ? "titan-cmd-card--glow-bull" : "titan-cmd-card--glow-bear";
+  const titleTone = tone === "bull" ? "text-emerald-400/90" : "text-rose-400/90";
   return (
-    <article className="titan-cmd-card min-w-0 w-full">
+    <article className={`titan-cmd-card titan-cmd-card--pulse min-w-0 w-full ${glow}`}>
       <div className="px-2 py-1.5 sm:px-2.5 sm:py-2">
         <button
           type="button"
           onClick={onOpenList}
           className="flex w-full items-baseline justify-between gap-2 text-left"
         >
-          <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-titan-gold/80">{title}</p>
+          <p className={`text-[9px] font-semibold uppercase tracking-[0.14em] ${titleTone}`}>{title}</p>
           <p className="font-mono text-[8px] uppercase tracking-wider text-stone-600">Score</p>
         </button>
         {loading ? (
@@ -159,12 +177,12 @@ export function HomePulseCards({ bundle, onNavigate }: HomePulseCardsProps) {
       <button
         type="button"
         onClick={() => onNavigate("dme")}
-        className="titan-cmd-card w-full text-left transition hover:border-white/15"
+        className={`titan-cmd-card titan-cmd-card--pulse w-full text-left ${biasGlow(usd.bias)}`}
       >
         <div className="flex h-full items-center gap-2.5 px-2 py-1.5 sm:gap-3 sm:px-2.5 sm:py-2">
           <TitanScoreRing100 score={usd.score100} label="USD" />
           <div className="min-w-0 flex-1">
-            <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-titan-gold/80">
+            <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-titan-gold/90">
               {t("home.pulseDmeTitle")}
             </p>
             <p className={`mt-0.5 font-display text-lg font-semibold tracking-wide ${biasTone(usd.bias)}`}>
@@ -188,6 +206,7 @@ export function HomePulseCards({ bundle, onNavigate }: HomePulseCardsProps) {
             !scanDone ? t("home.pulseSeasonLoading") : t("home.pulseSeasonLongEmpty")
           }
           rows={longs}
+          tone="bull"
           onOpenList={() => onNavigate("seasonality")}
           onOpenMarket={openSeason}
         />
@@ -198,6 +217,7 @@ export function HomePulseCards({ bundle, onNavigate }: HomePulseCardsProps) {
             !scanDone ? t("home.pulseSeasonLoading") : t("home.pulseSeasonShortEmpty")
           }
           rows={shorts}
+          tone="bear"
           onOpenList={() => onNavigate("seasonality")}
           onOpenMarket={openSeason}
         />

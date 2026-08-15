@@ -106,7 +106,7 @@ export function TitanHomePage({ rows, bundle, onSelectMarket, onNavigate }: Tita
             )}
           </ul>
         </GlassCard>
-        <GlassCard className="p-3">
+        <GlassCard glow="gold" className="p-3">
           <h3 className="titan-cmd-kicker">{t("home.cmdRegimeShifts")}</h3>
           <ul className="mt-2.5 space-y-2">
             {stats.regimeShifts.length === 0 ? (
