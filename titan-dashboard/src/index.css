@@ -675,7 +675,9 @@
   }
 
   .titan-home-hero-v2__title {
-    text-shadow: none;
+    text-shadow:
+      0 0 24px rgba(46, 168, 255, 0.4),
+      0 0 48px rgba(46, 168, 255, 0.2);
   }
 
   .titan-home-hero-v2__badge {
