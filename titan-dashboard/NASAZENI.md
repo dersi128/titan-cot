@@ -14,15 +14,22 @@
 
 Dashboard je za přihlášením. Kdokoli se může zaregistrovat.
 
-1. Vytvoř appku na [clerk.com](https://dashboard.clerk.com) (Sign up zapnuté).
-2. Zkopíruj **Publishable key** (`pk_…`).
-3. Clerk → Allowed origins / domains: `http://localhost:5173`, `https://titan-cot.vercel.app`.
-4. Vercel → Project → **Settings → Environment Variables**:
-   - `VITE_CLERK_PUBLISHABLE_KEY` = `pk_…`
-5. Redeploy Vercel (Vite env se peče do buildu).
-6. Lokálně: stejný klíč do `titan-dashboard/.env`.
+### Development (nejjednodušší)
+1. Clerk → **Development** → API Keys → **Publishable key** (`pk_test_…`)
+2. Vercel env: `VITE_CLERK_PUBLISHABLE_KEY` = `pk_test_…`
+3. Redeploy
 
-Bez klíče uvidíš hlášku „Clerk key missing“.
+### Production na titan-cot.vercel.app
+Bez vlastní domény Clerk vyžaduje proxy `/__clerk` (už je v repo).
+
+1. Clerk → Production → Publishable key (`pk_live_…`)
+2. Vercel env:
+   - `VITE_CLERK_PUBLISHABLE_KEY` = `pk_live_…`
+   - `CLERK_SECRET_KEY` = `sk_live_…` (**bez** `VITE_` — jen server)
+3. Redeploy
+4. Clerk Domains → **Verify proxy** na `https://titan-cot.vercel.app/__clerk`
+
+Google OAuth v Production je volitelné (vlastní Google credentials).
 
 ---
 

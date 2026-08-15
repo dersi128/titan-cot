@@ -8,6 +8,11 @@ import { titanClerkAppearance } from "./auth/clerkAppearance";
 
 const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY?.trim() ?? "";
 
+/** Production on *.vercel.app must talk to Clerk via same-origin /__clerk proxy. */
+const clerkProxyUrl = publishableKey.startsWith("pk_live_")
+  ? "https://titan-cot.vercel.app/__clerk"
+  : undefined;
+
 const tree = (
   <StrictMode>
     <App />
@@ -16,7 +21,11 @@ const tree = (
 
 createRoot(document.getElementById("root")!).render(
   hasClerkPublishableKey() ? (
-    <ClerkProvider publishableKey={publishableKey} appearance={titanClerkAppearance}>
+    <ClerkProvider
+      publishableKey={publishableKey}
+      proxyUrl={clerkProxyUrl}
+      appearance={titanClerkAppearance}
+    >
       {tree}
     </ClerkProvider>
   ) : (
