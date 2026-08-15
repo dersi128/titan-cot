@@ -48,6 +48,8 @@ import {
 
   type DashboardView,
 
+  type NavigateSectionOptions,
+
 } from "../../lib/titanAppRoute";
 
 
@@ -102,7 +104,7 @@ export function TitanCotDashboard() {
 
 
 
-  const navigateSection = useCallback((next: AppSection) => {
+  const navigateSection = useCallback((next: AppSection, options?: NavigateSectionOptions) => {
 
     lastSectionRef.current = next;
 
@@ -110,7 +112,7 @@ export function TitanCotDashboard() {
 
     setView(next);
 
-    setAppSectionHash(next);
+    setAppSectionHash(next, options);
 
     requestAnimationFrame(() => window.scrollTo(0, 0));
 

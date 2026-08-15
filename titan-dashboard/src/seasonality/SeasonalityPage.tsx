@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+﻿import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTitanI18n } from "../i18n";
+import { parseSeasonalityMarketFromHash, setAppSectionHash } from "../lib/titanAppRoute";
 import { DEFAULT_SEASONALITY_MARKET_ID, resolveSeasonalityMarket } from "./markets";
 import {
   fetchSeasonalityComparisonFromApi,
@@ -20,13 +21,30 @@ import { SeasonalityMarketSelector } from "./components/SeasonalityMarketSelecto
 
 export function SeasonalityPage() {
   const { t } = useTitanI18n();
-  const [marketId, setMarketId] = useState(DEFAULT_SEASONALITY_MARKET_ID);
+  const [marketId, setMarketId] = useState(
+    () => parseSeasonalityMarketFromHash() ?? DEFAULT_SEASONALITY_MARKET_ID,
+  );
   const [lookback, setLookback] = useState<YearsLookback>(DEFAULT_YEARS_LOOKBACK);
   const [cycles, setCycles] = useState<PresidentialCyclePhase[]>([]);
   const [comparison, setComparison] = useState<SeasonalityComparison | null>(null);
   const [dataSource, setDataSource] = useState("yahoo");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const selectMarket = useCallback((id: string) => {
+    setMarketId(id);
+    setAppSectionHash("seasonality", { seasonalityMarket: id });
+  }, []);
+
+  useEffect(() => {
+    const syncFromHash = () => {
+      const fromHash = parseSeasonalityMarketFromHash();
+      if (fromHash) setMarketId(fromHash);
+    };
+    window.addEventListener("hashchange", syncFromHash);
+    syncFromHash();
+    return () => window.removeEventListener("hashchange", syncFromHash);
+  }, []);
 
   const load = useCallback(
     async (id: string, phases: PresidentialCyclePhase[]) => {
@@ -91,7 +109,7 @@ export function SeasonalityPage() {
 
       <div className="mb-4">
         <p className="titan-cmd-kicker mb-2">{t("seasonality.selectMarket")}</p>
-        <SeasonalityMarketSelector activeId={marketId} onSelect={setMarketId} disabled={loading} />
+        <SeasonalityMarketSelector activeId={marketId} onSelect={selectMarket} disabled={loading} />
       </div>
 
       <div className={`space-y-4${loading ? " opacity-90" : ""}`}>

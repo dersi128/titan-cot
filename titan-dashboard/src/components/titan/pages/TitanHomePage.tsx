@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import type { CotDashboardData } from "../../../types";
 import type { InstitutionalMarket } from "../../../config/institutionalMarkets";
 import { INSTITUTIONAL_MARKETS } from "../../../config/institutionalMarkets";
-import type { AppSection } from "../../../lib/titanAppRoute";
+import type { AppSection, NavigateSectionOptions } from "../../../lib/titanAppRoute";
 import { buildHomeOverviewStats } from "../../../lib/titanHomeOverview";
 import { FLOW_MAP_CLASSES } from "../../../lib/titanHomeMock";
 import { convictionRankScore, CONVICTION_MAX } from "../../../lib/titanConviction";
@@ -22,7 +22,7 @@ type TitanHomePageProps = {
   rows: ScannerRowModel[];
   bundle: Record<string, CotDashboardData>;
   onSelectMarket: (market: InstitutionalMarket) => void;
-  onNavigate: (section: AppSection) => void;
+  onNavigate: (section: AppSection, options?: NavigateSectionOptions) => void;
 };
 
 function ModuleLaunchCard({

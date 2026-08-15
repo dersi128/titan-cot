@@ -16,7 +16,10 @@ export function SeasonalityMarketSelector({
   const { t } = useTitanI18n();
   const [query, setQuery] = useState("");
   const activeUpper = activeId.toUpperCase();
-  const isCustom = !SEASONALITY_MARKETS.some((m) => m.id === activeUpper);
+  const isPreset = SEASONALITY_MARKETS.some(
+    (m) => m.id === activeUpper || m.dataSymbol.toUpperCase() === activeUpper,
+  );
+  const isCustom = !isPreset;
 
   const submitSearch = () => {
     const market = resolveSeasonalityMarket(query);
@@ -29,7 +32,7 @@ export function SeasonalityMarketSelector({
     <div className="space-y-3">
       <div className="titan-seasonality-markets flex flex-wrap gap-1.5" role="tablist" aria-label="Markets">
         {SEASONALITY_MARKETS.map((m) => {
-          const active = m.id === activeUpper;
+          const active = m.id === activeUpper || m.dataSymbol.toUpperCase() === activeUpper;
           return (
             <button
               key={m.id}

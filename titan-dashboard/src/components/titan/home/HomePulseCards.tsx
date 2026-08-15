@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { CotDashboardData } from "../../../types";
-import type { AppSection } from "../../../lib/titanAppRoute";
+import type { AppSection, NavigateSectionOptions } from "../../../lib/titanAppRoute";
 import { usdPulseFromBundle, type UsdBiasLabel } from "../../../lib/homeUsdPulse";
 import {
   scanBestSeasonalityLongs,
@@ -13,7 +13,7 @@ import bearArt from "../../../assets/sentiment/bear.png";
 
 type HomePulseCardsProps = {
   bundle: Record<string, CotDashboardData>;
-  onNavigate: (section: AppSection) => void;
+  onNavigate: (section: AppSection, options?: NavigateSectionOptions) => void;
 };
 
 function biasTone(bias: string): string {
@@ -41,68 +41,52 @@ function UsdBiasMascot({ bias }: { bias: UsdBiasLabel }) {
 
 function SeasonalLongRows({
   rows,
+  onOpenMarket,
 }: {
   rows: SeasonalityLongCandidate[];
+  onOpenMarket: (marketId: string) => void;
 }) {
   return (
     <ul className="mt-2.5 space-y-1">
       {rows.map((row, i) => {
         const pct = Math.max(8, Math.min(100, row.score));
-        const bar =
-          row.bias === "BULLISH"
-            ? "bg-emerald-400/80"
-            : "bg-sky-400/70";
-        const labelTone =
-          row.bias === "BULLISH" ? "text-emerald-300" : "text-sky-200";
+        const bar = row.bias === "BULLISH" ? "bg-emerald-400/80" : "bg-sky-400/70";
+        const labelTone = row.bias === "BULLISH" ? "text-emerald-300" : "text-sky-200";
         return (
-          <li
-            key={row.id}
-            className="grid grid-cols-[1.1rem_minmax(0,1fr)_2.6rem_2.4rem] items-center gap-x-2 rounded px-1 py-1 hover:bg-white/[0.03]"
-          >
-            <span className="font-mono text-[10px] tabular-nums text-stone-600">{i + 1}</span>
-            <div className="min-w-0">
-              <div className="flex items-baseline gap-1.5">
-                <span className={`truncate font-display text-[12px] font-semibold tracking-wide ${labelTone}`}>
-                  {row.label}
-                </span>
-                <span className="shrink-0 text-[9px] uppercase tracking-wider text-stone-600">
-                  {row.strength}
-                </span>
+          <li key={row.id}>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenMarket(row.dataSymbol);
+              }}
+              className="grid w-full grid-cols-[1.1rem_minmax(0,1fr)_2.6rem_2.4rem] items-center gap-x-2 rounded px-1 py-1 text-left transition hover:bg-white/[0.05]"
+            >
+              <span className="font-mono text-[10px] tabular-nums text-stone-600">{i + 1}</span>
+              <div className="min-w-0">
+                <div className="flex items-baseline gap-1.5">
+                  <span className={`truncate font-display text-[12px] font-semibold tracking-wide ${labelTone}`}>
+                    {row.label}
+                  </span>
+                  <span className="shrink-0 text-[9px] uppercase tracking-wider text-stone-600">
+                    {row.strength}
+                  </span>
+                </div>
+                <div className="mt-1 h-1 overflow-hidden rounded-full bg-white/[0.06]">
+                  <div className={`h-full rounded-full ${bar}`} style={{ width: `${pct}%` }} />
+                </div>
               </div>
-              <div className="mt-1 h-1 overflow-hidden rounded-full bg-white/[0.06]">
-                <div className={`h-full rounded-full ${bar}`} style={{ width: `${pct}%` }} />
-              </div>
-            </div>
-            <span className="text-right font-mono text-[11px] font-semibold tabular-nums text-stone-200">
-              {row.score}
-            </span>
-            <span className="text-right font-mono text-[10px] tabular-nums text-stone-500">
-              {row.winRate.toFixed(0)}%
-            </span>
+              <span className="text-right font-mono text-[11px] font-semibold tabular-nums text-stone-200">
+                {row.score}
+              </span>
+              <span className="text-right font-mono text-[10px] tabular-nums text-stone-500">
+                {row.winRate.toFixed(0)}%
+              </span>
+            </button>
           </li>
         );
       })}
     </ul>
-  );
-}
-
-function PulseCard({
-  children,
-  onClick,
-  className = "",
-}: {
-  children: React.ReactNode;
-  onClick: () => void;
-  className?: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`titan-cmd-card w-full text-left transition hover:border-white/15 ${className}`}
-    >
-      {children}
-    </button>
   );
 }
 
@@ -135,7 +119,11 @@ export function HomePulseCards({ bundle, onNavigate }: HomePulseCardsProps) {
       className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)]"
       aria-label={t("home.pulseTitle")}
     >
-      <PulseCard onClick={() => onNavigate("dme")} className="self-stretch">
+      <button
+        type="button"
+        onClick={() => onNavigate("dme")}
+        className="titan-cmd-card w-full self-stretch text-left transition hover:border-white/15"
+      >
         <div className="flex h-full items-center gap-3 p-1 sm:gap-4 sm:p-2">
           <TitanScoreRing100 score={usd.score100} label="USD" />
           <div className="min-w-0 flex-1">
@@ -151,27 +139,36 @@ export function HomePulseCards({ bundle, onNavigate }: HomePulseCardsProps) {
           </div>
           <UsdBiasMascot bias={usd.bias} />
         </div>
-      </PulseCard>
+      </button>
 
-      <PulseCard onClick={() => onNavigate("seasonality")} className="self-stretch">
+      <article className="titan-cmd-card w-full self-stretch">
         <div className="flex h-full flex-col p-1 sm:p-2">
-          <div className="flex items-end justify-between gap-2">
+          <button
+            type="button"
+            onClick={() => onNavigate("seasonality")}
+            className="flex w-full items-end justify-between gap-2 text-left transition hover:opacity-90"
+          >
             <p className="titan-cmd-kicker">{t("home.pulseSeasonTitle")}</p>
             {scanDone && topLongs.length > 0 ? (
               <p className="font-mono text-[9px] uppercase tracking-wider text-stone-600">
                 {t("home.pulseSeasonCols")}
               </p>
             ) : null}
-          </div>
+          </button>
           {!scanDone ? (
             <p className="mt-3 text-[13px] text-stone-500">{t("home.pulseSeasonLoading")}</p>
           ) : topLongs.length > 0 ? (
-            <SeasonalLongRows rows={topLongs} />
+            <SeasonalLongRows
+              rows={topLongs}
+              onOpenMarket={(marketId) =>
+                onNavigate("seasonality", { seasonalityMarket: marketId })
+              }
+            />
           ) : (
             <p className="mt-3 text-[13px] text-stone-500">{t("home.pulseSeasonEmpty")}</p>
           )}
         </div>
-      </PulseCard>
+      </article>
     </section>
   );
 }
