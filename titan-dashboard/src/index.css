@@ -394,6 +394,8 @@
     object-position: center;
     background: transparent;
     border-radius: 50%;
+    /* Knock out any residual black canvas on dark UI */
+    mix-blend-mode: lighten;
     filter: drop-shadow(0 4px 18px rgba(46, 168, 255, 0.22));
   }
 
@@ -658,8 +660,8 @@
     object-position: center;
     background: transparent;
     border-radius: 50%;
-    /* Crop residual black padding outside the metallic badge */
     transform: scale(1.06);
+    mix-blend-mode: lighten;
     filter: drop-shadow(0 6px 18px rgba(46, 168, 255, 0.28));
   }
 

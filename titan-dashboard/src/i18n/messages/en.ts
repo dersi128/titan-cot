@@ -248,9 +248,6 @@ export const enMessages = {
       signalUp: "Flow cross ↑",
       signalNone: "No crossover",
       panelNoConfirm: "No confirmed reversal",
-      signalDown: "Flow cross ↓",
-      signalUp: "Flow cross ↑",
-      signalNone: "No crossover",
       hint: {
         none: "",
         potential_top: "",
