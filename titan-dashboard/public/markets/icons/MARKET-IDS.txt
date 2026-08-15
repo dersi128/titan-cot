@@ -7,6 +7,7 @@ GBP.png
 AUD.png
 CAD.png
 CHF.png
+NZD.png
 GOLD.png
 SILVER.png
 PLATINUM.png

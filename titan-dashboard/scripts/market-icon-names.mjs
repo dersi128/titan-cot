@@ -7,6 +7,7 @@ export const EXPECTED_MARKET_IDS = [
   "AUD",
   "CAD",
   "CHF",
+  "NZD",
   "GOLD",
   "SILVER",
   "PLATINUM",
