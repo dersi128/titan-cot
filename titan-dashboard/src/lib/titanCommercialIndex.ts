@@ -5,6 +5,11 @@
 import type { CotDashboardData, CotHistoryPoint } from "../types";
 import { calculateCotIndex } from "./titanCotScoringCore";
 import {
+  commercialIndexBand,
+  getCotIndexZoneThresholds,
+  type CotIndexBandId,
+} from "./titanCotIndexSettings";
+import {
   horizonDeltas,
   horizonFlowTone,
   horizonPanelTrend,
@@ -94,38 +99,68 @@ export type TitanPositioningRead = {
 };
 
 export function commercialIndexZone(index: number): CommercialZoneId {
-  const idx = clampIndex(index);
-  if (idx < 10) return "extreme_short";
-  if (idx < 25) return "strong_short";
-  if (idx < 40) return "bearish";
-  if (idx <= 60) return "neutral";
-  if (idx <= 75) return "bullish";
-  if (idx <= 90) return "strong_long";
-  return "extreme_long";
+  const band = commercialIndexBand(index, getCotIndexZoneThresholds());
+  return bandToLegacyZone(band);
 }
 
-/** Glow 0–100 — stronger near extremes */
+function bandToLegacyZone(band: CotIndexBandId): CommercialZoneId {
+  switch (band) {
+    case "extreme_low":
+      return "extreme_short";
+    case "bearish_extreme":
+      return "strong_short";
+    case "bullish_extreme":
+      return "strong_long";
+    case "extreme_high":
+      return "extreme_long";
+    default:
+      return "neutral";
+  }
+}
+
+/** Glow intensity — stronger near extremes (unbounded index OK). */
 export function commercialGlowIntensity(index: number): number {
-  const idx = clampIndex(index);
-  return Math.round(Math.max(Math.abs(idx - 50) * 2, idx > 75 || idx < 25 ? 72 : 24));
+  if (!Number.isFinite(index)) return 24;
+  const band = commercialIndexBand(index);
+  if (band === "extreme_high" || band === "extreme_low") return 92;
+  if (band === "bullish_extreme" || band === "bearish_extreme") return 72;
+  return Math.round(Math.min(60, Math.abs(index - 50) * 0.8 + 16));
 }
 
+/**
+ * Rolling commercial index series using prior lookback only.
+ * Point at history[i] uses min/max of history[i-26 .. i-1] (26 prior reports).
+ */
 export function buildCommercialIndexSeries(history: CotHistoryPoint[]): number[] {
-  if (history.length < 26) return [];
+  if (history.length < 27) return [];
   const out: number[] = [];
-  for (let i = 25; i < history.length; i++) {
-    const window = history.slice(i - 25, i + 1).map((h) => h.commercialNet);
-    out.push(calculateCotIndex(window, window[window.length - 1]!));
+  for (let i = 26; i < history.length; i++) {
+    const prior = history.slice(i - 26, i).map((h) => h.commercialNet);
+    const current = history[i]!.commercialNet;
+    out.push(calculateCotIndex(prior, current));
   }
   return out;
 }
 
 export function buildRetailIndexSeries(history: CotHistoryPoint[]): number[] {
-  if (history.length < 26) return [];
+  if (history.length < 27) return [];
   const out: number[] = [];
-  for (let i = 25; i < history.length; i++) {
-    const window = history.slice(i - 25, i + 1).map((h) => h.retailNet);
-    out.push(calculateCotIndex(window, window[window.length - 1]!));
+  for (let i = 26; i < history.length; i++) {
+    const prior = history.slice(i - 26, i).map((h) => h.retailNet);
+    const current = history[i]!.retailNet;
+    out.push(calculateCotIndex(prior, current));
+  }
+  return out;
+}
+
+/** 52W prior-window commercial index series (first point at history[52]). */
+export function buildCommercialIndex52Series(history: CotHistoryPoint[]): number[] {
+  if (history.length < 53) return [];
+  const out: number[] = [];
+  for (let i = 52; i < history.length; i++) {
+    const prior = history.slice(i - 52, i).map((h) => h.commercialNet);
+    const current = history[i]!.commercialNet;
+    out.push(calculateCotIndex(prior, current));
   }
   return out;
 }
@@ -383,8 +418,8 @@ export function evaluateTitanPositioning(data: CotDashboardData): TitanPositioni
 
 function evaluateTitanPositioningCore(data: CotDashboardData): TitanPositioningRead | null {
 
-  const commercialIndex = clampIndex(data.commercials.index26w);
-  const retailIndex = clampIndex(data.retail.index26w);
+  const commercialIndex = Number.isFinite(data.commercials.index26w) ? data.commercials.index26w : 50;
+  const retailIndex = Number.isFinite(data.retail.index26w) ? data.retail.index26w : 50;
   const history = data.history ?? [];
 
   const commSeries = buildCommercialIndexSeries(history);

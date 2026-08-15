@@ -122,12 +122,29 @@ const IDX_HI = 80;
 const IDX_LO = 20;
 const BIAS_DISCLAIMER = "Bias only, not execution.";
 
-export function calculateCotIndex(nets: number[], currentNet: number): number {
-  if (nets.length === 0) return 50;
-  const min = Math.min(...nets);
-  const max = Math.max(...nets);
+/**
+ * Commercial / group COT index vs a prior lookback range (not a %).
+ * `priorNets` must be the previous N completed reports — exclude `currentNet`
+ * so breakouts can print below 0 or above 100.
+ * Does not clamp to 0–100.
+ */
+export function calculateCotIndex(priorNets: number[], currentNet: number): number {
+  if (priorNets.length === 0) return 50;
+  const min = Math.min(...priorNets);
+  const max = Math.max(...priorNets);
   if (max === min) return 50;
   return Math.round(((currentNet - min) / (max - min)) * 10000) / 100;
+}
+
+/** Index current net against the prior `lookback` observations in `series`. */
+export function calculateCotIndexAgainstPrior(
+  series: number[],
+  lookback: number,
+): number {
+  if (series.length < lookback + 1) return 50;
+  const current = series[series.length - 1]!;
+  const prior = series.slice(-(lookback + 1), -1);
+  return calculateCotIndex(prior, current);
 }
 
 export function clampScore(score: number): number {
@@ -165,8 +182,9 @@ export function countCommercialExtremePersistence(
 
   let streak = 0;
   for (let i = history.length - 1; i >= 26; i--) {
-    const window = history.slice(i - 25, i + 1).map((h) => h.commercialNet);
-    const idx = calculateCotIndex(window, window[window.length - 1]!);
+    const prior = history.slice(i - 26, i).map((h) => h.commercialNet);
+    const current = history[i]!.commercialNet;
+    const idx = calculateCotIndex(prior, current);
     const inExtreme = side === "bull" ? idx > IDX_HI : idx < IDX_LO;
     if (inExtreme) streak += 1;
     else break;

@@ -2,13 +2,13 @@ import type { InstitutionalMarket } from "../config/institutionalMarkets";
 import { INSTITUTIONAL_MARKETS } from "../config/institutionalMarkets";
 import type { CotDashboardData, CotHistoryPoint } from "../types";
 import {
+  buildCommercialIndex52Series,
   buildCommercialIndexSeries,
   commercialIndexZone,
   evaluateTitanPositioning,
   type CommercialZoneId,
   type MarketRegimeId,
 } from "./titanCommercialIndex";
-import { calculateCotIndex } from "./titanCotScoringCore";
 import { computeTitanDashboardScore, resolveTitanVerdict } from "./titanCotScore";
 import type { TitanBiasVerdict } from "./titanCotScore";
 
@@ -152,22 +152,12 @@ function stanceFromScore(score: number): UsdStanceId {
   return "neutral";
 }
 
-function buildCommercialIndex52Series(history: CotHistoryPoint[]): number[] {
-  if (history.length < 52) return [];
-  const out: number[] = [];
-  for (let i = 51; i < history.length; i += 1) {
-    const window = history.slice(i - 51, i + 1).map((h) => h.commercialNet);
-    out.push(calculateCotIndex(window, window[window.length - 1]!));
-  }
-  return out;
-}
-
 function buildHistoryChart(history: CotHistoryPoint[]): DmeChartPoint[] {
   if (history.length < 2) return [];
   const series26 = buildCommercialIndexSeries(history);
   const series52 = buildCommercialIndex52Series(history);
-  const start26 = 25;
-  const start52 = 51;
+  const start26 = 26;
+  const start52 = 52;
   const out: DmeChartPoint[] = [];
 
   for (let i = 0; i < history.length; i += 1) {
@@ -183,7 +173,6 @@ function buildHistoryChart(history: CotHistoryPoint[]): DmeChartPoint[] {
     });
   }
 
-  // Prefer a readable window; keep full span when shorter
   return out.length > 260 ? out.slice(-260) : out;
 }
 

@@ -16,6 +16,7 @@ export {
   buildInstitutionalNarrative,
   buildPlainEnglishExplanation,
   calculateCotIndex,
+  calculateCotIndexAgainstPrior,
   clampScore,
   computeUnifiedCotScore,
   countCommercialExtremePersistence,

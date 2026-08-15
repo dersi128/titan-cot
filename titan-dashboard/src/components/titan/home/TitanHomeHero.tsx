@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { TitanLogo } from "../../TitanLogo";
 import { LanguageSwitcher, useTitanI18n } from "../../../i18n";
 import { TitanLivePill } from "../ui/TitanPrimitives";
 import { UserButton } from "@clerk/clerk-react";
 import type { AppSection } from "../../../lib/titanAppRoute";
+import { TitanCotIndexSettingsModal } from "../settings/TitanCotIndexSettingsModal";
 
 type TitanHomeHeroProps = {
   section: AppSection;
@@ -31,6 +33,7 @@ export function TitanHomeHero({
   refreshLabel,
 }: TitanHomeHeroProps) {
   const { t } = useTitanI18n();
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
     <div className="titan-home-hero-v2">
@@ -52,6 +55,13 @@ export function TitanHomeHero({
       </div>
 
       <div className="titan-home-hero-v2__meta flex flex-wrap items-center justify-end gap-2.5">
+        <button
+          type="button"
+          onClick={() => setSettingsOpen(true)}
+          className="rounded border border-white/10 bg-black/30 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-stone-400 transition hover:border-sky-400/30 hover:text-sky-200"
+        >
+          {t("header.settings")}
+        </button>
         <LanguageSwitcher />
         <UserButton afterSignOutUrl="/" />
         <span className="titan-home-hero-v2__badge">{t("home.heroLegacy")}</span>
@@ -64,6 +74,8 @@ export function TitanHomeHero({
           <p className="mt-1 text-[10px] text-stone-600">{t("header.updated", { time: refreshLabel })}</p>
         </div>
       </div>
+
+      <TitanCotIndexSettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </div>
   );
 }

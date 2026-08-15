@@ -21,6 +21,25 @@ export const enMessages = {
     refreshSec: "Refresh {{sec}}s",
     updated: "Updated {{time}}",
     connection: "Connection",
+    settings: "Settings",
+  },
+  settings: {
+    eyebrow: "Research settings",
+    title: "Commercial Index Zones",
+    cotIndexHint:
+      "Index is unbounded vs the prior lookback range (not a %). Thresholds only color and label zones.",
+    close: "Close",
+    save: "Save",
+    reset: "Reset defaults",
+    defaults: "Defaults: {{values}}",
+    fields: {
+      extremeLow: "Extreme low",
+      lowExtreme: "Low extreme marker",
+      neutralLow: "Neutral low",
+      neutralHigh: "Neutral high",
+      highExtreme: "High extreme marker",
+      extremeHigh: "Extreme high",
+    },
   },
   auth: {
     eyebrow: "Institutional terminal",
@@ -641,8 +660,8 @@ export const enMessages = {
         delta4w: "Δ4W",
       },
       chartModeHint: {
-        index26w: "DXY Commercial 26W Index (0–100)",
-        index52w: "DXY Commercial 52W Index (0–100)",
+        index26w: "DXY Commercial 26W Index (unbounded vs prior range)",
+        index52w: "DXY Commercial 52W Index (unbounded vs prior range)",
         net: "DXY Commercial net contracts",
         delta4w: "DXY Commercial Δ4W",
       },

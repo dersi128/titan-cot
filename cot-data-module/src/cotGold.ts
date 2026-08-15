@@ -3,7 +3,6 @@ import { pathToFileURL } from "node:url";
 import { buildLegacyFuturesWhereClause, getCotMarketMapping, type CotMarketMapping } from "./cotMarketMap.js";
 import {
   buildPlainEnglishExplanation,
-  calculateCotIndex,
   getCommercialBias,
   getInstitutionalDivergence,
   getRetailContrarianSignal,
@@ -12,7 +11,7 @@ import {
   type InstitutionalDivergence,
   type RetailContrarian,
 } from "./cotLogicEngine.js";
-import { computeUnifiedCotScore } from "./titanCotScoringCore.js";
+import { calculateCotIndexAgainstPrior, computeUnifiedCotScore } from "./titanCotScoringCore.js";
 
 const CFTC_LEGACY_FUTURES_ONLY_URL =
   "https://publicreporting.cftc.gov/resource/6dca-aqww.json";
@@ -306,16 +305,12 @@ function buildGroupSnapshot(
   key: "commercialNet" | "nonCommercialNet" | "retailNet",
 ): CotGroupSnapshot {
   const latest = series[series.length - 1];
-
-  const window26 = series.slice(-26);
-  const window52 = series.slice(-52);
-  const nets26 = window26.map((p) => p[key]);
-  const nets52 = window52.map((p) => p[key]);
+  const nets = series.map((p) => p[key]);
 
   return {
     net: latest[key],
-    index26w: nets26.length ? calculateCotIndex(nets26, nets26[nets26.length - 1]) : 50,
-    index52w: nets52.length ? calculateCotIndex(nets52, nets52[nets52.length - 1]) : 50,
+    index26w: calculateCotIndexAgainstPrior(nets, 26),
+    index52w: calculateCotIndexAgainstPrior(nets, 52),
     weeklyChange: 0,
     delta4w: netLagDelta(series, key, 4),
     delta13w: netLagDelta(series, key, 13),

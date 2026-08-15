@@ -24,6 +24,12 @@ import {
   type RatesLeanId,
   type UsdStanceId,
 } from "../../../lib/titanDmeOverview";
+import {
+  commercialIndexToneClass,
+  formatCommercialIndex,
+  getCotIndexZoneThresholds,
+  subscribeCotIndexZoneThresholds,
+} from "../../../lib/titanCotIndexSettings";
 import { GlassCard } from "../ui/titanCmdShared";
 import { TitanPageHeader } from "../ui/TitanPageHeader";
 
@@ -186,6 +192,10 @@ export function TitanDmePage({ bundle, onSelectMarket }: TitanDmePageProps) {
   const dme = useMemo(() => buildDmeOverview(bundle), [bundle]);
   const [rates, setRates] = useState<MacroRatesResponse | null>(null);
   const [chartMode, setChartMode] = useState<DmeChartMode>("index26w");
+  const [zoneTick, setZoneTick] = useState(0);
+
+  useEffect(() => subscribeCotIndexZoneThresholds(() => setZoneTick((n) => n + 1)), []);
+  const zones = useMemo(() => getCotIndexZoneThresholds(), [zoneTick]);
 
   useEffect(() => {
     let cancelled = false;
@@ -336,8 +346,16 @@ export function TitanDmePage({ bundle, onSelectMarket }: TitanDmePageProps) {
         <GlassCard glow={posKind === "bull" ? "bull" : posKind === "bear" ? "bear" : undefined} className="flex flex-col p-4 md:p-5">
           <p className="titan-cmd-kicker">{t("pages.dme.panels.dxyCot")}</p>
           <div className="mt-3 flex-1">
-            <MetricRow label={t("pages.dme.metrics.comm26")} value={dme.dxyCommercial26w === null ? "—" : String(dme.dxyCommercial26w)} />
-            <MetricRow label={t("pages.dme.metrics.comm52")} value={dme.dxyCommercial52w === null ? "—" : String(dme.dxyCommercial52w)} />
+            <MetricRow
+              label={t("pages.dme.metrics.comm26")}
+              value={formatCommercialIndex(dme.dxyCommercial26w)}
+              valueClass={commercialIndexToneClass(dme.dxyCommercial26w)}
+            />
+            <MetricRow
+              label={t("pages.dme.metrics.comm52")}
+              value={formatCommercialIndex(dme.dxyCommercial52w)}
+              valueClass={commercialIndexToneClass(dme.dxyCommercial52w)}
+            />
             <MetricRow
               label={t("pages.dme.metrics.delta1w")}
               value={formatContractsDelta(dme.dxyWeeklyChange)}
@@ -548,7 +566,14 @@ Final alignment: ${t(`pages.dme.alignment.${alignment}`)}`}
                   minTickGap={48}
                 />
                 <YAxis
-                  domain={chartIsIndex ? [0, 100] : ["auto", "auto"]}
+                  domain={
+                    chartIsIndex
+                      ? [
+                          (dataMin: number) => Math.min(dataMin, zones.extremeLow) - 5,
+                          (dataMax: number) => Math.max(dataMax, zones.extremeHigh) + 5,
+                        ]
+                      : ["auto", "auto"]
+                  }
                   tick={{ fill: "#78716c", fontSize: 10 }}
                   tickLine={false}
                   axisLine={false}
@@ -556,8 +581,10 @@ Final alignment: ${t(`pages.dme.alignment.${alignment}`)}`}
                 />
                 {chartIsIndex ? (
                   <>
-                    <ReferenceLine y={80} stroke="rgba(16,185,129,0.18)" strokeDasharray="3 4" />
-                    <ReferenceLine y={20} stroke="rgba(244,63,94,0.18)" strokeDasharray="3 4" />
+                    <ReferenceLine y={zones.neutralHigh} stroke="rgba(16,185,129,0.18)" strokeDasharray="3 4" />
+                    <ReferenceLine y={zones.neutralLow} stroke="rgba(244,63,94,0.18)" strokeDasharray="3 4" />
+                    <ReferenceLine y={zones.highExtreme} stroke="rgba(16,185,129,0.12)" strokeDasharray="2 6" />
+                    <ReferenceLine y={zones.lowExtreme} stroke="rgba(244,63,94,0.12)" strokeDasharray="2 6" />
                   </>
                 ) : null}
                 <Tooltip
