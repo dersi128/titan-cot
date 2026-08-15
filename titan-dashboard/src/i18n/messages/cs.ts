@@ -665,6 +665,12 @@ export const csMessages: Messages = {
     historicalWindowCompare: "Souběžný overlay: 5Y · 10Y · 15Y · 20Y · ALL",
     historicalWindowPrimary: "Statistiky a okna: {{period}}",
     chartTitle: "Sezónní trend",
+    manualWindow: {
+      hint: "Tažením v grafu označ ruční okno (jen vizuálně — nemění bias/score).",
+      empty: "Žádné ruční okno",
+      clear: "Vymazat",
+      save: "Uložit okno",
+    },
     chartTitleRolling: "Rolling sezónní projekce (trading days)",
     chartSeasonalNote: "TITAN index od 100 · Jan–Dec.",
     seasonaxNote: "Průměr historických drah · index start = 100",

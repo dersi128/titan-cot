@@ -7,6 +7,8 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
 export type SeasonaxChartRow = {
   /** Trading-day index within the seasonal year (0 ≈ early Jan). */
   tdy: number;
+  /** Calendar day-of-year (1–366) for manual-window persistence. */
+  dayOfYear: number;
   /** Sparse month tick (Jan…Dec). */
   tick: string;
   monthLabel: string;
@@ -89,6 +91,7 @@ export function buildSeasonaxChartRows(result: SeasonalityResult): SeasonaxChart
 
     rows.push({
       tdy,
+      dayOfYear: p.dayOfYear,
       tick: showTick ? monthLabel : "",
       monthLabel,
       month,

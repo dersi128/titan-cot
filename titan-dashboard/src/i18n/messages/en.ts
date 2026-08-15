@@ -663,6 +663,12 @@ export const enMessages = {
     historicalWindowCompare: "Parallel overlay: 5Y · 10Y · 15Y · 20Y · ALL",
     historicalWindowPrimary: "Stats & windows: {{period}}",
     chartTitle: "Seasonal trend",
+    manualWindow: {
+      hint: "Drag across the chart to mark a manual window (visual only — does not change bias/score).",
+      empty: "No manual window",
+      clear: "Clear",
+      save: "Save window",
+    },
     chartTitleRolling: "Rolling seasonal projection (trading days)",
     chartSeasonalNote: "TITAN index from 100 · Jan–Dec.",
     seasonaxNote: "Average historical paths · index start = 100",
