@@ -481,7 +481,7 @@ export const csMessages: Messages = {
     pulseDmeUnavailable: "DXY data zatím nejsou",
     pulseSeasonTitle: "Nejlepší sezónní long",
     pulseSeasonLoading: "Skenuji futures sezónnost…",
-    pulseSeasonEmpty: "Teď není jasný bullish sezónní long",
+    pulseSeasonEmpty: "V aktuálním sezónním okně teď není long setup",
     pulseSeasonReason: "{{strength}} · win rate {{wr}}%",
     pulseSeasonSecond: "2. {{label}} · {{score}}/100",
     cmdDmeTitle: "Dolar teď",

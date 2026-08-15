@@ -479,7 +479,7 @@ export const enMessages = {
     pulseDmeUnavailable: "DXY data not available yet",
     pulseSeasonTitle: "Best seasonal long",
     pulseSeasonLoading: "Scanning futures seasonality…",
-    pulseSeasonEmpty: "No clear bullish seasonal long right now",
+    pulseSeasonEmpty: "No long setup in the current seasonal window",
     pulseSeasonReason: "{{strength}} · win rate {{wr}}%",
     pulseSeasonSecond: "2nd {{label}} · {{score}}/100",
     cmdDmeTitle: "Dollar now",

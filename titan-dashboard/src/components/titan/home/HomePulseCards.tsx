@@ -109,7 +109,11 @@ export function HomePulseCards({ bundle, onNavigate }: HomePulseCardsProps) {
             <p className="mt-3 text-[13px] text-stone-500">{t("home.pulseSeasonLoading")}</p>
           ) : best ? (
             <>
-              <p className="mt-2 font-display text-xl font-semibold tracking-wide text-emerald-400">
+              <p
+                className={`mt-2 font-display text-xl font-semibold tracking-wide ${
+                  best.bias === "BULLISH" ? "text-emerald-400" : "text-sky-300"
+                }`}
+              >
                 {best.label}
                 <span className="ml-2 font-mono text-base text-stone-300">{best.score}/100</span>
               </p>

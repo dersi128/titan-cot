@@ -1,14 +1,15 @@
 import { SEASONALITY_MARKETS } from "../markets";
 import { fetchSeasonalityAnalysisFromApi, shouldUseSeasonalityApi } from "../seasonalityApi";
 import { fetchSeasonalityComparisonWithSource } from "../services/seasonalityService";
-import type { SeasonalityResult, SeasonalStrength } from "../types";
+import type { SeasonalBias, SeasonalityResult, SeasonalStrength } from "../types";
 import { buildDashboardInsights } from "./dashboardInsights";
 
 export type SeasonalityLongCandidate = {
   id: string;
   label: string;
   dataSymbol: string;
-  bias: "BULLISH";
+  /** Strict seasonal bias from engine (may be NEUTRAL with a long lean). */
+  bias: SeasonalBias;
   strength: SeasonalStrength;
   score: number;
   winRate: number;
@@ -22,6 +23,12 @@ const STRENGTH_FALLBACK: Record<SeasonalStrength, number> = {
   EXTREME: 92,
 };
 
+const FETCH_TIMEOUT_MS = 55_000;
+const CONCURRENCY = 3;
+
+let cachedLongs: SeasonalityLongCandidate[] | null = null;
+let inflight: Promise<SeasonalityLongCandidate[]> | null = null;
+
 function rankScore(result: SeasonalityResult): number {
   try {
     const insights = buildDashboardInsights(result, { 10: result });
@@ -33,13 +40,26 @@ function rankScore(result: SeasonalityResult): number {
   }
 }
 
+/** Long-leaning seasonal setups — not the same as COT “strongest longs”. */
+function qualifiesAsSeasonalLong(result: SeasonalityResult, score: number): boolean {
+  if (result.seasonalBias === "BEARISH") return false;
+  if (result.seasonalBias === "BULLISH") return true;
+  // Soft long: positive seasonal window + decent score / win rate
+  const avg = result.averageReturnInWindow;
+  const wr = result.overallWinRate;
+  if (avg > 0 && score >= 50) return true;
+  if (avg > 0 && wr >= 52) return true;
+  if (score >= 58) return true;
+  return false;
+}
+
 async function fetchOne(symbol: string): Promise<SeasonalityResult | null> {
   try {
     if (shouldUseSeasonalityApi()) {
       return await Promise.race([
         fetchSeasonalityAnalysisFromApi(symbol, 10),
         new Promise<never>((_, reject) => {
-          window.setTimeout(() => reject(new Error("timeout")), 45_000);
+          window.setTimeout(() => reject(new Error("timeout")), FETCH_TIMEOUT_MS);
         }),
       ]);
     }
@@ -50,26 +70,57 @@ async function fetchOne(symbol: string): Promise<SeasonalityResult | null> {
   }
 }
 
-/** Parallel scan of seasonality presets; returns BULLISH longs ranked by score. */
-export async function scanBestSeasonalityLongs(): Promise<SeasonalityLongCandidate[]> {
-  const settled = await Promise.all(
-    SEASONALITY_MARKETS.map(async (m): Promise<SeasonalityLongCandidate | null> => {
-      const result = await fetchOne(m.dataSymbol);
-      if (!result || result.seasonalBias !== "BULLISH") return null;
-      return {
-        id: m.id,
-        label: m.label,
-        dataSymbol: m.dataSymbol,
-        bias: "BULLISH",
-        strength: result.seasonalStrength,
-        score: rankScore(result),
-        winRate: result.overallWinRate,
-        avgReturnInWindow: result.averageReturnInWindow,
-      };
-    }),
-  );
+async function mapPool<T, R>(items: readonly T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+  const out: R[] = new Array(items.length);
+  let next = 0;
+  async function worker() {
+    while (next < items.length) {
+      const i = next++;
+      out[i] = await fn(items[i]!);
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, () => worker()));
+  return out;
+}
+
+async function runScan(): Promise<SeasonalityLongCandidate[]> {
+  const settled = await mapPool(SEASONALITY_MARKETS, CONCURRENCY, async (m) => {
+    const result = await fetchOne(m.dataSymbol);
+    if (!result) return null;
+    const score = rankScore(result);
+    if (!qualifiesAsSeasonalLong(result, score)) return null;
+    const candidate: SeasonalityLongCandidate = {
+      id: m.id,
+      label: m.label,
+      dataSymbol: m.dataSymbol,
+      bias: result.seasonalBias,
+      strength: result.seasonalStrength,
+      score,
+      winRate: result.overallWinRate,
+      avgReturnInWindow: result.averageReturnInWindow,
+    };
+    return candidate;
+  });
 
   return settled
     .filter((x): x is SeasonalityLongCandidate => x !== null)
-    .sort((a, b) => b.score - a.score);
+    .sort((a, b) => {
+      const bullBoost = (c: SeasonalityLongCandidate) => (c.bias === "BULLISH" ? 20 : 0);
+      return b.score + bullBoost(b) - (a.score + bullBoost(a));
+    });
+}
+
+/** Parallel scan of seasonality presets; returns long-leaning setups ranked by score. */
+export async function scanBestSeasonalityLongs(): Promise<SeasonalityLongCandidate[]> {
+  if (cachedLongs) return cachedLongs;
+  if (inflight) return inflight;
+  inflight = runScan()
+    .then((rows) => {
+      cachedLongs = rows;
+      return rows;
+    })
+    .finally(() => {
+      inflight = null;
+    });
+  return inflight;
 }
