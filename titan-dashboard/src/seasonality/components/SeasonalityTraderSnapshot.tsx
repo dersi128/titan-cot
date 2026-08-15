@@ -30,31 +30,49 @@ export function SeasonalityTraderSnapshot({ result, currentMonth }: SeasonalityT
   const monthPct = month ? (month.avgReturn * 100).toFixed(2) : "—";
   const monthWin = month ? month.winRate.toFixed(0) : "—";
   const alignment = result.deviationAnalysis?.alignment ?? result.seasonalityAlignment;
+  const we = result.windowEngine;
+  const status = we?.status ?? "NO_ACTIVE";
+  const displayBias =
+    status === "ACTIVE_BULLISH"
+      ? "BULLISH"
+      : status === "ACTIVE_BEARISH"
+        ? "BEARISH"
+        : "NEUTRAL";
 
   const nextBest = [...result.monthlyStats]
     .filter((m) => m.month !== currentMonth)
     .sort((a, b) => b.avgReturn - a.avgReturn)[0];
 
+  const statusLabel =
+    status === "ACTIVE_BULLISH"
+      ? "ACTIVE BULLISH WINDOW"
+      : status === "ACTIVE_BEARISH"
+        ? "ACTIVE BEARISH WINDOW"
+        : status === "UPCOMING_BULLISH" || status === "UPCOMING_BEARISH"
+          ? "UPCOMING SEASONAL WINDOW"
+          : "NO ACTIVE SEASONAL WINDOW";
+
+  const statusDetail =
+    displayBias !== "NEUTRAL" && we && we.windowLabel !== "—"
+      ? `${we.windowLabel} · WR ${(we.winRate * 100).toFixed(0)}% · Avg ${(we.avgReturn * 100).toFixed(1)}%`
+      : status.startsWith("UPCOMING") && we?.upcomingLabel
+        ? `${we.upcomingSide === "BEARISH" ? "Bearish" : "Bullish"} starts in ${we.daysUntilStart}d · ${we.upcomingLabel}`
+        : t("seasonality.snap.biasLine.NEUTRAL", {
+            strength: t("seasonality.strength.LOW"),
+          });
+
   return (
-    <section className={`overflow-hidden rounded-xl border shadow-card ${biasGlow(result.seasonalBias)}`}>
+    <section className={`overflow-hidden rounded-xl border shadow-card ${biasGlow(displayBias)}`}>
       <div className="grid gap-0 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
         {/* 5-second hero verdict */}
         <div className="border-b border-white/[0.06] p-5 lg:border-b-0 lg:border-r lg:border-white/[0.06]">
           <p className="font-display text-[10px] font-semibold uppercase tracking-[0.14em] text-titan-gold/80">
             {t("seasonality.snap.now")}
           </p>
-          <p className={`mt-2 font-display text-4xl font-semibold tracking-wide ${biasTone(result.seasonalBias)}`}>
-            {result.seasonalBias === "BULLISH"
-              ? t("seasonality.snap.bull")
-              : result.seasonalBias === "BEARISH"
-                ? t("seasonality.snap.bear")
-                : t("seasonality.snap.flat")}
+          <p className={`mt-2 font-display text-2xl font-semibold tracking-wide sm:text-3xl ${biasTone(displayBias)}`}>
+            {statusLabel}
           </p>
-          <p className="mt-2 text-[13px] leading-snug text-stone-400">
-            {t(`seasonality.snap.biasLine.${result.seasonalBias}`, {
-              strength: t(`seasonality.strength.${result.seasonalStrength}`),
-            })}
-          </p>
+          <p className="mt-2 text-[13px] leading-snug text-stone-400">{statusDetail}</p>
         </div>
 
         {/* This month historically */}

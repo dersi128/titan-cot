@@ -22,8 +22,8 @@ export const SEASONAL_OPP_TOP_N = 5;
 
 const FETCH_TIMEOUT_MS = 55_000;
 const CONCURRENCY = 4;
-const MIN_SCORE = 65;
-const MIN_WR = 60;
+/** Ranking floor only — hard window filters already applied in engine. */
+const MIN_SCORE = 50;
 
 let cached: { longs: SeasonalityOpportunity[]; shorts: SeasonalityOpportunity[] } | null = null;
 let inflight: Promise<{ longs: SeasonalityOpportunity[]; shorts: SeasonalityOpportunity[] }> | null =
@@ -68,18 +68,22 @@ function toOpp(
   if (!we) return null;
 
   const want: SeasonalBias = side === "LONG" ? "BULLISH" : "BEARISH";
+  const activeStatus = want === "BULLISH" ? "ACTIVE_BULLISH" : "ACTIVE_BEARISH";
+  const upcomingStatus = want === "BULLISH" ? "UPCOMING_BULLISH" : "UPCOMING_BEARISH";
+
   const active =
+    we.status === activeStatus &&
     result.seasonalBias === want &&
     we.score >= MIN_SCORE &&
-    we.sampleSize >= 8 &&
-    (side === "LONG" ? we.winRate * 100 >= MIN_WR : we.winRate * 100 <= 40);
+    we.sampleSize >= 8;
 
   const upcoming =
-    we.upcomingSide === want &&
+    (we.status === upcomingStatus || we.upcomingSide === want) &&
+    !active &&
     (we.upcomingScore ?? 0) >= MIN_SCORE &&
     (we.daysUntilStart ?? 99) >= 1 &&
     (we.daysUntilStart ?? 99) <= 5 &&
-    we.sampleSize >= 8;
+    (we.upcomingSampleSize ?? 0) >= 8;
 
   if (!active && !upcoming) return null;
 
@@ -87,6 +91,8 @@ function toOpp(
   const windowLabel = active
     ? we.windowLabel
     : (we.upcomingLabel ?? we.windowLabel);
+  const winRate = active ? we.winRate : (we.upcomingWinRate ?? we.winRate);
+  const avgReturn = active ? we.avgReturn : (we.upcomingAvgReturn ?? we.avgReturn);
 
   return {
     id: m.id,
@@ -96,8 +102,8 @@ function toOpp(
     bias: want,
     strength: we.confidence,
     score,
-    winRate: we.winRate * 100,
-    avgReturn: we.avgReturn,
+    winRate: winRate * 100,
+    avgReturn,
     alignmentLabel: we.alignmentLabel,
     windowLabel,
     daysUntilStart: active ? 0 : (we.daysUntilStart ?? 1),

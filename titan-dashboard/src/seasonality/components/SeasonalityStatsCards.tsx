@@ -40,9 +40,22 @@ function strengthClass(s: SeasonalityResult["seasonalStrength"]): string {
 
 export function SeasonalityStatsCards({ result }: SeasonalityStatsCardsProps) {
   const { t } = useTitanI18n();
-  const windowLabel = result.currentSeasonalWindow?.label ?? "—";
-  const avgPct = (result.averageReturnInWindow * 100).toFixed(3);
-  const winPct = result.overallWinRate.toFixed(1);
+  const we = result.windowEngine;
+  const status = we?.status ?? "NO_ACTIVE";
+  const statusValue =
+    status === "ACTIVE_BULLISH"
+      ? "ACTIVE BULLISH"
+      : status === "ACTIVE_BEARISH"
+        ? "ACTIVE BEARISH"
+        : status.startsWith("UPCOMING")
+          ? "UPCOMING"
+          : "NO WINDOW";
+  const windowLabel =
+    we?.windowLabel && we.windowLabel !== "—"
+      ? we.windowLabel
+      : (we?.upcomingLabel ?? result.currentSeasonalWindow?.label ?? "—");
+  const avgPct = ((we?.avgReturn ?? result.averageReturnInWindow) * 100).toFixed(2);
+  const winPct = (we ? we.winRate * 100 : result.overallWinRate).toFixed(1);
   const ytdPct = result.currentYearPerformance.toFixed(2);
   const histIdx = result.historicalPerformance.toFixed(1);
 
@@ -52,15 +65,23 @@ export function SeasonalityStatsCards({ result }: SeasonalityStatsCardsProps) {
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
       <StatCard
         label={t("seasonality.stats.bias")}
-        value={result.seasonalBias}
+        value={statusValue}
         valueClass={biasClass(result.seasonalBias)}
-        sub={t(`seasonality.bias.${result.seasonalBias}`)}
+        sub={
+          status === "NO_ACTIVE"
+            ? "NO ACTIVE SEASONAL WINDOW"
+            : t(`seasonality.bias.${result.seasonalBias}`)
+        }
       />
       <StatCard
         label={t("seasonality.stats.strength")}
-        value={result.seasonalStrength}
+        value={result.seasonalBias === "NEUTRAL" ? "—" : result.seasonalStrength}
         valueClass={strengthClass(result.seasonalStrength)}
-        sub={t(`seasonality.strength.${result.seasonalStrength}`)}
+        sub={
+          result.seasonalBias === "NEUTRAL"
+            ? "—"
+            : t(`seasonality.strength.${result.seasonalStrength}`)
+        }
       />
       <StatCard
         label={t("seasonality.stats.years")}

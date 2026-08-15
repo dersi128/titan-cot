@@ -74,7 +74,7 @@ export function calculateSeasonality(options: CalculateSeasonalityOptions): Seas
     : null;
 
   const sorted = [...bars].sort((a, b) => a.date.localeCompare(b.date));
-  const winRatePct = v2.window ? v2.window.stats.winRate * 100 : 50;
+  const winRatePct = v2.window ? v2.window.stats.winRate * 100 : 0;
   const avgInWindow = v2.window ? v2.window.stats.avgReturn : 0;
 
   return {
@@ -102,7 +102,7 @@ export function calculateSeasonality(options: CalculateSeasonalityOptions): Seas
     engineVersion: "window-v2",
     tradingDayOfYear: v2.tradingDayOfYear,
     rollingProjections: rolling.rollingProjections,
-    // Keep for charts; UI must not treat this as seasonal bias
+    // Charts only — never drives seasonal bias / window status
     momentumAdjustedCurve: rolling.rollingProjections?.[60] ?? rolling.fullYearCurve,
     trendStrength: rolling.trendStrength,
     volatilityRegime: rolling.volatilityRegime,
@@ -110,15 +110,17 @@ export function calculateSeasonality(options: CalculateSeasonalityOptions): Seas
     intramonthBuckets: rolling.intramonthBuckets,
     primaryRollingWindow: 60,
     windowEngine: {
+      status: v2.status,
       score: v2.score,
       confidence: v2.confidence,
       turnDate: v2.turnDate,
       alignmentLabel: v2.alignment.scoreLabel,
-      avgReturn: v2.window?.stats.avgReturn ?? v2.upcoming?.stats.avgReturn ?? 0,
-      medianReturn: v2.window?.stats.medianReturn ?? v2.upcoming?.stats.medianReturn ?? 0,
-      winRate: v2.window?.stats.winRate ?? v2.upcoming?.stats.winRate ?? 0,
-      sampleSize: v2.window?.stats.sampleSize ?? v2.upcoming?.stats.sampleSize ?? 0,
-      daysRemaining: v2.window?.daysRemaining ?? v2.upcoming?.daysRemaining ?? 0,
+      avgReturn: v2.window?.stats.avgReturn ?? 0,
+      medianReturn: v2.window?.stats.medianReturn ?? 0,
+      winRate: v2.window?.stats.winRate ?? 0,
+      lossRate: v2.window?.stats.lossRate ?? 0,
+      sampleSize: v2.window?.stats.sampleSize ?? 0,
+      daysRemaining: v2.window?.daysRemaining ?? 0,
       windowLabel: v2.window
         ? `${v2.window.startDateLabel} → ${v2.window.endDateLabel}`
         : "—",
@@ -127,6 +129,9 @@ export function calculateSeasonality(options: CalculateSeasonalityOptions): Seas
         : undefined,
       upcomingScore: v2.upcoming?.score,
       upcomingSide: v2.upcoming?.direction,
+      upcomingAvgReturn: v2.upcoming?.stats.avgReturn,
+      upcomingWinRate: v2.upcoming?.stats.winRate,
+      upcomingSampleSize: v2.upcoming?.stats.sampleSize,
       daysUntilStart: v2.upcoming?.daysUntilStart ?? 0,
     },
   };

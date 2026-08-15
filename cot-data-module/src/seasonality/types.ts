@@ -121,6 +121,13 @@ export type SeasonalityResult = {
   primaryRollingWindow?: RollingWindowDays;
   /** V2 historical window engine payload (pure seasonality). */
   windowEngine?: {
+    /** ACTIVE_* only when today is inside a hard-qualified window. */
+    status:
+      | "ACTIVE_BULLISH"
+      | "ACTIVE_BEARISH"
+      | "NO_ACTIVE"
+      | "UPCOMING_BULLISH"
+      | "UPCOMING_BEARISH";
     score: number;
     confidence: SeasonalStrength;
     turnDate: string | null;
@@ -128,12 +135,16 @@ export type SeasonalityResult = {
     avgReturn: number;
     medianReturn: number;
     winRate: number;
+    lossRate: number;
     sampleSize: number;
     daysRemaining: number;
     windowLabel: string;
     upcomingLabel?: string;
     upcomingScore?: number;
     upcomingSide?: "BULLISH" | "BEARISH";
+    upcomingAvgReturn?: number;
+    upcomingWinRate?: number;
+    upcomingSampleSize?: number;
     daysUntilStart?: number;
   };
 };

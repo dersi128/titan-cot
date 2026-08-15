@@ -11,9 +11,27 @@ type Props = {
 };
 
 function tone(bias: string): string {
-  if (bias === "BULLISH" || bias === "long" || bias === "bull") return "text-emerald-400";
-  if (bias === "BEARISH" || bias === "short" || bias === "bear") return "text-rose-400";
-  return "text-amber-300";
+  if (bias === "BULLISH" || bias === "long" || bias === "bull" || bias.includes("BULLISH")) {
+    return "text-emerald-400";
+  }
+  if (bias === "BEARISH" || bias === "short" || bias === "bear" || bias.includes("BEARISH")) {
+    return "text-rose-400";
+  }
+  return "text-stone-400";
+}
+
+function statusHeadline(status: NonNullable<SeasonalityResult["windowEngine"]>["status"] | undefined): string {
+  switch (status) {
+    case "ACTIVE_BULLISH":
+      return "ACTIVE BULLISH WINDOW";
+    case "ACTIVE_BEARISH":
+      return "ACTIVE BEARISH WINDOW";
+    case "UPCOMING_BULLISH":
+    case "UPCOMING_BEARISH":
+      return "UPCOMING SEASONAL WINDOW";
+    default:
+      return "NO ACTIVE SEASONAL WINDOW";
+  }
 }
 
 /** One clean 5-second strip — no card spam. */
@@ -24,32 +42,46 @@ export function SeasonalityDashboard({ result, comparison, currentMonth }: Props
     [result, comparison],
   );
 
+  const we = result.windowEngine;
+  const status = we?.status;
+  const headline = statusHeadline(status);
+  const isActive = status === "ACTIVE_BULLISH" || status === "ACTIVE_BEARISH";
+  const isUpcoming = status === "UPCOMING_BULLISH" || status === "UPCOMING_BEARISH";
+
   const month = result.monthlyStats.find((m) => m.month === currentMonth);
   const monthPct = month
     ? `${month.avgReturn >= 0 ? "+" : ""}${(month.avgReturn * 100).toFixed(2)}%`
     : "—";
   const topWatch = insights.watch.slice(0, 3);
 
+  const detailLine = (() => {
+    if (isActive && we && we.windowLabel !== "—") {
+      const side = status === "ACTIVE_BULLISH" ? "Bullish" : "Bearish";
+      const avg = `${we.avgReturn >= 0 ? "+" : ""}${(we.avgReturn * 100).toFixed(1)}%`;
+      return `${we.windowLabel} · ${side} · Win Rate ${(we.winRate * 100).toFixed(0)}% · Avg Return ${avg}`;
+    }
+    if (isUpcoming && we?.upcomingLabel) {
+      const side = we.upcomingSide === "BEARISH" ? "Bearish" : "Bullish";
+      const days = we.daysUntilStart ?? 0;
+      return `${side} window starts in ${days} day${days === 1 ? "" : "s"} · ${we.upcomingLabel}`;
+    }
+    return t("seasonality.dash.biasSub.NEUTRAL", { strength: t("seasonality.strength.LOW") });
+  })();
+
   return (
     <section className="rounded-xl border border-titan-gold/15 bg-titan-panel/70 px-4 py-4 shadow-card backdrop-blur-md sm:px-5">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="titan-cmd-kicker">{t("seasonality.dash.biasTitle")}</p>
-          <p className={`mt-1 font-display text-3xl font-semibold tracking-wide ${tone(insights.bias)}`}>
-            {insights.bias}
-            <span className="ml-2 font-mono text-xl text-stone-400">{insights.score}/100</span>
+          <p className={`mt-1 font-display text-2xl font-semibold tracking-wide sm:text-3xl ${tone(headline)}`}>
+            {headline}
+            {isActive && we ? (
+              <span className="ml-2 font-mono text-xl text-stone-400">{we.score}/100</span>
+            ) : null}
           </p>
-          <p className="mt-1 max-w-md text-[12px] text-stone-500">
-            {result.windowEngine?.windowLabel && result.windowEngine.windowLabel !== "—"
-              ? `${result.windowEngine.windowLabel} · WR ${(result.windowEngine.winRate * 100).toFixed(0)}% · n=${result.windowEngine.sampleSize} · align ${result.windowEngine.alignmentLabel}`
-              : t(`seasonality.dash.biasSub.${insights.bias}`, {
-                  strength: t(`seasonality.strength.${insights.strength}`),
-                })}
-          </p>
-          {result.windowEngine?.turnDate ? (
-            <p className="mt-1 text-[11px] text-stone-500">
-              Seasonal turn: {result.windowEngine.turnDate}
-            </p>
+          <p className="mt-1 max-w-xl text-[12px] text-stone-500">{detailLine}</p>
+          {isActive && we?.turnDate ? (
+            <p className="mt-1 text-[11px] text-stone-500">Seasonal turn: {we.turnDate}</p>
           ) : null}
         </div>
 
@@ -71,7 +103,7 @@ export function SeasonalityDashboard({ result, comparison, currentMonth }: Props
               {t("seasonality.dash.conclBias")}
             </p>
             <p className={`mt-1 text-xl font-semibold uppercase ${tone(insights.conclusion.biasSide)}`}>
-              {insights.conclusion.biasSide}
+              {isActive ? insights.conclusion.biasSide : "flat"}
             </p>
           </div>
           <div>

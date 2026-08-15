@@ -8,10 +8,17 @@ export const WINDOW_LOOKBACKS = [5, 10, 15, 20] as const;
 export type WindowLookback = (typeof WINDOW_LOOKBACKS)[number];
 export const DEFAULT_WINDOW_LOOKBACK: WindowLookback = 20;
 
-const MIN_LEN = 5;
+const MIN_LEN = 7;
 const MAX_LEN = 45;
 const MIN_SAMPLE = 8;
 const MIN_WR = 0.6;
+
+export type SeasonalWindowStatus =
+  | "ACTIVE_BULLISH"
+  | "ACTIVE_BEARISH"
+  | "NO_ACTIVE"
+  | "UPCOMING_BULLISH"
+  | "UPCOMING_BEARISH";
 
 export type WindowStats = {
   avgReturn: number;
@@ -51,6 +58,7 @@ export type SeasonalityWindowV2Result = {
   bias: SeasonalBias;
   score: number;
   confidence: SeasonalStrength;
+  status: SeasonalWindowStatus;
   window: ScoredSeasonalWindow | null;
   /** Best windows near today (merged). */
   bullishWindows: ScoredSeasonalWindow[];
@@ -60,7 +68,7 @@ export type SeasonalityWindowV2Result = {
   lookbackUsed: WindowLookback;
   yearsUsed: number;
   tradingDayOfYear: number;
-  /** Upcoming opportunity within 5 TD (may equal active window). */
+  /** Upcoming opportunity within 5 TD — does NOT set bias. */
   upcoming: ScoredSeasonalWindow | null;
 };
 
@@ -188,7 +196,7 @@ export function scoreWindowStats(stats: WindowStats, length: number, alignmentAg
 
   // Penalties
   if (stats.sampleSize < 12) score -= (12 - stats.sampleSize) * 1.5;
-  if (length < 7) score -= 6;
+  if (length < 10) score -= 4;
   const signAgree =
     (stats.avgReturn > 0 && stats.medianReturn > 0) || (stats.avgReturn < 0 && stats.medianReturn < 0);
   if (!signAgree) score -= 18;
@@ -248,8 +256,8 @@ function evaluateCandidate(
   if (!direction) return null;
 
   const endTdy = startTdy + length - 1;
+  // Hard filters only — no slope / soft score gate for window existence
   const score = scoreWindowStats(stats, length, 0.5);
-  if (score < 40 && stats.winRate < 0.65) return null;
 
   return {
     startTdy,
@@ -400,17 +408,24 @@ export function computeSeasonalityWindowsV2(
   }
 
   const candidates = scanAroundToday(books, asOfYear, lookback, todayTdy, asOfBook);
+
+  // ACTIVE = today strictly inside a hard-qualified historical window
   const active = candidates
     .filter((w) => w.daysUntilStart === 0 && w.startTdy <= todayTdy && w.endTdy >= todayTdy)
-    .sort((a, b) => b.score - a.score);
-  const upcoming = candidates
-    .filter((w) => w.daysUntilStart > 0 && w.daysUntilStart <= 5)
-    .sort((a, b) => b.score - a.score)[0] ?? null;
+    .sort(
+      (a, b) =>
+        b.score - a.score ||
+        b.stats.winRate - a.stats.winRate ||
+        Math.abs(b.stats.avgReturn) - Math.abs(a.stats.avgReturn),
+    );
+
+  // UPCOMING = starts in next 1–5 TD — informational only, does not set bias
+  const upcoming =
+    candidates
+      .filter((w) => w.daysUntilStart >= 1 && w.daysUntilStart <= 5)
+      .sort((a, b) => b.score - a.score || a.daysUntilStart - b.daysUntilStart)[0] ?? null;
 
   let dominant: ScoredSeasonalWindow | null = active[0] ?? null;
-
-  // Prefer high-quality windows (score >= 50 qualifies for bias; home uses 65)
-  if (dominant && dominant.score < 45) dominant = null;
 
   let alignment: LookbackAlignment = {
     byLookback: {},
@@ -427,23 +442,28 @@ export function computeSeasonalityWindowsV2(
       dominant.lengthTradingDays,
       dominant.direction,
     );
-    // Rescore with real alignment
+    const rescored = scoreWindowStats(
+      dominant.stats,
+      dominant.lengthTradingDays,
+      alignment.agreeCount / alignment.total,
+    );
     dominant = {
       ...dominant,
-      score: scoreWindowStats(dominant.stats, dominant.lengthTradingDays, alignment.agreeCount / alignment.total),
-      confidence: strengthFromScore(
-        scoreWindowStats(dominant.stats, dominant.lengthTradingDays, alignment.agreeCount / alignment.total),
-      ),
+      score: rescored,
+      confidence: strengthFromScore(rescored),
     };
-    // Low alignment → soften
-    if (alignment.agreeCount <= 1 && alignment.total >= 3 && dominant.score > 60) {
-      dominant = { ...dominant, score: Math.max(40, dominant.score - 15), confidence: strengthFromScore(Math.max(40, dominant.score - 15)) };
-    }
   }
 
+  // Bias ONLY from active window — never from slope, momentum, or upcoming
   const bias: SeasonalBias = dominant ? dominant.direction : "NEUTRAL";
-  const score = dominant?.score ?? 50;
+  const score = dominant?.score ?? 0;
   const confidence = dominant ? dominant.confidence : "LOW";
+
+  let status: SeasonalWindowStatus = "NO_ACTIVE";
+  if (dominant?.direction === "BULLISH") status = "ACTIVE_BULLISH";
+  else if (dominant?.direction === "BEARISH") status = "ACTIVE_BEARISH";
+  else if (upcoming?.direction === "BULLISH") status = "UPCOMING_BULLISH";
+  else if (upcoming?.direction === "BEARISH") status = "UPCOMING_BEARISH";
 
   const bullishWindows = mergeWindows(candidates.filter((w) => w.direction === "BULLISH")).sort(
     (a, b) => b.score - a.score,
@@ -456,6 +476,7 @@ export function computeSeasonalityWindowsV2(
     bias,
     score,
     confidence,
+    status,
     window: dominant,
     bullishWindows,
     bearishWindows,
