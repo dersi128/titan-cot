@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import type { CotDashboardData } from "../../../types";
 import type { AppSection } from "../../../lib/titanAppRoute";
-import { usdPulseFromBundle } from "../../../lib/homeUsdPulse";
+import { usdPulseFromBundle, type UsdBiasLabel } from "../../../lib/homeUsdPulse";
 import {
   scanBestSeasonalityLongs,
   type SeasonalityLongCandidate,
 } from "../../../seasonality/utils/scanBestSeasonalityLong";
 import { useTitanI18n } from "../../../i18n";
 import { TitanScoreRing100 } from "../ui/TitanPrimitives";
+import bullArt from "../../../assets/sentiment/bull.png";
+import bearArt from "../../../assets/sentiment/bear.png";
 
 type HomePulseCardsProps = {
   bundle: Record<string, CotDashboardData>;
@@ -18,6 +20,23 @@ function biasTone(bias: string): string {
   if (bias === "BULLISH") return "text-emerald-400";
   if (bias === "BEARISH") return "text-rose-400";
   return "text-amber-300";
+}
+
+function UsdBiasMascot({ bias }: { bias: UsdBiasLabel }) {
+  if (bias === "NEUTRAL") return null;
+  const src = bias === "BULLISH" ? bullArt : bearArt;
+  const alt = bias === "BULLISH" ? "Bull" : "Bear";
+  return (
+    <img
+      src={src}
+      alt={alt}
+      width={160}
+      height={120}
+      decoding="async"
+      className="pointer-events-none h-[4.75rem] w-auto max-w-[7.5rem] shrink-0 object-contain object-right opacity-95 -scale-x-100 sm:h-[5.5rem] sm:max-w-[8.5rem]"
+      aria-hidden
+    />
+  );
 }
 
 function PulseCard({
@@ -66,9 +85,9 @@ export function HomePulseCards({ bundle, onNavigate }: HomePulseCardsProps) {
   return (
     <section className="grid gap-3 sm:grid-cols-2" aria-label={t("home.pulseTitle")}>
       <PulseCard onClick={() => onNavigate("dme")}>
-        <div className="flex items-center gap-4 p-1 sm:p-2">
+        <div className="flex items-center gap-3 p-1 sm:gap-4 sm:p-2">
           <TitanScoreRing100 score={usd.score100} label="USD" />
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <p className="titan-cmd-kicker">{t("home.pulseDmeTitle")}</p>
             <p className={`mt-1 font-display text-xl font-semibold tracking-wide ${biasTone(usd.bias)}`}>
               {t(`home.pulseUsdBias.${usd.bias}`)}
@@ -79,6 +98,7 @@ export function HomePulseCards({ bundle, onNavigate }: HomePulseCardsProps) {
                 : t("home.pulseDmeSub", { score: String(usd.score100) })}
             </p>
           </div>
+          <UsdBiasMascot bias={usd.bias} />
         </div>
       </PulseCard>
 
