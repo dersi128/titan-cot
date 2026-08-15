@@ -599,6 +599,12 @@ export const enMessages = {
       fxMissing: "No data",
       breadthSub: "{{usd}} / {{total}} FX currencies hold USD bias",
       breadthHeadline: "USD FAVORING",
+      breadthCaption: "FX COT impact on USD",
+      fxCot: {
+        bullish: "COT Bullish",
+        bearish: "COT Bearish",
+        neutral: "COT Neutral",
+      },
       breadth: {
         wide_usd: "Broad USD bias",
         narrow_usd: "Narrow USD bias",

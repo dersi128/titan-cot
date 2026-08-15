@@ -601,6 +601,12 @@ export const csMessages: Messages = {
       fxMissing: "Bez dat",
       breadthSub: "{{usd}} / {{total}} FX měn drží USD bias",
       breadthHeadline: "USD FAVORING",
+      breadthCaption: "FX COT impact on USD",
+      fxCot: {
+        bullish: "COT Bullish",
+        bearish: "COT Bearish",
+        neutral: "COT Neutral",
+      },
       breadth: {
         wide_usd: "Široký USD bias",
         narrow_usd: "Úzký USD bias",

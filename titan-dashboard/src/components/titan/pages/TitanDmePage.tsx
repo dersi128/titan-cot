@@ -161,6 +161,19 @@ function stanceLabel(stance: UsdStanceId, t: (k: string) => string): string {
   return t("pages.dme.stance.neutral");
 }
 
+/** Currency COT lean (presentation only — inverse of USD impact). */
+function fxCotLeanFromStance(stance: UsdStanceId): "bullish" | "bearish" | "neutral" {
+  if (stance === "usd_minus") return "bullish";
+  if (stance === "usd_plus") return "bearish";
+  return "neutral";
+}
+
+function fxCotLeanLabel(lean: "bullish" | "bearish" | "neutral", t: (k: string) => string): string {
+  if (lean === "bullish") return t("pages.dme.fxCot.bullish");
+  if (lean === "bearish") return t("pages.dme.fxCot.bearish");
+  return t("pages.dme.fxCot.neutral");
+}
+
 function alignmentKind(id: MacroAlignmentId): "bull" | "bear" | "neutral" | "mixed" {
   if (id === "strong_bullish" || id === "moderate_bullish") return "bull";
   if (id === "strong_bearish" || id === "moderate_bearish") return "bear";
@@ -362,32 +375,56 @@ export function TitanDmePage({ bundle, onSelectMarket }: TitanDmePageProps) {
           <p className={`mt-3 font-display text-2xl font-semibold tracking-tight ${tonePos(dme.breadthLean)}`}>
             {dme.usdFavoringCount} / {dme.fxLiveCount || 7} {t("pages.dme.breadthHeadline")}
           </p>
-          <ul className="mt-4 flex-1 space-y-1.5">
-            {dme.panels.map((p) => (
-              <li key={p.market.id}>
-                <button
-                  type="button"
-                  disabled={p.status !== "live"}
-                  onClick={() => onSelectMarket(p.market)}
-                  className="flex w-full items-center justify-between gap-2 rounded-md border border-transparent px-2 py-1.5 text-left transition hover:border-white/[0.06] hover:bg-white/[0.03] disabled:cursor-default disabled:opacity-50"
-                >
-                  <span className="text-[12px] font-semibold uppercase tracking-[0.1em] text-stone-200">
-                    {p.market.shortLabel}
-                  </span>
-                  <span
-                    className={`font-mono text-[12px] font-semibold ${
-                      p.stance === "usd_plus"
-                        ? "text-emerald-400"
-                        : p.stance === "usd_minus"
-                          ? "text-rose-400"
-                          : "text-stone-500"
-                    }`}
+          <p className="mt-1 text-[11px] text-stone-500">{t("pages.dme.breadthCaption")}</p>
+          <ul className="mt-4 flex-1 space-y-1">
+            {dme.panels.map((p) => {
+              const cotLean = fxCotLeanFromStance(p.stance);
+              return (
+                <li key={p.market.id}>
+                  <button
+                    type="button"
+                    disabled={p.status !== "live"}
+                    onClick={() => onSelectMarket(p.market)}
+                    className="grid w-full grid-cols-[2.5rem_minmax(0,1fr)_auto] items-center gap-2 rounded-md border border-transparent px-2 py-1.5 text-left transition hover:border-white/[0.06] hover:bg-white/[0.03] disabled:cursor-default disabled:opacity-50"
                   >
-                    {p.status === "live" ? stanceLabel(p.stance, t) : "—"}
-                  </span>
-                </button>
-              </li>
-            ))}
+                    <span className="text-[12px] font-semibold uppercase tracking-[0.1em] text-stone-200">
+                      {p.market.shortLabel}
+                    </span>
+                    {p.status === "live" ? (
+                      <>
+                        <span
+                          className={`truncate font-mono text-[11px] font-semibold uppercase tracking-[0.04em] ${
+                            cotLean === "bullish"
+                              ? "text-emerald-400"
+                              : cotLean === "bearish"
+                                ? "text-rose-400"
+                                : "text-stone-500"
+                          }`}
+                        >
+                          {fxCotLeanLabel(cotLean, t)}
+                        </span>
+                        <span
+                          className={`font-mono text-[12px] font-semibold ${
+                            p.stance === "usd_plus"
+                              ? "text-emerald-400"
+                              : p.stance === "usd_minus"
+                                ? "text-rose-400"
+                                : "text-stone-500"
+                          }`}
+                        >
+                          → {stanceLabel(p.stance, t)}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="font-mono text-[11px] text-stone-600">—</span>
+                        <span className="font-mono text-[12px] text-stone-600">—</span>
+                      </>
+                    )}
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         </GlassCard>
 
