@@ -92,7 +92,7 @@ export async function fetchSeasonalityComparisonWithSource(
   options: Omit<SeasonalityServiceOptions, "yearsLookback"> & {
     lookbacks?: readonly YearsLookback[];
   } = {},
-): Promise<{ comparison: SeasonalityComparison; ohlcSource: OhlcProviderId }> {
+): Promise<{ comparison: SeasonalityComparison; ohlcSource: OhlcProviderId; bars: OhlcBar[] }> {
   const fetchYears = Math.max(MAX_OHLC_FETCH_YEARS, options.years ?? MAX_OHLC_FETCH_YEARS);
   const { bars, source } = await fetchOhlcWithFallback(
     symbol,
@@ -100,7 +100,7 @@ export async function fetchSeasonalityComparisonWithSource(
     options.providerId ?? getDefaultOhlcProviderId(),
   );
   const comparison = await buildComparisonFromBars(symbol, bars, options);
-  return { comparison, ohlcSource: source };
+  return { comparison, ohlcSource: source, bars };
 }
 
 async function buildComparisonFromBars(

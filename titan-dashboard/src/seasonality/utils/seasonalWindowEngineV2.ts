@@ -530,3 +530,60 @@ function mmddFromLabel(label: string, tdy: number): string {
   if (m) return `${m[2]!.padStart(2, "0")}-${m[1]!.padStart(2, "0")}`;
   return `TDY-${tdy}`;
 }
+
+/** Manual chart selection stats — reuses year-book returns; never sets bias/score. */
+export type ManualSeasonalWindowStats = {
+  startTdy: number;
+  endTdy: number;
+  lengthTradingDays: number;
+  startDateLabel: string;
+  endDateLabel: string;
+  avgReturn: number;
+  medianReturn: number;
+  winRate: number;
+  lossRate: number;
+  sampleSize: number;
+  upYears: number;
+  downYears: number;
+};
+
+export function analyzeManualSeasonalWindow(
+  bars: OhlcBar[],
+  startTdy: number,
+  endTdy: number,
+  lookbackYears: number,
+  asOfDate?: string,
+): ManualSeasonalWindowStats | null {
+  const lo = Math.min(startTdy, endTdy);
+  const hi = Math.max(startTdy, endTdy);
+  const length = hi - lo + 1;
+  if (length < 2 || bars.length < 60) return null;
+
+  const rows = buildTradingDaySeries(bars);
+  const asOf = asOfDate ?? rows.at(-1)?.date ?? new Date().toISOString().slice(0, 10);
+  const asOfYear = Number(asOf.slice(0, 4));
+  const books = buildYearBooks(rows);
+  const asOfBook = books.find((b) => b.year === asOfYear) ?? books.at(-1);
+  const rets = windowReturns(books, lo, length, asOfYear, lookbackYears);
+  if (!rets.length) return null;
+
+  const avg = rets.reduce((a, b) => a + b, 0) / rets.length;
+  const med = median(rets);
+  const upYears = rets.filter((v) => v > 0).length;
+  const downYears = rets.filter((v) => v < 0).length;
+
+  return {
+    startTdy: lo,
+    endTdy: hi,
+    lengthTradingDays: length,
+    startDateLabel: dateLabelForTdy(asOfBook, lo, books.at(-1)),
+    endDateLabel: dateLabelForTdy(asOfBook, hi, books.at(-1)),
+    avgReturn: avg,
+    medianReturn: med,
+    winRate: upYears / rets.length,
+    lossRate: downYears / rets.length,
+    sampleSize: rets.length,
+    upYears,
+    downYears,
+  };
+}

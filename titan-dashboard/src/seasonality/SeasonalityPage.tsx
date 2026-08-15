@@ -9,10 +9,13 @@ import {
 } from "./seasonalityApi";
 import type { SeasonalityComparison } from "./services/seasonalityService";
 import { fetchSeasonalityComparisonWithSource } from "./services/seasonalityService";
-import { DEFAULT_YEARS_LOOKBACK, type YearsLookback } from "./yearsLookback";
+import { fetchOhlcWithFallback, getDefaultOhlcProviderId } from "./data/ohlcProviderConfig";
+import type { OhlcBar } from "./types";
+import { DEFAULT_YEARS_LOOKBACK, MAX_OHLC_FETCH_YEARS, type YearsLookback } from "./yearsLookback";
 import { attachSeasonalDeviationAnalysis } from "./utils/seasonalDeviationEngine";
 import {
   type PresidentialCyclePhase,
+  filterBarsByPresidentialPhases,
   hasPresidentialSelection,
 } from "./utils/presidentialCycle";
 import { SeasonalityDashboard } from "./components/SeasonalityDashboard";
@@ -27,6 +30,7 @@ export function SeasonalityPage() {
   const [lookback, setLookback] = useState<YearsLookback>(DEFAULT_YEARS_LOOKBACK);
   const [cycles, setCycles] = useState<PresidentialCyclePhase[]>([]);
   const [comparison, setComparison] = useState<SeasonalityComparison | null>(null);
+  const [ohlcBars, setOhlcBars] = useState<OhlcBar[] | null>(null);
   const [dataSource, setDataSource] = useState("yahoo");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -55,19 +59,29 @@ export function SeasonalityPage() {
       const phaseFilter = hasPresidentialSelection(phases) ? phases : null;
       try {
         if (shouldUseSeasonalityApi()) {
-          const curves = await fetchSeasonalityComparisonFromApi(market.dataSymbol, phaseFilter);
+          const [curves, ohlc] = await Promise.all([
+            fetchSeasonalityComparisonFromApi(market.dataSymbol, phaseFilter),
+            fetchOhlcWithFallback(
+              market.dataSymbol,
+              MAX_OHLC_FETCH_YEARS,
+              getDefaultOhlcProviderId(),
+            ),
+          ]);
           setComparison(curves);
+          setOhlcBars(filterBarsByPresidentialPhases(ohlc.bars, phaseFilter));
           setDataSource("api");
         } else {
-          const { comparison: curves, ohlcSource } = await fetchSeasonalityComparisonWithSource(
+          const { comparison: curves, ohlcSource, bars } = await fetchSeasonalityComparisonWithSource(
             market.dataSymbol,
             { presidentialPhases: phaseFilter },
           );
           setComparison(curves);
+          setOhlcBars(filterBarsByPresidentialPhases(bars, phaseFilter));
           setDataSource(ohlcSource);
         }
       } catch (err) {
         setComparison(null);
+        setOhlcBars(null);
         setError(err instanceof Error ? err.message : t("seasonality.loadError"));
       } finally {
         setLoading(false);
@@ -123,6 +137,7 @@ export function SeasonalityPage() {
             <SeasonalityMainChart
               result={result}
               comparison={comparison}
+              ohlcBars={ohlcBars}
               marketLabel={market?.label ?? marketId}
               lookback={lookback}
               onLookbackChange={setLookback}

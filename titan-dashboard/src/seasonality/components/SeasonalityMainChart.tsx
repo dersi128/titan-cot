@@ -11,7 +11,7 @@ import {
   YAxis,
 } from "recharts";
 import type { SeasonalityComparison } from "../services/seasonalityService";
-import type { SeasonalityResult } from "../types";
+import type { OhlcBar, SeasonalityResult } from "../types";
 import type { YearsLookback } from "../yearsLookback";
 import {
   buildSeasonaxChartRows,
@@ -20,6 +20,10 @@ import {
   seasonaxYDomain,
   type SeasonaxChartRow,
 } from "../utils/seasonaxChartData";
+import {
+  analyzeManualSeasonalWindow,
+  type ManualSeasonalWindowStats,
+} from "../utils/seasonalWindowEngineV2";
 import { SeasonalityLookbackControl } from "./SeasonalityLookbackControl";
 import { SeasonalityPresidentialFilter } from "./SeasonalityPresidentialFilter";
 import { useTitanI18n } from "../../i18n";
@@ -28,6 +32,8 @@ import type { PresidentialCyclePhase } from "../utils/presidentialCycle";
 type SeasonalityMainChartProps = {
   result: SeasonalityResult | null;
   comparison: SeasonalityComparison | null;
+  /** Raw OHLC for manual-window year returns (does not feed bias/score). */
+  ohlcBars?: OhlcBar[] | null;
   marketLabel: string;
   lookback: YearsLookback;
   onLookbackChange: (lookback: YearsLookback) => void;
@@ -38,14 +44,12 @@ type SeasonalityMainChartProps = {
   loading?: boolean;
 };
 
-/** Visual-only selection — never feeds bias / score / window engine. */
+/** Selection geometry only — never feeds bias / score / window engine. */
 type ManualWindow = {
   startTdy: number;
   endTdy: number;
   startDoy: number;
   endDoy: number;
-  startLabel: string;
-  endLabel: string;
 };
 
 type StoredManualWindow = {
@@ -135,19 +139,121 @@ function buildManualWindow(
     endTdy: right.tdy,
     startDoy: left.dayOfYear,
     endDoy: right.dayOfYear,
-    startLabel: left.monthLabel,
-    endLabel: right.monthLabel,
   };
 }
 
-function lengthLabel(startTdy: number, endTdy: number): string {
-  const days = Math.abs(endTdy - startTdy) + 1;
-  return `${days} TD`;
+function lookbackYears(lookback: YearsLookback): number {
+  return lookback === "ALL" ? 20 : lookback;
+}
+
+function fmtPct(v: number): string {
+  const sign = v > 0 ? "+" : "";
+  return `${sign}${(v * 100).toFixed(1)}%`;
+}
+
+function ManualWindowPanel({
+  stats,
+  lookback,
+}: {
+  stats: ManualSeasonalWindowStats;
+  lookback: YearsLookback;
+}) {
+  const { t } = useTitanI18n();
+  const bearish =
+    stats.avgReturn < 0 && stats.medianReturn < 0 && stats.lossRate >= stats.winRate;
+  const rateLabel = bearish
+    ? t("seasonality.manualWindow.bearRate")
+    : t("seasonality.manualWindow.winRate");
+  const rateValue = bearish ? stats.lossRate : stats.winRate;
+  const rateTone = bearish ? "text-rose-300" : "text-emerald-300";
+  const yearsLine = bearish
+    ? t("seasonality.manualWindow.downYears", {
+        n: String(stats.downYears),
+        total: String(stats.sampleSize),
+      })
+    : t("seasonality.manualWindow.upYears", {
+        n: String(stats.upYears),
+        total: String(stats.sampleSize),
+      });
+
+  return (
+    <div className="mx-4 mb-3 rounded-lg border border-titan-gold/20 bg-black/35 px-3 py-2.5">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-titan-gold/85">
+          {t("seasonality.manualWindow.title")}
+        </p>
+        <p className="font-mono text-[10px] text-stone-500">
+          {lookback === "ALL" ? "20Y" : `${lookback}Y`}
+        </p>
+      </div>
+      <p className="mt-1 font-display text-[15px] font-semibold tracking-wide text-stone-100">
+        {stats.startDateLabel} → {stats.endDateLabel}
+      </p>
+      <p className="mt-0.5 text-[11px] text-stone-500">{yearsLine}</p>
+      <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1.5 sm:grid-cols-3 lg:grid-cols-6">
+        <div>
+          <dt className="text-[9px] uppercase tracking-wider text-stone-600">{rateLabel}</dt>
+          <dd className={`font-mono text-[13px] font-semibold ${rateTone}`}>
+            {(rateValue * 100).toFixed(0)}%
+          </dd>
+        </div>
+        {!bearish ? (
+          <div>
+            <dt className="text-[9px] uppercase tracking-wider text-stone-600">
+              {t("seasonality.manualWindow.lossRate")}
+            </dt>
+            <dd className="font-mono text-[13px] font-semibold text-rose-300/90">
+              {(stats.lossRate * 100).toFixed(0)}%
+            </dd>
+          </div>
+        ) : null}
+        <div>
+          <dt className="text-[9px] uppercase tracking-wider text-stone-600">
+            {t("seasonality.manualWindow.avg")}
+          </dt>
+          <dd
+            className={`font-mono text-[13px] font-semibold ${
+              stats.avgReturn >= 0 ? "text-emerald-300" : "text-rose-300"
+            }`}
+          >
+            {fmtPct(stats.avgReturn)}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-[9px] uppercase tracking-wider text-stone-600">
+            {t("seasonality.manualWindow.median")}
+          </dt>
+          <dd
+            className={`font-mono text-[13px] font-semibold ${
+              stats.medianReturn >= 0 ? "text-emerald-300" : "text-rose-300"
+            }`}
+          >
+            {fmtPct(stats.medianReturn)}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-[9px] uppercase tracking-wider text-stone-600">
+            {t("seasonality.manualWindow.sample")}
+          </dt>
+          <dd className="font-mono text-[13px] font-semibold text-stone-200">{stats.sampleSize}</dd>
+        </div>
+        <div>
+          <dt className="text-[9px] uppercase tracking-wider text-stone-600">
+            {t("seasonality.manualWindow.length")}
+          </dt>
+          <dd className="font-mono text-[13px] font-semibold text-stone-200">
+            {stats.lengthTradingDays} TD
+          </dd>
+        </div>
+      </dl>
+    </div>
+  );
 }
 
 export function SeasonalityMainChart({
   result,
   comparison,
+  ohlcBars = null,
   marketLabel,
   lookback,
   onLookbackChange,
@@ -186,7 +292,6 @@ export function SeasonalityMainChart({
   const [draft, setDraft] = useState<{ anchor: number; current: number } | null>(null);
   const [selecting, setSelecting] = useState(false);
 
-  // Restore saved calendar window onto current curve (symbol/lookback safe).
   useEffect(() => {
     if (curveData.length < 2) return;
     const stored = readStored();
@@ -197,6 +302,17 @@ export function SeasonalityMainChart({
     setManual(buildManualWindow(curveData, a.tdy, b.tdy));
   }, [curveData]);
 
+  const manualStats = useMemo(() => {
+    if (!manual || !ohlcBars?.length || !activeResult) return null;
+    return analyzeManualSeasonalWindow(
+      ohlcBars,
+      manual.startTdy,
+      manual.endTdy,
+      lookbackYears(lookback),
+      activeResult.currentDate,
+    );
+  }, [manual, ohlcBars, lookback, activeResult]);
+
   const activeRange = draft
     ? {
         left: Math.min(draft.anchor, draft.current),
@@ -206,17 +322,14 @@ export function SeasonalityMainChart({
       ? { left: manual.startTdy, right: manual.endTdy }
       : null;
 
-  const onChartMouseDown = useCallback(
-    (state: unknown) => {
-      const s = state as { activeLabel?: string | number } | null;
-      if (s?.activeLabel == null) return;
-      const tdy = Number(s.activeLabel);
-      if (!Number.isFinite(tdy)) return;
-      setSelecting(true);
-      setDraft({ anchor: tdy, current: tdy });
-    },
-    [],
-  );
+  const onChartMouseDown = useCallback((state: unknown) => {
+    const s = state as { activeLabel?: string | number } | null;
+    if (s?.activeLabel == null) return;
+    const tdy = Number(s.activeLabel);
+    if (!Number.isFinite(tdy)) return;
+    setSelecting(true);
+    setDraft({ anchor: tdy, current: tdy });
+  }, []);
 
   const onChartMouseMove = useCallback(
     (state: unknown) => {
@@ -255,15 +368,23 @@ export function SeasonalityMainChart({
   const saveManual = useCallback(() => {
     if (!manual) return;
     try {
-      const payload: StoredManualWindow = {
-        startDoy: manual.startDoy,
-        endDoy: manual.endDoy,
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          startDoy: manual.startDoy,
+          endDoy: manual.endDoy,
+        } satisfies StoredManualWindow),
+      );
     } catch {
       /* ignore */
     }
   }, [manual]);
+
+  const rangeSummary = manualStats
+    ? `${manualStats.startDateLabel} → ${manualStats.endDateLabel}`
+    : manual
+      ? `TDY ${manual.startTdy} → ${manual.endTdy}`
+      : null;
 
   return (
     <div className="overflow-hidden rounded-xl border border-titan-gold/15 bg-titan-panel/80 shadow-card backdrop-blur-md">
@@ -287,11 +408,8 @@ export function SeasonalityMainChart({
           <p className="mt-1 text-[11px] text-stone-600">{t("seasonality.manualWindow.hint")}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          {manual ? (
-            <p className="font-mono text-[11px] text-stone-400">
-              {manual.startLabel} → {manual.endLabel}
-              <span className="ml-2 text-titan-gold/80">{lengthLabel(manual.startTdy, manual.endTdy)}</span>
-            </p>
+          {rangeSummary ? (
+            <p className="font-mono text-[11px] text-stone-400">{rangeSummary}</p>
           ) : (
             <p className="text-[11px] text-stone-600">{t("seasonality.manualWindow.empty")}</p>
           )}
@@ -313,6 +431,8 @@ export function SeasonalityMainChart({
           </button>
         </div>
       </div>
+
+      {manualStats ? <ManualWindowPanel stats={manualStats} lookback={lookback} /> : null}
 
       <div className="relative h-[320px] w-full px-2 pb-3 sm:h-[380px]">
         {loading && curveData.length < 2 ? (
