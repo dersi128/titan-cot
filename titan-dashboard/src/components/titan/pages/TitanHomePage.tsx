@@ -25,26 +25,6 @@ type TitanHomePageProps = {
   onNavigate: (section: AppSection, options?: NavigateSectionOptions) => void;
 };
 
-function ModuleLaunchCard({
-  title,
-  description,
-  onOpen,
-}: {
-  title: string;
-  description: string;
-  onOpen: () => void;
-}) {
-  return (
-    <button type="button" onClick={onOpen} className="titan-module-card group text-left">
-      <p className="titan-cmd-kicker">{title}</p>
-      <p className="mt-2 text-[12px] leading-snug text-stone-400 group-hover:text-stone-300">{description}</p>
-      <span className="titan-module-card__cta mt-3 inline-block font-mono text-[10px] uppercase tracking-[0.14em] text-titan-gold/80">
-        →
-      </span>
-    </button>
-  );
-}
-
 export function TitanHomePage({ rows, bundle, onSelectMarket, onNavigate }: TitanHomePageProps) {
   const { t } = useTitanI18n();
 
@@ -84,24 +64,6 @@ export function TitanHomePage({ rows, bundle, onSelectMarket, onNavigate }: Tita
   return (
     <div className="titan-cmd space-y-3 md:space-y-4">
       <HomePulseCards bundle={bundle} onNavigate={onNavigate} />
-
-      <section className="grid gap-3 sm:grid-cols-3" aria-label={t("nav.modules")}>
-        <ModuleLaunchCard
-          title={t("nav.scanner")}
-          description={t("home.moduleScannerDesc")}
-          onOpen={() => onNavigate("scanner")}
-        />
-        <ModuleLaunchCard
-          title={t("nav.seasonality")}
-          description={t("home.moduleSeasonalityDesc")}
-          onOpen={() => onNavigate("seasonality")}
-        />
-        <ModuleLaunchCard
-          title={t("nav.dme")}
-          description={t("home.moduleDmeDesc")}
-          onOpen={() => onNavigate("dme")}
-        />
-      </section>
 
       <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4" aria-label={t("home.cmdConvictionStrip")}>
         <WatchlistPanel
