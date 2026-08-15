@@ -3,10 +3,7 @@ import type { CotDashboardData } from "../../../types";
 import type { InstitutionalMarket } from "../../../config/institutionalMarkets";
 import { INSTITUTIONAL_MARKETS } from "../../../config/institutionalMarkets";
 import type { AppSection } from "../../../lib/titanAppRoute";
-import {
-  buildHomeOverviewStats,
-  formatHomeFlowDelta,
-} from "../../../lib/titanHomeOverview";
+import { buildHomeOverviewStats } from "../../../lib/titanHomeOverview";
 import { FLOW_MAP_CLASSES } from "../../../lib/titanHomeMock";
 import { convictionRankScore, CONVICTION_MAX } from "../../../lib/titanConviction";
 import { useTitanI18n } from "../../../i18n";
@@ -84,78 +81,9 @@ export function TitanHomePage({ rows, bundle, onSelectMarket, onNavigate }: Tita
 
   const flowMap = useMemo(() => buildFlowMapFromRows(rows), [rows]);
 
-  const dominantRegimeCard = useMemo(() => {
-    const top = [...stats.regimeCards].sort((a, b) => b.count - a.count).find((c) => c.count > 0);
-    if (!top) return "—";
-    return `${t(`positioning.regime.${top.regime}`)} · ${top.pct}%`;
-  }, [stats.regimeCards, t]);
-
-  const dmeValue = stats.dme.available && stats.dme.regime
-    ? t(`positioning.regime.${stats.dme.regime}`)
-    : t("home.dmeUnavailable");
-
-  const dmeSub =
-    stats.dme.available && stats.dme.score !== null && stats.dme.commercial26w !== null
-      ? t("home.dmeSub", {
-          score: String(stats.dme.score),
-          index: String(stats.dme.commercial26w),
-        })
-      : t("home.dmeSubFallback");
-
-  const flowValue = formatHomeFlowDelta(stats.flow.avgCommercialWeeklyChange);
-  const flowSub =
-    stats.flow.avgCommercialWeeklyChange === null
-      ? t("home.flowSubEmpty")
-      : stats.flow.avgCommercialWeeklyChange > 0
-        ? t("home.flowSubBull", {
-            bull: String(stats.flow.bullishMarkets),
-            bear: String(stats.flow.bearishMarkets),
-          })
-        : stats.flow.avgCommercialWeeklyChange < 0
-          ? t("home.flowSubBear", {
-              bull: String(stats.flow.bullishMarkets),
-              bear: String(stats.flow.bearishMarkets),
-            })
-          : t("home.flowSubFlat", {
-              bull: String(stats.flow.bullishMarkets),
-              bear: String(stats.flow.bearishMarkets),
-            });
-
-  const breadthValue =
-    stats.breadth.liveCount > 0
-      ? `${stats.breadth.bullish} / ${stats.breadth.liveCount}`
-      : "—";
-
   return (
     <div className="titan-cmd space-y-3 md:space-y-4">
       <HomePulseCards bundle={bundle} onNavigate={onNavigate} />
-
-      <section className="titan-cmd-overview" aria-label={t("home.cmdOverview")}>
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <GlassCard glow="gold">
-            <p className="titan-cmd-kicker">{t("home.cmdDmeTitle")}</p>
-            <p className="titan-cmd-value mt-2">{dmeValue}</p>
-            <p className="titan-cmd-sub mt-1">{dmeSub}</p>
-          </GlassCard>
-          <GlassCard>
-            <p className="titan-cmd-kicker">{t("home.cmdRegimeTitle")}</p>
-            <p className="titan-cmd-value mt-2">{dominantRegimeCard}</p>
-            <p className="titan-cmd-sub mt-1">{t("home.cmdRegimeSub", { count: String(stats.liveCount) })}</p>
-          </GlassCard>
-          <GlassCard>
-            <p className="titan-cmd-kicker">{t("home.cmdFlowTitle")}</p>
-            <p className="titan-cmd-value mt-2 font-mono">{flowValue}</p>
-            <p className="titan-cmd-sub mt-1">{flowSub}</p>
-          </GlassCard>
-          <GlassCard>
-            <p className="titan-cmd-kicker">{t("home.cmdBreadthTitle")}</p>
-            <p className="titan-cmd-value mt-2 font-mono">{breadthValue}</p>
-            <p className="titan-cmd-sub mt-1">
-              {t("home.breadthSub", { pct: String(stats.breadth.longSkewPct) })}
-            </p>
-          </GlassCard>
-        </div>
-      </section>
 
       <section className="grid gap-3 sm:grid-cols-3" aria-label={t("nav.modules")}>
         <ModuleLaunchCard
