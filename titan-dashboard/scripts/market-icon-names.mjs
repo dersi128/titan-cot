@@ -67,7 +67,6 @@ export const ICON_NAME_ALIASES = {
   CL: "OIL",
   CRUDE: "OIL",
   WTI: "OIL",
-  GC: "GOLD",
   SI: "SILVER",
   HG: "COPPER",
   ZC: "CORN",
