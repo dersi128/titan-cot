@@ -69,12 +69,12 @@ import type { YearsLookback } from "./yearsLookback.js";
 
 export type SeasonalityAlignment = "ALIGNED" | "DIVERGING" | "STRONGLY_DIVERGING";
 
-export type MonthlyYearReturn = {
-  month: number;
-  monthLabel: string;
-  pct: number | null;
-  isCurrent: boolean;
-};
+import type { MonthlyYearReturn } from "./utils/monthlyYearReturns.js";
+
+/** Client-only deviation layer — stubbed on API module. */
+export type SeasonalDeviationAnalysis = Record<string, unknown>;
+
+export type { MonthlyYearReturn };
 
 export type SeasonalityResult = {
   symbol: string;
@@ -91,15 +91,26 @@ export type SeasonalityResult = {
   weekdayStats?: WeekdayStat[];
   winRateByMonth: Record<number, number>;
   averageReturnByMonth: Record<number, number>;
+  /** Smoothed index at current calendar position (base 100). */
   currentCurveLevel: number;
+  /** Mean daily return in active window (%). */
   averageReturnInWindow: number;
+  /** Share of positive daily returns in sample (%). */
   overallWinRate: number;
+  /** YTD cumulative trajectory for the active calendar year (normalized 0–100). */
   currentYearCurve: SeasonalCurvePoint[];
+  /** Historical vs current-year directional fit at today. */
   seasonalityAlignment: SeasonalityAlignment;
+  /** YTD % performance (base 100). */
   currentYearPerformance: number;
+  /** Historical seasonal index at current date (0–100). */
   historicalPerformance: number;
+  /** Current Year vs 10Y expectation — institutional deviation layer. */
+  deviationAnalysis?: SeasonalDeviationAnalysis;
+  /** Calendar-month % returns for the active year (real OHLC). */
   currentYearMonthlyReturns?: MonthlyYearReturn[];
-  engineVersion?: "rolling-v2";
+  /** Rolling institutional engine (30/60/90 TD projections) or window-v2. */
+  engineVersion?: "rolling-v2" | "window-v2";
   tradingDayOfYear?: number;
   rollingProjections?: Partial<Record<RollingWindowDays, SeasonalCurvePoint[]>>;
   momentumAdjustedCurve?: SeasonalCurvePoint[];
@@ -108,6 +119,23 @@ export type SeasonalityResult = {
   seasonalEvents?: SeasonalEventMarker[];
   intramonthBuckets?: IntramonthBucket[];
   primaryRollingWindow?: RollingWindowDays;
+  /** V2 historical window engine payload (pure seasonality). */
+  windowEngine?: {
+    score: number;
+    confidence: SeasonalStrength;
+    turnDate: string | null;
+    alignmentLabel: string;
+    avgReturn: number;
+    medianReturn: number;
+    winRate: number;
+    sampleSize: number;
+    daysRemaining: number;
+    windowLabel: string;
+    upcomingLabel?: string;
+    upcomingScore?: number;
+    upcomingSide?: "BULLISH" | "BEARISH";
+    daysUntilStart?: number;
+  };
 };
 
 export type SeasonalityMarket = {

@@ -107,8 +107,8 @@ export type SeasonalityResult = {
   deviationAnalysis?: SeasonalDeviationAnalysis;
   /** Calendar-month % returns for the active year (real OHLC). */
   currentYearMonthlyReturns?: MonthlyYearReturn[];
-  /** Rolling institutional engine (30/60/90 TD projections). */
-  engineVersion?: "rolling-v2";
+  /** Rolling institutional engine (30/60/90 TD projections) or window-v2. */
+  engineVersion?: "rolling-v2" | "window-v2";
   tradingDayOfYear?: number;
   rollingProjections?: Partial<Record<RollingWindowDays, SeasonalCurvePoint[]>>;
   momentumAdjustedCurve?: SeasonalCurvePoint[];
@@ -117,6 +117,23 @@ export type SeasonalityResult = {
   seasonalEvents?: SeasonalEventMarker[];
   intramonthBuckets?: IntramonthBucket[];
   primaryRollingWindow?: RollingWindowDays;
+  /** V2 historical window engine payload (pure seasonality). */
+  windowEngine?: {
+    score: number;
+    confidence: SeasonalStrength;
+    turnDate: string | null;
+    alignmentLabel: string;
+    avgReturn: number;
+    medianReturn: number;
+    winRate: number;
+    sampleSize: number;
+    daysRemaining: number;
+    windowLabel: string;
+    upcomingLabel?: string;
+    upcomingScore?: number;
+    upcomingSide?: "BULLISH" | "BEARISH";
+    daysUntilStart?: number;
+  };
 };
 
 export type SeasonalityMarket = {

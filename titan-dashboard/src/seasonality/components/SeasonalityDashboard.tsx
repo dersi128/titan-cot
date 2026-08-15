@@ -40,10 +40,17 @@ export function SeasonalityDashboard({ result, comparison, currentMonth }: Props
             <span className="ml-2 font-mono text-xl text-stone-400">{insights.score}/100</span>
           </p>
           <p className="mt-1 max-w-md text-[12px] text-stone-500">
-            {t(`seasonality.dash.biasSub.${insights.bias}`, {
-              strength: t(`seasonality.strength.${insights.strength}`),
-            })}
+            {result.windowEngine?.windowLabel && result.windowEngine.windowLabel !== "—"
+              ? `${result.windowEngine.windowLabel} · WR ${(result.windowEngine.winRate * 100).toFixed(0)}% · n=${result.windowEngine.sampleSize} · align ${result.windowEngine.alignmentLabel}`
+              : t(`seasonality.dash.biasSub.${insights.bias}`, {
+                  strength: t(`seasonality.strength.${insights.strength}`),
+                })}
           </p>
+          {result.windowEngine?.turnDate ? (
+            <p className="mt-1 text-[11px] text-stone-500">
+              Seasonal turn: {result.windowEngine.turnDate}
+            </p>
+          ) : null}
         </div>
 
         <div className="flex flex-wrap gap-6 sm:gap-8">

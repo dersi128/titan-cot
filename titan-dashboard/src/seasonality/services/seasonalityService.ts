@@ -10,7 +10,8 @@ import {
   MAX_OHLC_FETCH_YEARS,
   type YearsLookback,
 } from "../yearsLookback";
-import { calculateSeasonality, slopeAround } from "../utils/calculateSeasonality";
+import { calculateSeasonality } from "../utils/calculateSeasonality";
+import { slopeAround } from "../utils/rollingSeasonalityClassifiers";
 import { enrichSeasonalityWithCurrentYear } from "../utils/currentYearOverlay";
 import { attachSeasonalDeviationAnalysis } from "../utils/seasonalDeviationEngine";
 import {

@@ -197,22 +197,27 @@ export function buildDashboardInsights(
     const peakHi = Math.min(win.endDay, peak + 3);
     const tdy = result.tradingDayOfYear ?? 0;
     turn = {
-      startLabel: tdyToApproxLabel(curve, win.startDay),
+      startLabel: result.windowEngine?.windowLabel.split("→")[0]?.trim() ?? tdyToApproxLabel(curve, win.startDay),
       peakLabel: `${tdyToApproxLabel(curve, peakLo)} – ${tdyToApproxLabel(curve, peakHi)}`,
-      endLabel: tdyToApproxLabel(curve, win.endDay),
+      endLabel:
+        result.windowEngine?.turnDate
+          ? result.windowEngine.turnDate
+          : result.windowEngine?.windowLabel.split("→")[1]?.trim() ?? tdyToApproxLabel(curve, win.endDay),
       windowBias: win.bias,
       afterTurnWarn: tdy > 0 && tdy >= win.endDay - 5,
     };
   }
 
-  const score = computeScore(
-    result.seasonalBias,
-    result.seasonalStrength,
-    winRate,
-    agreement.bullish,
-    agreement.bearish,
-    agreement.total,
-  );
+  const score =
+    result.windowEngine?.score ??
+    computeScore(
+      result.seasonalBias,
+      result.seasonalStrength,
+      winRate,
+      agreement.bullish,
+      agreement.bearish,
+      agreement.total,
+    );
 
   const month = new Date(result.currentDate).getMonth() + 1;
   const monthStat = result.monthlyStats.find((m) => m.month === month);

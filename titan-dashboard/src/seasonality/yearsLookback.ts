@@ -5,7 +5,7 @@ export type YearsLookback = 5 | 10 | 15 | 20 | "ALL";
 /** Lookbacks drawn on the multi-window seasonal chart (excludes ALL). */
 export type ChartLookbackYears = 5 | 10 | 15 | 20;
 
-export const DEFAULT_YEARS_LOOKBACK: YearsLookback = 10;
+export const DEFAULT_YEARS_LOOKBACK: YearsLookback = 20;
 
 /** Max years fetched from provider; lookback filters client-side. */
 export const MAX_OHLC_FETCH_YEARS = 20;

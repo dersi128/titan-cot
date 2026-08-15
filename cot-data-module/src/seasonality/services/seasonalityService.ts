@@ -10,7 +10,8 @@ import {
   YEARS_LOOKBACK_OPTIONS,
   type YearsLookback,
 } from "../yearsLookback.js";
-import { calculateSeasonality, slopeAround } from "../utils/calculateSeasonality.js";
+import { calculateSeasonality } from "../utils/calculateSeasonality.js";
+import { slopeAround } from "../utils/rollingSeasonalityClassifiers.js";
 import { enrichSeasonalityWithCurrentYear } from "../utils/currentYearOverlay.js";
 import {
   filterBarsByPresidentialPhases,

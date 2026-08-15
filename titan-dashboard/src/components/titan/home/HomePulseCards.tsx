@@ -3,8 +3,8 @@ import type { CotDashboardData } from "../../../types";
 import type { AppSection, NavigateSectionOptions } from "../../../lib/titanAppRoute";
 import { usdPulseFromBundle, type UsdBiasLabel } from "../../../lib/homeUsdPulse";
 import {
-  scanBestSeasonalityLongs,
-  type SeasonalityLongCandidate,
+  scanSeasonalOpportunities,
+  type SeasonalityOpportunity,
 } from "../../../seasonality/utils/scanBestSeasonalityLong";
 import { useTitanI18n } from "../../../i18n";
 import { TitanScoreRing100 } from "../ui/TitanPrimitives";
@@ -39,28 +39,26 @@ function UsdBiasMascot({ bias }: { bias: UsdBiasLabel }) {
   );
 }
 
-function SeasonalLongRows({
+function OpportunityRows({
   rows,
   onOpenMarket,
 }: {
-  rows: SeasonalityLongCandidate[];
+  rows: SeasonalityOpportunity[];
   onOpenMarket: (marketId: string) => void;
 }) {
   return (
-    <ul className="mt-2.5 space-y-1">
+    <ul className="mt-2 space-y-1">
       {rows.map((row, i) => {
         const pct = Math.max(8, Math.min(100, row.score));
-        const bar = row.bias === "BULLISH" ? "bg-emerald-400/80" : "bg-sky-400/70";
-        const labelTone = row.bias === "BULLISH" ? "text-emerald-300" : "text-sky-200";
+        const isLong = row.side === "LONG";
+        const bar = isLong ? "bg-emerald-400/80" : "bg-rose-400/75";
+        const labelTone = isLong ? "text-emerald-300" : "text-rose-300";
         return (
-          <li key={row.id}>
+          <li key={`${row.side}-${row.id}`}>
             <button
               type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onOpenMarket(row.dataSymbol);
-              }}
-              className="grid w-full grid-cols-[1.1rem_minmax(0,1fr)_2.6rem_2.4rem] items-center gap-x-2 rounded px-1 py-1 text-left transition hover:bg-white/[0.05]"
+              onClick={() => onOpenMarket(row.dataSymbol)}
+              className="grid w-full grid-cols-[1.1rem_minmax(0,1fr)_2.4rem] items-center gap-x-2 rounded px-1 py-1 text-left transition hover:bg-white/[0.05]"
             >
               <span className="font-mono text-[10px] tabular-nums text-stone-600">{i + 1}</span>
               <div className="min-w-0">
@@ -69,18 +67,16 @@ function SeasonalLongRows({
                     {row.label}
                   </span>
                   <span className="shrink-0 text-[9px] uppercase tracking-wider text-stone-600">
-                    {row.strength}
+                    {row.daysUntilStart > 0 ? `T-${row.daysUntilStart}` : row.strength}
                   </span>
                 </div>
+                <p className="truncate text-[9px] text-stone-600">{row.windowLabel}</p>
                 <div className="mt-1 h-1 overflow-hidden rounded-full bg-white/[0.06]">
                   <div className={`h-full rounded-full ${bar}`} style={{ width: `${pct}%` }} />
                 </div>
               </div>
               <span className="text-right font-mono text-[11px] font-semibold tabular-nums text-stone-200">
                 {row.score}
-              </span>
-              <span className="text-right font-mono text-[10px] tabular-nums text-stone-500">
-                {row.winRate.toFixed(0)}%
               </span>
             </button>
           </li>
@@ -94,16 +90,18 @@ export function HomePulseCards({ bundle, onNavigate }: HomePulseCardsProps) {
   const { t } = useTitanI18n();
   const usd = useMemo(() => usdPulseFromBundle(bundle), [bundle]);
 
-  const [longs, setLongs] = useState<SeasonalityLongCandidate[] | null>(null);
+  const [longs, setLongs] = useState<SeasonalityOpportunity[]>([]);
+  const [shorts, setShorts] = useState<SeasonalityOpportunity[]>([]);
   const [scanDone, setScanDone] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     setScanDone(false);
     void (async () => {
-      const ranked = await scanBestSeasonalityLongs();
+      const ranked = await scanSeasonalOpportunities();
       if (!cancelled) {
-        setLongs(ranked);
+        setLongs(ranked.longs);
+        setShorts(ranked.shorts);
         setScanDone(true);
       }
     })();
@@ -112,13 +110,11 @@ export function HomePulseCards({ bundle, onNavigate }: HomePulseCardsProps) {
     };
   }, []);
 
-  const topLongs = longs ?? [];
+  const openSeason = (marketId: string) =>
+    onNavigate("seasonality", { seasonalityMarket: marketId });
 
   return (
-    <section
-      className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)]"
-      aria-label={t("home.pulseTitle")}
-    >
+    <section className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)_minmax(0,1.15fr)]" aria-label={t("home.pulseTitle")}>
       <button
         type="button"
         onClick={() => onNavigate("dme")}
@@ -146,26 +142,37 @@ export function HomePulseCards({ bundle, onNavigate }: HomePulseCardsProps) {
           <button
             type="button"
             onClick={() => onNavigate("seasonality")}
-            className="flex w-full items-end justify-between gap-2 text-left transition hover:opacity-90"
+            className="flex w-full items-end justify-between gap-2 text-left"
           >
-            <p className="titan-cmd-kicker">{t("home.pulseSeasonTitle")}</p>
-            {scanDone && topLongs.length > 0 ? (
-              <p className="font-mono text-[9px] uppercase tracking-wider text-stone-600">
-                {t("home.pulseSeasonCols")}
-              </p>
-            ) : null}
+            <p className="titan-cmd-kicker">{t("home.pulseSeasonLongTitle")}</p>
+            <p className="font-mono text-[9px] uppercase tracking-wider text-stone-600">Score</p>
           </button>
           {!scanDone ? (
             <p className="mt-3 text-[13px] text-stone-500">{t("home.pulseSeasonLoading")}</p>
-          ) : topLongs.length > 0 ? (
-            <SeasonalLongRows
-              rows={topLongs}
-              onOpenMarket={(marketId) =>
-                onNavigate("seasonality", { seasonalityMarket: marketId })
-              }
-            />
+          ) : longs.length > 0 ? (
+            <OpportunityRows rows={longs} onOpenMarket={openSeason} />
           ) : (
-            <p className="mt-3 text-[13px] text-stone-500">{t("home.pulseSeasonEmpty")}</p>
+            <p className="mt-3 text-[13px] text-stone-500">{t("home.pulseSeasonLongEmpty")}</p>
+          )}
+        </div>
+      </article>
+
+      <article className="titan-cmd-card w-full self-stretch">
+        <div className="flex h-full flex-col p-1 sm:p-2">
+          <button
+            type="button"
+            onClick={() => onNavigate("seasonality")}
+            className="flex w-full items-end justify-between gap-2 text-left"
+          >
+            <p className="titan-cmd-kicker">{t("home.pulseSeasonShortTitle")}</p>
+            <p className="font-mono text-[9px] uppercase tracking-wider text-stone-600">Score</p>
+          </button>
+          {!scanDone ? (
+            <p className="mt-3 text-[13px] text-stone-500">{t("home.pulseSeasonLoading")}</p>
+          ) : shorts.length > 0 ? (
+            <OpportunityRows rows={shorts} onOpenMarket={openSeason} />
+          ) : (
+            <p className="mt-3 text-[13px] text-stone-500">{t("home.pulseSeasonShortEmpty")}</p>
           )}
         </div>
       </article>
