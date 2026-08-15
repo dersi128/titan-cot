@@ -37,7 +37,7 @@ export function TitanRegimeOverview({ cards, liveCount, totalMarkets }: TitanReg
     <section className="titan-regime-overview rounded-lg border border-white/[0.06] bg-titan-panel/35 px-4 py-3 backdrop-blur-md">
       <header className="mb-2.5 flex flex-wrap items-end justify-between gap-1">
         <div>
-          <p className="font-display text-[9px] font-semibold uppercase tracking-[0.26em] text-titan-gold/90">
+          <p className="font-display text-[9px] font-semibold uppercase tracking-[0.14em] text-titan-gold/90">
             {t("home.regimeOverviewTitle")}
           </p>
           <p className="mt-0.5 text-[10px] text-stone-600">{t("home.regimeOverviewSub", { count: liveCount })}</p>

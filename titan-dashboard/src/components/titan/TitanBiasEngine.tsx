@@ -205,7 +205,7 @@ export function TitanBiasEngine({ market: _market, data, loading, embedded = fal
       {embedded ? null : <div className="titan-bias-engine__backdrop pointer-events-none absolute inset-0" aria-hidden />}
       {embedded ? null : (
         <header className="relative border-b border-white/[0.06] px-5 py-3 md:px-6">
-          <h3 className="font-display text-[10px] font-semibold uppercase tracking-[0.32em] text-titan-gold">
+          <h3 className="font-display text-[10px] font-semibold uppercase tracking-[0.14em] text-titan-gold">
             {t("biasEngine.title")}
           </h3>
         </header>

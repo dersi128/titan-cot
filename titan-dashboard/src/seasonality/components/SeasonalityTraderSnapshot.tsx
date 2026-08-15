@@ -40,7 +40,7 @@ export function SeasonalityTraderSnapshot({ result, currentMonth }: SeasonalityT
       <div className="grid gap-0 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
         {/* 5-second hero verdict */}
         <div className="border-b border-white/[0.06] p-5 lg:border-b-0 lg:border-r lg:border-white/[0.06]">
-          <p className="font-display text-[10px] font-semibold uppercase tracking-[0.28em] text-titan-gold/80">
+          <p className="font-display text-[10px] font-semibold uppercase tracking-[0.14em] text-titan-gold/80">
             {t("seasonality.snap.now")}
           </p>
           <p className={`mt-2 font-display text-4xl font-semibold tracking-wide ${biasTone(result.seasonalBias)}`}>

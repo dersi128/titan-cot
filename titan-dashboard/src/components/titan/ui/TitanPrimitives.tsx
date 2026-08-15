@@ -33,7 +33,7 @@ export function TitanPanelHeader({
   return (
     <header className="flex flex-col gap-3 border-b border-titan-line/80 px-5 py-4 sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0">
-        <p className="font-display text-[11px] font-semibold uppercase tracking-[0.22em] text-[#e8c547]">
+        <p className="font-display text-[11px] font-semibold uppercase tracking-[0.14em] text-[#5eb8ff]">
           {eyebrow}
         </p>
         {title ? (
@@ -164,7 +164,7 @@ export function TitanScoreRing100({
         ? "#34d399"
         : clamped <= 40
           ? "#fb7185"
-          : "#d4af37";
+          : "#2ea8ff";
 
   return (
     <figure className="relative m-0 h-[100px] w-[100px] shrink-0">

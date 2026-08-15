@@ -64,7 +64,7 @@ export function buildSeasonalEvents(asOfDate: string, windowDays = 120): Seasona
 }
 
 export const EVENT_COLORS: Record<SeasonalEventType, string> = {
-  FOMC: "#D4AF37",
+  FOMC: "#2ea8ff",
   CPI: "#9AE8FF",
   OPEX: "#B48CFF",
   NVDA_EARNINGS: "#4FD4A0",

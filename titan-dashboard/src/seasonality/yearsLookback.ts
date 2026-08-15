@@ -27,7 +27,7 @@ export const LOOKBACK_CHART_KEYS: Record<YearsLookback, string> = {
 /** Chart line colors — multi-window comparison. */
 export const LOOKBACK_CHART_COLORS: Record<YearsLookback, string> = {
   5: "#22D3EE",
-  10: "#D4AF37",
+  10: "#2ea8ff",
   15: "#B48CFF",
   20: "#5B9BD5",
   ALL: "#78716c",

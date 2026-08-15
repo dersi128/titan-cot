@@ -78,7 +78,7 @@ export function CotHeatmap({ markets, bundle, selectedMarket, onSelectMarket }: 
               onClick={() => data && onSelectMarket(m)}
               className={`titan-heatmap-cell group relative flex flex-col rounded-xl border px-3 py-3.5 text-left transition-all duration-300 ${bg} ${border} ${ring} ${
                 active
-                  ? "z-10 scale-[1.02] border-titan-gold/50 shadow-[0_0_0_1px_rgba(212,175,55,0.4),0_16px_40px_-16px_rgba(212,175,55,0.25)]"
+                  ? "z-10 border-titan-gold/45 shadow-[0_0_0_1px_rgba(46, 168, 255,0.28)]"
                   : ""
               } ${data ? "hover:border-titan-gold/35 hover:shadow-card active:scale-[0.99]" : "cursor-not-allowed opacity-35"}`}
             >

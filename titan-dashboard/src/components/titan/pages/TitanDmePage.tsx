@@ -104,8 +104,8 @@ function RateCard({
             <AreaChart data={history} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#d4af37" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="#d4af37" stopOpacity={0} />
+                  <stop offset="0%" stopColor="#2ea8ff" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="#2ea8ff" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid stroke="rgba(255,255,255,0.04)" vertical={false} />
@@ -135,7 +135,7 @@ function RateCard({
               <Area
                 type="monotone"
                 dataKey="value"
-                stroke="#d4af37"
+                stroke="#2ea8ff"
                 fill={`url(#${gradId})`}
                 strokeWidth={1.75}
                 dot={false}
@@ -355,8 +355,8 @@ export function TitanDmePage({ bundle, onSelectMarket }: TitanDmePageProps) {
               <AreaChart data={dme.dxyChart} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="dmeDxyFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#d4af37" stopOpacity={0.35} />
-                    <stop offset="100%" stopColor="#d4af37" stopOpacity={0} />
+                    <stop offset="0%" stopColor="#2ea8ff" stopOpacity={0.35} />
+                    <stop offset="100%" stopColor="#2ea8ff" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid stroke="rgba(255,255,255,0.04)" vertical={false} />
@@ -387,11 +387,11 @@ export function TitanDmePage({ bundle, onSelectMarket }: TitanDmePageProps) {
                   type="monotone"
                   dataKey="index"
                   name={t("pages.dme.metricComm26")}
-                  stroke="#d4af37"
+                  stroke="#2ea8ff"
                   fill="url(#dmeDxyFill)"
                   strokeWidth={2}
                   dot={false}
-                  activeDot={{ r: 3, fill: "#d4af37" }}
+                  activeDot={{ r: 3, fill: "#2ea8ff" }}
                 />
               </AreaChart>
             </ResponsiveContainer>

@@ -127,11 +127,11 @@ export function TitanHomePage({ rows, bundle, onSelectMarket, onNavigate }: Tita
       : "—";
 
   return (
-    <div className="titan-cmd space-y-4 md:space-y-5">
+    <div className="titan-cmd space-y-3 md:space-y-4">
       <HomePulseCards bundle={bundle} onNavigate={onNavigate} />
 
       <section className="titan-cmd-overview" aria-label={t("home.cmdOverview")}>
-        <div className="grid grid-cols-2 gap-2 lg:grid-cols-4 lg:gap-3">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           <GlassCard glow="gold">
             <p className="titan-cmd-kicker">{t("home.cmdDmeTitle")}</p>
             <p className="titan-cmd-value mt-2">{dmeValue}</p>
@@ -157,7 +157,7 @@ export function TitanHomePage({ rows, bundle, onSelectMarket, onNavigate }: Tita
         </div>
       </section>
 
-      <section className="grid gap-2 sm:grid-cols-3" aria-label={t("nav.modules")}>
+      <section className="grid gap-3 sm:grid-cols-3" aria-label={t("nav.modules")}>
         <ModuleLaunchCard
           title={t("nav.scanner")}
           description={t("home.moduleScannerDesc")}
@@ -175,7 +175,7 @@ export function TitanHomePage({ rows, bundle, onSelectMarket, onNavigate }: Tita
         />
       </section>
 
-      <section className="grid gap-2 md:grid-cols-2 xl:grid-cols-4 xl:gap-3" aria-label={t("home.cmdConvictionStrip")}>
+      <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4" aria-label={t("home.cmdConvictionStrip")}>
         <WatchlistPanel
           title={t("home.strongestLongs")}
           entries={stats.strongestLongs}

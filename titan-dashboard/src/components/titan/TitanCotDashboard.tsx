@@ -348,7 +348,7 @@ export function TitanCotDashboard() {
 
                   <div>
 
-                    <p className="font-display text-[10px] font-semibold uppercase tracking-[0.32em] text-titan-gold">
+                    <p className="font-display text-[10px] font-semibold uppercase tracking-[0.14em] text-titan-gold">
 
                       {t("header.marketDetail")}
 

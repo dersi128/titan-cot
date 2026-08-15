@@ -224,7 +224,7 @@ export function GlobalCotScanner({ rows, selectedMarket, onSelectMarket }: Globa
           <label className="titan-filter-chip">
             <input
               type="checkbox"
-              className="h-3.5 w-3.5 accent-[#d4af37]"
+              className="h-3.5 w-3.5 accent-[#2ea8ff]"
               checked={onlyExtremes}
               onChange={(e) => setOnlyExtremes(e.target.checked)}
             />

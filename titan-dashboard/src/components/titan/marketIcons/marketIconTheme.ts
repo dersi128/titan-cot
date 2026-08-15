@@ -31,10 +31,10 @@ export const MARKET_CATEGORY_THEME: Record<InstitutionalMarket["category"], Mark
   },
   metals: {
     frame: "circle",
-    accent: "212, 175, 55",
-    glow: "rgba(212, 175, 55, 0.5)",
-    ring: "rgba(240, 208, 96, 0.6)",
-    glyph: "text-amber-100",
+    accent: "46, 168, 255",
+    glow: "rgba(46, 168, 255, 0.5)",
+    ring: "rgba(125, 211, 252, 0.6)",
+    glyph: "text-sky-100",
   },
   energy: {
     frame: "circle",

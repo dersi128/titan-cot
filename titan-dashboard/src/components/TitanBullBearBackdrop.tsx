@@ -26,14 +26,14 @@ export function TitanBullBearBackdrop() {
             <stop offset="100%" stopColor="#fb7185" stopOpacity="0.3" />
           </linearGradient>
           <radialGradient id={clashGrad} cx="50%" cy="48%" r="35%">
-            <stop offset="0%" stopColor="#f0d060" stopOpacity="0.55" />
-            <stop offset="45%" stopColor="#d4af37" stopOpacity="0.12" />
+            <stop offset="0%" stopColor="#7dd3fc" stopOpacity="0.55" />
+            <stop offset="45%" stopColor="#2ea8ff" stopOpacity="0.12" />
             <stop offset="100%" stopColor="#020203" stopOpacity="0" />
           </radialGradient>
           <linearGradient id={goldGrad} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#f0d060" />
-            <stop offset="50%" stopColor="#d4af37" />
-            <stop offset="100%" stopColor="#8a7844" />
+            <stop offset="0%" stopColor="#7dd3fc" />
+            <stop offset="50%" stopColor="#2ea8ff" />
+            <stop offset="100%" stopColor="#2a6a9e" />
           </linearGradient>
           <filter id={`blur-${uid}`} x="-20%" y="-20%" width="140%" height="140%">
             <feGaussianBlur stdDeviation="2" />
@@ -73,7 +73,7 @@ export function TitanBullBearBackdrop() {
           {/* Horns */}
           <path
             d="M120 200c-30-50 10-110 70-120 25 45 15 95-20 120M90 185c-45-35-50-95-5-130"
-            stroke="#f0d060"
+            stroke="#7dd3fc"
             strokeWidth="3"
             fill="none"
             strokeLinecap="round"
@@ -87,7 +87,7 @@ export function TitanBullBearBackdrop() {
           {/* Head */}
           <ellipse cx="95" cy="250" rx="75" ry="55" />
           <path d="M40 255c25 25 55 35 90 30-5-25-25-45-55-55-20 5-35 15-35 25z" opacity="0.7" />
-          <circle cx="55" cy="235" r="6" fill="#f0d060" opacity="0.7" />
+          <circle cx="55" cy="235" r="6" fill="#7dd3fc" opacity="0.7" />
         </g>
 
         {/* Bear — right, lunging left */}
@@ -117,7 +117,7 @@ export function TitanBullBearBackdrop() {
 
         {/* Clash sparks */}
         <g transform="translate(720 380)" filter={`url(#blur-${uid})`} opacity="0.85">
-          <circle r="8" fill="#f0d060" opacity="0.9" />
+          <circle r="8" fill="#7dd3fc" opacity="0.9" />
           <path
             d="M0-90 L4-40 M0 90 L-4 40 M-90 0 L-40 4 M90 0 L40-4 M-64-64 L-30-30 M64 64 L30 30 M64-64 L30-30 M-64 64 L-30 30"
             stroke="url(#goldGrad)"

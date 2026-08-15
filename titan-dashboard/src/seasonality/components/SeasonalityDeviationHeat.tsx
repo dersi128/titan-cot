@@ -3,8 +3,8 @@ import type { SeasonalDeviationMonthlyHeat } from "../utils/seasonalDeviationEng
 import { MONTHS } from "../utils/chartData";
 
 const HEAT_FILL: Record<SeasonalDeviationMonthlyHeat["level"], string> = {
-  LOW: "rgba(212, 175, 55, 0.04)",
-  MODERATE: "rgba(212, 175, 55, 0.09)",
+  LOW: "rgba(46, 168, 255, 0.04)",
+  MODERATE: "rgba(46, 168, 255, 0.09)",
   HIGH: "rgba(196, 92, 122, 0.14)",
   EXTREME: "rgba(196, 92, 122, 0.22)",
 };

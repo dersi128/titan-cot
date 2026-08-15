@@ -118,10 +118,10 @@ function ChartsSection({
                   type="monotone"
                   dataKey="commercialNet"
                   name={tr("detail.chartCommercial")}
-                  stroke="#d4af37"
+                  stroke="#2ea8ff"
                   strokeWidth={2.25}
                   dot={false}
-                  activeDot={{ r: 4, fill: "#f0d060" }}
+                  activeDot={{ r: 4, fill: "#7dd3fc" }}
                   animationDuration={500}
                 />
                 <Line

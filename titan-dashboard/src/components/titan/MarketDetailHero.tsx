@@ -51,7 +51,7 @@ export function MarketDetailHero({ market, data, loading }: MarketDetailHeroProp
             <TitanMarketIcon market={market} size="lg" score={score ?? undefined} />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="font-display text-[10px] font-semibold uppercase tracking-[0.28em] text-titan-gold/90">{t("detail.eyebrow")}</p>
+            <p className="font-display text-[10px] font-semibold uppercase tracking-[0.14em] text-titan-gold/90">{t("detail.eyebrow")}</p>
             <h1 className="mt-2 font-display text-2xl font-semibold uppercase tracking-[0.06em] text-white md:text-3xl">
               {market.subtitle}
             </h1>

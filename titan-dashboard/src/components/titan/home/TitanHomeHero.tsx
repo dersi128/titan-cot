@@ -18,10 +18,10 @@ export function TitanHomeHero({ liveCount, refreshSec, refreshLabel }: TitanHome
           <TitanLogo className="titan-home-hero-v2__logo" showWordmark={false} />
         </div>
         <div className="min-w-0 border-l border-titan-gold/15 pl-5 md:pl-6">
-          <p className="font-display text-[10px] font-semibold uppercase tracking-[0.38em] text-titan-gold/80">
+          <p className="font-display text-[10px] font-semibold uppercase tracking-[0.14em] text-titan-gold/80">
             {t("home.heroEyebrow")}
           </p>
-          <h1 className="titan-home-hero-v2__title mt-2 font-display text-2xl font-bold uppercase tracking-[0.12em] text-stone-50 md:text-[1.65rem] lg:text-[1.85rem]">
+          <h1 className="titan-home-hero-v2__title mt-2 font-display text-2xl font-bold uppercase tracking-[0.08em] text-stone-50 md:text-[1.65rem] lg:text-[1.85rem]">
             {t("header.institutionalCot")}
           </h1>
           <p className="mt-2 max-w-md text-[12px] font-medium leading-relaxed tracking-[0.06em] text-stone-400 md:text-[13px]">

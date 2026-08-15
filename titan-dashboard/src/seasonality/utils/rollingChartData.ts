@@ -8,7 +8,7 @@ export const ROLLING_CHART_KEYS: Record<RollingWindowDays, string> = {
 
 export const ROLLING_CHART_COLORS: Record<RollingWindowDays, string> = {
   30: "#22D3EE",
-  60: "#D4AF37",
+  60: "#2ea8ff",
   90: "#B48CFF",
 };
 

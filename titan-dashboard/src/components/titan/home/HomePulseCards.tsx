@@ -23,19 +23,15 @@ function biasTone(bias: string): string {
 function PulseCard({
   children,
   onClick,
-  glow,
 }: {
   children: React.ReactNode;
   onClick: () => void;
-  glow?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`titan-cmd-card w-full text-left transition hover:brightness-110 ${
-        glow ? "titan-cmd-card--glow-gold" : ""
-      }`}
+      className="titan-cmd-card w-full text-left transition hover:border-white/15"
     >
       {children}
     </button>
@@ -68,9 +64,9 @@ export function HomePulseCards({ bundle, onNavigate }: HomePulseCardsProps) {
   const second = longs?.[1] ?? null;
 
   return (
-    <section className="grid gap-2 sm:grid-cols-2 lg:gap-3" aria-label={t("home.pulseTitle")}>
-      <PulseCard glow onClick={() => onNavigate("dme")}>
-        <div className="flex items-center gap-4 p-4">
+    <section className="grid gap-3 sm:grid-cols-2" aria-label={t("home.pulseTitle")}>
+      <PulseCard onClick={() => onNavigate("dme")}>
+        <div className="flex items-center gap-4 p-1 sm:p-2">
           <TitanScoreRing100 score={usd.score100} label="USD" />
           <div className="min-w-0">
             <p className="titan-cmd-kicker">{t("home.pulseDmeTitle")}</p>
@@ -87,7 +83,7 @@ export function HomePulseCards({ bundle, onNavigate }: HomePulseCardsProps) {
       </PulseCard>
 
       <PulseCard onClick={() => onNavigate("seasonality")}>
-        <div className="flex h-full min-h-[100px] flex-col justify-center p-4">
+        <div className="flex h-full min-h-[100px] flex-col justify-center p-1 sm:p-2">
           <p className="titan-cmd-kicker">{t("home.pulseSeasonTitle")}</p>
           {!scanDone ? (
             <p className="mt-3 text-[13px] text-stone-500">{t("home.pulseSeasonLoading")}</p>

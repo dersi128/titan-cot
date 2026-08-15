@@ -36,7 +36,7 @@ type SeasonalityMainChartProps = {
   loading?: boolean;
 };
 
-const TITAN_GOLD = "#d4af37";
+const TITAN_GOLD = "#2ea8ff";
 const GRAD_ID = "titanSeasonFill";
 
 function CurveTip({
@@ -142,7 +142,7 @@ export function SeasonalityMainChart({
                 tickFormatter={(tdy) => curveData.find((r) => r.tdy === tdy)?.tick ?? ""}
                 tick={{ fill: "#78716c", fontSize: 11 }}
                 tickLine={false}
-                axisLine={{ stroke: "rgba(212,175,55,0.2)" }}
+                axisLine={{ stroke: "rgba(46, 168, 255,0.2)" }}
                 minTickGap={2}
               />
               <YAxis
@@ -156,7 +156,7 @@ export function SeasonalityMainChart({
                   return Number.isInteger(n) ? String(n) : n.toFixed(1);
                 }}
               />
-              <Tooltip content={<CurveTip />} cursor={{ stroke: "rgba(212,175,55,0.2)" }} />
+              <Tooltip content={<CurveTip />} cursor={{ stroke: "rgba(46, 168, 255,0.2)" }} />
               {todayX !== null ? (
                 <ReferenceLine
                   x={todayX}

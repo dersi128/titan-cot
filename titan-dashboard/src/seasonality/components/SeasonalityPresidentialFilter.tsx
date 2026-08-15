@@ -46,7 +46,7 @@ export function SeasonalityPresidentialFilter({
       }
     >
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-        <p className="font-display text-[10px] font-semibold uppercase tracking-[0.28em] text-titan-gold">
+        <p className="font-display text-[10px] font-semibold uppercase tracking-[0.14em] text-titan-gold">
           {t("seasonality.presidentialLabel")}
         </p>
         <div className="flex items-center gap-2">

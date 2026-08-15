@@ -5,18 +5,19 @@ export default {
     extend: {
       colors: {
         titan: {
-          black: "#050505",
-          void: "#0b0f14",
-          panel: "#0f1118",
-          elevated: "#151a22",
+          black: "#02040a",
+          void: "#060a12",
+          panel: "#0a1018",
+          elevated: "#101826",
           line: "rgba(255,255,255,0.06)",
-          gold: "#d4af37",
-          goldBright: "#f0d060",
-          goldDim: "#8a7844",
+          /* Legacy class names (`titan-gold*`) → neon blue accent */
+          gold: "#2ea8ff",
+          goldBright: "#7dd3fc",
+          goldDim: "#2a6a9e",
           bull: "#00d084",
           bear: "#ff4d6d",
-          text: "#d0d0d0",
-          muted: "#7d8590",
+          text: "#e8eef4",
+          muted: "#8a96a8",
         },
       },
       fontFamily: {
@@ -25,15 +26,15 @@ export default {
         mono: ["JetBrains Mono", "ui-monospace", "monospace"],
       },
       boxShadow: {
-        card: "0 0 0 1px rgba(255,255,255,0.06), 0 32px 80px -40px rgba(0,0,0,0.95)",
-        glow: "0 0 60px -16px rgba(212, 175, 55, 0.35)",
-        glowBull: "0 0 40px -10px rgba(0, 208, 132, 0.45)",
-        glowBear: "0 0 40px -10px rgba(255, 77, 109, 0.45)",
-        insetGold: "inset 0 1px 0 0 rgba(240, 208, 96, 0.12)",
+        card: "0 0 0 1px rgba(255,255,255,0.05), 0 12px 32px -24px rgba(0,0,0,0.8)",
+        glow: "0 0 28px -16px rgba(46, 168, 255, 0.28)",
+        glowBull: "0 0 24px -16px rgba(0, 208, 132, 0.22)",
+        glowBear: "0 0 24px -16px rgba(255, 77, 109, 0.22)",
+        insetGold: "inset 0 1px 0 0 rgba(125, 211, 252, 0.1)",
       },
       backgroundImage: {
         "titan-mesh":
-          "radial-gradient(ellipse 90% 60% at 50% -10%, rgba(212, 175, 55, 0.14), transparent 55%), radial-gradient(ellipse 50% 40% at 100% 20%, rgba(0, 208, 132, 0.06), transparent)",
+          "radial-gradient(ellipse 90% 60% at 50% -10%, rgba(46, 168, 255, 0.08), transparent 55%), radial-gradient(ellipse 50% 40% at 100% 20%, rgba(46, 168, 255, 0.04), transparent)",
       },
       keyframes: {
         fadeUp: {

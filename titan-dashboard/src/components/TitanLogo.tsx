@@ -19,7 +19,7 @@ function TitanLogoSvg({ className, title, showWordmark }: TitanLogoProps) {
 
   const icon = (
     <svg
-      className={showWordmark ? `h-14 w-14 shrink-0 drop-shadow-glow ${className ?? ""}` : className}
+      className={showWordmark ? `h-14 w-14 shrink-0 ${className ?? ""}` : className}
       viewBox="0 0 72 80"
       width={72}
       height={80}
@@ -28,13 +28,13 @@ function TitanLogoSvg({ className, title, showWordmark }: TitanLogoProps) {
     >
       <defs>
         <linearGradient id={gold} x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#fff4c4" />
-          <stop offset="40%" stopColor="#d4af37" />
-          <stop offset="100%" stopColor="#6b5520" />
+          <stop offset="0%" stopColor="#dbeafe" />
+          <stop offset="40%" stopColor="#2ea8ff" />
+          <stop offset="100%" stopColor="#0b4f8a" />
         </linearGradient>
         <linearGradient id={goldDeep} x1="50%" y1="0%" x2="50%" y2="100%">
-          <stop offset="0%" stopColor="#1a1a22" />
-          <stop offset="100%" stopColor="#050508" />
+          <stop offset="0%" stopColor="#0a121c" />
+          <stop offset="100%" stopColor="#02040a" />
         </linearGradient>
         <filter id={glow} x="-40%" y="-40%" width="180%" height="180%">
           <feGaussianBlur stdDeviation="2" result="b" />
@@ -67,8 +67,8 @@ function TitanLogoSvg({ className, title, showWordmark }: TitanLogoProps) {
     <div className={`flex items-center gap-4 ${className ?? ""}`}>
       {icon}
       <div className="min-w-0 leading-none">
-        <p className="font-display text-sm font-bold uppercase tracking-[0.42em] text-titan-goldBright">TITAN</p>
-        <p className="mt-1 font-sans text-[11px] font-medium uppercase tracking-[0.28em] text-titan-muted">
+        <p className="font-display text-sm font-bold uppercase tracking-[0.16em] text-titan-goldBright">TITAN</p>
+        <p className="mt-1 font-sans text-[11px] font-medium uppercase tracking-[0.14em] text-titan-muted">
           {t("brand.tagline")}
         </p>
       </div>
@@ -110,7 +110,7 @@ export function TitanLogo({
     <div className={className}>
       {image}
       {showTagline ? (
-        <p className="mt-1.5 font-sans text-[11px] font-medium uppercase tracking-[0.28em] text-titan-muted">
+        <p className="mt-1.5 font-sans text-[11px] font-medium uppercase tracking-[0.14em] text-titan-muted">
           {t("brand.tagline")}
         </p>
       ) : null}
