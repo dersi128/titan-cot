@@ -644,44 +644,38 @@
     border: none;
     background: transparent;
     box-shadow: none;
-    border-radius: 50%;
-    overflow: hidden;
-    isolation: isolate;
+    width: 5.75rem;
+    height: 5.75rem;
   }
 
   .titan-home-hero-v2__logo-ring .titan-home-hero-v2__logo,
   .titan-home-hero-v2__logo-ring .titan-brand-logo,
   .titan-home-hero-v2__logo-ring svg {
     display: block;
-    height: 5.75rem !important;
-    width: 5.75rem !important;
-    max-width: 5.75rem !important;
+    height: 100% !important;
+    width: 100% !important;
+    max-width: none !important;
     object-fit: cover;
     object-position: center;
     background: transparent;
-    border-radius: 50%;
-    transform: scale(1.06);
+    /* Clip to metallic badge — not the full square canvas */
+    -webkit-mask-image: radial-gradient(circle closest-side, #000 79%, transparent 80.5%);
+    mask-image: radial-gradient(circle closest-side, #000 79%, transparent 80.5%);
     mix-blend-mode: lighten;
-    filter: drop-shadow(0 6px 18px rgba(46, 168, 255, 0.28));
+    filter: drop-shadow(0 0 14px rgba(46, 168, 255, 0.4));
   }
 
   @media (min-width: 768px) {
-    .titan-home-hero-v2__logo-ring .titan-home-hero-v2__logo,
-    .titan-home-hero-v2__logo-ring .titan-brand-logo,
-    .titan-home-hero-v2__logo-ring svg {
-      height: 7rem !important;
-      width: 7rem !important;
-      max-width: 7rem !important;
+    .titan-home-hero-v2__logo-ring {
+      width: 7rem;
+      height: 7rem;
     }
   }
 
   @media (min-width: 1280px) {
-    .titan-home-hero-v2__logo-ring .titan-home-hero-v2__logo,
-    .titan-home-hero-v2__logo-ring .titan-brand-logo,
-    .titan-home-hero-v2__logo-ring svg {
-      height: 8rem !important;
-      width: 8rem !important;
-      max-width: 8rem !important;
+    .titan-home-hero-v2__logo-ring {
+      width: 8rem;
+      height: 8rem;
     }
   }
 
