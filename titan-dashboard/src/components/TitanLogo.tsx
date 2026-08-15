@@ -78,7 +78,7 @@ function TitanLogoSvg({ className, title, showWordmark }: TitanLogoProps) {
 
 export function TitanLogo({
   className,
-  title = "TITAN COT",
+  title = "TITAN FUSION",
   showWordmark = false,
   showTagline = false,
 }: TitanLogoProps) {
@@ -93,8 +93,8 @@ export function TitanLogo({
     <img
       src={TITAN_LOGO_SRC}
       alt={title}
-      width={1075}
-      height={251}
+      width={1024}
+      height={1024}
       className={`titan-brand-logo ${className ?? ""}`}
       decoding="async"
       fetchPriority="high"

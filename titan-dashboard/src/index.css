@@ -316,26 +316,27 @@
 
   .titan-brand-logo {
     display: block;
-    height: 7.85rem;
-    width: auto;
-    max-width: min(100vw - 1rem, 1030px);
+    height: 6.5rem;
+    width: 6.5rem;
+    max-width: min(42vw, 7.5rem);
     object-fit: contain;
-    object-position: left center;
-    /* Shift gold PNG brand toward neon blue identity */
-    filter: hue-rotate(178deg) saturate(1.15) brightness(1.05) drop-shadow(0 2px 14px rgba(46, 168, 255, 0.28));
+    object-position: center;
+    filter: drop-shadow(0 4px 18px rgba(46, 168, 255, 0.22));
   }
 
   @media (min-width: 768px) {
     .titan-brand-logo {
-      height: 9.6rem;
-      max-width: 1165px;
+      height: 7.5rem;
+      width: 7.5rem;
+      max-width: 7.5rem;
     }
   }
 
   @media (min-width: 1280px) {
     .titan-brand-logo {
-      height: 10.8rem;
-      max-width: 1254px;
+      height: 8.5rem;
+      width: 8.5rem;
+      max-width: 8.5rem;
     }
   }
 
@@ -559,32 +560,31 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.35rem;
-    border-radius: 1rem;
-    border: 1px solid rgba(46, 168, 255, 0.18);
-    background: radial-gradient(ellipse at 50% 30%, rgba(46, 168, 255, 0.07), rgba(5, 5, 5, 0.6));
-    box-shadow: 0 0 28px -16px rgba(46, 168, 255, 0.18);
+    padding: 0;
+    border: none;
+    background: transparent;
+    box-shadow: none;
   }
 
   .titan-home-hero-v2__logo-ring .titan-home-hero-v2__logo,
   .titan-home-hero-v2__logo-ring .titan-brand-logo,
   .titan-home-hero-v2__logo-ring svg {
     display: block;
-    height: 4.25rem !important;
-    width: 4.25rem !important;
-    max-width: 4.25rem !important;
+    height: 5.75rem !important;
+    width: 5.75rem !important;
+    max-width: 5.75rem !important;
     object-fit: contain;
     object-position: center;
-    filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.45));
+    filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.55));
   }
 
   @media (min-width: 768px) {
     .titan-home-hero-v2__logo-ring .titan-home-hero-v2__logo,
     .titan-home-hero-v2__logo-ring .titan-brand-logo,
     .titan-home-hero-v2__logo-ring svg {
-      height: 5.25rem !important;
-      width: 5.25rem !important;
-      max-width: 5.25rem !important;
+      height: 7rem !important;
+      width: 7rem !important;
+      max-width: 7rem !important;
     }
   }
 
@@ -592,9 +592,9 @@
     .titan-home-hero-v2__logo-ring .titan-home-hero-v2__logo,
     .titan-home-hero-v2__logo-ring .titan-brand-logo,
     .titan-home-hero-v2__logo-ring svg {
-      height: 6rem !important;
-      width: 6rem !important;
-      max-width: 6rem !important;
+      height: 8rem !important;
+      width: 8rem !important;
+      max-width: 8rem !important;
     }
   }
 
