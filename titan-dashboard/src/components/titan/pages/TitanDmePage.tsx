@@ -298,45 +298,28 @@ export function TitanDmePage({ bundle, onSelectMarket }: TitanDmePageProps) {
         </div>
       </section>
 
-      {/* 2) USD vs world + pressure */}
-      <div className="grid gap-3 lg:grid-cols-2">
-        <GlassCard className="p-4">
-          <p className="titan-cmd-kicker">{t("pages.dme.usdVsWorld")}</p>
-          <p className="mt-2 font-display text-lg font-semibold text-stone-100">
-            {t(`pages.dme.breadth.${dme.fxBreadth}`)}
-          </p>
-          <p className="titan-cmd-sub mt-1">
-            {t("pages.dme.breadthSub", {
-              usd: String(dme.usdFavoringCount),
-              total: String(dme.fxLiveCount),
-            })}
-          </p>
-          <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-stone-800/90">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-emerald-500/80 to-titan-gold/80 transition-all duration-500"
-              style={{ width: `${dme.usdBiasPct}%` }}
-            />
-          </div>
-          <p className="mt-2 font-mono text-[11px] text-stone-500">
-            {t("pages.dme.usdBiasPct", { pct: String(dme.usdBiasPct) })}
-          </p>
-        </GlassCard>
-
-        <GlassCard className="p-4">
-          <p className="titan-cmd-kicker">{t("home.cmdDme.dollarPressure")}</p>
-          <p className={`mt-2 font-display text-lg font-semibold ${scoreToneClass(dme.dxyScore)}`}>
-            {t(`pages.dme.pressure.${dme.dollarPressure}`)}
-          </p>
-          <p className="titan-cmd-sub mt-1">
-            {dme.dxyScore !== null
-              ? t("pages.dme.pressureSub", { score: String(dme.dxyScore) })
-              : "—"}
-          </p>
-          <p className="mt-4 text-[12px] leading-relaxed text-stone-500">
-            {t("pages.dme.pressureHint")}
-          </p>
-        </GlassCard>
-      </div>
+      {/* 2) USD vs world */}
+      <GlassCard className="p-4">
+        <p className="titan-cmd-kicker">{t("pages.dme.usdVsWorld")}</p>
+        <p className="mt-2 font-display text-lg font-semibold text-stone-100">
+          {t(`pages.dme.breadth.${dme.fxBreadth}`)}
+        </p>
+        <p className="titan-cmd-sub mt-1">
+          {t("pages.dme.breadthSub", {
+            usd: String(dme.usdFavoringCount),
+            total: String(dme.fxLiveCount),
+          })}
+        </p>
+        <div className="mt-4 h-2.5 max-w-xl overflow-hidden rounded-full bg-stone-800/90">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-emerald-500/80 to-titan-gold/80 transition-all duration-500"
+            style={{ width: `${dme.usdBiasPct}%` }}
+          />
+        </div>
+        <p className="mt-2 font-mono text-[11px] text-stone-500">
+          {t("pages.dme.usdBiasPct", { pct: String(dme.usdBiasPct) })}
+        </p>
+      </GlassCard>
 
       {/* 3) DXY history chart */}
       <GlassCard className="p-4">
