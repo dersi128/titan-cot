@@ -1,8 +1,8 @@
-import { SEASONALITY_MARKETS } from "../markets";
 import { fetchSeasonalityAnalysisFromApi, shouldUseSeasonalityApi } from "../seasonalityApi";
 import { fetchSeasonalityComparisonWithSource } from "../services/seasonalityService";
 import type { SeasonalBias, SeasonalityResult, SeasonalStrength } from "../types";
 import { buildDashboardInsights } from "./dashboardInsights";
+import { SEASONAL_LONG_SCAN_MARKETS } from "./seasonalLongScanUniverse";
 
 export type SeasonalityLongCandidate = {
   id: string;
@@ -16,8 +16,7 @@ export type SeasonalityLongCandidate = {
   avgReturnInWindow: number;
 };
 
-/** Same universe as the seasonality market menu (no extra off-menu symbols). */
-const SCAN_MARKETS = SEASONALITY_MARKETS;
+const SCAN_MARKETS = SEASONAL_LONG_SCAN_MARKETS;
 
 export const SEASONAL_LONG_TOP_N = 5;
 
@@ -29,7 +28,7 @@ const STRENGTH_FALLBACK: Record<SeasonalStrength, number> = {
 };
 
 const FETCH_TIMEOUT_MS = 55_000;
-const CONCURRENCY = 3;
+const CONCURRENCY = 4;
 
 let cachedLongs: SeasonalityLongCandidate[] | null = null;
 let inflight: Promise<SeasonalityLongCandidate[]> | null = null;
