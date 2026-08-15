@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { SignedIn, SignedOut, SignIn, SignUp, useAuth } from "@clerk/clerk-react";
+import { SignedIn, SignedOut, SignIn, Waitlist, useAuth } from "@clerk/clerk-react";
 import { TitanInstitutionalBackdrop } from "../components/TitanInstitutionalBackdrop";
 import { TitanLogo } from "../components/TitanLogo";
 import { LanguageSwitcher, useTitanI18n } from "../i18n";
@@ -70,7 +70,7 @@ function AuthSessionStuck() {
 
 function AuthLanding() {
   const { t } = useTitanI18n();
-  const [mode, setMode] = useState<"sign-in" | "sign-up">("sign-in");
+  const [mode, setMode] = useState<"sign-in" | "waitlist">("sign-in");
 
   return (
     <AuthShell>
@@ -107,7 +107,7 @@ function AuthLanding() {
                   {t("auth.access")}
                 </p>
                 <h2 className="mt-1 font-display text-lg font-semibold tracking-wide text-stone-100">
-                  {mode === "sign-in" ? t("auth.signInTitle") : t("auth.signUpTitle")}
+                  {mode === "sign-in" ? t("auth.signInTitle") : t("auth.waitlistTitle")}
                 </h2>
               </div>
             </div>
@@ -122,10 +122,10 @@ function AuthLanding() {
               </button>
               <button
                 type="button"
-                onClick={() => setMode("sign-up")}
-                className={`titan-auth-tabs__btn ${mode === "sign-up" ? "is-active" : ""}`}
+                onClick={() => setMode("waitlist")}
+                className={`titan-auth-tabs__btn ${mode === "waitlist" ? "is-active" : ""}`}
               >
-                {t("auth.signUp")}
+                {t("auth.waitlist")}
               </button>
             </div>
 
@@ -138,12 +138,7 @@ function AuthLanding() {
                   fallbackRedirectUrl="/"
                 />
               ) : (
-                <SignUp
-                  routing="hash"
-                  appearance={titanClerkAppearance}
-                  forceRedirectUrl="/"
-                  fallbackRedirectUrl="/"
-                />
+                <Waitlist appearance={titanClerkAppearance} />
               )}
             </div>
 
