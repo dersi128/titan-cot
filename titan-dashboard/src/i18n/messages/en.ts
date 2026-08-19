@@ -495,7 +495,7 @@ export const enMessages = {
     heroSubtitleLine: "CFTC Legacy Futures • Institutional Positioning",
     heroLegacy: "Live · CFTC legacy",
     cmdOverview: "Global overview",
-    pulseTitle: "Dollar Macro · Seasonal long",
+    pulseTitle: "Dollar Macro · Current cycles",
     pulseDmeTitle: "Dollar Macro",
     pulseUsdBias: {
       BULLISH: "BULLISH USD",
@@ -504,6 +504,9 @@ export const enMessages = {
     },
     pulseDmeSub: "Score {{score}} / 100 · COT DXY",
     pulseDmeUnavailable: "DXY data not available yet",
+    pulseCyclesTitle: "Current cycles",
+    pulseCyclesCaption: "Seasonal window in that cycle",
+    pulseSeasonWindowTag: "Seasonal window",
     pulseSeasonTitle: "Seasonal longs",
     pulseSeasonLongTitle: "Seasonal LONG",
     pulseSeasonShortTitle: "Seasonal SHORT",

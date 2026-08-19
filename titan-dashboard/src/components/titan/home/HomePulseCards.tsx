@@ -47,9 +47,11 @@ function UsdBiasMascot({ bias }: { bias: UsdBiasLabel }) {
 
 function OpportunityRows({
   rows,
+  windowTag,
   onOpenMarket,
 }: {
   rows: SeasonalityOpportunity[];
+  windowTag: string;
   onOpenMarket: (marketId: string) => void;
 }) {
   return (
@@ -59,6 +61,8 @@ function OpportunityRows({
         const isLong = row.side === "LONG";
         const bar = isLong ? "bg-emerald-400/90" : "bg-rose-400/85";
         const labelTone = isLong ? "text-emerald-300" : "text-rose-300";
+        const windowText = row.windowLabel.replace(/\s+/g, " ");
+        const timing = row.daysUntilStart > 0 ? ` · T-${row.daysUntilStart}` : "";
         return (
           <li key={`${row.side}-${row.id}`}>
             <button
@@ -72,9 +76,10 @@ function OpportunityRows({
                   <span className={`truncate font-display text-[11px] font-semibold tracking-wide ${labelTone}`}>
                     {row.label}
                   </span>
-                  <span className="truncate text-[9px] text-stone-600">
-                    {row.windowLabel.replace(/\s+/g, " ")}
-                    {row.daysUntilStart > 0 ? ` · T-${row.daysUntilStart}` : ""}
+                  <span className="truncate text-[9px] text-stone-500">
+                    {windowTag}
+                    {windowText ? ` · ${windowText}` : ""}
+                    {timing}
                   </span>
                 </div>
                 <div className="mt-0.5 h-0.5 overflow-hidden rounded-full bg-white/[0.06]">
@@ -106,6 +111,7 @@ function SeasonPanel({
   empty,
   rows,
   tone,
+  windowTag,
   onOpenList,
   onOpenMarket,
 }: {
@@ -114,6 +120,7 @@ function SeasonPanel({
   empty: string;
   rows: SeasonalityOpportunity[];
   tone: "bull" | "bear";
+  windowTag: string;
   onOpenList: () => void;
   onOpenMarket: (marketId: string) => void;
 }) {
@@ -133,7 +140,7 @@ function SeasonPanel({
         {loading ? (
           <p className="mt-1.5 text-[11px] text-stone-500">{empty}</p>
         ) : rows.length > 0 ? (
-          <OpportunityRows rows={rows} onOpenMarket={onOpenMarket} />
+          <OpportunityRows rows={rows} windowTag={windowTag} onOpenMarket={onOpenMarket} />
         ) : (
           <p className="mt-1.5 text-[11px] leading-snug text-stone-500">{empty}</p>
         )}
@@ -169,6 +176,8 @@ export function HomePulseCards({ bundle, onNavigate }: HomePulseCardsProps) {
   const openSeason = (marketId: string) =>
     onNavigate("seasonality", { seasonalityMarket: marketId });
 
+  const windowTag = t("home.pulseSeasonWindowTag");
+
   return (
     <section
       className="grid gap-2 lg:grid-cols-[minmax(15rem,0.95fr)_minmax(0,1.4fr)]"
@@ -198,29 +207,39 @@ export function HomePulseCards({ bundle, onNavigate }: HomePulseCardsProps) {
         </div>
       </button>
 
-      <div className="grid min-w-0 gap-2 sm:grid-cols-2">
-        <SeasonPanel
-          title={t("home.pulseSeasonLongTitle")}
-          loading={!scanDone}
-          empty={
-            !scanDone ? t("home.pulseSeasonLoading") : t("home.pulseSeasonLongEmpty")
-          }
-          rows={longs}
-          tone="bull"
-          onOpenList={() => onNavigate("seasonality")}
-          onOpenMarket={openSeason}
-        />
-        <SeasonPanel
-          title={t("home.pulseSeasonShortTitle")}
-          loading={!scanDone}
-          empty={
-            !scanDone ? t("home.pulseSeasonLoading") : t("home.pulseSeasonShortEmpty")
-          }
-          rows={shorts}
-          tone="bear"
-          onOpenList={() => onNavigate("seasonality")}
-          onOpenMarket={openSeason}
-        />
+      <div className="min-w-0 space-y-1.5">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 px-0.5">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-titan-gold/90">
+            {t("home.pulseCyclesTitle")}
+          </p>
+          <p className="text-[10px] text-stone-500">{t("home.pulseCyclesCaption")}</p>
+        </div>
+        <div className="grid min-w-0 gap-2 sm:grid-cols-2">
+          <SeasonPanel
+            title={t("home.pulseSeasonLongTitle")}
+            loading={!scanDone}
+            empty={
+              !scanDone ? t("home.pulseSeasonLoading") : t("home.pulseSeasonLongEmpty")
+            }
+            rows={longs}
+            tone="bull"
+            windowTag={windowTag}
+            onOpenList={() => onNavigate("seasonality")}
+            onOpenMarket={openSeason}
+          />
+          <SeasonPanel
+            title={t("home.pulseSeasonShortTitle")}
+            loading={!scanDone}
+            empty={
+              !scanDone ? t("home.pulseSeasonLoading") : t("home.pulseSeasonShortEmpty")
+            }
+            rows={shorts}
+            tone="bear"
+            windowTag={windowTag}
+            onOpenList={() => onNavigate("seasonality")}
+            onOpenMarket={openSeason}
+          />
+        </div>
       </div>
     </section>
   );

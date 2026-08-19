@@ -497,7 +497,7 @@ export const csMessages: Messages = {
     heroSubtitleLine: "CFTC Legacy Futures • Institucionální positioning",
     heroLegacy: "Live · CFTC legacy",
     cmdOverview: "Globální přehled",
-    pulseTitle: "Dollar Macro · Sezónní long",
+    pulseTitle: "Dollar Macro · Aktuální cykly",
     pulseDmeTitle: "Dollar Macro",
     pulseUsdBias: {
       BULLISH: "BULLISH USD",
@@ -506,6 +506,9 @@ export const csMessages: Messages = {
     },
     pulseDmeSub: "Skóre {{score}} / 100 · COT DXY",
     pulseDmeUnavailable: "DXY data zatím nejsou",
+    pulseCyclesTitle: "Aktuální cykly",
+    pulseCyclesCaption: "Sezónní okno v daném cyklu",
+    pulseSeasonWindowTag: "Sezónní okno",
     pulseSeasonTitle: "Sezónní longy",
     pulseSeasonLongTitle: "Sezónní LONG",
     pulseSeasonShortTitle: "Sezónní SHORT",
