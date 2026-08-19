@@ -10,8 +10,17 @@ export const DEFAULT_WINDOW_LOOKBACK: WindowLookback = 20;
 
 const MIN_LEN = 7;
 const MAX_LEN = 45;
+/** Ideal sample when full multi-decade history is available. */
 const MIN_SAMPLE = 8;
+/** Floor for thin history (e.g. single presidential-cycle phase ≈ 4–5 years). */
+const MIN_SAMPLE_FLOOR = 4;
 const MIN_WR = 0.6;
+
+/** Adaptive sample gate — cycle filters shrink available years. */
+function effectiveMinSample(historyYears: number): number {
+  if (historyYears >= MIN_SAMPLE) return MIN_SAMPLE;
+  return MIN_SAMPLE_FLOOR;
+}
 
 export type SeasonalWindowStatus =
   | "ACTIVE_BULLISH"
@@ -188,8 +197,8 @@ function windowReturns(
   return out;
 }
 
-function computeStats(raw: number[]): WindowStats | null {
-  if (raw.length < MIN_SAMPLE) return null;
+function computeStats(raw: number[], minSample = MIN_SAMPLE): WindowStats | null {
+  if (raw.length < minSample) return null;
   const values = winsorize(raw);
   const avg = values.reduce((a, b) => a + b, 0) / values.length;
   const med = median(values);
@@ -210,8 +219,15 @@ function computeStats(raw: number[]): WindowStats | null {
 }
 
 /** Score 0–100 per prompt weights + overfitting penalties. */
-export function scoreWindowStats(stats: WindowStats, length: number, alignmentAgree = 0.5): number {
-  const wrPts = Math.min(35, Math.max(0, ((stats.winRate - 0.5) / 0.35) * 35));
+export function scoreWindowStats(
+  stats: WindowStats,
+  length: number,
+  alignmentAgree = 0.5,
+  direction: "BULLISH" | "BEARISH" = "BULLISH",
+): number {
+  // Hit-rate in the window's direction (shorts use lossRate, not winRate).
+  const hitRate = direction === "BEARISH" ? stats.lossRate : stats.winRate;
+  const wrPts = Math.min(35, Math.max(0, ((hitRate - 0.5) / 0.35) * 35));
   const absAvg = Math.abs(stats.avgReturn);
   const avgPts = Math.min(25, (absAvg / 0.08) * 25);
   const absMed = Math.abs(stats.medianReturn);
@@ -223,34 +239,37 @@ export function scoreWindowStats(stats: WindowStats, length: number, alignmentAg
 
   let score = wrPts + avgPts + medPts + stabPts + samplePts + alignPts;
 
-  // Penalties
-  if (stats.sampleSize < 12) score -= (12 - stats.sampleSize) * 1.5;
+  // Penalties — softer when sample is intentionally thin (cycle filter).
+  if (stats.sampleSize < 12) {
+    const perMissing = stats.sampleSize < MIN_SAMPLE ? 0.75 : 1.5;
+    score -= (12 - stats.sampleSize) * perMissing;
+  }
   if (length < 10) score -= 4;
   const signAgree =
     (stats.avgReturn > 0 && stats.medianReturn > 0) || (stats.avgReturn < 0 && stats.medianReturn < 0);
   if (!signAgree) score -= 18;
   const gap = Math.abs(stats.avgReturn - stats.medianReturn);
   if (gap > Math.abs(stats.medianReturn) * 1.5 + 0.02) score -= 12;
-  if (stats.winRate < 0.55 && Math.abs(stats.avgReturn) > 0.05) score -= 10;
+  if (hitRate < 0.55 && Math.abs(stats.avgReturn) > 0.05) score -= 10;
 
   return Math.round(Math.max(0, Math.min(100, score)));
 }
 
-function qualifiesBull(stats: WindowStats): boolean {
+function qualifiesBull(stats: WindowStats, minSample = MIN_SAMPLE): boolean {
   return (
     stats.avgReturn > 0 &&
     stats.medianReturn > 0 &&
     stats.winRate >= MIN_WR &&
-    stats.sampleSize >= MIN_SAMPLE
+    stats.sampleSize >= minSample
   );
 }
 
-function qualifiesBear(stats: WindowStats): boolean {
+function qualifiesBear(stats: WindowStats, minSample = MIN_SAMPLE): boolean {
   return (
     stats.avgReturn < 0 &&
     stats.medianReturn < 0 &&
     stats.lossRate >= MIN_WR &&
-    stats.sampleSize >= MIN_SAMPLE
+    stats.sampleSize >= minSample
   );
 }
 
@@ -274,19 +293,20 @@ function evaluateCandidate(
   length: number,
   todayTdy: number,
   asOfBook: YearBook | undefined,
+  minSample: number,
 ): ScoredSeasonalWindow | null {
   const rets = windowReturns(books, startTdy, length, asOfYear, lookback);
-  const stats = computeStats(rets);
+  const stats = computeStats(rets, minSample);
   if (!stats) return null;
 
   let direction: "BULLISH" | "BEARISH" | null = null;
-  if (qualifiesBull(stats)) direction = "BULLISH";
-  else if (qualifiesBear(stats)) direction = "BEARISH";
+  if (qualifiesBull(stats, minSample)) direction = "BULLISH";
+  else if (qualifiesBear(stats, minSample)) direction = "BEARISH";
   if (!direction) return null;
 
   const endTdy = startTdy + length - 1;
   // Hard filters only — no slope / soft score gate for window existence
-  const score = scoreWindowStats(stats, length, 0.5);
+  const score = scoreWindowStats(stats, length, 0.5, direction);
 
   return {
     startTdy,
@@ -347,6 +367,7 @@ function scanAroundToday(
   lookback: number,
   todayTdy: number,
   asOfBook: YearBook | undefined,
+  minSample: number,
 ): ScoredSeasonalWindow[] {
   const found: ScoredSeasonalWindow[] = [];
   const maxTdy = asOfBook?.closes.length ?? 252;
@@ -359,7 +380,16 @@ function scanAroundToday(
       const endTdy = startTdy + length - 1;
       if (endTdy < todayTdy) continue;
       if (endTdy > maxTdy) continue;
-      const w = evaluateCandidate(books, asOfYear, lookback, startTdy, length, todayTdy, asOfBook);
+      const w = evaluateCandidate(
+        books,
+        asOfYear,
+        lookback,
+        startTdy,
+        length,
+        todayTdy,
+        asOfBook,
+        minSample,
+      );
       if (w) found.push(w);
     }
   }
@@ -371,7 +401,16 @@ function scanAroundToday(
     for (let length = MIN_LEN; length <= MAX_LEN; length++) {
       const endTdy = startTdy + length - 1;
       if (endTdy > maxTdy) break;
-      const w = evaluateCandidate(books, asOfYear, lookback, startTdy, length, todayTdy, asOfBook);
+      const w = evaluateCandidate(
+        books,
+        asOfYear,
+        lookback,
+        startTdy,
+        length,
+        todayTdy,
+        asOfBook,
+        minSample,
+      );
       if (w) found.push(w);
     }
   }
@@ -385,16 +424,17 @@ function alignmentForWindow(
   startTdy: number,
   length: number,
   direction: "BULLISH" | "BEARISH",
+  minSample: number,
 ): LookbackAlignment {
   const byLookback: Partial<Record<WindowLookback, SeasonalBias>> = {};
   let agree = 0;
   let total = 0;
   for (const lb of WINDOW_LOOKBACKS) {
     const rets = windowReturns(books, startTdy, length, asOfYear, lb);
-    const stats = computeStats(rets);
+    const stats = computeStats(rets, minSample);
     let bias: SeasonalBias = "NEUTRAL";
-    if (stats && qualifiesBull(stats)) bias = "BULLISH";
-    else if (stats && qualifiesBear(stats)) bias = "BEARISH";
+    if (stats && qualifiesBull(stats, minSample)) bias = "BULLISH";
+    else if (stats && qualifiesBear(stats, minSample)) bias = "BEARISH";
     byLookback[lb] = bias;
     if (stats) {
       total += 1;
@@ -423,6 +463,7 @@ export function computeSeasonalityWindowsV2(
 
   // Use longest available lookback if history is short
   const historyYears = books.filter((b) => b.year < asOfYear).length;
+  const minSample = effectiveMinSample(historyYears);
   let lookback: WindowLookback = preferredLookback;
   for (const lb of [...WINDOW_LOOKBACKS].reverse()) {
     if (historyYears >= Math.min(lb, 8)) {
@@ -436,7 +477,7 @@ export function computeSeasonalityWindowsV2(
     lookback = fit ?? 5;
   }
 
-  const candidates = scanAroundToday(books, asOfYear, lookback, todayTdy, asOfBook);
+  const candidates = scanAroundToday(books, asOfYear, lookback, todayTdy, asOfBook, minSample);
 
   // ACTIVE = today strictly inside a hard-qualified historical window
   const active = candidates
@@ -470,11 +511,13 @@ export function computeSeasonalityWindowsV2(
       dominant.startTdy,
       dominant.lengthTradingDays,
       dominant.direction,
+      minSample,
     );
     const rescored = scoreWindowStats(
       dominant.stats,
       dominant.lengthTradingDays,
       alignment.agreeCount / alignment.total,
+      dominant.direction,
     );
     dominant = {
       ...dominant,
