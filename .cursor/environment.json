@@ -1,0 +1,15 @@
+{
+  "name": "TITAN COT",
+  "install": "cd cot-data-module && npm install --no-audit --no-fund && cd ../titan-dashboard && npm install --no-audit --no-fund",
+  "terminals": [
+    {
+      "name": "backend (cot-data-module :3000)",
+      "command": "cd cot-data-module && npm run dev"
+    },
+    {
+      "name": "frontend (titan-dashboard :5173)",
+      "command": "cd titan-dashboard && npm run dev -- --host 0.0.0.0"
+    }
+  ],
+  "ports": [3000, 5173]
+}
