@@ -79,6 +79,35 @@ type YearBook = {
   dates: string[];
 };
 
+/** Trading-day index for as-of date; works even if the as-of year was excluded from bars. */
+function resolveTodayTdy(
+  rows: TradingDayRow[],
+  asOf: string,
+  asOfYear: number,
+  books: YearBook[],
+): number {
+  const direct = rows.filter((r) => r.date <= asOf && r.year === asOfYear).at(-1)?.tdy;
+  if (direct != null && direct > 0) return direct;
+
+  const mmdd = asOf.slice(5, 10);
+  const sameDay: number[] = [];
+  for (const row of rows) {
+    if (row.year >= asOfYear) continue;
+    if (row.date.slice(5, 10) === mmdd) sameDay.push(row.tdy);
+  }
+  if (sameDay.length) {
+    sameDay.sort((a, b) => a - b);
+    return sameDay[Math.floor(sameDay.length / 2)]!;
+  }
+
+  const [y, m, d] = asOf.split("-").map(Number);
+  const doy =
+    Math.floor((Date.UTC(y, m - 1, d) - Date.UTC(y, 0, 0)) / 86_400_000) || 1;
+  const refLen =
+    books.filter((b) => b.year < asOfYear).sort((a, b) => b.year - a.year)[0]?.closes.length ?? 252;
+  return Math.max(1, Math.min(refLen, Math.round((doy / 365) * refLen)));
+}
+
 function median(values: number[]): number {
   if (!values.length) return 0;
   const s = [...values].sort((a, b) => a - b);
@@ -390,7 +419,7 @@ export function computeSeasonalityWindowsV2(
   const asOfYear = Number(asOf.slice(0, 4));
   const books = buildYearBooks(rows);
   const asOfBook = books.find((b) => b.year === asOfYear) ?? books.at(-1);
-  const todayTdy = rows.filter((r) => r.date <= asOf && r.year === asOfYear).at(-1)?.tdy ?? 1;
+  const todayTdy = resolveTodayTdy(rows, asOf, asOfYear, books);
 
   // Use longest available lookback if history is short
   const historyYears = books.filter((b) => b.year < asOfYear).length;
