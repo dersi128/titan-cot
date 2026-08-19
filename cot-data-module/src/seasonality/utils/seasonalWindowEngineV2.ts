@@ -462,7 +462,11 @@ export function computeSeasonalityWindowsV2(
   const todayTdy = resolveTodayTdy(rows, asOf, asOfYear, books);
 
   // Use longest available lookback if history is short
-  const historyYears = books.filter((b) => b.year < asOfYear).length;
+  const priorBooks = books.filter((b) => b.year < asOfYear);
+  const historyYears = priorBooks.length;
+  const yearSpan = priorBooks.length
+    ? asOfYear - Math.min(...priorBooks.map((b) => b.year))
+    : preferredLookback;
   const minSample = effectiveMinSample(historyYears);
   let lookback: WindowLookback = preferredLookback;
   for (const lb of [...WINDOW_LOOKBACKS].reverse()) {
@@ -475,6 +479,12 @@ export function computeSeasonalityWindowsV2(
   if (historyYears < preferredLookback) {
     const fit = WINDOW_LOOKBACKS.filter((lb) => lb <= historyYears).at(-1);
     lookback = fit ?? 5;
+  }
+  // Presidential-cycle / year filters leave sparse years (e.g. 2006,2010,…,2022).
+  // Don't shrink to "last N calendar years" or those older cycle years get dropped.
+  if (yearSpan > lookback) {
+    const fit = WINDOW_LOOKBACKS.filter((lb) => lb >= Math.min(20, yearSpan)).at(0);
+    lookback = (fit ?? 20) as WindowLookback;
   }
 
   const candidates = scanAroundToday(books, asOfYear, lookback, todayTdy, asOfBook, minSample);
