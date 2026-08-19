@@ -136,12 +136,15 @@ export type SeasonalityResult = {
     lossRate: number;
     sampleSize: number;
     daysRemaining: number;
+    /** Active window length in trading days (for half-window progress). */
+    lengthTradingDays?: number;
     windowLabel: string;
     upcomingLabel?: string;
     upcomingScore?: number;
     upcomingSide?: "BULLISH" | "BEARISH";
     upcomingAvgReturn?: number;
     upcomingWinRate?: number;
+    upcomingLossRate?: number;
     upcomingSampleSize?: number;
     daysUntilStart?: number;
   };

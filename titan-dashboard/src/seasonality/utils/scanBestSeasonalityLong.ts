@@ -7,6 +7,8 @@ import {
 } from "./presidentialCycle";
 import { SEASONAL_LONG_SCAN_MARKETS } from "./seasonalLongScanUniverse";
 
+export type SeasonalityOppPhase = "active" | "upcoming" | "next";
+
 export type SeasonalityOpportunity = {
   id: string;
   label: string;
@@ -22,16 +24,19 @@ export type SeasonalityOpportunity = {
   daysUntilStart: number;
   /** Presidential cycle phase used for the seasonal average. */
   cyclePhase: PresidentialCyclePhase;
+  /** active = inside · upcoming = before entry · next = after half of active */
+  phase: SeasonalityOppPhase;
 };
 
 export const SEASONAL_OPP_TOP_N = 5;
 
 const FETCH_TIMEOUT_MS = 55_000;
 const CONCURRENCY = 4;
-/** Ranking floor only — hard window filters already applied in engine. */
-const MIN_SCORE = 50;
-/** Fewer history years when filtered to one presidential phase. */
+/** Home cycle ranking floor (thin presidential-cycle history). */
+const MIN_SCORE = 45;
 const MIN_SAMPLE_CYCLE = 4;
+/** Show upcoming windows starting within this many trading days. */
+const UPCOMING_HORIZON_TD = 10;
 
 type ScanCache = {
   key: string;
@@ -83,65 +88,183 @@ async function mapPool<T, R>(items: readonly T[], limit: number, fn: (item: T) =
   return out;
 }
 
-function toOpp(
+function activeProgress(we: NonNullable<SeasonalityResult["windowEngine"]>): number | null {
+  const len = we.lengthTradingDays;
+  if (!len || len <= 0) return null;
+  if (we.daysRemaining < 0) return null;
+  const elapsed = Math.max(0, Math.min(len, len - we.daysRemaining));
+  return elapsed / len;
+}
+
+function makeOpp(
   m: { id: string; label: string; dataSymbol: string },
-  result: SeasonalityResult,
-  side: "LONG" | "SHORT",
   cyclePhase: PresidentialCyclePhase,
-): SeasonalityOpportunity | null {
-  const we = result.windowEngine;
-  if (!we) return null;
-
-  const want: SeasonalBias = side === "LONG" ? "BULLISH" : "BEARISH";
-  const activeStatus = want === "BULLISH" ? "ACTIVE_BULLISH" : "ACTIVE_BEARISH";
-  const upcomingStatus = want === "BULLISH" ? "UPCOMING_BULLISH" : "UPCOMING_BEARISH";
-
-  const active =
-    we.status === activeStatus &&
-    result.seasonalBias === want &&
-    we.score >= MIN_SCORE &&
-    we.sampleSize >= MIN_SAMPLE_CYCLE;
-
-  const upcoming =
-    (we.status === upcomingStatus || we.upcomingSide === want) &&
-    !active &&
-    (we.upcomingScore ?? 0) >= MIN_SCORE &&
-    (we.daysUntilStart ?? 99) >= 1 &&
-    (we.daysUntilStart ?? 99) <= 5 &&
-    (we.upcomingSampleSize ?? 0) >= MIN_SAMPLE_CYCLE;
-
-  if (!active && !upcoming) return null;
-
-  const score = active ? we.score : (we.upcomingScore ?? we.score);
-  const windowLabel = active
-    ? we.windowLabel
-    : (we.upcomingLabel ?? we.windowLabel);
-  const winRate = active ? we.winRate : (we.upcomingWinRate ?? we.winRate);
-  const avgReturn = active ? we.avgReturn : (we.upcomingAvgReturn ?? we.avgReturn);
-
+  side: "LONG" | "SHORT",
+  bias: SeasonalBias,
+  strength: SeasonalStrength,
+  score: number,
+  winRatePct: number,
+  avgReturn: number,
+  alignmentLabel: string,
+  windowLabel: string,
+  daysUntilStart: number,
+  phase: SeasonalityOppPhase,
+): SeasonalityOpportunity {
   return {
-    id: m.id,
+    id: phase === "active" ? m.id : `${m.id}-${phase}`,
     label: m.label,
     dataSymbol: m.dataSymbol,
     side,
-    bias: want,
-    strength: we.confidence,
+    bias,
+    strength,
     score,
-    winRate: winRate * 100,
+    winRate: winRatePct,
     avgReturn,
-    alignmentLabel: we.alignmentLabel,
+    alignmentLabel,
     windowLabel,
-    daysUntilStart: active ? 0 : (we.daysUntilStart ?? 1),
+    daysUntilStart,
     cyclePhase,
+    phase,
   };
 }
 
+/**
+ * Build home-panel opportunities for one market:
+ * - active window (if inside)
+ * - upcoming within 10 TD (if not inside, or as "next" after half of active)
+ */
+function toOpps(
+  m: { id: string; label: string; dataSymbol: string },
+  result: SeasonalityResult,
+  cyclePhase: PresidentialCyclePhase,
+): SeasonalityOpportunity[] {
+  const we = result.windowEngine;
+  if (!we) return [];
+
+  const out: SeasonalityOpportunity[] = [];
+
+  const activeBull =
+    we.status === "ACTIVE_BULLISH" &&
+    result.seasonalBias === "BULLISH" &&
+    we.score >= MIN_SCORE &&
+    we.sampleSize >= MIN_SAMPLE_CYCLE;
+  const activeBear =
+    we.status === "ACTIVE_BEARISH" &&
+    result.seasonalBias === "BEARISH" &&
+    we.score >= MIN_SCORE &&
+    we.sampleSize >= MIN_SAMPLE_CYCLE;
+
+  if (activeBull) {
+    out.push(
+      makeOpp(
+        m,
+        cyclePhase,
+        "LONG",
+        "BULLISH",
+        we.confidence,
+        we.score,
+        we.winRate * 100,
+        we.avgReturn,
+        we.alignmentLabel,
+        we.windowLabel,
+        0,
+        "active",
+      ),
+    );
+  }
+  if (activeBear) {
+    out.push(
+      makeOpp(
+        m,
+        cyclePhase,
+        "SHORT",
+        "BEARISH",
+        we.confidence,
+        we.score,
+        we.lossRate * 100,
+        we.avgReturn,
+        we.alignmentLabel,
+        we.windowLabel,
+        0,
+        "active",
+      ),
+    );
+  }
+
+  const hasActive = activeBull || activeBear;
+  const progress = hasActive ? activeProgress(we) : null;
+  const pastHalf = progress != null && progress >= 0.5;
+
+  const daysUntil = we.daysUntilStart ?? 0;
+  const upcomingOk =
+    (we.upcomingScore ?? 0) >= MIN_SCORE &&
+    (we.upcomingSampleSize ?? 0) >= MIN_SAMPLE_CYCLE &&
+    daysUntil >= 1 &&
+    daysUntil <= UPCOMING_HORIZON_TD &&
+    (we.upcomingSide === "BULLISH" || we.upcomingSide === "BEARISH") &&
+    Boolean(we.upcomingLabel);
+
+  if (!upcomingOk) return out;
+
+  const upSide = we.upcomingSide === "BULLISH" ? "LONG" : "SHORT";
+  const upBias: SeasonalBias = we.upcomingSide!;
+  const upWr =
+    upBias === "BULLISH"
+      ? (we.upcomingWinRate ?? 0) * 100
+      : (we.upcomingLossRate ?? we.upcomingWinRate ?? 0) * 100;
+
+  // Before entry: show upcoming when no active (or status is UPCOMING_*).
+  if (!hasActive) {
+    out.push(
+      makeOpp(
+        m,
+        cyclePhase,
+        upSide,
+        upBias,
+        we.confidence,
+        we.upcomingScore ?? we.score,
+        upWr,
+        we.upcomingAvgReturn ?? 0,
+        we.alignmentLabel,
+        we.upcomingLabel!,
+        daysUntil,
+        "upcoming",
+      ),
+    );
+    return out;
+  }
+
+  // Past halfway of active: also surface the next window within 10 TD.
+  if (pastHalf) {
+    out.push(
+      makeOpp(
+        m,
+        cyclePhase,
+        upSide,
+        upBias,
+        we.confidence,
+        we.upcomingScore ?? we.score,
+        upWr,
+        we.upcomingAvgReturn ?? 0,
+        we.alignmentLabel,
+        we.upcomingLabel!,
+        daysUntil,
+        "next",
+      ),
+    );
+  }
+
+  return out;
+}
+
 function rank(a: SeasonalityOpportunity, b: SeasonalityOpportunity): number {
+  const phaseRank = (p: SeasonalityOppPhase) => (p === "active" ? 0 : p === "upcoming" ? 1 : 2);
   const align = (s: string) => {
     const m = s.match(/(\d+)\s*\/\s*(\d+)/);
     return m ? Number(m[1]) / Math.max(1, Number(m[2])) : 0;
   };
   return (
+    phaseRank(a.phase) - phaseRank(b.phase) ||
     b.score - a.score ||
     align(b.alignmentLabel) - align(a.alignmentLabel) ||
     b.winRate - a.winRate ||
@@ -153,21 +276,17 @@ async function runScan(cyclePhase: PresidentialCyclePhase) {
   const phases: PresidentialCyclePhase[] = [cyclePhase];
   const settled = await mapPool(SEASONAL_LONG_SCAN_MARKETS, CONCURRENCY, async (m) => {
     const result = await fetchOne(m.dataSymbol, phases);
-    if (!result?.windowEngine) return { long: null, short: null };
-    return {
-      long: toOpp(m, result, "LONG", cyclePhase),
-      short: toOpp(m, result, "SHORT", cyclePhase),
-    };
+    if (!result?.windowEngine) return [] as SeasonalityOpportunity[];
+    return toOpps(m, result, cyclePhase);
   });
 
-  const longs = settled
-    .map((x) => x.long)
-    .filter((x): x is SeasonalityOpportunity => x !== null)
+  const all = settled.flat();
+  const longs = all
+    .filter((x) => x.side === "LONG")
     .sort(rank)
     .slice(0, SEASONAL_OPP_TOP_N);
-  const shorts = settled
-    .map((x) => x.short)
-    .filter((x): x is SeasonalityOpportunity => x !== null)
+  const shorts = all
+    .filter((x) => x.side === "SHORT")
     .sort(rank)
     .slice(0, SEASONAL_OPP_TOP_N);
 
@@ -191,7 +310,7 @@ export async function scanSeasonalOpportunities(): Promise<{
   shorts: SeasonalityOpportunity[];
 }> {
   const cyclePhase = currentPresidentialCyclePhase();
-  const key = `cycle:${cyclePhase}`;
+  const key = `cycle:${cyclePhase}:v3-10td`;
   if (cached?.key === key) return { longs: cached.longs, shorts: cached.shorts };
   if (inflight) return inflight;
   inflight = runScan(cyclePhase)

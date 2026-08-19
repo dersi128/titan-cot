@@ -121,6 +121,7 @@ export function calculateSeasonality(options: CalculateSeasonalityOptions): Seas
       lossRate: v2.window?.stats.lossRate ?? 0,
       sampleSize: v2.window?.stats.sampleSize ?? 0,
       daysRemaining: v2.window?.daysRemaining ?? 0,
+      lengthTradingDays: v2.window?.lengthTradingDays,
       windowLabel: v2.window
         ? `${v2.window.startDateLabel} → ${v2.window.endDateLabel}`
         : "—",
@@ -131,6 +132,7 @@ export function calculateSeasonality(options: CalculateSeasonalityOptions): Seas
       upcomingSide: v2.upcoming?.direction,
       upcomingAvgReturn: v2.upcoming?.stats.avgReturn,
       upcomingWinRate: v2.upcoming?.stats.winRate,
+      upcomingLossRate: v2.upcoming?.stats.lossRate,
       upcomingSampleSize: v2.upcoming?.stats.sampleSize,
       daysUntilStart: v2.upcoming?.daysUntilStart ?? 0,
     },

@@ -394,8 +394,8 @@ function scanAroundToday(
     }
   }
 
-  // Upcoming within 5 TD
-  for (let ahead = 1; ahead <= 5; ahead++) {
+  // Upcoming within 10 TD
+  for (let ahead = 1; ahead <= 10; ahead++) {
     const startTdy = todayTdy + ahead;
     if (startTdy > maxTdy) break;
     for (let length = MIN_LEN; length <= MAX_LEN; length++) {
@@ -489,10 +489,10 @@ export function computeSeasonalityWindowsV2(
         Math.abs(b.stats.avgReturn) - Math.abs(a.stats.avgReturn),
     );
 
-  // UPCOMING = starts in next 1–5 TD — informational only, does not set bias
+  // UPCOMING = starts in next 1–10 TD — informational only, does not set bias
   const upcoming =
     candidates
-      .filter((w) => w.daysUntilStart >= 1 && w.daysUntilStart <= 5)
+      .filter((w) => w.daysUntilStart >= 1 && w.daysUntilStart <= 10)
       .sort((a, b) => b.score - a.score || a.daysUntilStart - b.daysUntilStart)[0] ?? null;
 
   let dominant: ScoredSeasonalWindow | null = active[0] ?? null;

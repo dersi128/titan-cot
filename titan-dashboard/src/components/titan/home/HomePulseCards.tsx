@@ -49,10 +49,12 @@ function UsdBiasMascot({ bias }: { bias: UsdBiasLabel }) {
 function OpportunityRows({
   rows,
   windowTag,
+  phaseLabels,
   onOpenMarket,
 }: {
   rows: SeasonalityOpportunity[];
   windowTag: string;
+  phaseLabels: Record<SeasonalityOpportunity["phase"], string>;
   onOpenMarket: (marketId: string) => void;
 }) {
   return (
@@ -63,9 +65,15 @@ function OpportunityRows({
         const bar = isLong ? "bg-emerald-400/90" : "bg-rose-400/85";
         const labelTone = isLong ? "text-emerald-300" : "text-rose-300";
         const windowText = row.windowLabel.replace(/\s+/g, " ");
-        const timing = row.daysUntilStart > 0 ? ` · T-${row.daysUntilStart}` : "";
+        const phase = phaseLabels[row.phase];
+        const timing =
+          row.phase === "active"
+            ? ""
+            : row.daysUntilStart > 0
+              ? ` · T-${row.daysUntilStart}`
+              : "";
         return (
-          <li key={`${row.side}-${row.id}`}>
+          <li key={`${row.side}-${row.phase}-${row.id}`}>
             <button
               type="button"
               onClick={() => onOpenMarket(row.dataSymbol)}
@@ -78,6 +86,8 @@ function OpportunityRows({
                     {row.label}
                   </span>
                   <span className="truncate text-[9px] text-stone-500">
+                    {phase}
+                    {" · "}
                     {windowTag}
                     {windowText ? ` · ${windowText}` : ""}
                     {timing}
@@ -113,6 +123,7 @@ function SeasonPanel({
   rows,
   tone,
   windowTag,
+  phaseLabels,
   onOpenList,
   onOpenMarket,
 }: {
@@ -122,6 +133,7 @@ function SeasonPanel({
   rows: SeasonalityOpportunity[];
   tone: "bull" | "bear";
   windowTag: string;
+  phaseLabels: Record<SeasonalityOpportunity["phase"], string>;
   onOpenList: () => void;
   onOpenMarket: (marketId: string) => void;
 }) {
@@ -141,7 +153,12 @@ function SeasonPanel({
         {loading ? (
           <p className="mt-1.5 text-[11px] text-stone-500">{empty}</p>
         ) : rows.length > 0 ? (
-          <OpportunityRows rows={rows} windowTag={windowTag} onOpenMarket={onOpenMarket} />
+          <OpportunityRows
+            rows={rows}
+            windowTag={windowTag}
+            phaseLabels={phaseLabels}
+            onOpenMarket={onOpenMarket}
+          />
         ) : (
           <p className="mt-1.5 text-[11px] leading-snug text-stone-500">{empty}</p>
         )}
@@ -180,6 +197,15 @@ export function HomePulseCards({ bundle, onNavigate }: HomePulseCardsProps) {
   const windowTag = t("home.pulseSeasonWindowTag");
   const cyclePhase = useMemo(() => currentPresidentialCyclePhase(), []);
   const cycleName = t(`seasonality.presidential.${cyclePhase}`);
+  const phaseLabels = useMemo(
+    () =>
+      ({
+        active: t("home.pulseSeasonPhaseActive"),
+        upcoming: t("home.pulseSeasonPhaseUpcoming"),
+        next: t("home.pulseSeasonPhaseNext"),
+      }) as Record<SeasonalityOpportunity["phase"], string>,
+    [t],
+  );
 
   return (
     <section
@@ -232,6 +258,7 @@ export function HomePulseCards({ bundle, onNavigate }: HomePulseCardsProps) {
             rows={longs}
             tone="bull"
             windowTag={windowTag}
+            phaseLabels={phaseLabels}
             onOpenList={() => onNavigate("seasonality")}
             onOpenMarket={openSeason}
           />
@@ -244,6 +271,7 @@ export function HomePulseCards({ bundle, onNavigate }: HomePulseCardsProps) {
             rows={shorts}
             tone="bear"
             windowTag={windowTag}
+            phaseLabels={phaseLabels}
             onOpenList={() => onNavigate("seasonality")}
             onOpenMarket={openSeason}
           />

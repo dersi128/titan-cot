@@ -138,12 +138,14 @@ export type SeasonalityResult = {
     lossRate: number;
     sampleSize: number;
     daysRemaining: number;
+    lengthTradingDays?: number;
     windowLabel: string;
     upcomingLabel?: string;
     upcomingScore?: number;
     upcomingSide?: "BULLISH" | "BEARISH";
     upcomingAvgReturn?: number;
     upcomingWinRate?: number;
+    upcomingLossRate?: number;
     upcomingSampleSize?: number;
     daysUntilStart?: number;
   };
