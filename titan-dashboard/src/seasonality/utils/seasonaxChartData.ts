@@ -5,11 +5,11 @@ import { lookbackLabel } from "../yearsLookback";
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 export type SeasonaxChartRow = {
-  /** Trading-day index within the seasonal year (0 ≈ early Jan). */
+  /** Trading-day index within the seasonal year (1 ≈ early Jan). */
   tdy: number;
-  /** Calendar day-of-year (1–366) for manual-window persistence. */
+  /** Trading-day index used for manual-window persistence (same scale as curve). */
   dayOfYear: number;
-  /** Sparse month tick (Jan…Dec). */
+  /** Sparse month tick (Jan…Dec) at real calendar month starts. */
   tick: string;
   monthLabel: string;
   /** Calendar date on the seasonal path, e.g. "19 Aug". */
@@ -25,32 +25,47 @@ function parseIso(iso: string): Date {
   return new Date(y, m - 1, d);
 }
 
-function daysInMonth(year: number, month: number): number {
-  return new Date(year, month, 0).getDate();
-}
-
-/**
- * Curve `dayOfYear` is trading-day-of-year (~1–252), not calendar DOY.
- * Map via the point's month + position within that month's trading days.
- */
-function dateLabelFromTradingMonth(
-  month: number,
-  tdy: number,
-  monthFirstTdy: number,
-  monthLastTdy: number,
-  year: number,
-): string {
-  const m = Math.min(12, Math.max(1, month));
-  const dim = daysInMonth(year, m);
-  const span = Math.max(1, monthLastTdy - monthFirstTdy);
-  const t = (tdy - monthFirstTdy) / span;
-  const day = Math.max(1, Math.min(dim, Math.round(1 + t * (dim - 1))));
-  return `${day} ${MONTHS[m - 1]}`;
+function toIso(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
 }
 
 function formatMonthDay(iso: string): string {
   const d = parseIso(iso);
   return `${d.getDate()} ${MONTHS[d.getMonth()]}`;
+}
+
+/**
+ * Weekday trading calendar for a year (Mon–Fri). Used so chart month ticks
+ * and tooltip dates follow the real calendar, not equal 21-TD buckets.
+ */
+function weekdayCalendar(year: number): string[] {
+  const out: string[] = [];
+  const d = new Date(year, 0, 1);
+  const end = new Date(year, 11, 31);
+  while (d <= end) {
+    const wd = d.getDay();
+    if (wd !== 0 && wd !== 6) out.push(toIso(d));
+    d.setDate(d.getDate() + 1);
+  }
+  return out;
+}
+
+function calendarIndexForDate(calendar: string[], iso: string): number {
+  const exact = calendar.indexOf(iso);
+  if (exact >= 0) return exact;
+  let best = 0;
+  let bestDist = Infinity;
+  for (let i = 0; i < calendar.length; i++) {
+    const dist = Math.abs(parseIso(calendar[i]!).getTime() - parseIso(iso).getTime());
+    if (dist < bestDist) {
+      bestDist = dist;
+      best = i;
+    }
+  }
+  return best;
 }
 
 function formatSeasonaxDate(iso: string): string {
@@ -101,46 +116,47 @@ function pickCalendarCurve(result: SeasonalityResult): SeasonalCurvePoint[] {
 
 /**
  * Seasonax calendar path: Jan → Dec, index starts at 100 at year start.
- * Pink "today" sits on the current trading day within that year.
+ * Month ticks + tooltip dates use a real weekday calendar for asOf year.
  */
 export function buildSeasonaxChartRows(result: SeasonalityResult): SeasonaxChartRow[] {
   const curve = pickCalendarCurve(result);
   if (curve.length < 2) return [];
 
-  const todayTdy = Math.max(1, result.tradingDayOfYear ?? 1);
   const asOfYear = parseIso(result.currentDate).getFullYear();
-  const monthTdyRange = new Map<number, { first: number; last: number }>();
-  for (const p of curve) {
-    const tdy = p.dayOfYear;
-    const prev = monthTdyRange.get(p.month);
-    if (!prev) monthTdyRange.set(p.month, { first: tdy, last: tdy });
-    else {
-      prev.first = Math.min(prev.first, tdy);
-      prev.last = Math.max(prev.last, tdy);
-    }
-  }
+  const calendar = weekdayCalendar(asOfYear);
+  if (!calendar.length) return [];
+
+  const todayCalIdx = calendarIndexForDate(calendar, result.currentDate);
+  const todayLabel = formatMonthDay(result.currentDate);
 
   const rows: SeasonaxChartRow[] = [];
   let lastMonth = -1;
 
-  for (const p of curve) {
-    const tdy = (p.tradingDayOffset ?? p.dayOfYear - 1) + 1;
-    const month = p.month;
+  for (let i = 0; i < curve.length; i++) {
+    const p = curve[i]!;
+    // Map curve index onto weekday calendar (curve is typically ~252 TD).
+    const calIdx =
+      curve.length <= 1
+        ? 0
+        : Math.round((i / (curve.length - 1)) * (calendar.length - 1));
+    const iso = calendar[Math.min(calendar.length - 1, Math.max(0, calIdx))]!;
+    const d = parseIso(iso);
+    const month = d.getMonth() + 1;
     const monthLabel = MONTHS[month - 1] ?? "";
     const showTick = month !== lastMonth;
     if (showTick) lastMonth = month;
     const raw = p.value > 0 ? p.value : p.smoothed;
-    const range = monthTdyRange.get(month) ?? { first: p.dayOfYear, last: p.dayOfYear };
+    const tdy = (p.tradingDayOffset ?? p.dayOfYear - 1) + 1;
 
     rows.push({
       tdy,
       dayOfYear: p.dayOfYear,
       tick: showTick ? monthLabel : "",
       monthLabel,
-      dateLabel: dateLabelFromTradingMonth(month, p.dayOfYear, range.first, range.last, asOfYear),
+      dateLabel: formatMonthDay(iso),
       month,
       index: raw,
-      isToday: tdy === todayTdy,
+      isToday: calIdx === todayCalIdx,
     });
   }
 
@@ -152,12 +168,14 @@ export function buildSeasonaxChartRows(result: SeasonalityResult): SeasonaxChart
     rows[0].index = 100;
   }
 
-  // Ensure exactly one today marker (nearest TDY).
+  // Ensure exactly one today marker (nearest calendar slot).
   if (!rows.some((r) => r.isToday)) {
     let best = 0;
     let bestDist = Infinity;
+    const target =
+      curve.length <= 1 ? 0 : (todayCalIdx / Math.max(1, calendar.length - 1)) * (curve.length - 1);
     for (let i = 0; i < rows.length; i++) {
-      const dist = Math.abs(rows[i].tdy - todayTdy);
+      const dist = Math.abs(i - target);
       if (dist < bestDist) {
         bestDist = dist;
         best = i;
@@ -168,8 +186,6 @@ export function buildSeasonaxChartRows(result: SeasonalityResult): SeasonaxChart
     });
   }
 
-  // Exact calendar date on the today pin (asOf), not the TDY approximation.
-  const todayLabel = formatMonthDay(result.currentDate);
   for (const row of rows) {
     if (row.isToday) row.dateLabel = todayLabel;
   }
