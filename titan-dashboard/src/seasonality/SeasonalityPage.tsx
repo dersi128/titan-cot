@@ -2,13 +2,9 @@
 import { useTitanI18n } from "../i18n";
 import { parseSeasonalityMarketFromHash, setAppSectionHash } from "../lib/titanAppRoute";
 import { DEFAULT_SEASONALITY_MARKET_ID, resolveSeasonalityMarket } from "./markets";
-import {
-  fetchSeasonalityComparisonFromApi,
-  shouldUseSeasonalityApi,
-  describeSeasonalityApiTarget,
-} from "./seasonalityApi";
+import { shouldUseSeasonalityApi, describeSeasonalityApiTarget } from "./seasonalityApi";
 import type { SeasonalityComparison } from "./services/seasonalityService";
-import { fetchSeasonalityComparisonWithSource } from "./services/seasonalityService";
+import { buildComparisonFromBars } from "./services/seasonalityService";
 import { fetchOhlcWithFallback, getDefaultOhlcProviderId } from "./data/ohlcProviderConfig";
 import type { OhlcBar } from "./types";
 import { DEFAULT_YEARS_LOOKBACK, MAX_OHLC_FETCH_YEARS, type YearsLookback } from "./yearsLookback";
@@ -18,6 +14,7 @@ import {
   filterBarsByPresidentialPhases,
   hasPresidentialSelection,
 } from "./utils/presidentialCycle";
+import { filterBarsByExcludedYears, listYearsFromBars } from "./utils/yearSelection";
 import { SeasonalityDashboard } from "./components/SeasonalityDashboard";
 import { SeasonalityMainChart } from "./components/SeasonalityMainChart";
 import { SeasonalityMarketSelector } from "./components/SeasonalityMarketSelector";
@@ -29,6 +26,8 @@ export function SeasonalityPage() {
   );
   const [lookback, setLookback] = useState<YearsLookback>(DEFAULT_YEARS_LOOKBACK);
   const [cycles, setCycles] = useState<PresidentialCyclePhase[]>([]);
+  const [excludedYears, setExcludedYears] = useState<number[]>([]);
+  const [sourceBars, setSourceBars] = useState<OhlcBar[] | null>(null);
   const [comparison, setComparison] = useState<SeasonalityComparison | null>(null);
   const [ohlcBars, setOhlcBars] = useState<OhlcBar[] | null>(null);
   const [dataSource, setDataSource] = useState("yahoo");
@@ -37,6 +36,7 @@ export function SeasonalityPage() {
 
   const selectMarket = useCallback((id: string) => {
     setMarketId(id);
+    setExcludedYears([]);
     setAppSectionHash("seasonality", { seasonalityMarket: id });
   }, []);
 
@@ -50,36 +50,23 @@ export function SeasonalityPage() {
     return () => window.removeEventListener("hashchange", syncFromHash);
   }, []);
 
-  const load = useCallback(
-    async (id: string, phases: PresidentialCyclePhase[]) => {
+  /** Fetch raw OHLC once per market (filters rebuild locally). */
+  const loadBars = useCallback(
+    async (id: string) => {
       const market = resolveSeasonalityMarket(id);
       if (!market) return;
       setLoading(true);
       setError(null);
-      const phaseFilter = hasPresidentialSelection(phases) ? phases : null;
       try {
-        if (shouldUseSeasonalityApi()) {
-          const [curves, ohlc] = await Promise.all([
-            fetchSeasonalityComparisonFromApi(market.dataSymbol, phaseFilter),
-            fetchOhlcWithFallback(
-              market.dataSymbol,
-              MAX_OHLC_FETCH_YEARS,
-              getDefaultOhlcProviderId(),
-            ),
-          ]);
-          setComparison(curves);
-          setOhlcBars(filterBarsByPresidentialPhases(ohlc.bars, phaseFilter));
-          setDataSource("api");
-        } else {
-          const { comparison: curves, ohlcSource, bars } = await fetchSeasonalityComparisonWithSource(
-            market.dataSymbol,
-            { presidentialPhases: phaseFilter },
-          );
-          setComparison(curves);
-          setOhlcBars(filterBarsByPresidentialPhases(bars, phaseFilter));
-          setDataSource(ohlcSource);
-        }
+        const { bars, source } = await fetchOhlcWithFallback(
+          market.dataSymbol,
+          MAX_OHLC_FETCH_YEARS,
+          getDefaultOhlcProviderId(),
+        );
+        setSourceBars(bars);
+        setDataSource(shouldUseSeasonalityApi() ? "api" : source);
       } catch (err) {
+        setSourceBars(null);
         setComparison(null);
         setOhlcBars(null);
         setError(err instanceof Error ? err.message : t("seasonality.loadError"));
@@ -91,8 +78,53 @@ export function SeasonalityPage() {
   );
 
   useEffect(() => {
-    void load(marketId, cycles);
-  }, [marketId, cycles, load]);
+    void loadBars(marketId);
+  }, [marketId, loadBars]);
+
+  /** Apply cycle + year filters and rebuild all lookback curves. */
+  useEffect(() => {
+    if (!sourceBars) return;
+    const market = resolveSeasonalityMarket(marketId);
+    if (!market) return;
+
+    let cancelled = false;
+    const phaseFilter = hasPresidentialSelection(cycles) ? cycles : null;
+
+    void (async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const curves = await buildComparisonFromBars(market.dataSymbol, sourceBars, {
+          presidentialPhases: phaseFilter,
+          excludedYears,
+        });
+        if (cancelled) return;
+        const filtered = filterBarsByExcludedYears(
+          filterBarsByPresidentialPhases(sourceBars, phaseFilter),
+          excludedYears,
+        );
+        setComparison(curves);
+        setOhlcBars(filtered);
+      } catch (err) {
+        if (cancelled) return;
+        setComparison(null);
+        setOhlcBars(null);
+        setError(err instanceof Error ? err.message : t("seasonality.loadError"));
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [sourceBars, marketId, cycles, excludedYears, t]);
+
+  const availableYears = useMemo(() => {
+    if (!sourceBars) return [];
+    const phaseFilter = hasPresidentialSelection(cycles) ? cycles : null;
+    return listYearsFromBars(filterBarsByPresidentialPhases(sourceBars, phaseFilter));
+  }, [sourceBars, cycles]);
 
   const market = resolveSeasonalityMarket(marketId);
 
@@ -138,12 +170,15 @@ export function SeasonalityPage() {
               result={result}
               comparison={comparison}
               ohlcBars={ohlcBars}
+              availableYears={availableYears}
               marketLabel={market?.label ?? marketId}
               lookback={lookback}
               onLookbackChange={setLookback}
               currentMonth={currentMonth}
               presidentialPhases={cycles}
               onPresidentialPhasesChange={setCycles}
+              excludedYears={excludedYears}
+              onExcludedYearsChange={setExcludedYears}
               filtersDisabled={loading}
               loading={loading}
             />

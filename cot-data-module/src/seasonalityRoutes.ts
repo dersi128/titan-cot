@@ -14,6 +14,10 @@ import {
   PRESIDENTIAL_CYCLE_PHASES,
 } from "./seasonality/utils/presidentialCycle.js";
 import {
+  excludedYearsCacheKey,
+  parseExcludedYearsQuery,
+} from "./seasonality/utils/yearSelection.js";
+import {
   getCachedComparison,
   getCachedSingle,
   setCachedComparison,
@@ -21,6 +25,10 @@ import {
 } from "./seasonalityCache.js";
 
 const LOOKBACK_SET = new Set<string>(YEARS_LOOKBACK_OPTIONS.map(String));
+
+function filterCacheKey(phases: ReturnType<typeof parsePresidentialPhasesQuery>, excluded: number[] | null): string {
+  return `${presidentialPhasesCacheKey(phases)}|y:${excludedYearsCacheKey(excluded)}`;
+}
 
 function parseLookback(raw: unknown): YearsLookback | null {
   const v = typeof raw === "string" ? raw.toUpperCase() : "";
@@ -54,19 +62,33 @@ export async function handleSeasonalityBundle(req: Request, res: Response): Prom
   }
 
   const phases = parsePresidentialPhasesQuery(req.query.cycles);
-  const cycleKey = presidentialPhasesCacheKey(phases);
+  const excluded = parseExcludedYearsQuery(req.query.excludeYears);
+  const cycleKey = filterCacheKey(phases, excluded);
 
   const cached = getCachedComparison(symbol, cycleKey);
   if (cached) {
-    res.json({ symbol, cached: true, cycles: cycleKey, comparison: cached });
+    res.json({
+      symbol,
+      cached: true,
+      cycles: presidentialPhasesCacheKey(phases),
+      excludeYears: excludedYearsCacheKey(excluded),
+      comparison: cached,
+    });
     return;
   }
 
   const comparison = await fetchSeasonalityComparison(symbol, {
     presidentialPhases: phases,
+    excludedYears: excluded,
   });
   setCachedComparison(symbol, comparison, cycleKey);
-  res.json({ symbol, cached: false, cycles: cycleKey, comparison });
+  res.json({
+    symbol,
+    cached: false,
+    cycles: presidentialPhasesCacheKey(phases),
+    excludeYears: excludedYearsCacheKey(excluded),
+    comparison,
+  });
 }
 
 export async function handleSeasonalitySingle(req: Request, res: Response): Promise<void> {
@@ -83,18 +105,34 @@ export async function handleSeasonalitySingle(req: Request, res: Response): Prom
   }
 
   const phases = parsePresidentialPhasesQuery(req.query.cycles);
-  const cycleKey = presidentialPhasesCacheKey(phases);
+  const excluded = parseExcludedYearsQuery(req.query.excludeYears);
+  const cycleKey = filterCacheKey(phases, excluded);
 
   const cached = getCachedSingle(symbol, lookback, cycleKey);
   if (cached) {
-    res.json({ symbol, lookback, cached: true, cycles: cycleKey, result: cached });
+    res.json({
+      symbol,
+      lookback,
+      cached: true,
+      cycles: presidentialPhasesCacheKey(phases),
+      excludeYears: excludedYearsCacheKey(excluded),
+      result: cached,
+    });
     return;
   }
 
   const result = await fetchSeasonalityAnalysis(symbol, {
     yearsLookback: lookback,
     presidentialPhases: phases,
+    excludedYears: excluded,
   });
   setCachedSingle(symbol, lookback, result, cycleKey);
-  res.json({ symbol, lookback, cached: false, cycles: cycleKey, result });
+  res.json({
+    symbol,
+    lookback,
+    cached: false,
+    cycles: presidentialPhasesCacheKey(phases),
+    excludeYears: excludedYearsCacheKey(excluded),
+    result,
+  });
 }

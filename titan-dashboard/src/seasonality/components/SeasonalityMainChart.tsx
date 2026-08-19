@@ -26,20 +26,25 @@ import {
 } from "../utils/seasonalWindowEngineV2";
 import { SeasonalityLookbackControl } from "./SeasonalityLookbackControl";
 import { SeasonalityPresidentialFilter } from "./SeasonalityPresidentialFilter";
+import { SeasonalityYearFilter } from "./SeasonalityYearFilter";
 import { useTitanI18n } from "../../i18n";
 import type { PresidentialCyclePhase } from "../utils/presidentialCycle";
 
 type SeasonalityMainChartProps = {
   result: SeasonalityResult | null;
   comparison: SeasonalityComparison | null;
-  /** Raw OHLC for manual-window year returns (does not feed bias/score). */
+  /** Filtered OHLC for manual-window year returns (does not feed bias/score). */
   ohlcBars?: OhlcBar[] | null;
+  /** Years present in loaded history (for checkbox grid). */
+  availableYears: number[];
   marketLabel: string;
   lookback: YearsLookback;
   onLookbackChange: (lookback: YearsLookback) => void;
   currentMonth: number;
   presidentialPhases: PresidentialCyclePhase[];
   onPresidentialPhasesChange: (phases: PresidentialCyclePhase[]) => void;
+  excludedYears: number[];
+  onExcludedYearsChange: (years: number[]) => void;
   filtersDisabled?: boolean;
   loading?: boolean;
 };
@@ -254,11 +259,14 @@ export function SeasonalityMainChart({
   result,
   comparison,
   ohlcBars = null,
+  availableYears,
   marketLabel,
   lookback,
   onLookbackChange,
   presidentialPhases,
   onPresidentialPhasesChange,
+  excludedYears,
+  onExcludedYearsChange,
   filtersDisabled = false,
   loading = false,
 }: SeasonalityMainChartProps) {
@@ -401,6 +409,12 @@ export function SeasonalityMainChart({
           compact
         />
       </div>
+      <SeasonalityYearFilter
+        availableYears={availableYears}
+        excludedYears={excludedYears}
+        onChange={onExcludedYearsChange}
+        disabled={filtersDisabled}
+      />
 
       <div className="flex flex-wrap items-end justify-between gap-3 px-4 pt-3">
         <div>

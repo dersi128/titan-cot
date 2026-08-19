@@ -17,6 +17,7 @@ import {
   filterBarsByPresidentialPhases,
   type PresidentialCyclePhase,
 } from "../utils/presidentialCycle.js";
+import { filterBarsByExcludedYears } from "../utils/yearSelection.js";
 import type { OhlcBar, SeasonalityResult } from "../types.js";
 
 export type SeasonalityServiceOptions = {
@@ -25,6 +26,7 @@ export type SeasonalityServiceOptions = {
   yearsLookback?: YearsLookback;
   asOfDate?: string;
   presidentialPhases?: PresidentialCyclePhase[] | null;
+  excludedYears?: number[] | null;
 };
 
 function attachCurrentYearOverlay(base: SeasonalityResult, allBars: OhlcBar[]): SeasonalityResult {
@@ -41,11 +43,12 @@ export async function fetchSeasonalityAnalysis(
   const fetchYears = Math.max(MAX_OHLC_FETCH_YEARS, options.years ?? MAX_OHLC_FETCH_YEARS);
   const bars = await provider.fetchDailyOHLC(symbol, { years: fetchYears });
   const cycleBars = filterBarsByPresidentialPhases(bars, options.presidentialPhases);
-  const filtered = filterBarsByLookback(cycleBars, lookback, options.asOfDate);
+  const yearBars = filterBarsByExcludedYears(cycleBars, options.excludedYears);
+  const filtered = filterBarsByLookback(yearBars, lookback, options.asOfDate);
 
   if (filtered.length < 180) {
     throw new Error(
-      `Insufficient OHLC history for ${symbol} after presidential filter (${filtered.length} bars, ${lookbackLabel(lookback)})`,
+      `Insufficient OHLC history for ${symbol} after filters (${filtered.length} bars, ${lookbackLabel(lookback)})`,
     );
   }
 
@@ -72,11 +75,12 @@ export async function fetchSeasonalityComparison(
   const fetchYears = Math.max(MAX_OHLC_FETCH_YEARS, options.years ?? MAX_OHLC_FETCH_YEARS);
   const bars = await provider.fetchDailyOHLC(symbol, { years: fetchYears });
   const cycleBars = filterBarsByPresidentialPhases(bars, options.presidentialPhases);
+  const yearBars = filterBarsByExcludedYears(cycleBars, options.excludedYears);
 
   const comparison: SeasonalityComparison = {};
 
   for (const lb of lookbacks) {
-    const filtered = filterBarsByLookback(cycleBars, lb, options.asOfDate);
+    const filtered = filterBarsByLookback(yearBars, lb, options.asOfDate);
     if (filtered.length < 180) continue;
     const base = calculateSeasonality({
       symbol,
@@ -91,7 +95,7 @@ export async function fetchSeasonalityComparison(
   if (!primary) {
     const first = YEARS_LOOKBACK_OPTIONS.find((lb) => comparison[lb]);
     if (!first || !comparison[first]) {
-      throw new Error(`Insufficient OHLC history for ${symbol} with selected presidential cycles`);
+      throw new Error(`Insufficient OHLC history for ${symbol} with selected year / cycle filters`);
     }
   }
 
