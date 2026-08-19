@@ -1,6 +1,10 @@
 import { fetchSeasonalityAnalysisFromApi, shouldUseSeasonalityApi } from "../seasonalityApi";
 import { fetchSeasonalityComparisonWithSource } from "../services/seasonalityService";
 import type { SeasonalBias, SeasonalityResult, SeasonalStrength } from "../types";
+import {
+  presidentialPhaseForYear,
+  type PresidentialCyclePhase,
+} from "./presidentialCycle";
 import { SEASONAL_LONG_SCAN_MARKETS } from "./seasonalLongScanUniverse";
 
 export type SeasonalityOpportunity = {
@@ -16,6 +20,8 @@ export type SeasonalityOpportunity = {
   alignmentLabel: string;
   windowLabel: string;
   daysUntilStart: number;
+  /** Presidential cycle phase used for the seasonal average. */
+  cyclePhase: PresidentialCyclePhase;
 };
 
 export const SEASONAL_OPP_TOP_N = 5;
@@ -24,22 +30,40 @@ const FETCH_TIMEOUT_MS = 55_000;
 const CONCURRENCY = 4;
 /** Ranking floor only — hard window filters already applied in engine. */
 const MIN_SCORE = 50;
+/** Fewer history years when filtered to one presidential phase. */
+const MIN_SAMPLE_CYCLE = 4;
 
-let cached: { longs: SeasonalityOpportunity[]; shorts: SeasonalityOpportunity[] } | null = null;
+type ScanCache = {
+  key: string;
+  longs: SeasonalityOpportunity[];
+  shorts: SeasonalityOpportunity[];
+};
+
+let cached: ScanCache | null = null;
 let inflight: Promise<{ longs: SeasonalityOpportunity[]; shorts: SeasonalityOpportunity[] }> | null =
   null;
 
-async function fetchOne(symbol: string): Promise<SeasonalityResult | null> {
+/** Current U.S. presidential cycle phase (by calendar year). */
+export function currentPresidentialCyclePhase(asOf = new Date()): PresidentialCyclePhase {
+  return presidentialPhaseForYear(asOf.getFullYear());
+}
+
+async function fetchOne(
+  symbol: string,
+  phases: PresidentialCyclePhase[],
+): Promise<SeasonalityResult | null> {
   try {
     if (shouldUseSeasonalityApi()) {
       return await Promise.race([
-        fetchSeasonalityAnalysisFromApi(symbol, 20),
+        fetchSeasonalityAnalysisFromApi(symbol, 20, phases),
         new Promise<never>((_, reject) => {
           window.setTimeout(() => reject(new Error("timeout")), FETCH_TIMEOUT_MS);
         }),
       ]);
     }
-    const { comparison } = await fetchSeasonalityComparisonWithSource(symbol);
+    const { comparison } = await fetchSeasonalityComparisonWithSource(symbol, {
+      presidentialPhases: phases,
+    });
     return comparison[20] ?? comparison[15] ?? comparison[10] ?? Object.values(comparison)[0] ?? null;
   } catch {
     return null;
@@ -63,6 +87,7 @@ function toOpp(
   m: { id: string; label: string; dataSymbol: string },
   result: SeasonalityResult,
   side: "LONG" | "SHORT",
+  cyclePhase: PresidentialCyclePhase,
 ): SeasonalityOpportunity | null {
   const we = result.windowEngine;
   if (!we) return null;
@@ -75,7 +100,7 @@ function toOpp(
     we.status === activeStatus &&
     result.seasonalBias === want &&
     we.score >= MIN_SCORE &&
-    we.sampleSize >= 8;
+    we.sampleSize >= MIN_SAMPLE_CYCLE;
 
   const upcoming =
     (we.status === upcomingStatus || we.upcomingSide === want) &&
@@ -83,7 +108,7 @@ function toOpp(
     (we.upcomingScore ?? 0) >= MIN_SCORE &&
     (we.daysUntilStart ?? 99) >= 1 &&
     (we.daysUntilStart ?? 99) <= 5 &&
-    (we.upcomingSampleSize ?? 0) >= 8;
+    (we.upcomingSampleSize ?? 0) >= MIN_SAMPLE_CYCLE;
 
   if (!active && !upcoming) return null;
 
@@ -107,6 +132,7 @@ function toOpp(
     alignmentLabel: we.alignmentLabel,
     windowLabel,
     daysUntilStart: active ? 0 : (we.daysUntilStart ?? 1),
+    cyclePhase,
   };
 }
 
@@ -123,16 +149,14 @@ function rank(a: SeasonalityOpportunity, b: SeasonalityOpportunity): number {
   );
 }
 
-async function runScan() {
+async function runScan(cyclePhase: PresidentialCyclePhase) {
+  const phases: PresidentialCyclePhase[] = [cyclePhase];
   const settled = await mapPool(SEASONAL_LONG_SCAN_MARKETS, CONCURRENCY, async (m) => {
-    const result = await fetchOne(m.dataSymbol);
-    if (!result || result.engineVersion !== "window-v2") {
-      // still try if windowEngine present
-      if (!result?.windowEngine) return { long: null, short: null };
-    }
+    const result = await fetchOne(m.dataSymbol, phases);
+    if (!result?.windowEngine) return { long: null, short: null };
     return {
-      long: toOpp(m, result!, "LONG"),
-      short: toOpp(m, result!, "SHORT"),
+      long: toOpp(m, result, "LONG", cyclePhase),
+      short: toOpp(m, result, "SHORT", cyclePhase),
     };
   });
 
@@ -158,15 +182,21 @@ export async function scanBestSeasonalityLongs(): Promise<SeasonalityOpportunity
   return longs;
 }
 
+/**
+ * Scan seasonal LONG/SHORT windows inside the current U.S. presidential cycle
+ * (Election / Post / Midterm / Pre) — Seasonax-style year filter.
+ */
 export async function scanSeasonalOpportunities(): Promise<{
   longs: SeasonalityOpportunity[];
   shorts: SeasonalityOpportunity[];
 }> {
-  if (cached) return cached;
+  const cyclePhase = currentPresidentialCyclePhase();
+  const key = `cycle:${cyclePhase}`;
+  if (cached?.key === key) return { longs: cached.longs, shorts: cached.shorts };
   if (inflight) return inflight;
-  inflight = runScan()
+  inflight = runScan(cyclePhase)
     .then((rows) => {
-      cached = rows;
+      cached = { key, ...rows };
       return rows;
     })
     .finally(() => {

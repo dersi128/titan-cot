@@ -4,6 +4,7 @@ import type { AppSection, NavigateSectionOptions } from "../../../lib/titanAppRo
 import { usdPulseFromBundle, type UsdBiasLabel } from "../../../lib/homeUsdPulse";
 import {
   scanSeasonalOpportunities,
+  currentPresidentialCyclePhase,
   type SeasonalityOpportunity,
 } from "../../../seasonality/utils/scanBestSeasonalityLong";
 import { useTitanI18n } from "../../../i18n";
@@ -177,6 +178,8 @@ export function HomePulseCards({ bundle, onNavigate }: HomePulseCardsProps) {
     onNavigate("seasonality", { seasonalityMarket: marketId });
 
   const windowTag = t("home.pulseSeasonWindowTag");
+  const cyclePhase = useMemo(() => currentPresidentialCyclePhase(), []);
+  const cycleName = t(`seasonality.presidential.${cyclePhase}`);
 
   return (
     <section
@@ -211,8 +214,13 @@ export function HomePulseCards({ bundle, onNavigate }: HomePulseCardsProps) {
         <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 px-0.5">
           <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-titan-gold/90">
             {t("home.pulseCyclesTitle")}
+            <span className="ml-1.5 font-mono font-medium normal-case tracking-normal text-stone-400">
+              · {cycleName}
+            </span>
           </p>
-          <p className="text-[10px] text-stone-500">{t("home.pulseCyclesCaption")}</p>
+          <p className="text-[10px] text-stone-500">
+            {t("home.pulseCyclesCaption", { cycle: cycleName })}
+          </p>
         </div>
         <div className="grid min-w-0 gap-2 sm:grid-cols-2">
           <SeasonPanel

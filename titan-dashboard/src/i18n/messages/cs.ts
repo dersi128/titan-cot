@@ -507,7 +507,7 @@ export const csMessages: Messages = {
     pulseDmeSub: "Skóre {{score}} / 100 · COT DXY",
     pulseDmeUnavailable: "DXY data zatím nejsou",
     pulseCyclesTitle: "Aktuální cykly",
-    pulseCyclesCaption: "Sezónní okno v daném cyklu",
+    pulseCyclesCaption: "Sezónní okno v cyklu {{cycle}}",
     pulseSeasonWindowTag: "Sezónní okno",
     pulseSeasonTitle: "Sezónní longy",
     pulseSeasonLongTitle: "Sezónní LONG",
