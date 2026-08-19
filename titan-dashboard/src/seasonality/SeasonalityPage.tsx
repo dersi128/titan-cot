@@ -123,7 +123,11 @@ export function SeasonalityPage() {
   const availableYears = useMemo(() => {
     if (!sourceBars) return [];
     const phaseFilter = hasPresidentialSelection(cycles) ? cycles : null;
-    return listYearsFromBars(filterBarsByPresidentialPhases(sourceBars, phaseFilter));
+    const years = listYearsFromBars(filterBarsByPresidentialPhases(sourceBars, phaseFilter));
+    // Newest year in the feed is usually incomplete — it never enters the historical average.
+    if (years.length <= 1) return years;
+    const newest = years[0]!;
+    return years.filter((y) => y < newest);
   }, [sourceBars, cycles]);
 
   const market = resolveSeasonalityMarket(marketId);

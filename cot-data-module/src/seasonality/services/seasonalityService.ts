@@ -29,6 +29,19 @@ export type SeasonalityServiceOptions = {
   excludedYears?: number[] | null;
 };
 
+function latestBarDate(bars: OhlcBar[]): string | undefined {
+  if (!bars.length) return undefined;
+  let max = bars[0]!.date;
+  for (const b of bars) {
+    if (b.date > max) max = b.date;
+  }
+  return max;
+}
+
+function resolveAsOfDate(bars: OhlcBar[], asOfDate?: string): string | undefined {
+  return asOfDate ?? latestBarDate(bars);
+}
+
 function attachCurrentYearOverlay(base: SeasonalityResult, allBars: OhlcBar[]): SeasonalityResult {
   const histSlope = slopeAround(base.seasonalCurve, 0, 8);
   return enrichSeasonalityWithCurrentYear(base, allBars, histSlope);
@@ -42,9 +55,10 @@ export async function fetchSeasonalityAnalysis(
   const provider = getOhlcProvider(options.providerId ?? getConfiguredOhlcProviderId());
   const fetchYears = Math.max(MAX_OHLC_FETCH_YEARS, options.years ?? MAX_OHLC_FETCH_YEARS);
   const bars = await provider.fetchDailyOHLC(symbol, { years: fetchYears });
+  const asOfDate = resolveAsOfDate(bars, options.asOfDate);
   const cycleBars = filterBarsByPresidentialPhases(bars, options.presidentialPhases);
   const yearBars = filterBarsByExcludedYears(cycleBars, options.excludedYears);
-  const filtered = filterBarsByLookback(yearBars, lookback, options.asOfDate);
+  const filtered = filterBarsByLookback(yearBars, lookback, asOfDate);
 
   if (filtered.length < 180) {
     throw new Error(
@@ -55,7 +69,7 @@ export async function fetchSeasonalityAnalysis(
   const base = calculateSeasonality({
     symbol,
     bars: filtered,
-    asOfDate: options.asOfDate,
+    asOfDate,
     yearsLookback: lookback,
   });
 
@@ -74,18 +88,19 @@ export async function fetchSeasonalityComparison(
   const provider = getOhlcProvider(options.providerId ?? getConfiguredOhlcProviderId());
   const fetchYears = Math.max(MAX_OHLC_FETCH_YEARS, options.years ?? MAX_OHLC_FETCH_YEARS);
   const bars = await provider.fetchDailyOHLC(symbol, { years: fetchYears });
+  const asOfDate = resolveAsOfDate(bars, options.asOfDate);
   const cycleBars = filterBarsByPresidentialPhases(bars, options.presidentialPhases);
   const yearBars = filterBarsByExcludedYears(cycleBars, options.excludedYears);
 
   const comparison: SeasonalityComparison = {};
 
   for (const lb of lookbacks) {
-    const filtered = filterBarsByLookback(yearBars, lb, options.asOfDate);
+    const filtered = filterBarsByLookback(yearBars, lb, asOfDate);
     if (filtered.length < 180) continue;
     const base = calculateSeasonality({
       symbol,
       bars: filtered,
-      asOfDate: options.asOfDate,
+      asOfDate,
       yearsLookback: lb,
     });
     comparison[lb] = attachCurrentYearOverlay(base, bars);
