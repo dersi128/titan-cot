@@ -375,7 +375,10 @@ function scanAroundToday(
   minSample: number,
 ): ScoredSeasonalWindow[] {
   const found: ScoredSeasonalWindow[] = [];
-  const maxTdy = asOfBook?.closes.length ?? 252;
+  // Current year is often incomplete (bars only through today). Window ends may
+  // sit later in the seasonal year — use prior full years / 252, not asOf length.
+  const priorLens = books.filter((b) => b.year < asOfYear).map((b) => b.closes.length);
+  const maxTdy = Math.max(252, asOfBook?.closes.length ?? 0, ...priorLens, todayTdy + MAX_LEN);
 
   // Windows containing today
   for (let startOffset = 0; startOffset <= MAX_LEN - MIN_LEN; startOffset++) {

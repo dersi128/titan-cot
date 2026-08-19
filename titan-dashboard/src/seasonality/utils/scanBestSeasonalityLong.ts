@@ -314,7 +314,7 @@ export async function scanSeasonalOpportunities(): Promise<{
   shorts: SeasonalityOpportunity[];
 }> {
   const cyclePhase = currentPresidentialCyclePhase();
-  const key = `cycle:${cyclePhase}:v4-turn`;
+  const key = `cycle:${cyclePhase}:v5-maxtdy`;
   if (cached?.key === key) return { longs: cached.longs, shorts: cached.shorts };
   if (inflight) return inflight;
   inflight = runScan(cyclePhase)
