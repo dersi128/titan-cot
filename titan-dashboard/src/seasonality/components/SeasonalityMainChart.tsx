@@ -71,20 +71,22 @@ function CurveTip({
   payload,
 }: {
   active?: boolean;
-  payload?: Array<{ payload?: { monthLabel?: string; index?: number; isToday?: boolean } }>;
+  payload?: Array<{
+    payload?: { dateLabel?: string; monthLabel?: string; index?: number; isToday?: boolean };
+  }>;
 }) {
   if (!active || !payload?.length) return null;
   const row = payload[0]?.payload;
   if (!row || typeof row.index !== "number") return null;
   return (
     <div className="rounded-lg border border-titan-gold/20 bg-[#0c0d10]/95 px-3 py-2 text-[12px] text-stone-200 shadow-card backdrop-blur">
-      <p className="text-stone-500">
-        {row.monthLabel}
+      <p className="font-medium text-stone-100">
+        {row.dateLabel ?? row.monthLabel}
         {row.isToday ? (
           <span className="ml-2 font-semibold uppercase tracking-wider text-titan-gold">Today</span>
         ) : null}
       </p>
-      <p className="mt-0.5 font-mono text-[13px] text-titan-goldBright">Index {row.index.toFixed(2)}</p>
+      <p className="mt-0.5 font-mono text-[12px] text-stone-500">{row.index.toFixed(2)}</p>
     </div>
   );
 }

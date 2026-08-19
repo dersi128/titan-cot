@@ -12,6 +12,8 @@ export type SeasonaxChartRow = {
   /** Sparse month tick (Jan…Dec). */
   tick: string;
   monthLabel: string;
+  /** Calendar date on the seasonal path, e.g. "19 Aug". */
+  dateLabel: string;
   month: number;
   /** Cumulative seasonal index (Seasonax: start ≈ 100). */
   index: number;
@@ -21,6 +23,12 @@ export type SeasonaxChartRow = {
 function parseIso(iso: string): Date {
   const [y, m, d] = iso.split("-").map(Number);
   return new Date(y, m - 1, d);
+}
+
+function dateLabelFromDoy(dayOfYear: number, year: number): string {
+  const doy = Math.max(1, Math.min(366, Math.round(dayOfYear)));
+  const d = new Date(year, 0, doy);
+  return `${d.getDate()} ${MONTHS[d.getMonth()]}`;
 }
 
 function formatSeasonaxDate(iso: string): string {
@@ -78,6 +86,7 @@ export function buildSeasonaxChartRows(result: SeasonalityResult): SeasonaxChart
   if (curve.length < 2) return [];
 
   const todayTdy = Math.max(1, result.tradingDayOfYear ?? 1);
+  const asOfYear = parseIso(result.currentDate).getFullYear();
   const rows: SeasonaxChartRow[] = [];
   let lastMonth = -1;
 
@@ -94,6 +103,7 @@ export function buildSeasonaxChartRows(result: SeasonalityResult): SeasonaxChart
       dayOfYear: p.dayOfYear,
       tick: showTick ? monthLabel : "",
       monthLabel,
+      dateLabel: dateLabelFromDoy(p.dayOfYear, asOfYear),
       month,
       index: raw,
       isToday: tdy === todayTdy,
