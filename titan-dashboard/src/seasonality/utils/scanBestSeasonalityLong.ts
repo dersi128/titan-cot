@@ -37,6 +37,8 @@ const MIN_SCORE = 45;
 const MIN_SAMPLE_CYCLE = 4;
 /** Show upcoming windows starting within this many trading days. */
 const UPCOMING_HORIZON_TD = 10;
+/** Mirror engine: don't treat ending/turn-date windows as actionable ACTIVE. */
+const MIN_ACTIVE_DAYS_REMAINING = 3;
 
 type ScanCache = {
   key: string;
@@ -147,12 +149,14 @@ function toOpps(
     we.status === "ACTIVE_BULLISH" &&
     result.seasonalBias === "BULLISH" &&
     we.score >= MIN_SCORE &&
-    we.sampleSize >= MIN_SAMPLE_CYCLE;
+    we.sampleSize >= MIN_SAMPLE_CYCLE &&
+    we.daysRemaining >= MIN_ACTIVE_DAYS_REMAINING;
   const activeBear =
     we.status === "ACTIVE_BEARISH" &&
     result.seasonalBias === "BEARISH" &&
     we.score >= MIN_SCORE &&
-    we.sampleSize >= MIN_SAMPLE_CYCLE;
+    we.sampleSize >= MIN_SAMPLE_CYCLE &&
+    we.daysRemaining >= MIN_ACTIVE_DAYS_REMAINING;
 
   if (activeBull) {
     out.push(
@@ -310,7 +314,7 @@ export async function scanSeasonalOpportunities(): Promise<{
   shorts: SeasonalityOpportunity[];
 }> {
   const cyclePhase = currentPresidentialCyclePhase();
-  const key = `cycle:${cyclePhase}:v3-10td`;
+  const key = `cycle:${cyclePhase}:v4-turn`;
   if (cached?.key === key) return { longs: cached.longs, shorts: cached.shorts };
   if (inflight) return inflight;
   inflight = runScan(cyclePhase)

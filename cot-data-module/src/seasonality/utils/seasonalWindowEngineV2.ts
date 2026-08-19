@@ -15,6 +15,11 @@ const MIN_SAMPLE = 8;
 /** Floor for thin history (e.g. single presidential-cycle phase ≈ 4–5 years). */
 const MIN_SAMPLE_FLOOR = 4;
 const MIN_WR = 0.6;
+/**
+ * Need this many trading days left inside a window to call it ACTIVE.
+ * Ending-today / turn-date windows must not keep a LONG/SHORT bias.
+ */
+const MIN_ACTIVE_DAYS_REMAINING = 3;
 
 /** Adaptive sample gate — cycle filters shrink available years. */
 function effectiveMinSample(historyYears: number): number {
@@ -489,9 +494,15 @@ export function computeSeasonalityWindowsV2(
 
   const candidates = scanAroundToday(books, asOfYear, lookback, todayTdy, asOfBook, minSample);
 
-  // ACTIVE = today strictly inside a hard-qualified historical window
+  // ACTIVE = inside window with enough days left (not on/near the turn date)
   const active = candidates
-    .filter((w) => w.daysUntilStart === 0 && w.startTdy <= todayTdy && w.endTdy >= todayTdy)
+    .filter(
+      (w) =>
+        w.daysUntilStart === 0 &&
+        w.startTdy <= todayTdy &&
+        w.endTdy >= todayTdy &&
+        w.daysRemaining >= MIN_ACTIVE_DAYS_REMAINING,
+    )
     .sort(
       (a, b) =>
         b.score - a.score ||
