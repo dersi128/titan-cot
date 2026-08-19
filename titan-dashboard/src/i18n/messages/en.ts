@@ -955,7 +955,7 @@ export const enMessages = {
       },
     },
     dataNote: "Source: synthetic mock OHLC (fallback)",
-    dataNoteYahoo: "Source: Yahoo Finance · MNQ=F / futures tickers · delayed daily OHLC",
+    dataNoteYahoo: "Source: Yahoo Finance · NQ=F / cash indices · delayed daily OHLC",
     dataNoteApi: "Source: TITAN Seasonality API ({{target}})",
     stats: {
       bias: "Seasonal Bias",

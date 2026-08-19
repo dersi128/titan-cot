@@ -957,7 +957,7 @@ export const csMessages: Messages = {
       },
     },
     dataNote: "Zdroj: syntetický mock OHLC (záložní režim)",
-    dataNoteYahoo: "Zdroj: Yahoo Finance · MNQ=F / futures tickery · zpožděné daily OHLC",
+    dataNoteYahoo: "Zdroj: Yahoo Finance · NQ=F / cash indexy · zpožděné daily OHLC",
     dataNoteApi: "Zdroj: TITAN Seasonality API ({{target}})",
     stats: {
       bias: "Seasonal Bias",
