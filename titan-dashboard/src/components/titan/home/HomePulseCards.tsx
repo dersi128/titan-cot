@@ -192,7 +192,10 @@ export function HomePulseCards({ bundle, onNavigate }: HomePulseCardsProps) {
   }, []);
 
   const openSeason = (marketId: string) =>
-    onNavigate("seasonality", { seasonalityMarket: marketId });
+    onNavigate("seasonality", {
+      seasonalityMarket: marketId,
+      seasonalityCycles: [currentPresidentialCyclePhase()],
+    });
 
   const windowTag = t("home.pulseSeasonWindowTag");
   const cyclePhase = useMemo(() => currentPresidentialCyclePhase(), []);

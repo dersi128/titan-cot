@@ -1,6 +1,6 @@
 ﻿import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTitanI18n } from "../i18n";
-import { parseSeasonalityMarketFromHash, setAppSectionHash } from "../lib/titanAppRoute";
+import { parseSeasonalityMarketFromHash, parseSeasonalityCyclesFromHash, setAppSectionHash } from "../lib/titanAppRoute";
 import { DEFAULT_SEASONALITY_MARKET_ID, resolveSeasonalityMarket } from "./markets";
 import { shouldUseSeasonalityApi, describeSeasonalityApiTarget } from "./seasonalityApi";
 import type { SeasonalityComparison } from "./services/seasonalityService";
@@ -25,7 +25,9 @@ export function SeasonalityPage() {
     () => parseSeasonalityMarketFromHash() ?? DEFAULT_SEASONALITY_MARKET_ID,
   );
   const [lookback, setLookback] = useState<YearsLookback>(DEFAULT_YEARS_LOOKBACK);
-  const [cycles, setCycles] = useState<PresidentialCyclePhase[]>([]);
+  const [cycles, setCycles] = useState<PresidentialCyclePhase[]>(
+    () => parseSeasonalityCyclesFromHash() ?? [],
+  );
   const [excludedYears, setExcludedYears] = useState<number[]>([]);
   const [sourceBars, setSourceBars] = useState<OhlcBar[] | null>(null);
   const [comparison, setComparison] = useState<SeasonalityComparison | null>(null);
@@ -37,13 +39,29 @@ export function SeasonalityPage() {
   const selectMarket = useCallback((id: string) => {
     setMarketId(id);
     setExcludedYears([]);
-    setAppSectionHash("seasonality", { seasonalityMarket: id });
-  }, []);
+    setAppSectionHash("seasonality", {
+      seasonalityMarket: id,
+      seasonalityCycles: hasPresidentialSelection(cycles) ? cycles : undefined,
+    });
+  }, [cycles]);
+
+  const onCyclesChange = useCallback(
+    (next: PresidentialCyclePhase[]) => {
+      setCycles(next);
+      setAppSectionHash("seasonality", {
+        seasonalityMarket: marketId,
+        seasonalityCycles: hasPresidentialSelection(next) ? next : undefined,
+      });
+    },
+    [marketId],
+  );
 
   useEffect(() => {
     const syncFromHash = () => {
       const fromHash = parseSeasonalityMarketFromHash();
       if (fromHash) setMarketId(fromHash);
+      const fromCycles = parseSeasonalityCyclesFromHash();
+      if (fromCycles) setCycles(fromCycles);
     };
     window.addEventListener("hashchange", syncFromHash);
     syncFromHash();
@@ -176,7 +194,7 @@ export function SeasonalityPage() {
               onLookbackChange={setLookback}
               currentMonth={currentMonth}
               presidentialPhases={cycles}
-              onPresidentialPhasesChange={setCycles}
+              onPresidentialPhasesChange={onCyclesChange}
               excludedYears={excludedYears}
               onExcludedYearsChange={setExcludedYears}
               filtersDisabled={loading}
