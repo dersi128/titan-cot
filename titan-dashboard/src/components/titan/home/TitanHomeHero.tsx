@@ -19,6 +19,8 @@ function sectionEyebrowKey(section: AppSection): string {
       return "nav.scanner";
     case "seasonality":
       return "nav.seasonality";
+    case "valuation":
+      return "nav.valuation";
     case "dme":
       return "nav.dme";
   }

@@ -1,5 +1,7 @@
 /** Internal / alias → Yahoo Finance ticker (free delayed quotes). */
 export const YAHOO_TICKERS: Record<string, string> = {
+  DXY: "DX-Y.NYB",
+  DOLLAR: "DX-Y.NYB",
   GOLD: "GC=F",
   SILVER: "SI=F",
   OIL: "CL=F",
@@ -14,6 +16,8 @@ export const YAHOO_TICKERS: Record<string, string> = {
   WHEAT: "ZW=F",
   CORN: "ZC=F",
   SOYBEANS: "ZS=F",
+  CATTLE: "LE=F",
+  HOGS: "HE=F",
   NAS100: "NQ=F",
   NQ: "NQ=F",
   SPX: "^GSPC",

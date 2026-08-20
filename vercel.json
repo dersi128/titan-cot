@@ -25,6 +25,10 @@
       "destination": "https://titan-cot.onrender.com/api/seasonality/:match*"
     },
     {
+      "source": "/api/valuation/:match*",
+      "destination": "https://titan-cot.onrender.com/api/valuation/:match*"
+    },
+    {
       "source": "/api/macro/:match*",
       "destination": "https://titan-cot.onrender.com/api/macro/:match*"
     },

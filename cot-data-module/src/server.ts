@@ -10,7 +10,13 @@ import {
   handleSeasonalityMarkets,
   handleSeasonalitySingle,
 } from "./seasonalityRoutes.js";
+import {
+  handleValuationDetail,
+  handleValuationMarkets,
+  handleValuationUniverse,
+} from "./valuationRoutes.js";
 import { getMacroRates, isFredConfigured } from "./fredRates.js";
+import { valuationCacheTtlMs } from "./valuation/valuationCache.js";
 
 const PORT = Number(process.env.PORT ?? 3000);
 
@@ -35,6 +41,7 @@ app.get("/health", (_request, response) => {
     seasonalityOhlcProvider: process.env.SEASONALITY_OHLC_PROVIDER ?? "yahoo",
     fredConfigured: isFredConfigured(),
     fredCacheTtlMs: Number(process.env.FRED_CACHE_TTL_MS ?? 6 * 60 * 60 * 1000),
+    valuationCacheTtlMs: valuationCacheTtlMs(),
   });
 });
 
@@ -47,6 +54,10 @@ app.get("/api/seasonality/markets", asyncHandler(handleSeasonalityMarkets));
 app.get("/api/seasonality/:symbol/bundle", asyncHandler(handleSeasonalityBundle));
 
 app.get("/api/seasonality/:symbol", asyncHandler(handleSeasonalitySingle));
+
+app.get("/api/valuation/markets", asyncHandler(handleValuationMarkets));
+app.get("/api/valuation/bundle", asyncHandler(handleValuationUniverse));
+app.get("/api/valuation/:id", asyncHandler(handleValuationDetail));
 
 app.get("/api/cot/mappings", (_request, response) => {
   response.json({

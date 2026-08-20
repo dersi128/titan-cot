@@ -3,7 +3,7 @@ import {
   type PresidentialCyclePhase,
 } from "../seasonality/utils/presidentialCycle";
 
-export type AppSection = "home" | "scanner" | "seasonality" | "dme";
+export type AppSection = "home" | "scanner" | "seasonality" | "valuation" | "dme";
 
 export type DashboardView = AppSection | "market";
 
@@ -12,9 +12,11 @@ export type NavigateSectionOptions = {
   seasonalityMarket?: string;
   /** Prefill presidential cycle filter (`?cycles=midterm`). */
   seasonalityCycles?: PresidentialCyclePhase[];
+  /** Prefill valuation market (`#/valuation/GOLD`). */
+  valuationMarket?: string;
 };
 
-const SECTIONS: AppSection[] = ["home", "scanner", "seasonality", "dme"];
+const SECTIONS: AppSection[] = ["home", "scanner", "seasonality", "valuation", "dme"];
 
 function hashPathAndQuery(): { path: string; query: string } {
   const raw = window.location.hash.replace(/^#\/?/, "");
@@ -44,6 +46,20 @@ export function parseSeasonalityMarketFromHash(): string | null {
   }
 }
 
+/** Second hash segment when on valuation, e.g. `#/valuation/GOLD` → `GOLD`. */
+export function parseValuationMarketFromHash(): string | null {
+  const { path } = hashPathAndQuery();
+  const parts = path.split("/").filter(Boolean);
+  if (parts[0]?.toLowerCase() !== "valuation") return null;
+  const raw = parts[1]?.trim();
+  if (!raw) return null;
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return raw;
+  }
+}
+
 /** `?cycles=midterm` or `?cycles=election,post` on seasonality hash. */
 export function parseSeasonalityCyclesFromHash(): PresidentialCyclePhase[] | null {
   const { path, query } = hashPathAndQuery();
@@ -63,6 +79,8 @@ export function setAppSectionHash(section: AppSection, options?: NavigateSection
     if (cycles?.length) {
       next += `?cycles=${encodeURIComponent(cycles.join(","))}`;
     }
+  } else if (section === "valuation" && options?.valuationMarket?.trim()) {
+    next = `#/valuation/${encodeURIComponent(options.valuationMarket.trim())}`;
   } else {
     next = `#/${section}`;
   }

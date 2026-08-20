@@ -6,7 +6,7 @@ type TitanAppNavProps = {
   onNavigate: (section: AppSection) => void;
 };
 
-const NAV_ORDER: AppSection[] = ["home", "scanner", "seasonality", "dme"];
+const NAV_ORDER: AppSection[] = ["home", "scanner", "seasonality", "valuation", "dme"];
 
 export function TitanAppNav({ active, onNavigate }: TitanAppNavProps) {
   const { t } = useTitanI18n();
@@ -19,6 +19,8 @@ export function TitanAppNav({ active, onNavigate }: TitanAppNavProps) {
         return t("nav.scanner");
       case "seasonality":
         return t("nav.seasonality");
+      case "valuation":
+        return t("nav.valuation");
       case "dme":
         return t("nav.dme");
     }
