@@ -17,7 +17,7 @@ export default defineConfig({
         changeOrigin: true,
         secure: true,
       },
-      "/api/seasonality": {
+      "/api/valuation": {
         target: RENDER,
         changeOrigin: true,
         secure: true,

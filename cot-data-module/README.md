@@ -56,6 +56,14 @@ Future symbol routes can be added by wiring handlers into `cotHandlers` in `src/
 - Increasing commercial weekly net change adds bullish points; decreasing weekly net change subtracts points.
 - Retail uses Non-Reportable positioning as confirmation only when it is opposite to the commercial bias; aligned retail positioning is treated as weak.
 
+## Valuation
+
+- `GET /api/valuation/markets` — FX / metals / commodities / equity universe
+- `GET /api/valuation/bundle` — cheap/rich scanner rows
+- `GET /api/valuation/:id` — fair value, score (−100 cheap … +100), history
+- Yahoo prices always; FRED CPI / policy rates / TIPS / USD / Wilshire+GDP when `FRED_API_KEY` is set
+- Cache default 6h (`VALUATION_CACHE_TTL_MS`)
+
 ## Macro rates (FRED)
 
 - `GET /api/macro/rates` — Fed funds (`DFF`) + US 2Y (`DGS2`)

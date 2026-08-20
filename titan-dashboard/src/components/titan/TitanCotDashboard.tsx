@@ -30,6 +30,8 @@ import { TitanScannerPage } from "./pages/TitanScannerPage";
 
 import { TitanSeasonalityPage } from "./pages/TitanSeasonalityPage";
 
+import { TitanValuationPage } from "./pages/TitanValuationPage";
+
 import { MarketDetailPanel } from "./MarketDetailPanel";
 
 import { TitanDetailErrorBoundary } from "./TitanDetailErrorBoundary";
@@ -476,6 +478,8 @@ export function TitanCotDashboard() {
             ) : null}
 
             {section === "seasonality" ? <TitanSeasonalityPage /> : null}
+
+            {section === "valuation" ? <TitanValuationPage /> : null}
 
             {section === "dme" ? (
               <TitanDmePage bundle={bundle} onSelectMarket={openMarket} />
