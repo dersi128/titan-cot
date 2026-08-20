@@ -288,15 +288,15 @@ function buildAt(input: ValuationInput, asOf: string, priceMonthly: DatedValue[]
       components.push({ id: "macroModel", score: 0, weight: 0.45, available: false, label: "USD vs real yields" });
     }
   } else if (market.model === "metal" || market.model === "commodity") {
-    const stat = statisticalMeanRevert(price);
+    const trend = trendFair(price);
     components.push({
-      id: "statistical",
-      score: stat.score,
+      id: "trend",
+      score: trend.score,
       weight: market.model === "metal" ? 0.2 : 0.25,
       available: true,
-      label: "Nominal mean reversion",
+      label: "Detrended log-price",
     });
-    fairValue = stat.fair;
+    fairValue = trend.fair;
 
     if (usdCpi.length >= 24) {
       inputsUsed.push("cpi:USD");
