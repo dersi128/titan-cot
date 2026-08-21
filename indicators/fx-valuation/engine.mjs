@@ -1,5 +1,5 @@
 /**
- * FX Valuation — standalone math (mirrors FX_Valuation.pine).
+ * FX Valuation — standalone math (mirrors indicators/Valuace-FX.pine).
  * Score: + = BASE expensive vs QUOTE, − = BASE cheap vs QUOTE.
  */
 

@@ -1,0 +1,250 @@
+# Valuace FX
+
+Samostatný TradingView indikátor valuace měnových párů.
+
+**Pine soubor:** `indicators/Valuace-FX.pine`  
+**Do TradingView:** otevři Pine Editor → vlož kód níže → Save → Add to chart (na FX páru).
+
+Skóre −100…+100: **+ báze drahá vs kotace**, **− báze levná**.  
+Výpočet: percentil(log cena) − percentil(výnos báze − výnos kotace).
+
+---
+
+## Pine kód
+
+```pine
+//@version=5
+indicator(
+     title      = "Valuace FX",
+     shorttitle = "FXVAL",
+     overlay    = false,
+     timeframe  = "D",
+     timeframe_gaps = true,
+     precision  = 1,
+     max_labels_count = 5,
+     max_bars_back = 5000)
+
+// =============================================================================
+// Samostatný indikátor valuace měnových párů (ne COT, ne dashboard).
+//
+// Skóre −100…+100:
+//   +  báze DRAHÁ vs kotace
+//   −  báze LEVNÁ vs kotace
+//
+// Model (BEER-lite):
+//   stretch ceny  = percentil(log close)
+//   stretch sazeb = percentil(výnos báze − výnos kotace)
+//   valuace       = stretch ceny − stretch sazeb
+//
+// Majory i crosse: stejný model na daném páru.
+// Crosse navíc: implied z USD nohou (EURJPY ≈ EURUSD + USDJPY v tomto znaménku).
+// Chybí-li výnosy → fallback jen na stretch ceny.
+// =============================================================================
+
+grpModel = "Model"
+lookback = input.int(1260, "Lookback (denní bary)", minval = 60, maxval = 5000, step = 60, group = grpModel, tooltip = "1260 ≈ 5 let. Počítá se vždy na denním timeframe.")
+tenor    = input.string("10Y", "Tenor výnosů", options = ["02Y", "10Y"], group = grpModel)
+rich     = input.int(40, "Pásmo drahé / levné", minval = 10, maxval = 80, group = grpModel)
+extreme  = input.int(70, "Pásmo extrém", minval = 20, maxval = 95, group = grpModel)
+
+grpPair   = "Pár"
+baseOv    = input.string("", "Báze (prázdné = auto)", group = grpPair)
+quoteOv   = input.string("", "Kotace (prázdné = auto)", group = grpPair)
+fxPrefixOv = input.string("", "Prefix USD nohou (prázdné = prefix grafu)", group = grpPair, tooltip = "Např. FX, OANDA, FX_IDC")
+yieldPx   = input.string("TVC", "Prefix výnosů", group = grpPair)
+
+grpShow      = "Zobrazení"
+showPrice    = input.bool(false, "Čára: stretch ceny", group = grpShow)
+showRates    = input.bool(false, "Čára: stretch sazeb", group = grpShow)
+showImplied  = input.bool(true, "Čára: implied z USD nohou (crosse)", group = grpShow)
+showDxy      = input.bool(false, "Čára: DXY stretch (USD páry)", group = grpShow)
+showTable    = input.bool(true, "Tabulka", group = grpShow)
+
+// --- Pair detect -------------------------------------------------------------
+baseCcy  = str.upper(baseOv  == "" ? syminfo.basecurrency : baseOv)
+quoteCcy = str.upper(quoteOv == "" ? syminfo.currency     : quoteOv)
+validPair = str.length(baseCcy) == 3 and str.length(quoteCcy) == 3 and baseCcy != quoteCcy
+isUsdPair = validPair and (baseCcy == "USD" or quoteCcy == "USD")
+isFxCross = validPair and baseCcy != "USD" and quoteCcy != "USD"
+fxPrefix  = fxPrefixOv == "" ? syminfo.prefix : fxPrefixOv
+
+// --- Yield tickers -----------------------------------------------------------
+yieldCountry(string ccy) =>
+    switch ccy
+        "USD" => "US"
+        "EUR" => "DE"
+        "GBP" => "GB"
+        "JPY" => "JP"
+        "AUD" => "AU"
+        "NZD" => "NZ"
+        "CAD" => "CA"
+        "CHF" => "CH"
+        "NOK" => "NO"
+        "SEK" => "SE"
+        "DKK" => "DK"
+        "MXN" => "MX"
+        "ZAR" => "ZA"
+        "SGD" => "SG"
+        "PLN" => "PL"
+        "CZK" => "CZ"
+        "HUF" => "HU"
+        "TRY" => "TR"
+        "CNH" => "CN"
+        "CNY" => "CN"
+        "KRW" => "KR"
+        "INR" => "IN"
+        "HKD" => "HK"
+        => ""
+
+yieldTicker(string ccy) =>
+    string code = yieldCountry(ccy)
+    code == "" ? "" : yieldPx + ":" + code + tenor
+
+usdAsQuote(string ccy) =>
+    ccy == "EUR" or ccy == "GBP" or ccy == "AUD" or ccy == "NZD"
+
+usdLegTicker(string ccy) =>
+    ccy == "USD" or ccy == "" ? "" : usdAsQuote(ccy) ? fxPrefix + ":" + ccy + "USD" : fxPrefix + ":USD" + ccy
+
+// request.security cannot take an empty symbol — dummy + ignore_invalid_symbol
+fetchClose(string ticker) =>
+    string sym = ticker == "" ? "TVC:US10Y" : ticker
+    float  px  = request.security(sym, "D", close, barmerge.gaps_off, barmerge.lookahead_off, true)
+    ticker == "" ? na : px
+
+yBaseRaw  = fetchClose(yieldTicker(baseCcy))
+yQuoteRaw = fetchClose(yieldTicker(quoteCcy))
+yUsdRaw   = fetchClose(yieldTicker("USD"))
+yBase     = ta.fixnan(yBaseRaw)
+yQuote    = ta.fixnan(yQuoteRaw)
+yUsd      = ta.fixnan(yUsdRaw)
+
+baseUsdPx = fetchClose(usdLegTicker(baseCcy))
+usdQuotePx = fetchClose(quoteCcy == "USD" ? "" : usdLegTicker(quoteCcy))
+dxyPx     = fetchClose("TVC:DXY")
+
+// --- Scores ------------------------------------------------------------------
+toScore(float src, int len) =>
+    float pct = ta.percentrank(src, len)
+    na(pct) ? na : math.max(-100.0, math.min(100.0, 2.0 * pct - 100.0))
+
+priceScore = toScore(math.log(close), lookback)
+rateDiff   = yBase - yQuote
+hasRates   = not na(yBaseRaw) and not na(yQuoteRaw)
+rateScore  = hasRates ? toScore(rateDiff, lookback) : na
+rawVal     = hasRates ? priceScore - rateScore : priceScore
+valuation  = na(rawVal) ? na : math.max(-100.0, math.min(100.0, rawVal))
+valMode    = hasRates ? "residual" : "price"
+
+// USD-leg valuations (same residual model), then "ccy expensive vs USD"
+legVal(float px, float yB, float yQ) =>
+    float pS = toScore(math.log(px), lookback)
+    bool  hr = not na(yB) and not na(yQ)
+    float rS = hr ? toScore(yB - yQ, lookback) : na
+    float v  = hr ? pS - rS : pS
+    na(v) ? na : math.max(-100.0, math.min(100.0, v))
+
+baseUsdValRaw = usdAsQuote(baseCcy) ? legVal(baseUsdPx, yBase, yUsd) : legVal(baseUsdPx, yUsd, yBase)
+quoteUsdValRaw = usdAsQuote(quoteCcy) ? legVal(usdQuotePx, yQuote, yUsd) : legVal(usdQuotePx, yUsd, yQuote)
+
+baseVsUsd  = baseCcy == "USD" ? 0.0 : usdAsQuote(baseCcy) ? baseUsdValRaw : -baseUsdValRaw
+quoteVsUsd = quoteCcy == "USD" ? 0.0 : usdAsQuote(quoteCcy) ? quoteUsdValRaw : -quoteUsdValRaw
+implied    = isFxCross and not na(baseVsUsd) and not na(quoteVsUsd) ? math.max(-100.0, math.min(100.0, baseVsUsd - quoteVsUsd)) : na
+
+dxyScore   = toScore(math.log(dxyPx), lookback)
+corrLen    = lookback < 252 ? lookback : 252
+rateCorr   = hasRates ? ta.correlation(ta.change(math.log(close)), ta.change(rateDiff), corrLen) : na
+
+// --- Classify ----------------------------------------------------------------
+clsName(float s) =>
+    na(s) ? "NA" : s >= extreme ? "EXTREME_EXPENSIVE" : s >= rich ? "EXPENSIVE" : s <= -extreme ? "EXTREME_CHEAP" : s <= -rich ? "CHEAP" : "FAIR"
+
+clsLabel(float s, string b, string q) =>
+    string k = clsName(s)
+    k == "EXTREME_EXPENSIVE" ? b + " extra drahé vs " + q :
+     k == "EXPENSIVE"         ? b + " drahé vs " + q :
+     k == "EXTREME_CHEAP"     ? b + " extra levné vs " + q :
+     k == "CHEAP"             ? b + " levné vs " + q :
+     k == "FAIR"              ? b + " fér vs " + q : "N/A"
+
+clsShort(float s) =>
+    string k = clsName(s)
+    k == "EXTREME_EXPENSIVE" ? "EXTRA DRAHÉ" :
+     k == "EXPENSIVE"         ? "DRAHÉ" :
+     k == "EXTREME_CHEAP"     ? "EXTRA LEVNÉ" :
+     k == "CHEAP"             ? "LEVNÉ" :
+     k == "FAIR"              ? "FÉR" : "—"
+
+valColor =
+     na(valuation) ? color.new(#8a8a8a, 40) :
+     valuation >= extreme ? #c4452a :
+     valuation >= rich    ? #e07a3d :
+     valuation <= -extreme ? #1b7a6e :
+     valuation <= -rich    ? #2a9d8f :
+     #8b8b8b
+
+// --- Plots -------------------------------------------------------------------
+h0  = hline(0,        "Fér",            color = color.new(#888888, 40), linestyle = hline.style_solid)
+hRp = hline(rich,     "Drahé",          color = color.new(#e07a3d, 55), linestyle = hline.style_dotted)
+hEp = hline(extreme,  "Extrém drahé",   color = color.new(#c4452a, 40), linestyle = hline.style_dotted)
+hRn = hline(-rich,    "Levné",          color = color.new(#2a9d8f, 55), linestyle = hline.style_dotted)
+hEn = hline(-extreme, "Extrém levné",   color = color.new(#1b7a6e, 40), linestyle = hline.style_dotted)
+fill(hRp, hEp, color.new(#c4452a, 90), title = "Zóna drahé")
+fill(hRn, hEn, color.new(#1b7a6e, 90), title = "Zóna levné")
+
+plot(valuation, "Valuace", color = valColor, style = plot.style_histogram, histbase = 0.0, linewidth = 3)
+plot(showPrice ? priceScore : na, "Stretch ceny", color = color.new(#cfcfcf, 0), linewidth = 1)
+plot(showRates ? rateScore  : na, "Stretch sazeb", color = color.new(#6ea8fe, 0), linewidth = 1)
+plot(showImplied and isFxCross ? implied : na, "Implied USD nohy", color = color.new(#c9a227, 0), linewidth = 2)
+plot(showDxy and isUsdPair ? dxyScore : na, "DXY stretch", color = color.new(#9b7ed9, 0), linewidth = 1)
+
+// --- Last-bar label ----------------------------------------------------------
+var label valLbl = na
+if barstate.islast
+    label.delete(valLbl)
+    if validPair and not na(valuation)
+        valLbl := label.new(
+             bar_index,
+             valuation,
+             clsLabel(valuation, baseCcy, quoteCcy) + "\n" + str.tostring(valuation, "#.#"),
+             xloc = xloc.bar_index,
+             yloc = yloc.price,
+             style = valuation >= 0 ? label.style_label_down : label.style_label_up,
+             color = color.new(valColor, 10),
+             textcolor = color.white,
+             size = size.small)
+
+// --- Table -------------------------------------------------------------------
+var table info = na
+
+setCell(int r, string a, string b, color bc) =>
+    table.cell(info, 0, r, a, text_color = color.new(#bbbbbb, 0), bgcolor = color.new(#141414, 10), text_size = size.small, text_halign = text.align_left)
+    table.cell(info, 1, r, b, text_color = color.white, bgcolor = bc, text_size = size.small, text_halign = text.align_right)
+
+if barstate.islast and not showTable
+    table.delete(info)
+    info := na
+
+if showTable and barstate.islast
+    if na(info)
+        info := table.new(position.top_right, 2, 9, frame_color = color.new(#333333, 0), border_width = 1)
+    string pairKind = not validPair ? "nastav bázi/kotaci" : isFxCross ? "CROSS" : isUsdPair ? "USD MAJOR" : "PÁR"
+    string pairTxt  = validPair ? baseCcy + quoteCcy : syminfo.ticker
+    string modeTxt  = not validPair ? "—" : valMode == "residual" ? "cena − sazby" : "jen cena"
+    string corrTxt  = na(rateCorr) ? "—" : str.tostring(rateCorr, "0.00")
+    setCell(0, "Pár", pairTxt + "  " + pairKind, color.new(#141414, 10))
+    setCell(1, "Valuace", na(valuation) ? "—" : str.tostring(valuation, "#.#") + "  " + clsShort(valuation), color.new(valColor, 70))
+    setCell(2, "Stretch ceny", na(priceScore) ? "—" : str.tostring(priceScore, "#.#"), color.new(#141414, 10))
+    setCell(3, "Stretch sazeb", na(rateScore) ? "—" : str.tostring(rateScore, "#.#"), color.new(#141414, 10))
+    setCell(4, "Režim", modeTxt, color.new(#141414, 10))
+    setCell(5, "Corr Δcena/Δsazby", corrTxt, color.new(#141414, 10))
+    setCell(6, baseCcy + " vs USD", na(baseVsUsd) ? "—" : str.tostring(baseVsUsd, "#.#"), color.new(#141414, 10))
+    setCell(7, quoteCcy + " vs USD", na(quoteVsUsd) ? "—" : str.tostring(quoteVsUsd, "#.#"), color.new(#141414, 10))
+    setCell(8, "Implied USD nohy", na(implied) ? "—" : str.tostring(implied, "#.#"), color.new(#141414, 10))
+
+alertcondition(ta.crossover(valuation, extreme),  "Valuace FX extra drahá",  "Báze crossed into extreme expensive")
+alertcondition(ta.crossunder(valuation, -extreme), "Valuace FX extra levná", "Báze crossed into extreme cheap")
+alertcondition(ta.crossover(valuation, rich),     "Valuace FX drahá",        "Báze crossed into expensive")
+alertcondition(ta.crossunder(valuation, -rich),    "Valuace FX levná",       "Báze crossed into cheap")
+
+```
