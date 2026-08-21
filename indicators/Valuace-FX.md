@@ -2,6 +2,7 @@
 
 Samostatný TradingView indikátor valuace měnových párů.
 
+**Pine verze:** vždy `//@version=6`  
 **Pine soubor:** `indicators/Valuace-FX.pine`  
 **Do TradingView:** otevři Pine Editor → vlož kód níže → Save → Add to chart (na FX páru).
 
@@ -13,7 +14,7 @@ Výpočet: percentil(log cena) − percentil(výnos báze − výnos kotace).
 ## Pine kód
 
 ```pine
-//@version=5
+//@version=6
 indicator(
      title      = "Valuace FX",
      shorttitle = "FXVAL",
@@ -25,6 +26,7 @@ indicator(
      max_bars_back = 5000)
 
 // =============================================================================
+// Pine: vždy //@version=6
 // Samostatný indikátor valuace měnových párů (ne COT, ne dashboard).
 //
 // Skóre −100…+100:
@@ -109,7 +111,7 @@ usdLegTicker(string ccy) =>
 // request.security cannot take an empty symbol — dummy + ignore_invalid_symbol
 fetchClose(string ticker) =>
     string sym = ticker == "" ? "TVC:US10Y" : ticker
-    float  px  = request.security(sym, "D", close, barmerge.gaps_off, barmerge.lookahead_off, true)
+    float  px  = request.security(sym, "D", close, gaps = barmerge.gaps_off, lookahead = barmerge.lookahead_off, ignore_invalid_symbol = true)
     ticker == "" ? na : px
 
 yBaseRaw  = fetchClose(yieldTicker(baseCcy))
