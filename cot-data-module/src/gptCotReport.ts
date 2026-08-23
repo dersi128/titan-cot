@@ -31,6 +31,9 @@ export type GptCotReport = {
     contrarianSignal: string;
   };
   scoreComponents: CotDashboardOutput["scoreComponents"];
+  confidence?: string;
+  rawScore?: number;
+  marketRegime?: string;
 };
 
 export function listGptCotMarkets(): Array<{
@@ -76,6 +79,9 @@ export function toGptCotReport(data: CotDashboardOutput, slug: string): GptCotRe
       contrarianSignal: data.retail.contrarianSignal,
     },
     scoreComponents: data.scoreComponents,
+    confidence: data.confidence,
+    rawScore: data.rawScore,
+    marketRegime: data.marketRegime,
   };
 }
 

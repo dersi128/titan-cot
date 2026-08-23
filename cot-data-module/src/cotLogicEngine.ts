@@ -20,7 +20,6 @@ export {
   clampScore,
   computeUnifiedCotScore,
   countCommercialExtremePersistence,
-  deriveMarketPhase,
   normalizeLegacyVerdict,
   scoreToCotVerdict,
 } from "./titanCotScoringCore.js";
@@ -94,7 +93,6 @@ function engineInputToScoring(input: CotEngineInput): TitanCotScoringInput {
       bias: input.commercialBias,
     },
     nonCommercials: {
-      index26w: input.nonCommercials.index26w,
       weeklyChange: input.nonCommercials.weeklyChange,
       divergence: input.nonCommercialDivergence,
     },

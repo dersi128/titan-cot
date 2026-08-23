@@ -17,6 +17,8 @@ Soubory v repu:
 - `cot-data-module/chatgpt/openapi.yaml` — schema pro Actions  
 - `cot-data-module/chatgpt/GPT_INSTRUCTIONS.md` — instrukce GPT  
 
+**Poznámka:** Po deployi tohoto release API cotScore / cotVerdict odpovídají dashboardu (stejný scoring engine).
+
 ---
 
 ## Krok 1 — Deploy API (Render)

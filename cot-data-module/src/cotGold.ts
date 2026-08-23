@@ -1,4 +1,4 @@
-import { pathToFileURL } from "node:url";
+﻿import { pathToFileURL } from "node:url";
 
 import { buildLegacyFuturesWhereClause, getCotMarketMapping, type CotMarketMapping } from "./cotMarketMap.js";
 import {
@@ -64,12 +64,15 @@ export type CotDashboardOutput = {
   plainEnglishExplanation: string;
   scoreComponents: {
     commercialPositioning: number;
-    commercialFlow: number;
+    commercialDeltaFlow: number;
     persistence: number;
     ncDivergence: number;
-    retailContrarian: number;
-    openInterest: number;
+    retailCrowding: number;
   };
+  /** Optional scoring metadata for GPT / dashboard parity. */
+  confidence?: string;
+  rawScore?: number;
+  marketRegime?: string;
   /** Full fetched weekly series for charts (oldest → newest). */
   history: CotHistoryPoint[];
 };
@@ -249,7 +252,6 @@ function buildDashboardOutput(series: NetSeriesPoint[], mapping: CotMarketMappin
       bias: commercialBias,
     },
     nonCommercials: {
-      index26w: nonCommercials.index26w,
       weeklyChange: nonCommWeekly,
       divergence: nonCommercialDivergence,
     },
@@ -261,12 +263,17 @@ function buildDashboardOutput(series: NetSeriesPoint[], mapping: CotMarketMappin
     history,
   });
 
-  const { score: cotScore, verdict: cotVerdict, marketPhase } = scoring;
+  const cotScore = scoring.score;
+  const cotVerdict = scoring.verdict;
+  const marketPhase = scoring.market_regime;
 
   const plainEnglishExplanation = buildPlainEnglishExplanation({
     marketLabel: mapping.displayName,
     futuresSymbol: mapping.futuresSymbol,
     reportDate: latest.reportDate,
+    commercialBias,
+    retailContrarian: retailSignal,
+    nonCommercialDivergence,
     result: scoring,
   });
 
@@ -294,6 +301,9 @@ function buildDashboardOutput(series: NetSeriesPoint[], mapping: CotMarketMappin
     cotScore,
     cotVerdict,
     marketPhase,
+    confidence: scoring.confidence,
+    rawScore: scoring.raw_score,
+    marketRegime: scoring.market_regime,
     plainEnglishExplanation,
     scoreComponents: scoring.components,
     history,
