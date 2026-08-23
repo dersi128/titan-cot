@@ -1,0 +1,133 @@
+openapi: 3.1.0
+info:
+  title: TITAN COT GPT API
+  version: 1.0.0
+  description: |
+    Compact COT report endpoints for ChatGPT Custom GPT Actions.
+    Base URL: https://titan-cot.onrender.com
+servers:
+  - url: https://titan-cot.onrender.com
+paths:
+  /api/gpt/markets:
+    get:
+      operationId: listCotMarkets
+      summary: List available COT markets and slugs
+      description: Call this when the user asks which markets are supported, or before guessing a symbol.
+      security:
+        - TitanApiKey: []
+      responses:
+        "200":
+          description: Market list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  markets:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        slug:
+                          type: string
+                          example: gold
+                        market:
+                          type: string
+                          example: GOLD
+                        futuresSymbol:
+                          type: string
+                          example: GC1!
+                        aliases:
+                          type: array
+                          items:
+                            type: string
+        "401":
+          description: Missing or invalid API key
+  /api/gpt/cot-report:
+    get:
+      operationId: getCotReport
+      summary: Fetch a compact COT report for one market
+      description: |
+        Use when the user asks for a COT Report / COT analysis for a market
+        (gold, silver, nasdaq, oil, etc.). Prefer this over guessing numbers.
+      security:
+        - TitanApiKey: []
+      parameters:
+        - name: market
+          in: query
+          required: true
+          description: Market slug or alias (gold, nasdaq, nq, silver, crude-oil, …)
+          schema:
+            type: string
+            example: gold
+      responses:
+        "200":
+          description: Compact COT report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CotReport"
+        "400":
+          description: Missing market query
+        "401":
+          description: Unauthorized
+        "404":
+          description: Unknown market
+  /api/gpt/cot/{symbol}:
+    get:
+      operationId: getCotReportByPath
+      summary: Fetch COT report by path symbol
+      security:
+        - TitanApiKey: []
+      parameters:
+        - name: symbol
+          in: path
+          required: true
+          schema:
+            type: string
+            example: gold
+      responses:
+        "200":
+          description: Compact COT report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CotReport"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Unknown market
+components:
+  securitySchemes:
+    TitanApiKey:
+      type: apiKey
+      in: header
+      name: X-Titan-Key
+  schemas:
+    CotReport:
+      type: object
+      properties:
+        market:
+          type: string
+        futuresSymbol:
+          type: string
+        slug:
+          type: string
+        reportDate:
+          type: string
+        cotScore:
+          type: number
+        cotVerdict:
+          type: string
+        marketPhase:
+          type: string
+        summary:
+          type: string
+        commercials:
+          type: object
+        nonCommercials:
+          type: object
+        retail:
+          type: object
+        scoreComponents:
+          type: object

@@ -5,6 +5,8 @@ import { getCachedCotDashboard } from "./cotCache.js";
 import { loadCotBundle } from "./cotBundle.js";
 import { fetchGoldCotDashboardData } from "./cotGold.js";
 import { COT_MARKET_MAPPINGS, getCotMarketMapping } from "./cotMarketMap.js";
+import { requireChatGptApiKey } from "./gptAuth.js";
+import { buildGptCotReport, listGptCotMarkets } from "./gptCotReport.js";
 import {
   handleSeasonalityBundle,
   handleSeasonalityMarkets,
@@ -35,6 +37,7 @@ app.get("/health", (_request, response) => {
     seasonalityOhlcProvider: process.env.SEASONALITY_OHLC_PROVIDER ?? "yahoo",
     fredConfigured: isFredConfigured(),
     fredCacheTtlMs: Number(process.env.FRED_CACHE_TTL_MS ?? 6 * 60 * 60 * 1000),
+    chatgptApiKeyConfigured: Boolean(process.env.CHATGPT_API_KEY?.trim()),
   });
 });
 
@@ -84,6 +87,47 @@ app.get("/api/cot/:symbol", asyncHandler(async (request, response) => {
   }
 
   response.json(await getCachedCotDashboard(mapping.futuresSymbol));
+}));
+
+/** —— ChatGPT Custom GPT Actions (compact COT reports) —— */
+app.use("/api/gpt", requireChatGptApiKey);
+
+app.get("/api/gpt/markets", (_request, response) => {
+  response.json({ markets: listGptCotMarkets() });
+});
+
+app.get("/api/gpt/cot/:symbol", asyncHandler(async (request, response) => {
+  const symbolRaw = request.params.symbol;
+  const symbol = Array.isArray(symbolRaw) ? symbolRaw[0] : symbolRaw;
+  const report = await buildGptCotReport(symbol ?? "");
+  if (!report) {
+    response.status(404).json({
+      error: "Unknown market.",
+      markets: listGptCotMarkets().map((m) => m.slug),
+    });
+    return;
+  }
+  response.json(report);
+}));
+
+app.get("/api/gpt/cot-report", asyncHandler(async (request, response) => {
+  const q = typeof request.query.market === "string" ? request.query.market.trim() : "";
+  if (!q) {
+    response.status(400).json({
+      error: "Query ?market= is required (e.g. gold, nasdaq, silver).",
+      markets: listGptCotMarkets().map((m) => m.slug),
+    });
+    return;
+  }
+  const report = await buildGptCotReport(q);
+  if (!report) {
+    response.status(404).json({
+      error: `No COT mapping for "${q}".`,
+      markets: listGptCotMarkets().map((m) => m.slug),
+    });
+    return;
+  }
+  response.json(report);
 }));
 
 app.use((request, response) => {
