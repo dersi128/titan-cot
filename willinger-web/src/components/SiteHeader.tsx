@@ -23,7 +23,7 @@ export function SiteHeader() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-40 transition-colors duration-300 ${
+      className={`fixed inset-x-0 top-0 z-[100] transition-colors duration-300 ${
         light
           ? "bg-transparent text-cream"
           : "border-b border-gold/20 bg-pine-deep/95 text-cream backdrop-blur-md"
@@ -63,7 +63,7 @@ export function SiteHeader() {
         </nav>
         <button
           type="button"
-          className="relative z-50 grid h-11 w-11 place-items-center border border-gold/40 md:hidden"
+          className="grid h-12 w-12 place-items-center border border-gold/60 bg-pine-deep/80 md:hidden"
           aria-expanded={open}
           aria-controls="mobile-nav"
           onClick={() => setOpen((v) => !v)}
@@ -91,7 +91,7 @@ export function SiteHeader() {
       {open && (
         <nav
           id="mobile-nav"
-          className="absolute inset-x-0 top-full border-t border-gold/25 bg-pine-deep px-5 py-8 md:hidden"
+          className="border-t border-gold/25 bg-pine-deep px-5 py-8 md:hidden"
         >
           <div className="flex flex-col gap-1">
             {nav.map((item) => (
