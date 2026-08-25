@@ -63,35 +63,54 @@ export function SiteHeader() {
         </nav>
         <button
           type="button"
-          className="grid h-11 w-11 place-items-center border border-gold/40 md:hidden"
+          className="relative z-50 grid h-11 w-11 place-items-center border border-gold/40 md:hidden"
           aria-expanded={open}
           aria-controls="mobile-nav"
           onClick={() => setOpen((v) => !v)}
         >
           <span className="sr-only">Menü</span>
-          <span className="flex flex-col gap-1.5" aria-hidden>
-            <span className={`block h-px w-5 bg-gold ${open ? "translate-y-2 rotate-45" : ""} transition-transform`} />
-            <span className={`block h-px w-5 bg-gold ${open ? "opacity-0" : ""}`} />
-            <span className={`block h-px w-5 bg-gold ${open ? "-translate-y-2 -rotate-45" : ""} transition-transform`} />
+          <span className="relative block h-3.5 w-5" aria-hidden>
+            <span
+              className={`absolute left-0 top-0 block h-px w-5 bg-gold transition-transform ${
+                open ? "translate-y-[6px] rotate-45" : ""
+              }`}
+            />
+            <span
+              className={`absolute left-0 top-[6px] block h-px w-5 bg-gold transition-opacity ${
+                open ? "opacity-0" : ""
+              }`}
+            />
+            <span
+              className={`absolute left-0 top-[12px] block h-px w-5 bg-gold transition-transform ${
+                open ? "-translate-y-[6px] -rotate-45" : ""
+              }`}
+            />
           </span>
         </button>
       </div>
       {open && (
         <nav
           id="mobile-nav"
-          className="border-t border-gold/20 bg-pine-deep px-5 py-6 md:hidden"
+          className="absolute inset-x-0 top-full border-t border-gold/25 bg-pine-deep px-5 py-8 md:hidden"
         >
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-1">
             {nav.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => setOpen(false)}
-                className="text-sm tracking-[0.22em] uppercase text-cream"
+                className="border-b border-gold/10 py-3 text-sm tracking-[0.22em] uppercase text-cream"
               >
                 {item.label}
               </Link>
             ))}
+            <Link
+              href="/kontakt"
+              onClick={() => setOpen(false)}
+              className="mt-4 border border-gold px-4 py-3 text-center text-[0.72rem] tracking-[0.22em] uppercase text-gold"
+            >
+              Angebot anfragen
+            </Link>
           </div>
         </nav>
       )}

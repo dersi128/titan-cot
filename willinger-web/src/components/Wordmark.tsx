@@ -16,15 +16,21 @@ export function Wordmark({
         }`}
         aria-hidden
       >
-        <svg viewBox="0 0 32 32" className="h-6 w-6 fill-gold">
-          <path d="M8 24V9h4.1c3.4 0 5.6 1.8 5.6 4.7 0 2-.9 3.5-2.8 4.2L19.4 24h-4.1l-4.2-5.2H12V24H8Zm4-8.4v-3.2h.4c1.4 0 2.2.7 2.2 1.7s-.8 1.5-2.2 1.5H12Z" />
+        <svg viewBox="0 0 32 32" className="h-6 w-6 text-gold">
           <path
-            d="M6 8c2.4-3.6 6.2-5 8.8-5M26 8c-2.4-3.6-6.2-5-8.8-5"
+            d="M6 11c3.2-5.2 7.4-7 10-7M26 11c-3.2-5.2-7.4-7-10-7"
             fill="none"
             stroke="currentColor"
-            className="stroke-gold"
             strokeWidth="1.6"
             strokeLinecap="round"
+          />
+          <path
+            d="M7.5 12 12 24.5 16 15.5 20 24.5 24.5 12"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.1"
+            strokeLinejoin="miter"
+            strokeLinecap="butt"
           />
         </svg>
       </span>
