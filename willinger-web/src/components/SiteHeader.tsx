@@ -8,9 +8,9 @@ import { nav } from "@/lib/site";
 
 export function SiteHeader() {
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const onHero = pathname === "/";
+  const light = onHero && !scrolled;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 16);
@@ -19,11 +19,9 @@ export function SiteHeader() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const light = onHero && !scrolled && !open;
-
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-[100] transition-colors duration-300 ${
+      className={`fixed inset-x-0 top-0 z-[100] transition-colors duration-300 has-[[open]]:border-b has-[[open]]:border-gold/20 has-[[open]]:bg-pine-deep/95 ${
         light
           ? "bg-transparent text-cream"
           : "border-b border-gold/20 bg-pine-deep/95 text-cream backdrop-blur-md"
@@ -61,59 +59,34 @@ export function SiteHeader() {
             Angebot anfragen
           </Link>
         </nav>
-        <button
-          type="button"
-          className="grid h-12 w-12 place-items-center border border-gold/60 bg-pine-deep/80 md:hidden"
-          aria-expanded={open}
-          aria-controls="mobile-nav"
-          onClick={() => setOpen((v) => !v)}
-        >
-          <span className="sr-only">Menü</span>
-          <span className="relative block h-3.5 w-5" aria-hidden>
-            <span
-              className={`absolute left-0 top-0 block h-px w-5 bg-gold transition-transform ${
-                open ? "translate-y-[6px] rotate-45" : ""
-              }`}
-            />
-            <span
-              className={`absolute left-0 top-[6px] block h-px w-5 bg-gold transition-opacity ${
-                open ? "opacity-0" : ""
-              }`}
-            />
-            <span
-              className={`absolute left-0 top-[12px] block h-px w-5 bg-gold transition-transform ${
-                open ? "-translate-y-[6px] -rotate-45" : ""
-              }`}
-            />
-          </span>
-        </button>
-      </div>
-      {open && (
-        <nav
-          id="mobile-nav"
-          className="border-t border-gold/25 bg-pine-deep px-5 py-8 md:hidden"
-        >
-          <div className="flex flex-col gap-1">
-            {nav.map((item) => (
+        <details key={pathname} className="relative md:hidden">
+          <summary className="flex h-12 cursor-pointer list-none items-center justify-center border border-gold/60 bg-pine-deep/80 px-3 text-[0.68rem] tracking-[0.2em] uppercase text-gold [&::-webkit-details-marker]:hidden">
+            Menü
+          </summary>
+          <nav
+            id="mobile-nav"
+            className="absolute right-0 top-[calc(100%+0.75rem)] w-[min(18rem,calc(100vw-2.5rem))] border border-gold/25 bg-pine-deep px-5 py-5 shadow-2xl"
+          >
+            <div className="flex flex-col gap-1">
+              {nav.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="border-b border-gold/10 py-3 text-sm tracking-[0.22em] uppercase text-cream"
+                >
+                  {item.label}
+                </Link>
+              ))}
               <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setOpen(false)}
-                className="border-b border-gold/10 py-3 text-sm tracking-[0.22em] uppercase text-cream"
+                href="/kontakt"
+                className="mt-4 border border-gold px-4 py-3 text-center text-[0.72rem] tracking-[0.22em] uppercase text-gold"
               >
-                {item.label}
+                Angebot anfragen
               </Link>
-            ))}
-            <Link
-              href="/kontakt"
-              onClick={() => setOpen(false)}
-              className="mt-4 border border-gold px-4 py-3 text-center text-[0.72rem] tracking-[0.22em] uppercase text-gold"
-            >
-              Angebot anfragen
-            </Link>
-          </div>
-        </nav>
-      )}
+            </div>
+          </nav>
+        </details>
+      </div>
     </header>
   );
 }
