@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Cormorant_Garamond, Source_Sans_3 } from "next/font/google";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
-import { site } from "@/lib/site";
+import { copy, site } from "@/lib/site";
 import "./globals.css";
 
 const display = Cormorant_Garamond({
@@ -18,17 +18,24 @@ const body = Source_Sans_3({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://willinger-wildundfleisch.example"),
+  metadataBase: new URL(site.productionUrl),
   title: {
     default: `${site.name} · Weinviertel`,
     template: `%s · ${site.shortName}`,
   },
-  description: site.description,
+  description: copy.de.description,
+  alternates: {
+    languages: {
+      "de-AT": "/",
+      cs: "/cs",
+    },
+  },
   openGraph: {
     title: site.name,
-    description: site.description,
+    description: copy.de.description,
     locale: "de_AT",
     type: "website",
+    url: site.productionUrl,
     images: [{ url: "/images/deer.jpg" }],
   },
 };
@@ -38,7 +45,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     "@context": "https://schema.org",
     "@type": "FoodEstablishment",
     name: site.name,
-    description: site.description,
+    description: copy.de.description,
+    url: site.productionUrl,
     telephone: "+4329433682",
     email: site.email,
     foundingDate: String(site.founded),

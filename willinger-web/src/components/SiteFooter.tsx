@@ -1,22 +1,29 @@
+"use client";
+
 import Link from "next/link";
-import { site } from "@/lib/site";
+import { usePathname } from "next/navigation";
+import { copy, localeFromPath, pathFor, site } from "@/lib/site";
 import { Wordmark } from "@/components/Wordmark";
 
 export function SiteFooter() {
+  const pathname = usePathname();
+  const locale = localeFromPath(pathname);
+  const t = copy[locale];
+
   return (
     <footer className="bg-pine-deep text-cream">
       <div className="mx-auto grid max-w-6xl gap-12 px-5 py-16 md:grid-cols-3 lg:px-8">
         <div>
           <Wordmark light />
           <p className="mt-5 max-w-xs text-sm leading-relaxed text-cream/70">
-            {site.claim}. Seit {site.founded} in Untermarkersdorf.
+            {t.claim}. {t.since} {site.founded} {t.in}
           </p>
           <p className="mt-4 inline-flex items-center gap-2 border border-gold/30 px-3 py-1 text-[0.65rem] tracking-[0.2em] uppercase text-gold">
-            {site.vetMark} · kontrolliert
+            {site.vetMark} · {t.controlled}
           </p>
         </div>
         <div>
-          <p className="font-serif text-xl text-gold-soft">Besuch & Anfrage</p>
+          <p className="font-serif text-xl text-gold-soft">{t.visit}</p>
           <address className="mt-4 not-italic text-sm leading-7 text-cream/75">
             {site.address.street}
             <br />
@@ -37,31 +44,31 @@ export function SiteFooter() {
           </p>
         </div>
         <div>
-          <p className="font-serif text-xl text-gold-soft">Seiten</p>
+          <p className="font-serif text-xl text-gold-soft">{t.pages}</p>
           <ul className="mt-4 space-y-2 text-sm text-cream/75">
             <li>
-              <Link className="hover:text-gold" href="/sortiment">
+              <Link className="hover:text-gold" href={pathFor(locale, "/sortiment")}>
                 Sortiment
               </Link>
             </li>
             <li>
-              <Link className="hover:text-gold" href="/aktuell">
-                Wildübernahme
+              <Link className="hover:text-gold" href={pathFor(locale, "/aktuell")}>
+                {locale === "cs" ? "Výkup zvěřiny" : "Wildübernahme"}
               </Link>
             </li>
             <li>
-              <Link className="hover:text-gold" href="/kontakt">
-                Kontakt
+              <Link className="hover:text-gold" href={pathFor(locale, "/kontakt")}>
+                {locale === "cs" ? "Kontakt" : "Kontakt"}
               </Link>
             </li>
             <li>
-              <Link className="hover:text-gold" href="/impressum">
+              <Link className="hover:text-gold" href={pathFor(locale, "/impressum")}>
                 Impressum
               </Link>
             </li>
             <li>
-              <Link className="hover:text-gold" href="/datenschutz">
-                Datenschutz
+              <Link className="hover:text-gold" href={pathFor(locale, "/datenschutz")}>
+                {locale === "cs" ? "Ochrana údajů" : "Datenschutz"}
               </Link>
             </li>
           </ul>

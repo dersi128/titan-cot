@@ -1,15 +1,15 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { game, site, specialties } from "@/lib/site";
+import { copy, game, site, specialties, type Locale } from "@/lib/site";
 
-const interests = [
-  ...game.map((item) => item.name),
-  ...specialties.map((item) => item.name),
-  "Wildübernahme",
-];
-
-export function ContactForm() {
+export function ContactForm({ locale }: { locale: Locale }) {
+  const t = copy[locale];
+  const interests = [
+    ...game[locale].map((item) => item.name),
+    ...specialties[locale].map((item) => item.name),
+    t.takeoverInterest,
+  ];
   const [sent, setSent] = useState(false);
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -21,10 +21,10 @@ export function ContactForm() {
     const message = String(data.get("message") || "").trim();
     const selected = interests.filter((item) => data.get(`i-${item}`));
     const body = [
-      `Name: ${name}`,
-      `E-Mail: ${email}`,
-      phone ? `Telefon: ${phone}` : "",
-      selected.length ? `Interesse: ${selected.join(", ")}` : "",
+      `${t.name}: ${name}`,
+      `${t.mail}: ${email}`,
+      phone ? `${t.phone}: ${phone}` : "",
+      selected.length ? `${t.interest}: ${selected.join(", ")}` : "",
       "",
       message,
     ]
@@ -32,7 +32,7 @@ export function ContactForm() {
       .join("\n");
 
     window.location.href = `mailto:${site.email}?subject=${encodeURIComponent(
-      `Anfrage von ${name}`,
+      `${t.subject} ${name}`,
     )}&body=${encodeURIComponent(body)}`;
     setSent(true);
   }
@@ -40,10 +40,9 @@ export function ContactForm() {
   if (sent) {
     return (
       <div className="border border-gold/40 bg-cream/60 p-8">
-        <p className="font-serif text-3xl text-pine">Danke für Ihre Anfrage.</p>
+        <p className="font-serif text-3xl text-pine">{t.thanks}</p>
         <p className="mt-3 text-sm leading-relaxed text-muted">
-          Ihr E-Mail-Programm öffnet sich mit der fertigen Nachricht an{" "}
-          {site.email}. Falls nichts passiert, schreiben Sie uns bitte direkt.
+          {t.thanksText} {site.email}.
         </p>
       </div>
     );
@@ -53,7 +52,7 @@ export function ContactForm() {
     <form onSubmit={onSubmit} className="space-y-6">
       <div className="grid gap-5 sm:grid-cols-2">
         <label className="block text-xs tracking-[0.18em] uppercase text-muted">
-          Name
+          {t.name}
           <input
             required
             name="name"
@@ -62,7 +61,7 @@ export function ContactForm() {
           />
         </label>
         <label className="block text-xs tracking-[0.18em] uppercase text-muted">
-          E-Mail
+          {t.mail}
           <input
             required
             type="email"
@@ -73,7 +72,7 @@ export function ContactForm() {
         </label>
       </div>
       <label className="block text-xs tracking-[0.18em] uppercase text-muted">
-        Telefon <span className="normal-case tracking-normal">(optional)</span>
+        {t.phone} <span className="normal-case tracking-normal">{t.optional}</span>
         <input
           name="phone"
           autoComplete="tel"
@@ -82,7 +81,7 @@ export function ContactForm() {
       </label>
       <fieldset>
         <legend className="text-xs tracking-[0.18em] uppercase text-muted">
-          Interesse
+          {t.interest}
         </legend>
         <div className="mt-3 flex flex-wrap gap-2">
           {interests.map((item) => (
@@ -97,20 +96,20 @@ export function ContactForm() {
         </div>
       </fieldset>
       <label className="block text-xs tracking-[0.18em] uppercase text-muted">
-        Nachricht
+        {t.message}
         <textarea
           required
           name="message"
           rows={6}
           className="mt-2 w-full border border-pine/15 bg-ivory px-4 py-3 text-sm tracking-normal text-ink outline-none focus:border-gold"
-          placeholder="Menge, Wunschtermin, Abholung oder Lieferung…"
+          placeholder={t.placeholder}
         />
       </label>
       <button
         type="submit"
         className="bg-oxblood px-8 py-3 text-[0.72rem] tracking-[0.24em] uppercase text-cream transition-colors hover:bg-pine"
       >
-        Anfrage senden
+        {t.send}
       </button>
     </form>
   );

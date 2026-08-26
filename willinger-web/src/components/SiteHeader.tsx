@@ -2,14 +2,22 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { copy, localeFromPath, nav, pathFor } from "@/lib/site";
 import { Wordmark } from "@/components/Wordmark";
-import { nav } from "@/lib/site";
+import { useEffect, useState } from "react";
+
+function twinPath(pathname: string, locale: "de" | "cs") {
+  const raw = pathname.replace(/^\/cs/, "") || "/";
+  return pathFor(locale, raw);
+}
 
 export function SiteHeader() {
   const pathname = usePathname();
+  const locale = localeFromPath(pathname);
+  const t = copy[locale];
+  const items = nav[locale];
   const [scrolled, setScrolled] = useState(false);
-  const onHero = pathname === "/";
+  const onHero = pathname === "/" || pathname === "/cs";
   const light = onHero && !scrolled;
 
   useEffect(() => {
@@ -31,19 +39,20 @@ export function SiteHeader() {
         href="#inhalt"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:bg-gold focus:px-3 focus:py-2 focus:text-pine-deep"
       >
-        Zum Inhalt
+        {t.skip}
       </a>
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4 lg:px-8">
-        <Link href="/" aria-label="Willinger Startseite">
+        <Link href={pathFor(locale, "/")} aria-label="Willinger">
           <Wordmark light compact={false} />
         </Link>
-        <nav className="hidden items-center gap-8 md:flex" aria-label="Hauptnavigation">
-          {nav.map((item) => {
-            const active = pathname === item.href;
+        <nav className="hidden items-center gap-7 md:flex" aria-label="Navigation">
+          {items.map((item) => {
+            const href = pathFor(locale, item.href);
+            const active = pathname === href;
             return (
               <Link
                 key={item.href}
-                href={item.href}
+                href={href}
                 className={`text-[0.72rem] tracking-[0.28em] uppercase transition-colors ${
                   active ? "text-gold" : "text-cream/80 hover:text-gold"
                 }`}
@@ -53,35 +62,44 @@ export function SiteHeader() {
             );
           })}
           <Link
-            href="/kontakt"
+            href={twinPath(pathname, locale === "cs" ? "de" : "cs")}
+            className="text-[0.68rem] tracking-[0.18em] uppercase text-gold-soft hover:text-gold"
+          >
+            {locale === "cs" ? "DE" : "CS"}
+          </Link>
+          <Link
+            href={pathFor(locale, "/kontakt")}
             className="border border-gold/70 bg-gold/10 px-4 py-2 text-[0.68rem] tracking-[0.22em] uppercase text-gold-soft transition-colors hover:bg-gold hover:text-pine-deep"
           >
-            Angebot anfragen
+            {t.offer}
           </Link>
         </nav>
         <details key={pathname} className="relative md:hidden">
           <summary className="flex h-12 cursor-pointer list-none items-center justify-center border border-gold/60 bg-pine-deep/80 px-3 text-[0.68rem] tracking-[0.2em] uppercase text-gold [&::-webkit-details-marker]:hidden">
-            Menü
+            {t.menu}
           </summary>
-          <nav
-            id="mobile-nav"
-            className="absolute right-0 top-[calc(100%+0.75rem)] w-[min(18rem,calc(100vw-2.5rem))] border border-gold/25 bg-pine-deep px-5 py-5 shadow-2xl"
-          >
+          <nav className="absolute right-0 top-[calc(100%+0.75rem)] w-[min(18rem,calc(100vw-2.5rem))] border border-gold/25 bg-pine-deep px-5 py-5 shadow-2xl">
             <div className="flex flex-col gap-1">
-              {nav.map((item) => (
+              {items.map((item) => (
                 <Link
                   key={item.href}
-                  href={item.href}
+                  href={pathFor(locale, item.href)}
                   className="border-b border-gold/10 py-3 text-sm tracking-[0.22em] uppercase text-cream"
                 >
                   {item.label}
                 </Link>
               ))}
               <Link
-                href="/kontakt"
-                className="mt-4 border border-gold px-4 py-3 text-center text-[0.72rem] tracking-[0.22em] uppercase text-gold"
+                href={twinPath(pathname, locale === "cs" ? "de" : "cs")}
+                className="py-3 text-sm tracking-[0.22em] uppercase text-gold"
               >
-                Angebot anfragen
+                {locale === "cs" ? "Deutsch" : "Česky"}
+              </Link>
+              <Link
+                href={pathFor(locale, "/kontakt")}
+                className="mt-2 border border-gold px-4 py-3 text-center text-[0.72rem] tracking-[0.22em] uppercase text-gold"
+              >
+                {t.offer}
               </Link>
             </div>
           </nav>
