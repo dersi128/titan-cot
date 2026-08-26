@@ -1,15 +1,27 @@
 # Nasazení Willinger webu (24/7 jako Titan)
 
-Titan běží na [titan-cot.vercel.app](https://titan-cot.vercel.app). Willinger má **vlastní Vercel projekt** ve složce `willinger-web/`, aby se Titan nerozbil.
+Titan nech na [titan-cot.vercel.app](https://titan-cot.vercel.app). **Projekt `titan-cot` v Vercelu neotevírej a neměň.**
 
-## Jednorázově (převzít na tvůj účet)
+Willinger už má vlastní projekt: [willinger-web](https://vercel.com/dersisvan-s-projects/willinger-web).
+Bez nastavení níže Vercel staví kořen repa (Titan) a `https://willinger-web.vercel.app` ukazuje TITAN COT.
 
-1. Otevři claim odkaz z deploye (přijde v chatu).
-2. Přihlas se **stejným Vercel účtem** jako Titan.
-3. V Vercel → Add New Project → repo `dersi128/titan-cot`:
-   - **Root Directory:** `willinger-web`
-   - Framework: Next.js
-4. Deploy. Od té chvíle každá úprava v `willinger-web/` na `main` jde ven sama, bez tebe.
+Web v kódu je hotový (větev `cursor/willinger-web-redesign-d9af`). Složka `willinger-web/` na `main` ještě není.
+
+## Jednorázově v existujícím projektu willinger-web
+
+1. Otevři [Build & Deployment](https://vercel.com/dersisvan-s-projects/willinger-web/settings/build-and-deployment).
+2. **Root Directory** → `willinger-web` → Save.
+3. [Git nastavení](https://vercel.com/dersisvan-s-projects/willinger-web/settings/git) → **Production Branch** → `cursor/willinger-web-redesign-d9af` → Save.
+   (Až se PR sloučí do `main`, vrať Production Branch na `main`.)
+4. [Deployments](https://vercel.com/dersisvan-s-projects/willinger-web/deployments) → poslední **Failed** → **Redeploy** → vypni *Use existing Build Cache*.
+
+Až bude **Ready**:
+
+- [willinger-web.vercel.app](https://willinger-web.vercel.app) = německy
+- [willinger-web.vercel.app/cs](https://willinger-web.vercel.app/cs) = česky
+- [titan-cot.vercel.app](https://titan-cot.vercel.app) = pořád Titan
+
+Nový projekt nepřidávej. Claim odkaz nepoužívej.
 
 ## Lokálně
 
