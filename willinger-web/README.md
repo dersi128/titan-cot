@@ -1,22 +1,15 @@
 # Willinger Wild und Fleisch — Web-Neuauflage
 
-Moderne Neuinterpretation der Jimdo-Seite
+Designová kopie Jimdo stránky
 [willinger-wildundfleisch.jimdofree.com](https://willinger-wildundfleisch.jimdofree.com/).
+Není to oficiální web firmy. Titan COT se nemění.
 
-Tohle je designová kopie, ne oficiální web. Titan COT se nemění.
+24/7 hosting jako Titan: viz [NASAZENI.md](./NASAZENI.md).
 
-## 24/7 hosting (jako Titan)
+Willinger musí být **samostatný** Vercel projekt (root directory `willinger-web`),
+jinak by přepsal Titan dashboard.
 
-Titan běží na Vercelu. Willinger musí být **samostatný** Vercel projekt
-(root directory `willinger-web`), jinak by přepsal Titan dashboard.
-
-1. Ve Vercelu: Add New Project → stejný GitHub repo `dersi128/titan-cot`
-2. Root Directory nastav na `willinger-web`
-3. Framework: Next.js, Deploy
-
-Po napojení každého pushu se web znovu nasadí a běží bez tvého počítače.
-
-## Lokal spuštění
+## Lokálně
 
 ```bash
 cd willinger-web
