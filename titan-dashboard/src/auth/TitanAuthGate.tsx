@@ -428,7 +428,12 @@ function AuthSessionGate({ children }: { children: ReactNode }) {
   );
 }
 
+function shouldBypassAuth(): boolean {
+  return import.meta.env.DEV === true && import.meta.env.VITE_DEV_BYPASS_AUTH === "true";
+}
+
 export function TitanAuthGate({ children }: TitanAuthGateProps) {
+  if (shouldBypassAuth()) return <>{children}</>;
   if (!hasClerkPublishableKey()) return <AuthMissingKey />;
   if (!isValidPublishableKey(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY)) return <AuthInvalidKey />;
   return <AuthSessionGate>{children}</AuthSessionGate>;
