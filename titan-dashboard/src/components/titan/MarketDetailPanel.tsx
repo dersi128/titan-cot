@@ -1,13 +1,4 @@
-import {
-  CartesianGrid,
-  Legend,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { useMemo, useState } from "react";
 import type { CotDashboardData } from "../../types";
 import type { InstitutionalMarket } from "../../config/institutionalMarkets";
 import { evaluateTitanPositioning } from "../../lib/titanCommercialIndex";
@@ -16,9 +7,21 @@ import {
   formatCommercialIndex,
 } from "../../lib/titanCotIndexSettings";
 import { formatContractsDelta } from "../../lib/titanDmeOverview";
+import {
+  buildTimeMachineWeeks,
+  rebuildCotDashboardAsOf,
+} from "../../lib/cotAsOfSnapshot";
+import {
+  DEFAULT_COT_CHART_MODE,
+  DEFAULT_COT_CHART_RANGE,
+  type CotChartMode,
+  type CotChartRangeWeeks,
+} from "../../lib/cotHistoryChart";
 import { MarketDetailHeroBias } from "./MarketDetailHeroBias";
 import { TitanBiasEngine } from "./TitanBiasEngine";
 import { TitanPositioningCore, TitanPositioningSignal } from "./TitanMarketEngine";
+import { CotTimeMachine } from "./CotTimeMachine";
+import { CotHistoryChartPanel } from "./CotHistoryChartPanel";
 import { useTitanI18n } from "../../i18n";
 import { TitanPanel } from "./ui/TitanPrimitives";
 
@@ -33,21 +36,6 @@ type MarketDetailPanelProps = {
   data: CotDashboardData | null;
   loading: boolean;
   error: string | null;
-};
-
-const CHART_TOOLTIP_STYLE = {
-  background: "rgba(12, 12, 16, 0.96)",
-  border: "1px solid rgba(37, 37, 45, 0.9)",
-  borderRadius: 10,
-  fontSize: 12,
-  boxShadow: "0 12px 40px rgba(0,0,0,0.5)",
-};
-
-type CotChartPoint = {
-  reportDate: string;
-  commercialNet: number;
-  nonCommercialNet: number;
-  retailNet: number;
 };
 
 function flowTone(v: number | null | undefined): string {
@@ -139,122 +127,62 @@ function CompactMetricsStrip({ data, tr }: { data: CotDashboardData; tr: (key: s
   );
 }
 
-function ChartsSection({
-  trimmed,
-  loading,
-  tr,
-}: {
-  trimmed: CotChartPoint[];
-  loading: boolean;
-  tr: (key: string) => string;
-}) {
-  return (
-    <section id="market-charts" className="space-y-4">
-      <h3 className="text-[10px] font-semibold uppercase tracking-[0.2em] text-stone-500">{tr("detail.chartsTitle")}</h3>
-
-      <div className="flex min-h-[400px] flex-col rounded-xl border border-titan-line/70 bg-titan-black/40 p-3">
-        <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-stone-600">{tr("detail.cotHistory")}</p>
-        <div className="min-h-[340px] flex-1">
-          {loading ? (
-            <p className="flex h-full items-center justify-center text-sm text-stone-500 animate-pulse-soft">
-              {tr("detail.loadingHistory")}
-            </p>
-          ) : trimmed.length >= 2 ? (
-            <ResponsiveContainer width="100%" height="100%" minHeight={340}>
-              <LineChart data={trimmed} margin={{ top: 12, right: 16, left: 4, bottom: 4 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(37,37,45,0.6)" vertical={false} />
-                <XAxis
-                  dataKey="reportDate"
-                  tick={{ fill: "#78716c", fontSize: 9, fontFamily: "JetBrains Mono" }}
-                  tickLine={false}
-                  axisLine={{ stroke: "rgba(37,37,45,0.8)" }}
-                  interval="preserveStartEnd"
-                  angle={-28}
-                  textAnchor="end"
-                  height={52}
-                />
-                <YAxis
-                  tick={{ fill: "#78716c", fontSize: 10, fontFamily: "JetBrains Mono" }}
-                  tickLine={false}
-                  axisLine={{ stroke: "rgba(37,37,45,0.8)" }}
-                  tickFormatter={(v) => `${Math.round(Number(v) / 1000)}k`}
-                />
-                <Tooltip contentStyle={CHART_TOOLTIP_STYLE} labelStyle={{ color: "#a8a29e" }} />
-                <Legend wrapperStyle={{ fontSize: 11, paddingTop: 8 }} />
-                <Line
-                  type="monotone"
-                  dataKey="commercialNet"
-                  name={tr("detail.chartCommercial")}
-                  stroke="#2ea8ff"
-                  strokeWidth={2.25}
-                  dot={false}
-                  activeDot={{ r: 4, fill: "#7dd3fc" }}
-                  animationDuration={500}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="nonCommercialNet"
-                  name={tr("detail.chartNonCommercial")}
-                  stroke="#38bdf8"
-                  strokeWidth={1.75}
-                  dot={false}
-                  animationDuration={500}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="retailNet"
-                  name={tr("detail.chartRetail")}
-                  stroke="#f472b6"
-                  strokeWidth={1.75}
-                  dot={false}
-                  animationDuration={500}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          ) : (
-            <p className="flex h-full items-center justify-center text-sm text-stone-500">{tr("detail.notEnoughHistory")}</p>
-          )}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 export function MarketDetailPanel({ market, data, loading, error }: MarketDetailPanelProps) {
   const { t } = useTitanI18n();
+  const [asOfDate, setAsOfDate] = useState<string | null>(null);
+  const [rangeWeeks, setRangeWeeks] = useState<CotChartRangeWeeks>(DEFAULT_COT_CHART_RANGE);
+  const [chartMode, setChartMode] = useState<CotChartMode>(DEFAULT_COT_CHART_MODE);
 
-  const chartData =
-    data?.history?.map((h) => ({
-      reportDate: String(h.reportDate ?? "").slice(0, 10),
-      commercialNet: Number(h.commercialNet),
-      nonCommercialNet: Number(h.nonCommercialNet),
-      retailNet: Number(h.retailNet),
-    })) ?? [];
+  const latestDate = data?.reportDate ? data.reportDate.slice(0, 10) : null;
+  const asOfExists =
+    asOfDate != null &&
+    Boolean(data?.history?.some((point) => String(point.reportDate).slice(0, 10) === asOfDate));
+  const effectiveAsOf = asOfExists && asOfDate !== latestDate ? asOfDate : null;
 
-  const trimmed = chartData.length > 120 ? chartData.slice(-120) : chartData;
+  const weekRows = useMemo(() => (data ? buildTimeMachineWeeks(data) : []), [data]);
+
+  const viewData = useMemo(() => {
+    if (!data) return null;
+    if (!effectiveAsOf) return data;
+    return rebuildCotDashboardAsOf(data, effectiveAsOf) ?? data;
+  }, [data, effectiveAsOf]);
 
   return (
     <TitanPanel className="titan-detail-panel overflow-hidden p-0">
-      <MarketDetailHeroBias market={market} data={data} loading={loading} />
+      <MarketDetailHeroBias market={market} data={viewData} loading={loading} />
 
       <div className="border-b border-white/[0.06] bg-black/10 px-5 py-3 md:px-7 md:py-4">
-        <TitanBiasEngine market={market} data={data} loading={loading} embedded />
+        <TitanBiasEngine market={market} data={viewData} loading={loading} embedded />
       </div>
 
-      <TitanPositioningCore market={market} data={data} loading={loading} />
-      <TitanPositioningSignal market={market} data={data} loading={loading} />
+      <TitanPositioningCore market={market} data={viewData} loading={loading} />
+      <TitanPositioningSignal market={market} data={viewData} loading={loading} />
 
       <div className="space-y-6 border-t border-white/[0.06] p-5 md:p-6">
         {error ? (
           <p className="rounded-lg border border-rose-500/25 bg-rose-950/20 px-4 py-3 text-sm text-rose-300/90">{error}</p>
         ) : null}
 
-        {data ? (
+        {viewData ? (
           <>
-            <CommercialIndexPanel data={data} tr={t} />
-            <ChartsSection trimmed={trimmed} loading={loading} tr={t} />
+            <CotTimeMachine
+              rows={weekRows}
+              selectedDate={effectiveAsOf}
+              latestDate={latestDate}
+              onSelect={setAsOfDate}
+            />
+            <CommercialIndexPanel data={viewData} tr={t} />
+            <CotHistoryChartPanel
+              history={data?.history}
+              loading={loading}
+              rangeWeeks={rangeWeeks}
+              chartMode={chartMode}
+              markerDate={effectiveAsOf ?? latestDate}
+              onRangeWeeks={setRangeWeeks}
+              onChartMode={setChartMode}
+            />
             <div className="border-t border-white/[0.06] pt-5">
-              <CompactMetricsStrip data={data} tr={t} />
+              <CompactMetricsStrip data={viewData} tr={t} />
             </div>
           </>
         ) : null}
