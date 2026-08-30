@@ -127,6 +127,9 @@ export const csMessages: Messages = {
     timeMachine: {
       title: "Týdenní COT read",
       hint: "Klikni na starší CFTC pátek a uvidíš skóre, bias a indexy k tomu reportu.",
+      collapsedHint: "13 CFTC reportů · rozbal pro historii",
+      expand: "Rozbalit",
+      collapse: "Sbalit",
       weekGroup: "Týdny CFTC reportu",
       latest: "Aktuální",
       now: "teď",
