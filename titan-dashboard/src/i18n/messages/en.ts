@@ -125,6 +125,9 @@ export const enMessages = {
     timeMachine: {
       title: "Weekly COT read",
       hint: "Click a past CFTC Friday to see score, bias, and indexes as of that report.",
+      collapsedHint: "13 CFTC reports · expand to time-travel",
+      expand: "Expand",
+      collapse: "Collapse",
       weekGroup: "CFTC report weeks",
       latest: "Latest",
       now: "now",

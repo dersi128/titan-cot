@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { CotWeekSnapshotRow } from "../../lib/cotAsOfSnapshot";
 import { formatContractsDelta } from "../../lib/titanDmeOverview";
 import { verdictAccentClass } from "../../lib/titanCotScore";
@@ -108,6 +109,7 @@ function ScoreSparkline({
 
 export function CotTimeMachine({ rows, selectedDate, latestDate, onSelect }: CotTimeMachineProps) {
   const { t, locale } = useTitanI18n();
+  const [open, setOpen] = useState(false);
   if (rows.length < 2) return null;
 
   const effectiveSelected = selectedDate ?? latestDate;
@@ -115,17 +117,31 @@ export function CotTimeMachine({ rows, selectedDate, latestDate, onSelect }: Cot
   const viewingPast = Boolean(selectedDate && selectedDate !== latestDate);
 
   return (
-    <section className="rounded-xl border border-white/[0.07] bg-black/25 p-4 md:p-5">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <p className="titan-cmd-kicker">{t("detail.timeMachine.title")}</p>
-          <p className="mt-1 text-[12px] text-stone-500">{t("detail.timeMachine.hint")}</p>
-        </div>
+    <section className="rounded-xl border border-white/[0.07] bg-black/25 p-3 md:px-5 md:py-3">
+      <div className="flex items-start gap-2">
+        <button
+          type="button"
+          className="flex min-w-0 flex-1 items-start justify-between gap-3 rounded-lg text-left transition hover:bg-white/[0.03]"
+          onClick={() => setOpen((value) => !value)}
+          aria-expanded={open}
+          aria-controls="cot-time-machine-body"
+          aria-label={open ? t("detail.timeMachine.collapse") : t("detail.timeMachine.expand")}
+        >
+          <span>
+            <span className="titan-cmd-kicker block">{t("detail.timeMachine.title")}</span>
+            <span className="mt-1 block text-[12px] text-stone-500">
+              {open ? t("detail.timeMachine.hint") : t("detail.timeMachine.collapsedHint")}
+            </span>
+          </span>
+          <span className="mt-0.5 shrink-0 font-mono text-xs text-stone-500" aria-hidden>
+            {open ? "−" : "+"}
+          </span>
+        </button>
         {viewingPast ? (
           <button
             type="button"
             onClick={() => onSelect(null)}
-            className="self-start rounded border border-sky-400/40 bg-sky-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-sky-200 transition hover:border-sky-300/60"
+            className="shrink-0 self-start rounded border border-sky-400/40 bg-sky-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-sky-200 transition hover:border-sky-300/60"
           >
             {t("detail.timeMachine.backToLatest")}
           </button>
@@ -141,8 +157,10 @@ export function CotTimeMachine({ rows, selectedDate, latestDate, onSelect }: Cot
         </p>
       ) : null}
 
+      {open ? (
+      <div id="cot-time-machine-body" className="mt-3 space-y-4">
       <div
-        className="mt-3 flex gap-1.5 overflow-x-auto pb-1"
+        className="flex gap-1.5 overflow-x-auto pb-1"
         role="radiogroup"
         aria-label={t("detail.timeMachine.weekGroup")}
       >
@@ -172,7 +190,7 @@ export function CotTimeMachine({ rows, selectedDate, latestDate, onSelect }: Cot
         })}
       </div>
 
-      <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-center">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
         <ScoreSparkline
           rows={rows}
           selectedDate={effectiveSelected}
@@ -244,6 +262,8 @@ export function CotTimeMachine({ rows, selectedDate, latestDate, onSelect }: Cot
           </table>
         </div>
       </div>
+      </div>
+      ) : null}
     </section>
   );
 }
