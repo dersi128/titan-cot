@@ -36,7 +36,7 @@ function Section({
 }) {
   return (
     <Card>
-      <CardHeader className="border-b">
+      <CardHeader className="border-b border-white/[0.06]">
         <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardContent className="pt-4">
@@ -101,7 +101,7 @@ export function TradeDetail({ trade }: { trade: Trade }) {
       </Section>
 
       <Card>
-        <CardHeader className="border-b">
+        <CardHeader className="border-b border-white/[0.06]">
           <CardTitle>{copy.detail.notes}</CardTitle>
         </CardHeader>
         <CardContent className="pt-4">
@@ -112,7 +112,7 @@ export function TradeDetail({ trade }: { trade: Trade }) {
       </Card>
 
       <Card>
-        <CardHeader className="border-b">
+        <CardHeader className="border-b border-white/[0.06]">
           <CardTitle>{copy.detail.screenshots}</CardTitle>
         </CardHeader>
         <CardContent className="pt-4">
