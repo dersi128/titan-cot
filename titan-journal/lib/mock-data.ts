@@ -326,12 +326,14 @@ export const MOCK_TRADES: Trade[] = [...FEATURED, ...buildRest()].map(fromSeed)
 
 export const STRATEGY_SNAPSHOT = {
   best: {
-    name: "A+ čerstvá Demand",
+    name: "A+ Fresh Demand",
     winRate: 0.64,
+    expectancyR: 0.91,
   },
   weakest: {
-    name: "Testovaná Supply",
+    name: "Tested Supply",
     winRate: 0.29,
+    expectancyR: -0.24,
   },
 } as const
 

@@ -21,7 +21,7 @@ const EquityCurve = dynamic(
     import("@/components/dashboard/equity-curve").then((mod) => mod.EquityCurve),
   {
     ssr: false,
-    loading: () => <Skeleton className="h-80 w-full rounded-xl" />,
+    loading: () => <Skeleton className="h-52 w-full rounded-[10px]" />,
   }
 )
 
@@ -39,15 +39,15 @@ export function DashboardPage() {
       />
 
       {!isReady ? (
-        <div className="space-y-6">
+        <div className="space-y-4">
           <KpiSkeleton />
           <TableSkeleton rows={8} />
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4">
           <KpiCards stats={stats} />
           <EquityCurve data={equity} />
-          <div className="grid gap-6 xl:grid-cols-[1.4fr_0.8fr]">
+          <div className="grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(280px,0.8fr)]">
             <RecentTrades trades={trades} />
             <StrategySnapshot />
           </div>
