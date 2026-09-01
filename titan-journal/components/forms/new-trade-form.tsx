@@ -269,7 +269,7 @@ export function NewTradeForm() {
         >
           <AccordionItem
             value="basic"
-            className="titan-glass rounded-2xl px-4 not-last:border-b-0"
+            className="titan-glass rounded-[10px] px-4 not-last:border-b-0"
           >
             <AccordionTrigger className="hover:no-underline">
               {copy.form.basic}
@@ -337,7 +337,7 @@ export function NewTradeForm() {
 
           <AccordionItem
             value="context"
-            className="titan-glass rounded-2xl px-4 not-last:border-b-0"
+            className="titan-glass rounded-[10px] px-4 not-last:border-b-0"
           >
             <AccordionTrigger className="hover:no-underline">
               {copy.form.context}
@@ -371,7 +371,7 @@ export function NewTradeForm() {
 
           <AccordionItem
             value="sd"
-            className="titan-glass rounded-2xl px-4 not-last:border-b-0"
+            className="titan-glass rounded-[10px] px-4 not-last:border-b-0"
           >
             <AccordionTrigger className="hover:no-underline">
               {copy.form.supplyDemand}
@@ -459,7 +459,7 @@ export function NewTradeForm() {
           {showCot ? (
             <AccordionItem
               value="cot"
-              className="titan-glass rounded-2xl px-4 not-last:border-b-0"
+              className="titan-glass rounded-[10px] px-4 not-last:border-b-0"
             >
               <AccordionTrigger className="hover:no-underline">
                 {copy.form.cot}
@@ -495,7 +495,7 @@ export function NewTradeForm() {
 
           <AccordionItem
             value="seasonality"
-            className="titan-glass rounded-2xl px-4 not-last:border-b-0"
+            className="titan-glass rounded-[10px] px-4 not-last:border-b-0"
           >
             <AccordionTrigger className="hover:no-underline">
               {copy.form.seasonality}
@@ -522,7 +522,7 @@ export function NewTradeForm() {
 
           <AccordionItem
             value="plan"
-            className="titan-glass rounded-2xl px-4 not-last:border-b-0"
+            className="titan-glass rounded-[10px] px-4 not-last:border-b-0"
           >
             <AccordionTrigger className="hover:no-underline">
               {copy.form.plan}
@@ -586,7 +586,7 @@ export function NewTradeForm() {
 
           <AccordionItem
             value="grade"
-            className="titan-glass rounded-2xl px-4 not-last:border-b-0"
+            className="titan-glass rounded-[10px] px-4 not-last:border-b-0"
           >
             <AccordionTrigger className="hover:no-underline">
               {copy.form.grade}
@@ -605,7 +605,7 @@ export function NewTradeForm() {
 
           <AccordionItem
             value="notes"
-            className="titan-glass rounded-2xl px-4 not-last:border-b-0"
+            className="titan-glass rounded-[10px] px-4 not-last:border-b-0"
           >
             <AccordionTrigger className="hover:no-underline">
               {copy.form.notes}
@@ -630,7 +630,7 @@ export function NewTradeForm() {
           </Alert>
         ) : null}
 
-        <div className="sticky bottom-0 z-10 -mx-4 border-t border-[rgba(46,168,255,0.12)] bg-[#060a12]/92 px-4 py-3 backdrop-blur md:-mx-0 md:rounded-b-2xl lg:px-0">
+        <div className="sticky bottom-0 z-10 -mx-4 border-t border-white/[0.06] bg-background/95 px-4 py-3 backdrop-blur md:mx-0 md:rounded-b-[10px]">
           <Button type="submit" className="w-full sm:w-auto">
             {copy.form.save}
           </Button>

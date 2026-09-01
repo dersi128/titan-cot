@@ -171,38 +171,38 @@ export function JournalPage() {
       {!isReady ? (
         <TableSkeleton rows={10} />
       ) : (
-        <div className="titan-glass overflow-hidden rounded-2xl">
+        <div className="titan-glass overflow-hidden rounded-[10px]">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">
+                <TableHead className="text-[11px] font-medium text-muted-foreground">
                   {copy.journal.date}
                 </TableHead>
-                <TableHead className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">
+                <TableHead className="text-[11px] font-medium text-muted-foreground">
                   {copy.journal.symbol}
                 </TableHead>
-                <TableHead className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">
+                <TableHead className="text-[11px] font-medium text-muted-foreground">
                   {copy.journal.direction}
                 </TableHead>
-                <TableHead className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">
+                <TableHead className="text-[11px] font-medium text-muted-foreground">
                   {copy.journal.strategy}
                 </TableHead>
-                <TableHead className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">
+                <TableHead className="text-[11px] font-medium text-muted-foreground">
                   {copy.journal.grade}
                 </TableHead>
-                <TableHead className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">
+                <TableHead className="text-[11px] font-medium text-muted-foreground">
                   {copy.journal.trend}
                 </TableHead>
-                <TableHead className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">
+                <TableHead className="text-[11px] font-medium text-muted-foreground">
                   {copy.journal.location}
                 </TableHead>
-                <TableHead className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">
+                <TableHead className="text-[11px] font-medium text-muted-foreground">
                   {copy.journal.result}
                 </TableHead>
-                <TableHead className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">
+                <TableHead className="text-[11px] font-medium text-muted-foreground">
                   {copy.journal.r}
                 </TableHead>
-                <TableHead className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">
+                <TableHead className="text-[11px] font-medium text-muted-foreground">
                   {copy.journal.status}
                 </TableHead>
               </TableRow>

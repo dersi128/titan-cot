@@ -56,7 +56,7 @@ export function TradeDetail({ trade }: { trade: Trade }) {
           <p className="text-xs text-muted-foreground">
             {formatMarketLabel(trade)}
           </p>
-          <h1 className="mt-1 text-2xl font-medium tracking-tight">
+          <h1 className="mt-1 text-[22px] font-semibold tracking-tight">
             {trade.symbol}
           </h1>
           <div className="mt-2 flex flex-wrap items-center gap-2">
