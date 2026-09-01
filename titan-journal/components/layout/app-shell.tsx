@@ -1,6 +1,5 @@
 "use client"
 
-import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Menu } from "lucide-react"
@@ -63,13 +62,8 @@ function BrandBlock() {
   return (
     <Link href="/dashboard" className="flex min-w-0 items-center gap-4 md:gap-5">
       <div className="titan-logo-ring shrink-0">
-        <Image
-          src="/brand/titan-logo.png"
-          alt="TITAN"
-          width={128}
-          height={128}
-          priority
-        />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/brand/titan-logo.png" alt="TITAN" width={128} height={128} />
       </div>
       <div className="min-w-0 border-l border-[rgba(46,168,255,0.15)] pl-4 md:pl-5">
         <p className="titan-kicker">{copy.brand}</p>
