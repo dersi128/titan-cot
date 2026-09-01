@@ -37,7 +37,7 @@ function EquityTooltip({
   const point = payload[0].payload
 
   return (
-    <div className="rounded-[10px] border border-white/[0.08] bg-[#12141a] px-3 py-2 text-[12px] shadow-lg">
+    <div className="rounded-[10px] border border-[rgba(46,168,255,0.18)] bg-[#0c121a] px-3 py-2 text-[12px] shadow-lg">
       <p className="text-muted-foreground">
         {point.date ? formatDate(point.date) : point.label}
       </p>
@@ -72,21 +72,21 @@ export function EquityCurve({ data }: { data: EquityPoint[] }) {
             <AreaChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="equityFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#2cb8d4" stopOpacity={0.22} />
-                  <stop offset="100%" stopColor="#2cb8d4" stopOpacity={0} />
+                  <stop offset="0%" stopColor="#2ea8ff" stopOpacity={0.28} />
+                  <stop offset="100%" stopColor="#2ea8ff" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid stroke="rgba(255,255,255,0.04)" vertical={false} />
               <XAxis
                 dataKey="date"
-                tick={{ fill: "#8b919c", fontSize: 11 }}
+                tick={{ fill: "#8a96a8", fontSize: 11 }}
                 tickLine={false}
                 axisLine={false}
                 minTickGap={28}
                 tickFormatter={formatChartDate}
               />
               <YAxis
-                tick={{ fill: "#8b919c", fontSize: 11 }}
+                tick={{ fill: "#8a96a8", fontSize: 11 }}
                 tickLine={false}
                 axisLine={false}
                 width={64}
@@ -95,17 +95,17 @@ export function EquityCurve({ data }: { data: EquityPoint[] }) {
                 }
               />
               <Tooltip
-                cursor={{ stroke: "rgba(44,184,212,0.35)", strokeWidth: 1 }}
+                cursor={{ stroke: "rgba(46,168,255,0.35)", strokeWidth: 1 }}
                 content={<EquityTooltip />}
               />
               <Area
                 type="monotone"
                 dataKey="equity"
-                stroke="#2cb8d4"
+                stroke="#2ea8ff"
                 fill="url(#equityFill)"
                 strokeWidth={1.75}
                 dot={false}
-                activeDot={{ r: 3, fill: "#2cb8d4", strokeWidth: 0 }}
+                activeDot={{ r: 3, fill: "#2ea8ff", strokeWidth: 0 }}
               />
             </AreaChart>
           </ResponsiveContainer>

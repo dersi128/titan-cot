@@ -109,7 +109,7 @@ function TopBar({ onOpenNav }: { onOpenNav: () => void }) {
   const { account, setAccount, range, setRange } = useWorkspaceChrome()
 
   return (
-    <header className="flex h-16 shrink-0 items-center gap-3 border-b border-white/[0.06] bg-[#0c0d10] px-4 lg:px-6">
+    <header className="titan-topbar flex h-16 shrink-0 items-center gap-3 px-4 lg:px-6">
       <Button
         variant="ghost"
         size="icon-sm"
@@ -151,15 +151,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false)
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <aside className="hidden w-[232px] shrink-0 border-r border-white/[0.06] bg-sidebar lg:flex lg:flex-col">
+    <div className="titan-app flex min-h-screen">
+      <aside className="hidden w-[232px] shrink-0 border-r border-sidebar-border bg-sidebar/90 lg:flex lg:flex-col">
         <SidebarBody />
       </aside>
 
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent
           side="left"
-          className="w-[240px] border-r border-white/[0.06] bg-sidebar p-0"
+          className="w-[240px] border-r border-sidebar-border bg-sidebar p-0"
         >
           <SheetHeader className="sr-only">
             <SheetTitle>TITAN Journal</SheetTitle>
