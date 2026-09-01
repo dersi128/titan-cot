@@ -19,24 +19,30 @@ import type { EquityPoint } from "@/lib/trade-calculations"
 export function EquityCurve({ data }: { data: EquityPoint[] }) {
   return (
     <Card>
-      <CardHeader className="border-b">
+      <CardHeader className="border-b border-white/[0.06]">
         <CardTitle>{copy.dashboard.equityCurve}</CardTitle>
       </CardHeader>
       <CardContent className="pt-4">
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-              <CartesianGrid stroke="var(--border)" vertical={false} />
+              <defs>
+                <linearGradient id="equityFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#2ea8ff" stopOpacity={0.35} />
+                  <stop offset="100%" stopColor="#2ea8ff" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
               <XAxis
                 dataKey="date"
-                tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
+                tick={{ fill: "#8a96a8", fontSize: 11 }}
                 tickLine={false}
                 axisLine={false}
                 minTickGap={24}
                 tickFormatter={formatChartDate}
               />
               <YAxis
-                tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
+                tick={{ fill: "#8a96a8", fontSize: 11 }}
                 tickLine={false}
                 axisLine={false}
                 width={72}
@@ -46,10 +52,12 @@ export function EquityCurve({ data }: { data: EquityPoint[] }) {
               />
               <Tooltip
                 contentStyle={{
-                  background: "var(--popover)",
-                  border: "1px solid var(--border)",
+                  background: "#0a1018",
+                  border: "1px solid rgba(46,168,255,0.25)",
                   borderRadius: 8,
                   fontSize: 12,
+                  color: "#e8eef4",
+                  boxShadow: "0 0 20px -8px rgba(46,168,255,0.35)",
                 }}
                 formatter={(value) => [
                   formatSignedUsd(Number(value ?? 0)),
@@ -62,9 +70,8 @@ export function EquityCurve({ data }: { data: EquityPoint[] }) {
               <Area
                 type="monotone"
                 dataKey="equity"
-                stroke="var(--chart-1)"
-                fill="var(--chart-1)"
-                fillOpacity={0.15}
+                stroke="#2ea8ff"
+                fill="url(#equityFill)"
                 strokeWidth={2}
                 dot={false}
               />

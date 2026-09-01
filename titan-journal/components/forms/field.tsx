@@ -14,7 +14,9 @@ export function Field({
 }) {
   return (
     <div className={cn("grid gap-1.5", className)}>
-      <Label className="text-xs text-muted-foreground">{label}</Label>
+      <Label className="text-[11px] font-semibold uppercase tracking-wider text-stone-500">
+        {label}
+      </Label>
       {children}
       {hint ? <p className="text-xs text-muted-foreground">{hint}</p> : null}
     </div>
@@ -42,10 +44,10 @@ export function OptionPills<T extends string>({
             type="button"
             onClick={() => onChange(option)}
             className={cn(
-              "h-8 rounded-lg border px-2.5 text-sm transition-colors",
+              "h-8 rounded-lg border px-2.5 text-[12px] font-semibold transition-colors",
               selected
-                ? "border-primary/40 bg-primary/10 text-foreground"
-                : "border-border text-muted-foreground hover:text-foreground"
+                ? "border-[rgba(46,168,255,0.5)] bg-[rgba(46,168,255,0.12)] text-[#7dd3fc]"
+                : "border-white/10 text-stone-400 hover:border-[rgba(46,168,255,0.3)] hover:text-stone-200"
             )}
           >
             {labels?.[option] ?? option}

@@ -27,7 +27,7 @@ export function RecentTrades({ trades }: { trades: Trade[] }) {
 
   return (
     <Card>
-      <CardHeader className="border-b">
+      <CardHeader className="border-b border-white/[0.06]">
         <CardTitle>{copy.dashboard.recentTrades}</CardTitle>
       </CardHeader>
       <CardContent className="px-0">
