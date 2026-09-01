@@ -42,11 +42,11 @@
   --color-card: var(--card);
   --color-bull: var(--bull);
   --color-bear: var(--bear);
-  --color-titan-gold: #2cb8d4;
-  --color-titan-gold-bright: #7dd3e8;
-  --color-titan-gold-dim: #1a6d80;
-  --color-titan-panel: #111214;
-  --color-titan-elevated: #16181d;
+  --color-titan-gold: #2ea8ff;
+  --color-titan-gold-bright: #7dd3fc;
+  --color-titan-gold-dim: #1d5f99;
+  --color-titan-panel: #0c121a;
+  --color-titan-elevated: #121a26;
   --color-titan-line: rgba(255, 255, 255, 0.06);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
@@ -70,76 +70,76 @@
 }
 
 :root {
-  --background: #08090b;
-  --foreground: #e8eaed;
-  --card: #111214;
-  --card-foreground: #e8eaed;
-  --popover: #12141a;
-  --popover-foreground: #e8eaed;
-  --primary: #2cb8d4;
-  --primary-foreground: #041016;
-  --secondary: #16181d;
-  --secondary-foreground: #e8eaed;
-  --muted: #16181d;
-  --muted-foreground: #8b919c;
-  --accent: #16181d;
-  --accent-foreground: #e8eaed;
-  --destructive: #ef5350;
-  --border: rgba(255, 255, 255, 0.07);
-  --input: rgba(255, 255, 255, 0.09);
-  --ring: #2cb8d4;
-  --chart-1: #2cb8d4;
-  --chart-2: #3dd68c;
-  --chart-3: #ef5350;
-  --chart-4: #8b919c;
-  --chart-5: #7dd3e8;
+  --background: #05070c;
+  --foreground: #e8eef4;
+  --card: rgba(12, 18, 26, 0.82);
+  --card-foreground: #e8eef4;
+  --popover: #0c121a;
+  --popover-foreground: #e8eef4;
+  --primary: #2ea8ff;
+  --primary-foreground: #041018;
+  --secondary: #101826;
+  --secondary-foreground: #e8eef4;
+  --muted: #101826;
+  --muted-foreground: #8a96a8;
+  --accent: #101826;
+  --accent-foreground: #e8eef4;
+  --destructive: #ff4d6d;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: #2ea8ff;
+  --chart-1: #2ea8ff;
+  --chart-2: #00d084;
+  --chart-3: #ff4d6d;
+  --chart-4: #8a96a8;
+  --chart-5: #7dd3fc;
   --radius: 0.625rem;
-  --sidebar: #0b0c0f;
-  --sidebar-foreground: #e8eaed;
-  --sidebar-primary: #2cb8d4;
-  --sidebar-primary-foreground: #041016;
-  --sidebar-accent: #15171c;
-  --sidebar-accent-foreground: #e8eaed;
-  --sidebar-border: rgba(255, 255, 255, 0.06);
-  --sidebar-ring: #2cb8d4;
-  --bull: #3dd68c;
-  --bear: #ef5350;
+  --sidebar: #070a10;
+  --sidebar-foreground: #e8eef4;
+  --sidebar-primary: #2ea8ff;
+  --sidebar-primary-foreground: #041018;
+  --sidebar-accent: #101826;
+  --sidebar-accent-foreground: #e8eef4;
+  --sidebar-border: rgba(46, 168, 255, 0.1);
+  --sidebar-ring: #2ea8ff;
+  --bull: #00d084;
+  --bear: #ff4d6d;
 }
 
 .dark {
-  --background: #08090b;
-  --foreground: #e8eaed;
-  --card: #111214;
-  --card-foreground: #e8eaed;
-  --popover: #12141a;
-  --popover-foreground: #e8eaed;
-  --primary: #2cb8d4;
-  --primary-foreground: #041016;
-  --secondary: #16181d;
-  --secondary-foreground: #e8eaed;
-  --muted: #16181d;
-  --muted-foreground: #8b919c;
-  --accent: #16181d;
-  --accent-foreground: #e8eaed;
-  --destructive: #ef5350;
-  --border: rgba(255, 255, 255, 0.07);
-  --input: rgba(255, 255, 255, 0.09);
-  --ring: #2cb8d4;
-  --chart-1: #2cb8d4;
-  --chart-2: #3dd68c;
-  --chart-3: #ef5350;
-  --chart-4: #8b919c;
-  --chart-5: #7dd3e8;
-  --sidebar: #0b0c0f;
-  --sidebar-foreground: #e8eaed;
-  --sidebar-primary: #2cb8d4;
-  --sidebar-primary-foreground: #041016;
-  --sidebar-accent: #15171c;
-  --sidebar-accent-foreground: #e8eaed;
-  --sidebar-border: rgba(255, 255, 255, 0.06);
-  --sidebar-ring: #2cb8d4;
-  --bull: #3dd68c;
-  --bear: #ef5350;
+  --background: #05070c;
+  --foreground: #e8eef4;
+  --card: rgba(12, 18, 26, 0.82);
+  --card-foreground: #e8eef4;
+  --popover: #0c121a;
+  --popover-foreground: #e8eef4;
+  --primary: #2ea8ff;
+  --primary-foreground: #041018;
+  --secondary: #101826;
+  --secondary-foreground: #e8eef4;
+  --muted: #101826;
+  --muted-foreground: #8a96a8;
+  --accent: #101826;
+  --accent-foreground: #e8eef4;
+  --destructive: #ff4d6d;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: #2ea8ff;
+  --chart-1: #2ea8ff;
+  --chart-2: #00d084;
+  --chart-3: #ff4d6d;
+  --chart-4: #8a96a8;
+  --chart-5: #7dd3fc;
+  --sidebar: #070a10;
+  --sidebar-foreground: #e8eef4;
+  --sidebar-primary: #2ea8ff;
+  --sidebar-primary-foreground: #041018;
+  --sidebar-accent: #101826;
+  --sidebar-accent-foreground: #e8eef4;
+  --sidebar-border: rgba(46, 168, 255, 0.1);
+  --sidebar-ring: #2ea8ff;
+  --bull: #00d084;
+  --bear: #ff4d6d;
 }
 
 @layer base {
@@ -153,19 +153,37 @@
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply text-foreground antialiased;
+    background-color: #05070c;
+    background-image:
+      radial-gradient(ellipse 90% 55% at 12% -8%, rgba(46, 168, 255, 0.16), transparent 58%),
+      radial-gradient(ellipse 55% 40% at 100% 0%, rgba(46, 168, 255, 0.07), transparent 52%),
+      linear-gradient(180deg, #070b12 0%, #05070c 42%, #04060a 100%);
+    background-attachment: fixed;
   }
 
   ::selection {
-    background: rgba(44, 184, 212, 0.28);
+    background: rgba(46, 168, 255, 0.28);
     color: #fff;
   }
 }
 
 @layer components {
+  .titan-app {
+    background: transparent;
+  }
+
+  .titan-topbar {
+    border-bottom: 1px solid rgba(46, 168, 255, 0.1);
+    background: rgba(7, 10, 16, 0.78);
+    backdrop-filter: blur(16px);
+  }
+
   .titan-glass {
     border: 1px solid rgba(255, 255, 255, 0.07);
-    background: #111214;
+    background: rgba(12, 18, 26, 0.82);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(12px);
   }
 
   .titan-logo-mark {
@@ -184,6 +202,7 @@
     object-position: center;
     -webkit-mask-image: radial-gradient(circle closest-side, #000 79%, transparent 80.5%);
     mask-image: radial-gradient(circle closest-side, #000 79%, transparent 80.5%);
+    filter: drop-shadow(0 0 8px rgba(46, 168, 255, 0.35));
   }
 
   .titan-nav {
@@ -200,25 +219,27 @@
     padding: 0.5rem 0.625rem;
     font-size: 13px;
     font-weight: 500;
-    color: #8b919c;
+    color: #8a96a8;
     transition:
       color 0.15s ease,
       background 0.15s ease;
   }
 
   .titan-nav-item:hover {
-    color: #e8eaed;
-    background: rgba(255, 255, 255, 0.04);
+    color: #e8eef4;
+    background: rgba(46, 168, 255, 0.06);
   }
 
   .titan-nav-item--active {
-    color: #d7f4fa;
-    background: rgba(44, 184, 212, 0.12);
+    color: #bae6fd;
+    background: rgba(46, 168, 255, 0.14);
   }
 
   .titan-kpi {
     border: 1px solid rgba(255, 255, 255, 0.07);
-    background: #111214;
+    background: rgba(12, 18, 26, 0.82);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(12px);
   }
 
   .animate-fade-up {
