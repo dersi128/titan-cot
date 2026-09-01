@@ -19,6 +19,7 @@ import { ResultR } from "@/components/trades/result-r"
 import type { Trade } from "@/types/trade"
 import { tradeRowProps } from "@/components/trades/trade-row"
 import { copy } from "@/lib/labels"
+import { signedClassName } from "@/lib/format"
 
 export function RecentTrades({ trades }: { trades: Trade[] }) {
   const router = useRouter()
@@ -60,7 +61,7 @@ export function RecentTrades({ trades }: { trades: Trade[] }) {
                 <TableCell>
                   <GradeBadge grade={trade.grade} />
                 </TableCell>
-                <TableCell>
+                <TableCell className={signedClassName(trade.resultR)}>
                   {trade.resultR == null
                     ? "—"
                     : trade.resultR > 0
