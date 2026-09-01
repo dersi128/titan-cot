@@ -269,9 +269,11 @@ export function NewTradeForm() {
                 <Field
                   label="Symbol"
                   hint={
-                    draft.symbol
-                      ? formatMarketLabel(classification)
-                      : "AUDUSD → Forex · Major"
+                    !draft.symbol
+                      ? "AUDUSD → Forex · Major"
+                      : classification.symbol.length < 6
+                        ? "Enter a 6-letter FX pair"
+                        : formatMarketLabel(classification)
                   }
                   className="sm:col-span-2"
                 >
@@ -404,6 +406,14 @@ export function NewTradeForm() {
                 />
                 <Field
                   label={`Mitigation  ${draft.mitigation}%`}
+                  hint={
+                    zoneInvalid ? (
+                      <span className="text-amber-400">
+                        Zone Invalid — mitigation is above 25%. This does not
+                        block save.
+                      </span>
+                    ) : undefined
+                  }
                   className="sm:col-span-2"
                 >
                   <Slider
@@ -418,10 +428,10 @@ export function NewTradeForm() {
                 </Field>
               </div>
               {zoneInvalid ? (
-                <Alert className="mt-4 border-amber-500/30 bg-amber-500/10">
+                <Alert className="mt-4 border-amber-500/40 bg-amber-500/15 text-amber-200">
                   <AlertTriangle />
                   <AlertTitle>Zone Invalid</AlertTitle>
-                  <AlertDescription>
+                  <AlertDescription className="text-amber-200/80">
                     Mitigation is above 25%. This is a warning only — the trade
                     can still be saved.
                   </AlertDescription>
