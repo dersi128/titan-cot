@@ -32,6 +32,7 @@ import {
 import { useTrades } from "@/components/trades/trades-provider"
 import { tradeRowProps } from "@/components/trades/trade-row"
 import { formatDate } from "@/lib/format"
+import { copy, LOCATION_LABELS, STATUS_LABELS, TREND_LABELS } from "@/lib/labels"
 import {
   EMPTY_TRADE_FILTERS,
   filterTrades,
@@ -46,9 +47,9 @@ import {
 
 function outcomeLabel(resultR: number | null) {
   if (resultR == null) return "—"
-  if (resultR > 0) return "Win"
-  if (resultR < 0) return "Loss"
-  return "BE"
+  if (resultR > 0) return copy.outcome.win
+  if (resultR < 0) return copy.outcome.loss
+  return copy.outcome.be
 }
 
 export function JournalPage() {
@@ -64,18 +65,18 @@ export function JournalPage() {
   return (
     <PageFrame width="wide">
       <PageHeader
-        title="Journal"
-        description="All logged trades. Open a row to inspect the plan and context."
+        title={copy.journal.title}
+        description={copy.journal.description}
         actions={
           <Button asChild>
-            <Link href="/new-trade">New Trade</Link>
+            <Link href="/new-trade">{copy.nav.newTrade}</Link>
           </Button>
         }
       />
 
       <div className="mb-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
         <Input
-          placeholder="Search symbol"
+          placeholder={copy.journal.searchSymbol}
           value={filters.query}
           onChange={(event) =>
             setFilters((current) => ({ ...current, query: event.target.value }))
@@ -91,10 +92,10 @@ export function JournalPage() {
           }
         >
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="Strategy" />
+            <SelectValue placeholder={copy.journal.strategy} />
           </SelectTrigger>
           <SelectContent position="popper">
-            <SelectItem value="ALL">All strategies</SelectItem>
+            <SelectItem value="ALL">{copy.journal.allStrategies}</SelectItem>
             {STRATEGIES.map((strategy) => (
               <SelectItem key={strategy} value={strategy}>
                 {strategy}
@@ -112,10 +113,10 @@ export function JournalPage() {
           }
         >
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="Grade" />
+            <SelectValue placeholder={copy.journal.grade} />
           </SelectTrigger>
           <SelectContent position="popper">
-            <SelectItem value="ALL">All grades</SelectItem>
+            <SelectItem value="ALL">{copy.journal.allGrades}</SelectItem>
             {GRADES.map((grade) => (
               <SelectItem key={grade} value={grade}>
                 {grade}
@@ -133,10 +134,10 @@ export function JournalPage() {
           }
         >
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="Direction" />
+            <SelectValue placeholder={copy.journal.direction} />
           </SelectTrigger>
           <SelectContent position="popper">
-            <SelectItem value="ALL">All directions</SelectItem>
+            <SelectItem value="ALL">{copy.journal.allDirections}</SelectItem>
             {TRADE_DIRECTIONS.map((direction) => (
               <SelectItem key={direction} value={direction}>
                 {direction}
@@ -154,13 +155,13 @@ export function JournalPage() {
           }
         >
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="Status" />
+            <SelectValue placeholder={copy.journal.status} />
           </SelectTrigger>
           <SelectContent position="popper">
-            <SelectItem value="ALL">All statuses</SelectItem>
+            <SelectItem value="ALL">{copy.journal.allStatuses}</SelectItem>
             {TRADE_STATUSES.map((status) => (
               <SelectItem key={status} value={status}>
-                {status}
+                {STATUS_LABELS[status]}
               </SelectItem>
             ))}
           </SelectContent>
@@ -174,16 +175,16 @@ export function JournalPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Symbol</TableHead>
-                <TableHead>Direction</TableHead>
-                <TableHead>Strategy</TableHead>
-                <TableHead>Grade</TableHead>
-                <TableHead>Trend</TableHead>
-                <TableHead>Location</TableHead>
-                <TableHead>Result</TableHead>
-                <TableHead>R</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>{copy.journal.date}</TableHead>
+                <TableHead>{copy.journal.symbol}</TableHead>
+                <TableHead>{copy.journal.direction}</TableHead>
+                <TableHead>{copy.journal.strategy}</TableHead>
+                <TableHead>{copy.journal.grade}</TableHead>
+                <TableHead>{copy.journal.trend}</TableHead>
+                <TableHead>{copy.journal.location}</TableHead>
+                <TableHead>{copy.journal.result}</TableHead>
+                <TableHead>{copy.journal.r}</TableHead>
+                <TableHead>{copy.journal.status}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -193,7 +194,7 @@ export function JournalPage() {
                     colSpan={10}
                     className="h-24 text-center text-muted-foreground"
                   >
-                    No trades match these filters.
+                    {copy.journal.empty}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -210,8 +211,8 @@ export function JournalPage() {
                     <TableCell>
                       <GradeBadge grade={trade.grade} />
                     </TableCell>
-                    <TableCell>{trade.htfTrend}</TableCell>
-                    <TableCell>{trade.location}</TableCell>
+                    <TableCell>{TREND_LABELS[trade.htfTrend]}</TableCell>
+                    <TableCell>{LOCATION_LABELS[trade.location]}</TableCell>
                     <TableCell>{outcomeLabel(trade.resultR)}</TableCell>
                     <TableCell>
                       <ResultR value={trade.resultR} />

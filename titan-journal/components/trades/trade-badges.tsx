@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge"
+import { STATUS_LABELS } from "@/lib/labels"
 import { cn } from "@/lib/utils"
 import type { Grade, TradeDirection, TradeStatus } from "@/types/trade"
 
@@ -13,7 +14,7 @@ export function StatusBadge({ status }: { status: TradeStatus }) {
 
   return (
     <Badge variant="outline" className={cn("rounded-md font-medium", styles[status])}>
-      {status}
+      {STATUS_LABELS[status]}
     </Badge>
   )
 }

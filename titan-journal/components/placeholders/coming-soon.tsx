@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { copy } from "@/lib/labels"
 
 export function ComingSoon({
   title,
@@ -14,7 +15,7 @@ export function ComingSoon({
       </CardHeader>
       <CardContent className="space-y-3 text-sm text-muted-foreground">
         <p>{body}</p>
-        <p>This section is a placeholder for a later phase.</p>
+        <p className="text-xs text-muted-foreground">{copy.comingSoon}</p>
       </CardContent>
     </Card>
   )

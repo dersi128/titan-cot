@@ -19,14 +19,14 @@ describe("classifyMarket", () => {
       marketType: "Forex",
       pairClass: "Major",
     })
-    expect(formatMarketLabel(classifyMarket("GBPUSD"))).toBe("Forex · Major")
+    expect(formatMarketLabel(classifyMarket("GBPUSD"))).toBe("Forex · major")
   })
 
   it("classifies crosses", () => {
     expect(classifyMarket("EURAUD").pairClass).toBe("Cross")
     expect(classifyMarket("GBPNZD").pairClass).toBe("Cross")
     expect(classifyMarket("AUDNZD").pairClass).toBe("Cross")
-    expect(formatMarketLabel(classifyMarket("EURAUD"))).toBe("Forex · Cross")
+    expect(formatMarketLabel(classifyMarket("EURAUD"))).toBe("Forex · křížový")
   })
 
   it("keeps COT visible for crosses until the flag is enabled", () => {

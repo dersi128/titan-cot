@@ -2,22 +2,20 @@ import type { Metadata } from "next"
 
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
 import { ComingSoon } from "@/components/placeholders/coming-soon"
+import { copy } from "@/lib/labels"
 
 export const metadata: Metadata = {
-  title: "Strategy",
+  title: copy.strategy.title,
 }
 
 export default function Page() {
   return (
     <PageFrame>
       <PageHeader
-        title="Strategy"
-        description="Rules and setup definitions will live here in a later phase."
+        title={copy.strategy.title}
+        description={copy.strategy.description}
       />
-      <ComingSoon
-        title="Strategy rules"
-        body="Later this page will hold TITAN Swing setup definitions, grading rules and playbook criteria used to score trades automatically."
-      />
+      <ComingSoon title={copy.strategy.cardTitle} body={copy.strategy.body} />
     </PageFrame>
   )
 }

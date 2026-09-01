@@ -108,7 +108,7 @@ const FEATURED: Seed[] = [
     zoneType: "Supply",
     fresh: true,
     touchCount: "0",
-    notes: "Short from premium supply in a strong HTF downtrend. Plan was 2R; held to target.",
+    notes: "Short z prémia ze supply v silném HTF downtrendu. Plán 2R, držen do cíle.",
     cotScore: -52,
   },
   {
@@ -125,7 +125,7 @@ const FEATURED: Seed[] = [
     zoneType: "Demand",
     fresh: true,
     touchCount: "0",
-    notes: "A+ fresh demand in discount. Location was correct; invalidation hit first.",
+    notes: "A+ čerstvá demand v diskontu. Lokace seděla, invalidace přišla dřív.",
     cotScore: 61,
   },
   {
@@ -142,7 +142,7 @@ const FEATURED: Seed[] = [
     zoneType: "Supply",
     fresh: false,
     touchCount: "1",
-    notes: "Cross pair short from premium. COT recorded for process, not used as a filter.",
+    notes: "Křížový pár short z prémia. COT zapsán do procesu, ne jako filtr.",
     cotScore: -14,
   },
 ]
@@ -223,7 +223,7 @@ function buildRest(): Seed[] {
       zoneType: "Demand",
       fresh: true,
       touchCount: "0",
-      notes: "Active long from discount. Waiting for HTF continuation.",
+      notes: "Aktivní long z diskontu. Čekám na HTF pokračování.",
     },
     {
       id: "trd-042",
@@ -284,7 +284,7 @@ function buildRest(): Seed[] {
       zoneType: "Demand",
       fresh: true,
       touchCount: "0",
-      notes: "Planned long. Waiting for Daily close back inside the zone.",
+      notes: "Plánovaný long. Čekám na Daily close zpátky do zóny.",
     },
     {
       id: "trd-046",
@@ -315,7 +315,7 @@ function buildRest(): Seed[] {
       zoneType: "Demand",
       fresh: false,
       touchCount: "1",
-      notes: "Idea only. Needs a clearer HTF impulse before planning.",
+      notes: "Zatím jen nápad. Než plánovat, potřebuje jasnější HTF impulse.",
     },
   ]
 
@@ -326,11 +326,11 @@ export const MOCK_TRADES: Trade[] = [...FEATURED, ...buildRest()].map(fromSeed)
 
 export const STRATEGY_SNAPSHOT = {
   best: {
-    name: "A+ Fresh Demand",
+    name: "A+ čerstvá Demand",
     winRate: 0.64,
   },
   weakest: {
-    name: "Tested Supply",
+    name: "Testovaná Supply",
     winRate: 0.29,
   },
 } as const

@@ -1,3 +1,4 @@
+import { PAIR_CLASS_LABELS } from "@/lib/labels"
 import { FEATURE_FLAGS } from "@/lib/feature-flags"
 import type { MarketClassification, PairClass } from "@/types/trade"
 
@@ -58,10 +59,10 @@ export function classifyMarket(rawSymbol: string): MarketClassification {
 
 export function formatMarketLabel(classification: MarketClassification): string {
   if (classification.marketType === "Unknown" || !classification.symbol) {
-    return "Unknown market"
+    return "Neznámý trh"
   }
 
-  return `${classification.marketType} · ${classification.pairClass}`
+  return `${classification.marketType} · ${PAIR_CLASS_LABELS[classification.pairClass]}`
 }
 
 /**

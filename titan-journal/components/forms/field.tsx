@@ -24,10 +24,12 @@ export function Field({
 export function OptionPills<T extends string>({
   value,
   options,
+  labels,
   onChange,
 }: {
   value: T
   options: readonly T[]
+  labels?: Partial<Record<T, string>>
   onChange: (value: T) => void
 }) {
   return (
@@ -46,7 +48,7 @@ export function OptionPills<T extends string>({
                 : "border-border text-muted-foreground hover:text-foreground"
             )}
           >
-            {option}
+            {labels?.[option] ?? option}
           </button>
         )
       })}

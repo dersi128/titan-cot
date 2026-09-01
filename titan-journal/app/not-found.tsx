@@ -3,17 +3,21 @@ import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
+import { copy } from "@/lib/labels"
 
 export const metadata: Metadata = {
-  title: "Not found",
+  title: copy.notFound.title,
 }
 
 export default function NotFound() {
   return (
     <PageFrame>
-      <PageHeader title="Not found" description="This route does not exist." />
+      <PageHeader
+        title={copy.notFound.title}
+        description={copy.notFound.description}
+      />
       <Button asChild>
-        <Link href="/dashboard">Back to Dashboard</Link>
+        <Link href="/dashboard">{copy.notFound.back}</Link>
       </Button>
     </PageFrame>
   )

@@ -11,14 +11,16 @@ import {
 } from "recharts"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { formatSignedUsd } from "@/lib/format"
+import { formatChartDate, formatDate, formatSignedUsd } from "@/lib/format"
+import { copy } from "@/lib/labels"
+import { LOCALE } from "@/lib/locale"
 import type { EquityPoint } from "@/lib/trade-calculations"
 
 export function EquityCurve({ data }: { data: EquityPoint[] }) {
   return (
     <Card>
       <CardHeader className="border-b">
-        <CardTitle>Equity Curve</CardTitle>
+        <CardTitle>{copy.dashboard.equityCurve}</CardTitle>
       </CardHeader>
       <CardContent className="pt-4">
         <div className="h-64">
@@ -26,19 +28,20 @@ export function EquityCurve({ data }: { data: EquityPoint[] }) {
             <AreaChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
               <CartesianGrid stroke="var(--border)" vertical={false} />
               <XAxis
-                dataKey="label"
+                dataKey="date"
                 tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
                 tickLine={false}
                 axisLine={false}
                 minTickGap={24}
+                tickFormatter={formatChartDate}
               />
               <YAxis
                 tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
                 tickLine={false}
                 axisLine={false}
-                width={64}
+                width={72}
                 tickFormatter={(value: number) =>
-                  `$${Math.round(value).toLocaleString("en-US")}`
+                  Math.round(value).toLocaleString(LOCALE)
                 }
               />
               <Tooltip
@@ -50,10 +53,10 @@ export function EquityCurve({ data }: { data: EquityPoint[] }) {
                 }}
                 formatter={(value) => [
                   formatSignedUsd(Number(value ?? 0)),
-                  "Equity",
+                  copy.dashboard.equity,
                 ]}
                 labelFormatter={(_, payload) =>
-                  payload?.[0]?.payload?.date || ""
+                  formatDate(payload?.[0]?.payload?.date || "")
                 }
               />
               <Area

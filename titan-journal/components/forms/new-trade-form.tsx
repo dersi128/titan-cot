@@ -25,6 +25,19 @@ import {
   shouldDisplayCot,
 } from "@/lib/market-classification"
 import {
+  ACCOUNT_LABELS,
+  BIAS_LABELS,
+  copy,
+  IMPULSE_LABELS,
+  LOCATION_LABELS,
+  STATUS_LABELS,
+  TREND_LABELS,
+  YES_NO_LABELS,
+  ZONE_TIMEFRAME_LABELS,
+  ZONE_TYPE_LABELS,
+} from "@/lib/labels"
+import { todayIsoDate } from "@/lib/locale"
+import {
   calculatePlannedRRR,
   formatRRR,
   isZoneInvalid,
@@ -90,10 +103,6 @@ type Draft = {
   notes: string
 }
 
-function todayIsoDate() {
-  return new Date().toISOString().slice(0, 10)
-}
-
 function createDraft(): Draft {
   return {
     symbol: "",
@@ -148,6 +157,7 @@ function YesNo({
     <OptionPills
       value={value ? "YES" : "NO"}
       options={YES_NO}
+      labels={YES_NO_LABELS}
       onChange={(next) => onChange(next === "YES")}
     />
   )
@@ -191,7 +201,7 @@ export function NewTradeForm() {
 
     const symbol = classification.symbol
     if (!symbol) {
-      setError("Enter a symbol.")
+      setError(copy.form.symbolRequired)
       return
     }
 
@@ -199,7 +209,7 @@ export function NewTradeForm() {
     const stopLoss = parseOptionalNumber(draft.stopLoss)
     const takeProfit = parseOptionalNumber(draft.takeProfit)
     if (entry == null || stopLoss == null || takeProfit == null) {
-      setError("Entry, stop loss and take profit are required.")
+      setError(copy.form.planRequired)
       return
     }
 
@@ -247,8 +257,8 @@ export function NewTradeForm() {
   return (
     <PageFrame width="narrow">
       <PageHeader
-        title="New Trade"
-        description="Capture why the trade exists — context first, numbers second."
+        title={copy.form.title}
+        description={copy.form.description}
       />
 
       <form onSubmit={handleSubmit} className="space-y-3 pb-20">
@@ -262,17 +272,17 @@ export function NewTradeForm() {
             className="rounded-xl border border-border bg-card px-4 not-last:border-b-0"
           >
             <AccordionTrigger className="hover:no-underline">
-              Basic Trade
+              {copy.form.basic}
             </AccordionTrigger>
             <AccordionContent>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field
-                  label="Symbol"
+                  label={copy.form.symbol}
                   hint={
                     !draft.symbol
-                      ? "AUDUSD → Forex · Major"
+                      ? copy.form.symbolHint
                       : classification.symbol.length < 6
-                        ? "Enter a 6-letter FX pair"
+                        ? copy.form.symbolIncomplete
                         : formatMarketLabel(classification)
                   }
                   className="sm:col-span-2"
@@ -286,7 +296,7 @@ export function NewTradeForm() {
                     autoComplete="off"
                   />
                 </Field>
-                <Field label="Direction">
+                <Field label={copy.form.direction}>
                   <OptionPills
                     value={draft.direction}
                     options={TRADE_DIRECTIONS}
@@ -294,25 +304,27 @@ export function NewTradeForm() {
                   />
                 </Field>
                 <SelectField
-                  label="Strategy"
+                  label={copy.form.strategy}
                   value={draft.strategy}
                   options={STRATEGIES}
                   onChange={(strategy) => patch({ strategy })}
                 />
                 <SelectField
-                  label="Account"
+                  label={copy.form.account}
                   value={draft.account}
                   options={ACCOUNTS}
+                  labels={ACCOUNT_LABELS}
                   onChange={(account) => patch({ account })}
                 />
-                <Field label="Status">
+                <Field label={copy.form.status}>
                   <OptionPills
                     value={draft.status}
                     options={NEW_TRADE_STATUSES}
+                    labels={STATUS_LABELS}
                     onChange={(status) => patch({ status })}
                   />
                 </Field>
-                <Field label="Date">
+                <Field label={copy.form.date}>
                   <Input
                     type="date"
                     value={draft.date}
@@ -328,26 +340,29 @@ export function NewTradeForm() {
             className="rounded-xl border border-border bg-card px-4 not-last:border-b-0"
           >
             <AccordionTrigger className="hover:no-underline">
-              Market Context
+              {copy.form.context}
             </AccordionTrigger>
             <AccordionContent>
               <div className="grid gap-4 sm:grid-cols-2">
                 <SelectField
-                  label="HTF Trend"
+                  label={copy.form.htfTrend}
                   value={draft.htfTrend}
                   options={TRENDS}
+                  labels={TREND_LABELS}
                   onChange={(htfTrend) => patch({ htfTrend })}
                 />
                 <SelectField
-                  label="Trading TF Trend"
+                  label={copy.form.tradeTrend}
                   value={draft.tradeTrend}
                   options={TRENDS}
+                  labels={TREND_LABELS}
                   onChange={(tradeTrend) => patch({ tradeTrend })}
                 />
                 <SelectField
-                  label="Location"
+                  label={copy.form.location}
                   value={draft.location}
                   options={LOCATIONS}
+                  labels={LOCATION_LABELS}
                   onChange={(location) => patch({ location })}
                 />
               </div>
@@ -359,58 +374,60 @@ export function NewTradeForm() {
             className="rounded-xl border border-border bg-card px-4 not-last:border-b-0"
           >
             <AccordionTrigger className="hover:no-underline">
-              Supply / Demand
+              {copy.form.supplyDemand}
             </AccordionTrigger>
             <AccordionContent>
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Zone Type">
+                <Field label={copy.form.zoneType}>
                   <OptionPills
                     value={draft.zoneType}
                     options={ZONE_TYPES}
+                    labels={ZONE_TYPE_LABELS}
                     onChange={(zoneType) => patch({ zoneType })}
                   />
                 </Field>
                 <SelectField
-                  label="Zone Timeframe"
+                  label={copy.form.zoneTimeframe}
                   value={draft.zoneTimeframe}
                   options={ZONE_TIMEFRAMES}
+                  labels={ZONE_TIMEFRAME_LABELS}
                   onChange={(zoneTimeframe) => patch({ zoneTimeframe })}
                 />
-                <Field label="Original">
+                <Field label={copy.form.original}>
                   <YesNo
                     value={draft.original}
                     onChange={(original) => patch({ original })}
                   />
                 </Field>
-                <Field label="Fresh">
+                <Field label={copy.form.fresh}>
                   <YesNo
                     value={draft.fresh}
                     onChange={(fresh) => patch({ fresh })}
                   />
                 </Field>
-                <Field label="Touch Count">
+                <Field label={copy.form.touchCount}>
                   <OptionPills
                     value={draft.touchCount}
                     options={TOUCH_COUNTS}
                     onChange={(touchCount) => patch({ touchCount })}
                   />
                 </Field>
-                <Field label="HQ">
+                <Field label={copy.form.hq}>
                   <YesNo value={draft.hq} onChange={(hq) => patch({ hq })} />
                 </Field>
                 <SelectField
-                  label="Impulse"
+                  label={copy.form.impulse}
                   value={draft.impulse}
                   options={IMPULSES}
+                  labels={IMPULSE_LABELS}
                   onChange={(impulse) => patch({ impulse })}
                 />
                 <Field
-                  label={`Mitigation  ${draft.mitigation}%`}
+                  label={`${copy.form.mitigation}  ${draft.mitigation} %`}
                   hint={
                     zoneInvalid ? (
                       <span className="text-amber-400">
-                        Zone Invalid — mitigation is above 25%. This does not
-                        block save.
+                        {copy.form.zoneInvalidHint}
                       </span>
                     ) : undefined
                   }
@@ -430,10 +447,9 @@ export function NewTradeForm() {
               {zoneInvalid ? (
                 <Alert className="mt-4 border-amber-500/40 bg-amber-500/15 text-amber-200">
                   <AlertTriangle />
-                  <AlertTitle>Zone Invalid</AlertTitle>
+                  <AlertTitle>{copy.form.zoneInvalidTitle}</AlertTitle>
                   <AlertDescription className="text-amber-200/80">
-                    Mitigation is above 25%. This is a warning only — the trade
-                    can still be saved.
+                    {copy.form.zoneInvalidBody}
                   </AlertDescription>
                 </Alert>
               ) : null}
@@ -446,20 +462,21 @@ export function NewTradeForm() {
               className="rounded-xl border border-border bg-card px-4 not-last:border-b-0"
             >
               <AccordionTrigger className="hover:no-underline">
-                COT
+                {copy.form.cot}
               </AccordionTrigger>
               <AccordionContent>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="COT Bias">
+                  <Field label={copy.form.cotBias}>
                     <OptionPills
                       value={draft.cotBias}
                       options={BIASES}
+                      labels={BIAS_LABELS}
                       onChange={(cotBias) => patch({ cotBias })}
                     />
                   </Field>
                   <Field
-                    label="COT Score"
-                    hint="Manual for now. Later this will come from the TITAN COT API."
+                    label={copy.form.cotScore}
+                    hint={copy.form.cotHint}
                   >
                     <Input
                       type="number"
@@ -481,18 +498,19 @@ export function NewTradeForm() {
             className="rounded-xl border border-border bg-card px-4 not-last:border-b-0"
           >
             <AccordionTrigger className="hover:no-underline">
-              Seasonality
+              {copy.form.seasonality}
             </AccordionTrigger>
             <AccordionContent>
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Bias">
+                <Field label={copy.form.seasonalityBias}>
                   <OptionPills
                     value={draft.seasonalityBias}
                     options={BIASES}
+                    labels={BIAS_LABELS}
                     onChange={(seasonalityBias) => patch({ seasonalityBias })}
                   />
                 </Field>
-                <Field label="Inside Seasonal Window">
+                <Field label={copy.form.seasonalWindow}>
                   <YesNo
                     value={draft.seasonalWindow}
                     onChange={(seasonalWindow) => patch({ seasonalWindow })}
@@ -507,11 +525,11 @@ export function NewTradeForm() {
             className="rounded-xl border border-border bg-card px-4 not-last:border-b-0"
           >
             <AccordionTrigger className="hover:no-underline">
-              Trade Plan
+              {copy.form.plan}
             </AccordionTrigger>
             <AccordionContent>
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Entry">
+                <Field label={copy.form.entry}>
                   <Input
                     type="number"
                     step="any"
@@ -519,7 +537,7 @@ export function NewTradeForm() {
                     onChange={(event) => patch({ entry: event.target.value })}
                   />
                 </Field>
-                <Field label="Stop Loss">
+                <Field label={copy.form.stopLoss}>
                   <Input
                     type="number"
                     step="any"
@@ -529,7 +547,7 @@ export function NewTradeForm() {
                     }
                   />
                 </Field>
-                <Field label="Take Profit">
+                <Field label={copy.form.takeProfit}>
                   <Input
                     type="number"
                     step="any"
@@ -539,7 +557,7 @@ export function NewTradeForm() {
                     }
                   />
                 </Field>
-                <Field label="Risk %">
+                <Field label={copy.form.riskPercent}>
                   <Input
                     type="number"
                     step="any"
@@ -553,11 +571,13 @@ export function NewTradeForm() {
               </div>
               <div className="mt-4 grid grid-cols-2 gap-3 rounded-lg border border-border px-3 py-3 text-sm">
                 <div>
-                  <p className="text-xs text-muted-foreground">Risk</p>
-                  <p className="mt-1 font-mono">{riskPercent}%</p>
+                  <p className="text-xs text-muted-foreground">{copy.form.risk}</p>
+                  <p className="mt-1 font-mono">{riskPercent} %</p>
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Planned RRR</p>
+                  <p className="text-xs text-muted-foreground">
+                    {copy.form.plannedRrr}
+                  </p>
                   <p className="mt-1 font-mono">{formatRRR(plannedRRR)}</p>
                 </div>
               </div>
@@ -569,7 +589,7 @@ export function NewTradeForm() {
             className="rounded-xl border border-border bg-card px-4 not-last:border-b-0"
           >
             <AccordionTrigger className="hover:no-underline">
-              Grade
+              {copy.form.grade}
             </AccordionTrigger>
             <AccordionContent>
               <OptionPills
@@ -578,7 +598,7 @@ export function NewTradeForm() {
                 onChange={(grade) => patch({ grade })}
               />
               <p className="mt-3 text-xs text-muted-foreground">
-                Automatic grading will be added later.
+                {copy.form.gradeHint}
               </p>
             </AccordionContent>
           </AccordionItem>
@@ -588,14 +608,14 @@ export function NewTradeForm() {
             className="rounded-xl border border-border bg-card px-4 not-last:border-b-0"
           >
             <AccordionTrigger className="hover:no-underline">
-              Notes
+              {copy.form.notes}
             </AccordionTrigger>
             <AccordionContent>
-              <Field label="Why am I taking this trade?">
+              <Field label={copy.form.why}>
                 <Textarea
                   value={draft.notes}
                   onChange={(event) => patch({ notes: event.target.value })}
-                  placeholder="Why am I taking this trade?"
+                  placeholder={copy.form.why}
                   rows={5}
                 />
               </Field>
@@ -605,14 +625,14 @@ export function NewTradeForm() {
 
         {error ? (
           <Alert variant="destructive">
-            <AlertTitle>Cannot save yet</AlertTitle>
+            <AlertTitle>{copy.form.cannotSave}</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         ) : null}
 
         <div className="sticky bottom-0 -mx-4 border-t border-border bg-background/90 px-4 py-3 backdrop-blur lg:-mx-8 lg:px-8">
           <Button type="submit" className="w-full sm:w-auto">
-            Save Trade
+            {copy.form.save}
           </Button>
         </div>
       </form>

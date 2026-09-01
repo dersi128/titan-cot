@@ -7,6 +7,15 @@ import { ResultR } from "@/components/trades/result-r"
 import { formatMarketLabel } from "@/lib/market-classification"
 import { formatRRR } from "@/lib/trade-calculations"
 import { formatYesNo } from "@/lib/format"
+import {
+  BIAS_LABELS,
+  copy,
+  IMPULSE_LABELS,
+  LOCATION_LABELS,
+  TREND_LABELS,
+  ZONE_TIMEFRAME_LABELS,
+  ZONE_TYPE_LABELS,
+} from "@/lib/labels"
 import type { Trade } from "@/types/trade"
 
 function Field({ label, value }: { label: string; value: React.ReactNode }) {
@@ -53,62 +62,62 @@ export function TradeDetail({ trade }: { trade: Trade }) {
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <DirectionBadge direction={trade.direction} />
             <span className="text-sm text-muted-foreground">
-              {trade.grade} Setup
+              {trade.grade} {copy.detail.setup}
             </span>
           </div>
         </div>
         <StatusBadge status={trade.status} />
       </div>
 
-      <Section title="Trade Plan">
-        <Field label="Entry" value={trade.entry} />
-        <Field label="Stop Loss" value={trade.stopLoss} />
-        <Field label="Take Profit" value={trade.takeProfit} />
-        <Field label="Risk %" value={`${trade.riskPercent}%`} />
-        <Field label="Planned RRR" value={formatRRR(trade.plannedRRR)} />
-        <Field label="Result R" value={<ResultR value={trade.resultR} />} />
+      <Section title={copy.detail.tradePlan}>
+        <Field label={copy.detail.entry} value={trade.entry} />
+        <Field label={copy.detail.stopLoss} value={trade.stopLoss} />
+        <Field label={copy.detail.takeProfit} value={trade.takeProfit} />
+        <Field label={copy.detail.riskPercent} value={`${trade.riskPercent} %`} />
+        <Field label={copy.detail.plannedRrr} value={formatRRR(trade.plannedRRR)} />
+        <Field label={copy.detail.resultR} value={<ResultR value={trade.resultR} />} />
       </Section>
 
-      <Section title="Market Context">
-        <Field label="HTF Trend" value={trade.htfTrend} />
-        <Field label="Trading TF Trend" value={trade.tradeTrend} />
-        <Field label="Location" value={trade.location} />
+      <Section title={copy.detail.marketContext}>
+        <Field label={copy.detail.htfTrend} value={TREND_LABELS[trade.htfTrend]} />
+        <Field label={copy.detail.tradeTrend} value={TREND_LABELS[trade.tradeTrend]} />
+        <Field label={copy.detail.location} value={LOCATION_LABELS[trade.location]} />
       </Section>
 
-      <Section title="Supply / Demand">
-        <Field label="Zone Type" value={trade.zoneType} />
-        <Field label="Timeframe" value={trade.zoneTimeframe} />
-        <Field label="Original" value={formatYesNo(trade.original)} />
-        <Field label="Fresh" value={formatYesNo(trade.fresh)} />
-        <Field label="Touch Count" value={trade.touchCount} />
-        <Field label="HQ" value={formatYesNo(trade.hq)} />
-        <Field label="Impulse" value={trade.impulse} />
-        <Field label="Mitigation %" value={`${trade.mitigation}%`} />
+      <Section title={copy.detail.supplyDemand}>
+        <Field label={copy.detail.zoneType} value={ZONE_TYPE_LABELS[trade.zoneType]} />
+        <Field label={copy.detail.timeframe} value={ZONE_TIMEFRAME_LABELS[trade.zoneTimeframe]} />
+        <Field label={copy.detail.original} value={formatYesNo(trade.original)} />
+        <Field label={copy.detail.fresh} value={formatYesNo(trade.fresh)} />
+        <Field label={copy.detail.touchCount} value={trade.touchCount} />
+        <Field label={copy.detail.hq} value={formatYesNo(trade.hq)} />
+        <Field label={copy.detail.impulse} value={IMPULSE_LABELS[trade.impulse]} />
+        <Field label={copy.detail.mitigation} value={`${trade.mitigation} %`} />
       </Section>
 
-      <Section title="COT">
-        <Field label="Bias" value={trade.cotBias} />
-        <Field label="Score" value={trade.cotScore} />
+      <Section title={copy.detail.cot}>
+        <Field label={copy.detail.bias} value={BIAS_LABELS[trade.cotBias]} />
+        <Field label={copy.detail.score} value={trade.cotScore} />
       </Section>
 
       <Card>
         <CardHeader className="border-b">
-          <CardTitle>Notes</CardTitle>
+          <CardTitle>{copy.detail.notes}</CardTitle>
         </CardHeader>
         <CardContent className="pt-4">
           <p className="text-sm whitespace-pre-wrap text-muted-foreground">
-            {trade.notes || "No pre-trade note."}
+            {trade.notes || copy.detail.noNote}
           </p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="border-b">
-          <CardTitle>Screenshots</CardTitle>
+          <CardTitle>{copy.detail.screenshots}</CardTitle>
         </CardHeader>
         <CardContent className="pt-4">
           <div className="flex h-40 items-center justify-center rounded-lg border border-dashed border-border text-sm text-muted-foreground">
-            Chart screenshots will be added in a later phase.
+            {copy.detail.screenshotsPlaceholder}
           </div>
         </CardContent>
       </Card>

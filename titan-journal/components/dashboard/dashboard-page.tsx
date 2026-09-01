@@ -10,6 +10,7 @@ import { KpiSkeleton, TableSkeleton } from "@/components/layout/loading-state"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useTrades } from "@/components/trades/trades-provider"
+import { copy } from "@/lib/labels"
 import {
   buildEquityCurve,
   computeDashboardStats,
@@ -33,8 +34,8 @@ export function DashboardPage() {
   return (
     <PageFrame>
       <PageHeader
-        title="Dashboard"
-        description="Performance overview from journaled trades."
+        title={copy.dashboard.title}
+        description={copy.dashboard.description}
       />
 
       {!isReady ? (

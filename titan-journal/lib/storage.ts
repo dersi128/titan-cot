@@ -13,7 +13,7 @@ export interface TradeRepository {
   subscribe(listener: () => void): () => void
 }
 
-export const TRADES_STORAGE_KEY = "titan-journal.trades.v1"
+export const TRADES_STORAGE_KEY = "titan-journal.trades.v2"
 
 const SORTED_MOCK = sortTrades(MOCK_TRADES)
 

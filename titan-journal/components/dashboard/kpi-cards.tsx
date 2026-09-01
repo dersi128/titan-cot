@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card"
+import { copy } from "@/lib/labels"
 import {
   formatNumber,
   formatPercent,
@@ -34,29 +35,29 @@ export function KpiCards({ stats }: { stats: DashboardStats }) {
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
       <KpiCard
-        label="Net PnL"
+        label={copy.dashboard.netPnl}
         value={formatSignedUsd(stats.netPnl)}
         className={signedClassName(stats.netPnl)}
       />
       <KpiCard
-        label="Total R"
+        label={copy.dashboard.totalR}
         value={formatSignedR(stats.totalR)}
         className={signedClassName(stats.totalR)}
       />
-      <KpiCard label="Win Rate" value={formatPercent(stats.winRate)} />
+      <KpiCard label={copy.dashboard.winRate} value={formatPercent(stats.winRate)} />
       <KpiCard
-        label="Profit Factor"
+        label={copy.dashboard.profitFactor}
         value={formatNumber(stats.profitFactor)}
         className={signedClassName(
           stats.profitFactor == null ? null : stats.profitFactor - 1
         )}
       />
       <KpiCard
-        label="Average R"
+        label={copy.dashboard.averageR}
         value={formatSignedR(stats.averageR)}
         className={signedClassName(stats.averageR)}
       />
-      <KpiCard label="Total Trades" value={String(stats.totalTrades)} />
+      <KpiCard label={copy.dashboard.totalTrades} value={String(stats.totalTrades)} />
     </div>
   )
 }

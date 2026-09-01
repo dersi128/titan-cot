@@ -1,10 +1,12 @@
 # TITAN Journal
 
-Phase 1 foundation for a strategy-aware trading journal.
+Fáze 1 — základ strategie-aware obchodního deníku.
 
-This app records **why** a trade was taken (context, zone quality, COT, seasonality, plan) so later phases can analyse which conditions actually produce edge.
+UI běží v **češtině** (`cs-CZ`, časová zóna `Europe/Prague`). Interní hodnoty (LONG/SHORT, A+, status kódy) zůstávají anglicky, ať jdou později napojit na API.
 
-It is not a TradeZella clone. Broker sync, auth, AI and automatic grading are intentionally out of scope.
+Appka zapisuje **proč** byl obchod vzat (kontext, kvalita zóny, COT, seasonalita, plán), aby šlo později analyzovat, které podmínky dávají edge.
+
+Není to klon TradeZelly. Broker sync, auth, AI a automatické známkování záměrně nejsou v scope.
 
 ## Stack
 
@@ -15,7 +17,7 @@ It is not a TradeZella clone. Broker sync, auth, AI and automatic grading are in
 - Lucide icons
 - Recharts
 
-## Run
+## Spuštění
 
 ```bash
 cd titan-journal
@@ -23,20 +25,20 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Dark mode is the default.
+Otevři [http://localhost:3000](http://localhost:3000). Výchozí je dark mode.
 
-## What's in Phase 1
+## Co je ve fázi 1
 
-- Dashboard with KPIs, equity curve, recent trades and a mock strategy snapshot
-- Journal table with basic filters
-- Trade detail
-- New Trade form with collapsible sections and local persistence
-- Analytics / Strategy placeholders
-- Forex Major / Cross classification
+- Přehled s KPI, equity křivkou, posledními obchody a snapshotem strategie
+- Deník s filtry
+- Detail obchodu
+- Formulář Nový obchod s collapsible sekcemi a localStorage
+- Placeholdery Analýza / Strategie
+- Klasifikace Forex major / křížový
 
-Trades are stored in `localStorage` behind `lib/storage.ts` so a database can replace it later.
+Obchody se ukládají do `localStorage` přes `lib/storage.ts`, aby šel později vyměnit za databázi.
 
-## Scripts
+## Skripty
 
 ```bash
 npm run dev

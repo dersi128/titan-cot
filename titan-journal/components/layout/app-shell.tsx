@@ -19,14 +19,15 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import { copy } from "@/lib/labels"
 import { cn } from "@/lib/utils"
 
 const NAV_ITEMS = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/journal", label: "Journal", icon: BookOpen },
-  { href: "/new-trade", label: "New Trade", icon: Plus },
-  { href: "/analytics", label: "Analytics", icon: LineChart },
-  { href: "/strategy", label: "Strategy", icon: Waypoints },
+  { href: "/dashboard", label: copy.nav.dashboard, icon: LayoutDashboard },
+  { href: "/journal", label: copy.nav.journal, icon: BookOpen },
+  { href: "/new-trade", label: copy.nav.newTrade, icon: Plus },
+  { href: "/analytics", label: copy.nav.analytics, icon: LineChart },
+  { href: "/strategy", label: copy.nav.strategy, icon: Waypoints },
 ] as const
 
 function isActive(pathname: string, href: string) {
@@ -70,7 +71,7 @@ function Brand() {
       <p className="text-[11px] font-medium tracking-[0.22em] text-muted-foreground">
         TITAN
       </p>
-      <p className="text-sm font-medium">Journal</p>
+      <p className="text-sm font-medium">{copy.brand}</p>
     </Link>
   )
 }
@@ -82,7 +83,7 @@ export function AppSidebar() {
       <div className="mt-6 flex-1">
         <NavList />
       </div>
-      <p className="px-2.5 text-[11px] text-muted-foreground">Phase 1 · Foundation</p>
+      <p className="px-2.5 text-[11px] text-muted-foreground">{copy.phase}</p>
     </aside>
   )
 }
@@ -93,7 +94,7 @@ export function MobileNav() {
       <Brand />
       <Sheet>
         <SheetTrigger asChild>
-          <Button variant="ghost" size="icon-sm" aria-label="Open navigation">
+          <Button variant="ghost" size="icon-sm" aria-label={copy.openNav}>
             <Menu />
           </Button>
         </SheetTrigger>

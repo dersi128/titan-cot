@@ -13,11 +13,13 @@ export function SelectField<T extends string>({
   label,
   value,
   options,
+  labels,
   onChange,
 }: {
   label: string
   value: T
   options: readonly T[]
+  labels?: Partial<Record<T, string>>
   onChange: (value: T) => void
 }) {
   return (
@@ -29,7 +31,7 @@ export function SelectField<T extends string>({
         <SelectContent position="popper">
           {options.map((option) => (
             <SelectItem key={option} value={option}>
-              {option}
+              {labels?.[option] ?? option}
             </SelectItem>
           ))}
         </SelectContent>

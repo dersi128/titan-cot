@@ -19,6 +19,7 @@ import {
 import { ResultR } from "@/components/trades/result-r"
 import type { Trade } from "@/types/trade"
 import { tradeRowProps } from "@/components/trades/trade-row"
+import { copy } from "@/lib/labels"
 
 export function RecentTrades({ trades }: { trades: Trade[] }) {
   const router = useRouter()
@@ -27,18 +28,18 @@ export function RecentTrades({ trades }: { trades: Trade[] }) {
   return (
     <Card>
       <CardHeader className="border-b">
-        <CardTitle>Recent Trades</CardTitle>
+        <CardTitle>{copy.dashboard.recentTrades}</CardTitle>
       </CardHeader>
       <CardContent className="px-0">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Symbol</TableHead>
-              <TableHead>Direction</TableHead>
-              <TableHead>Grade</TableHead>
-              <TableHead>Result</TableHead>
-              <TableHead>R</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>{copy.journal.symbol}</TableHead>
+              <TableHead>{copy.journal.direction}</TableHead>
+              <TableHead>{copy.journal.grade}</TableHead>
+              <TableHead>{copy.journal.result}</TableHead>
+              <TableHead>{copy.journal.r}</TableHead>
+              <TableHead>{copy.journal.status}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -55,10 +56,10 @@ export function RecentTrades({ trades }: { trades: Trade[] }) {
                   {trade.resultR == null
                     ? "—"
                     : trade.resultR > 0
-                      ? "Win"
+                      ? copy.outcome.win
                       : trade.resultR < 0
-                        ? "Loss"
-                        : "BE"}
+                        ? copy.outcome.loss
+                        : copy.outcome.be}
                 </TableCell>
                 <TableCell>
                   <ResultR value={trade.resultR} />
