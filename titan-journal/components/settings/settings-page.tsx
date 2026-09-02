@@ -6,7 +6,7 @@ import { useWorkspace } from "@/components/layout/workspace-provider"
 import { SelectField } from "@/components/forms/select-field"
 import { ACCOUNT_LABELS, copy } from "@/lib/labels"
 import { ACCOUNTS } from "@/types/trade"
-import type { Density, JournalMode, ThemeId } from "@/types/playbook"
+import { THEMES, type Density, type JournalMode, type ThemeId } from "@/types/playbook"
 
 export function SettingsPage() {
   const { preferences, updatePreferences, playbooks } = useWorkspace()
@@ -42,11 +42,12 @@ export function SettingsPage() {
           <Field label={copy.settings.theme}>
             <OptionPills
               value={preferences.theme}
-              options={["light", "slate", "dark"] as const}
+              options={THEMES}
               labels={{
                 light: copy.settings.light,
                 slate: copy.settings.slate,
                 dark: copy.settings.dark,
+                cyberpunk: copy.settings.cyberpunk,
               }}
               onChange={(theme: ThemeId) => updatePreferences({ theme })}
             />

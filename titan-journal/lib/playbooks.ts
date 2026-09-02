@@ -7,6 +7,19 @@ import {
 } from "@/types/playbook"
 
 export const TITAN_SWING_PLAYBOOK_ID = "pb-titan-swing"
+export const SWING_PLAYBOOK_NAME = "Swing"
+export const LEGACY_SWING_PLAYBOOK_NAME = "TITAN Swing"
+
+export function normalizePlaybookName(id: string, name: string): string {
+  if (id === TITAN_SWING_PLAYBOOK_ID && name.trim() === LEGACY_SWING_PLAYBOOK_NAME) {
+    return SWING_PLAYBOOK_NAME
+  }
+  return name
+}
+
+export function normalizeStrategyName(name: string): string {
+  return name.trim() === LEGACY_SWING_PLAYBOOK_NAME ? SWING_PLAYBOOK_NAME : name
+}
 
 export const PLAYBOOK_COLORS = [
   "#5ba8ff",
@@ -47,7 +60,7 @@ function field(
 export function createTitanSwingPlaybook(): Playbook {
   return {
     id: TITAN_SWING_PLAYBOOK_ID,
-    name: "TITAN Swing",
+    name: SWING_PLAYBOOK_NAME,
     description: "Supply and demand swing framework.",
     color: "#5ba8ff",
     icon: null,

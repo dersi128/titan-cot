@@ -27,6 +27,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet"
+import { AvatarBubble } from "@/components/profile/avatar-bubble"
 import { ACCOUNT_LABELS, copy } from "@/lib/labels"
 import { cn } from "@/lib/utils"
 import { ACCOUNTS } from "@/types/trade"
@@ -112,9 +113,12 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
       </div>
       <div className="border-t border-sidebar-border px-3 py-3">
         <NavGroup items={BOTTOM_NAV} onNavigate={onNavigate} />
-        <p className="mt-3 truncate px-2 text-[11px] text-muted-foreground">
-          {profile.displayName}
-        </p>
+        <div className="mt-3 flex items-center gap-2 px-2">
+          <AvatarBubble name={profile.displayName} src={profile.avatar} size="sm" />
+          <p className="truncate text-[11px] text-muted-foreground">
+            {profile.displayName}
+          </p>
+        </div>
       </div>
     </div>
   )

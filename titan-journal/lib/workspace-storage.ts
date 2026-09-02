@@ -1,4 +1,8 @@
-import { createTitanSwingPlaybook, TITAN_SWING_PLAYBOOK_ID } from "@/lib/playbooks"
+import {
+  createTitanSwingPlaybook,
+  normalizePlaybookName,
+  TITAN_SWING_PLAYBOOK_ID,
+} from "@/lib/playbooks"
 import type {
   AccountCapital,
   Density,
@@ -10,7 +14,7 @@ import type {
   UserPreferences,
   UserProfile,
 } from "@/types/playbook"
-import { TRADING_MARKETS } from "@/types/playbook"
+import { THEMES, TRADING_MARKETS } from "@/types/playbook"
 import { ACCOUNTS, type Account } from "@/types/trade"
 
 export const PREFERENCES_STORAGE_KEY = "titan-journal.preferences.v1"
@@ -21,6 +25,7 @@ export const DEFAULT_PROFILE: UserProfile = {
   displayName: "Trader",
   traderType: "",
   bio: "",
+  avatar: null,
   capital: {
     Personal: 10_000,
     Challenge: 100_000,
@@ -79,12 +84,19 @@ function asAccount(value: unknown): Account {
     : DEFAULT_PREFERENCES.defaultAccount
 }
 
+function asTheme(value: unknown): ThemeId {
+  return typeof value === "string" && (THEMES as readonly string[]).includes(value)
+    ? (value as ThemeId)
+    : DEFAULT_PREFERENCES.theme
+}
+
+export function isDarkTheme(theme: ThemeId): boolean {
+  return theme !== "light"
+}
+
 export function hydratePreferences(raw: unknown): UserPreferences {
   const row = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {}
-  const theme: ThemeId =
-    row.theme === "light" || row.theme === "slate" || row.theme === "dark"
-      ? row.theme
-      : DEFAULT_PREFERENCES.theme
+  const theme = asTheme(row.theme)
   const density: Density =
     row.density === "compact" ||
     row.density === "comfortable" ||
@@ -109,6 +121,13 @@ export function hydratePreferences(raw: unknown): UserPreferences {
         ? row.defaultPlaybookId
         : DEFAULT_PREFERENCES.defaultPlaybookId,
   }
+}
+
+function hydrateAvatar(raw: unknown): string | null {
+  if (typeof raw !== "string") return null
+  if (!raw.startsWith("data:image/")) return null
+  if (raw.length > 400_000) return null
+  return raw
 }
 
 function asMoney(value: unknown, fallback: number): number {
@@ -150,6 +169,7 @@ export function hydrateProfile(
         : DEFAULT_PROFILE.displayName,
     traderType: typeof row.traderType === "string" ? row.traderType : "",
     bio: typeof row.bio === "string" ? row.bio : "",
+    avatar: hydrateAvatar(row.avatar),
     capital: hydrateCapital(row.capital),
     riskPercent,
     markets: hydrateMarkets(row.markets),
@@ -191,7 +211,7 @@ export function hydratePlaybook(raw: unknown): Playbook | null {
     : []
   return {
     id: row.id,
-    name: row.name,
+    name: normalizePlaybookName(row.id, row.name),
     description: typeof row.description === "string" ? row.description : "",
     color: typeof row.color === "string" ? row.color : null,
     icon: typeof row.icon === "string" && row.icon.trim() ? row.icon.trim().slice(0, 2) : null,
@@ -294,8 +314,9 @@ export function applyDocumentAppearance(preferences: UserPreferences) {
   const root = document.documentElement
   root.dataset.theme = preferences.theme
   root.dataset.density = preferences.density
-  root.style.colorScheme = preferences.theme === "light" ? "light" : "dark"
-  root.classList.toggle("dark", preferences.theme !== "light")
+  const dark = isDarkTheme(preferences.theme)
+  root.style.colorScheme = dark ? "dark" : "light"
+  root.classList.toggle("dark", dark)
 }
 
-export const THEME_BOOT_SCRIPT = `try{var p=JSON.parse(localStorage.getItem("${PREFERENCES_STORAGE_KEY}")||"{}");var t=p.theme==="light"||p.theme==="dark"||p.theme==="slate"?p.theme:"slate";var d=p.density==="compact"||p.density==="large"||p.density==="comfortable"?p.density:"comfortable";var r=document.documentElement;r.setAttribute("data-theme",t);r.setAttribute("data-density",d);r.style.colorScheme=t==="light"?"light":"dark";r.classList.toggle("dark",t!=="light");}catch(e){}`
+export const THEME_BOOT_SCRIPT = `try{var p=JSON.parse(localStorage.getItem("${PREFERENCES_STORAGE_KEY}")||"{}");var ok=["light","slate","dark","cyberpunk"];var t=ok.indexOf(p.theme)>=0?p.theme:"slate";var d=p.density==="compact"||p.density==="large"||p.density==="comfortable"?p.density:"comfortable";var r=document.documentElement;r.setAttribute("data-theme",t);r.setAttribute("data-density",d);var dark=t!=="light";r.style.colorScheme=dark?"dark":"light";r.classList.toggle("dark",dark);}catch(e){}`

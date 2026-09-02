@@ -58,21 +58,21 @@ export function EquityCurve({ data }: { data: EquityPoint[] }) {
             <AreaChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="equityFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#2ea8ff" stopOpacity={0.28} />
-                  <stop offset="100%" stopColor="#2ea8ff" stopOpacity={0} />
+                  <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.28} />
+                  <stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid stroke="rgba(255,255,255,0.04)" vertical={false} />
+              <CartesianGrid stroke="var(--border)" vertical={false} />
               <XAxis
                 dataKey="date"
-                tick={{ fill: "#8a96a8", fontSize: 11 }}
+                tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
                 tickLine={false}
                 axisLine={false}
                 minTickGap={28}
                 tickFormatter={formatChartDate}
               />
               <YAxis
-                tick={{ fill: "#8a96a8", fontSize: 11 }}
+                tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
                 tickLine={false}
                 axisLine={false}
                 width={76}
@@ -81,17 +81,17 @@ export function EquityCurve({ data }: { data: EquityPoint[] }) {
                 }
               />
               <Tooltip
-                cursor={{ stroke: "rgba(46,168,255,0.35)", strokeWidth: 1 }}
+                cursor={{ stroke: "var(--chart-1)", strokeWidth: 1 }}
                 content={<EquityTooltip />}
               />
               <Area
                 type="monotone"
                 dataKey="equity"
-                stroke="#2ea8ff"
+                stroke="var(--chart-1)"
                 fill="url(#equityFill)"
                 strokeWidth={1.75}
                 dot={false}
-                activeDot={{ r: 3, fill: "#2ea8ff", strokeWidth: 0 }}
+                activeDot={{ r: 3, fill: "var(--chart-1)", strokeWidth: 0 }}
               />
             </AreaChart>
           </ResponsiveContainer>
