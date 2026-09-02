@@ -1,4 +1,4 @@
-import { TITAN_SWING_PLAYBOOK_ID } from "@/lib/playbooks"
+import { normalizeStrategyName, TITAN_SWING_PLAYBOOK_ID } from "@/lib/playbooks"
 import { fieldValuesFromLegacy } from "@/lib/playbook-legacy"
 import type { TradeFieldValue } from "@/types/playbook"
 import type { Trade } from "@/types/trade"
@@ -9,10 +9,11 @@ export function hydrateTradePlaybookFields(row: Record<string, unknown>, trade: 
     typeof row.playbookId === "string" && row.playbookId
       ? row.playbookId
       : TITAN_SWING_PLAYBOOK_ID
-  const strategy =
+  const strategy = normalizeStrategyName(
     typeof row.strategy === "string" && row.strategy
       ? row.strategy
       : DEFAULT_STRATEGY
+  )
   const screenshot =
     typeof row.screenshot === "string" && row.screenshot ? row.screenshot : null
   const rawValues = row.fieldValues

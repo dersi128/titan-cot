@@ -19,6 +19,7 @@ describe("workspace hydration", () => {
       journalMode: "advanced",
       theme: "light",
     })
+    expect(hydratePreferences({ theme: "cyberpunk" }).theme).toBe("cyberpunk")
   })
 
   it("hydrates a stored playbook that predates icon", () => {
@@ -48,17 +49,32 @@ describe("workspace hydration", () => {
     expect(playbook?.fields[0]?.name).toBe("Session")
   })
 
-  it("keeps TITAN Swing when the stored list omits it", () => {
+  it("keeps the default Swing playbook when the stored list omits it", () => {
     const playbooks = hydratePlaybooks([
       { id: "pb-other", name: "Scalping", fields: [] },
     ])
     expect(playbooks[0]?.id).toBe(TITAN_SWING_PLAYBOOK_ID)
+    expect(playbooks[0]?.name).toBe("Swing")
     expect(playbooks.some((item) => item.id === "pb-other")).toBe(true)
+  })
+
+  it("renames a stored TITAN Swing playbook to Swing", () => {
+    const playbook = hydratePlaybook({
+      id: TITAN_SWING_PLAYBOOK_ID,
+      name: "TITAN Swing",
+      fields: [],
+    })
+    expect(playbook?.name).toBe("Swing")
   })
 
   it("falls back to a display name", () => {
     expect(hydrateProfile({ displayName: "  Maya  " }).displayName).toBe("Maya")
     expect(hydrateProfile({}).displayName).toBe("Trader")
+    expect(hydrateProfile({}).avatar).toBeNull()
+    expect(
+      hydrateProfile({ avatar: "data:image/jpeg;base64,abc" }).avatar
+    ).toBe("data:image/jpeg;base64,abc")
+    expect(hydrateProfile({ avatar: "https://evil.example/x.png" }).avatar).toBeNull()
   })
 
   it("fills capital, risk, and markets on an old profile", () => {

@@ -66,7 +66,7 @@ function fromSeed(seed: Seed): Trade {
     marketType: classification.marketType,
     cotEnabled: classification.cotEnabled,
     direction: seed.direction,
-    strategy: "TITAN Swing",
+    strategy: "Swing",
     account: seed.account ?? "Personal",
     status: seed.status,
     htfTrend: seed.htfTrend,
