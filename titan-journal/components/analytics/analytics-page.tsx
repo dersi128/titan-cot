@@ -4,7 +4,7 @@ import { useMemo } from "react"
 
 import { KpiCards } from "@/components/dashboard/kpi-cards"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
-import { useTrades } from "@/components/trades/trades-provider"
+import { useScopedTrades } from "@/components/layout/use-scoped-trades"
 import { copy } from "@/lib/labels"
 import {
   bestAndWorstPlaybook,
@@ -13,7 +13,6 @@ import {
   statsBySymbol,
   type GroupStats,
 } from "@/lib/analytics"
-import { computeDashboardStats } from "@/lib/trade-calculations"
 import { formatPercent, formatSignedR, formatSignedUsd, signedClassName } from "@/lib/format"
 
 function GroupTable({ title, rows }: { title: string; rows: GroupStats[] }) {
@@ -68,8 +67,7 @@ function Highlight({
 }
 
 export function AnalyticsPage() {
-  const { trades } = useTrades()
-  const stats = useMemo(() => computeDashboardStats(trades), [trades])
+  const { trades, stats } = useScopedTrades()
   const playbooks = useMemo(() => statsByPlaybook(trades), [trades])
   const directions = useMemo(() => statsByDirection(trades), [trades])
   const symbols = useMemo(() => statsBySymbol(trades).slice(0, 8), [trades])

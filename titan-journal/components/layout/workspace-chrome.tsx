@@ -1,11 +1,12 @@
 "use client"
 
-import { createContext, useContext, useMemo, useState } from "react"
+import { createContext, useContext, useEffect, useMemo, useState } from "react"
 
-import { ACCOUNTS, type Account } from "@/types/trade"
+import { useWorkspace } from "@/components/layout/workspace-provider"
+import { DATE_RANGES, type DateRange } from "@/lib/date-range"
+import type { Account } from "@/types/trade"
 
-export const DATE_RANGES = ["7D", "30D", "3M", "YTD", "ALL"] as const
-export type DateRange = (typeof DATE_RANGES)[number]
+export { DATE_RANGES, type DateRange }
 
 type WorkspaceChrome = {
   account: Account
@@ -21,8 +22,16 @@ export function WorkspaceChromeProvider({
 }: {
   children: React.ReactNode
 }) {
+  const { preferences } = useWorkspace()
   const [account, setAccount] = useState<Account>("Personal")
   const [range, setRange] = useState<DateRange>("ALL")
+
+  useEffect(() => {
+    setAccount(preferences.defaultAccount)
+    // Header starts from the saved default. After that the trader drives it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const value = useMemo(
     () => ({ account, setAccount, range, setRange }),
     [account, range]

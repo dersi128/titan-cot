@@ -1,13 +1,16 @@
 import { createTitanSwingPlaybook, TITAN_SWING_PLAYBOOK_ID } from "@/lib/playbooks"
 import type {
+  AccountCapital,
   Density,
   JournalMode,
   Playbook,
   PlaybookField,
   ThemeId,
+  TradingMarket,
   UserPreferences,
   UserProfile,
 } from "@/types/playbook"
+import { TRADING_MARKETS } from "@/types/playbook"
 import { ACCOUNTS, type Account } from "@/types/trade"
 
 export const PREFERENCES_STORAGE_KEY = "titan-journal.preferences.v1"
@@ -18,6 +21,13 @@ export const DEFAULT_PROFILE: UserProfile = {
   displayName: "Trader",
   traderType: "",
   bio: "",
+  capital: {
+    Personal: 10_000,
+    Challenge: 100_000,
+    Funded: 0,
+  },
+  riskPercent: 1,
+  markets: ["Forex"],
 }
 
 export const DEFAULT_PREFERENCES: UserPreferences = {
@@ -101,8 +111,38 @@ export function hydratePreferences(raw: unknown): UserPreferences {
   }
 }
 
-export function hydrateProfile(raw: unknown): UserProfile {
+function asMoney(value: unknown, fallback: number): number {
+  if (typeof value === "number" && Number.isFinite(value) && value >= 0) return value
+  if (typeof value === "string" && value.trim()) {
+    const parsed = Number(value)
+    if (Number.isFinite(parsed) && parsed >= 0) return parsed
+  }
+  return fallback
+}
+
+function hydrateCapital(raw: unknown): AccountCapital {
   const row = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {}
+  return {
+    Personal: asMoney(row.Personal, DEFAULT_PROFILE.capital.Personal),
+    Challenge: asMoney(row.Challenge, DEFAULT_PROFILE.capital.Challenge),
+    Funded: asMoney(row.Funded, DEFAULT_PROFILE.capital.Funded),
+  }
+}
+
+function hydrateMarkets(raw: unknown): TradingMarket[] {
+  if (!Array.isArray(raw)) return [...DEFAULT_PROFILE.markets]
+  return TRADING_MARKETS.filter((market) => raw.includes(market))
+}
+
+export function hydrateProfile(
+  raw: unknown,
+  fallbackRisk = DEFAULT_PROFILE.riskPercent
+): UserProfile {
+  const row = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {}
+  const riskPercent =
+    typeof row.riskPercent === "number" && Number.isFinite(row.riskPercent)
+      ? row.riskPercent
+      : fallbackRisk
   return {
     displayName:
       typeof row.displayName === "string" && row.displayName.trim()
@@ -110,6 +150,9 @@ export function hydrateProfile(raw: unknown): UserProfile {
         : DEFAULT_PROFILE.displayName,
     traderType: typeof row.traderType === "string" ? row.traderType : "",
     bio: typeof row.bio === "string" ? row.bio : "",
+    capital: hydrateCapital(row.capital),
+    riskPercent,
+    markets: hydrateMarkets(row.markets),
   }
 }
 
@@ -232,7 +275,11 @@ export const preferencesStore = createStore(
 
 export const profileStore = createStore(
   PROFILE_STORAGE_KEY,
-  () => hydrateProfile(readJson(PROFILE_STORAGE_KEY)),
+  () =>
+    hydrateProfile(
+      readJson(PROFILE_STORAGE_KEY),
+      hydratePreferences(readJson(PREFERENCES_STORAGE_KEY)).defaultRisk
+    ),
   DEFAULT_PROFILE
 )
 

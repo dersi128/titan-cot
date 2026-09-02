@@ -99,23 +99,28 @@ export type EquityPoint = {
   r: number
 }
 
-export function buildEquityCurve(trades: Trade[]): EquityPoint[] {
+export function buildEquityCurve(
+  trades: Trade[],
+  startCapital = 0
+): EquityPoint[] {
   const closed = trades
     .filter((trade) => isRealizedTradeStatus(trade.status) && trade.resultR != null)
     .slice()
     .sort((a, b) => a.date.localeCompare(b.date) || a.createdAt.localeCompare(b.createdAt))
 
-  let equity = 0
-  let r = 0
+  const start = Math.round(startCapital * 100) / 100
+  const startDate = closed[0]?.date ?? ""
   const points: EquityPoint[] = [
     {
-      date: closed[0]?.date ?? "",
+      date: startDate,
       label: "Start",
-      equity: 0,
+      equity: start,
       r: 0,
     },
   ]
 
+  let equity = start
+  let r = 0
   for (const trade of closed) {
     equity += trade.pnl ?? 0
     r += trade.resultR ?? 0

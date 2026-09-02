@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import {
+  buildEquityCurve,
   calculatePlannedRRR,
   computeDashboardStats,
   formatRRR,
@@ -69,5 +70,24 @@ describe("computeDashboardStats", () => {
 
     expect(computeDashboardStats(reviewed)).toEqual(baseline)
     expect(baseline.closedTrades).toBeGreaterThan(0)
+  })
+})
+
+describe("buildEquityCurve", () => {
+  it("starts at the account capital", () => {
+    const closed = MOCK_TRADES.filter(
+      (trade) => trade.status === "CLOSED" && trade.pnl != null
+    ).slice(0, 2)
+    const curve = buildEquityCurve(closed, 10_000)
+    expect(curve[0]).toMatchObject({ label: "Start", equity: 10_000, r: 0 })
+    const last = curve[curve.length - 1]
+    const net = closed.reduce((sum, trade) => sum + (trade.pnl ?? 0), 0)
+    expect(last?.equity).toBe(10_000 + net)
+  })
+
+  it("stays flat at capital when nothing is closed", () => {
+    expect(buildEquityCurve([], 25_000)).toEqual([
+      { date: "", label: "Start", equity: 25_000, r: 0 },
+    ])
   })
 })

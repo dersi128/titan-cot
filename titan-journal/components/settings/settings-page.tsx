@@ -4,8 +4,7 @@ import { Field, OptionPills } from "@/components/forms/field"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
 import { useWorkspace } from "@/components/layout/workspace-provider"
 import { SelectField } from "@/components/forms/select-field"
-import { Input } from "@/components/ui/input"
-import { copy } from "@/lib/labels"
+import { ACCOUNT_LABELS, copy } from "@/lib/labels"
 import { ACCOUNTS } from "@/types/trade"
 import type { Density, JournalMode, ThemeId } from "@/types/playbook"
 
@@ -72,21 +71,12 @@ export function SettingsPage() {
             label={copy.settings.defaultAccount}
             value={preferences.defaultAccount}
             options={ACCOUNTS}
+            labels={ACCOUNT_LABELS}
             onChange={(defaultAccount) => updatePreferences({ defaultAccount })}
           />
-          <Field label={copy.settings.defaultRisk}>
-            <Input
-              type="number"
-              min={0.1}
-              step={0.1}
-              value={preferences.defaultRisk}
-              onChange={(event) =>
-                updatePreferences({
-                  defaultRisk: Number(event.target.value) || 1,
-                })
-              }
-            />
-          </Field>
+          <p className="text-[12px] text-muted-foreground">
+            {copy.settings.riskOnProfile}
+          </p>
           <SelectField
             label={copy.settings.defaultPlaybook}
             value={preferences.defaultPlaybookId}

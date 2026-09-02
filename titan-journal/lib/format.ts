@@ -2,6 +2,15 @@ import { LOCALE } from "@/lib/locale"
 import { STATUS_LABELS, YES_NO_LABELS } from "@/lib/labels"
 import type { TradeStatus } from "@/types/trade"
 
+export function formatUsd(value: number | null | undefined): string {
+  if (value == null || !Number.isFinite(value)) return "—"
+  return value.toLocaleString(LOCALE, {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  })
+}
+
 export function formatSignedUsd(value: number | null | undefined): string {
   if (value == null || !Number.isFinite(value)) return "—"
   const abs = Math.abs(value).toLocaleString(LOCALE, {

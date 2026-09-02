@@ -23,10 +23,10 @@ import {
 } from "@/components/ui/table"
 import { TableSkeleton } from "@/components/layout/loading-state"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
+import { useScopedTrades } from "@/components/layout/use-scoped-trades"
 import { useWorkspace } from "@/components/layout/workspace-provider"
 import { ResultR } from "@/components/trades/result-r"
 import { DirectionBadge } from "@/components/trades/trade-badges"
-import { useTrades } from "@/components/trades/trades-provider"
 import { tradeRowProps } from "@/components/trades/trade-row"
 import { formatDate, formatSignedUsd, signedClassName } from "@/lib/format"
 import { copy } from "@/lib/labels"
@@ -47,12 +47,12 @@ function outcomeLabel(resultR: number | null) {
 
 export function JournalPage() {
   const router = useRouter()
-  const { trades, isReady } = useTrades()
+  const { accountTrades, isReady } = useScopedTrades()
   const { playbooks } = useWorkspace()
   const [filters, setFilters] = useState<TradeFilters>(EMPTY_TRADE_FILTERS)
   const visible = useMemo(
-    () => filterTrades(trades, filters),
-    [trades, filters]
+    () => filterTrades(accountTrades, filters),
+    [accountTrades, filters]
   )
 
   return (

@@ -3,18 +3,17 @@
 import dynamic from "next/dynamic"
 import { useMemo } from "react"
 
+import { AccountStrip } from "@/components/dashboard/account-strip"
 import { KpiCards } from "@/components/dashboard/kpi-cards"
 import { RecentTrades } from "@/components/dashboard/recent-trades"
 import { StrategySnapshot } from "@/components/dashboard/strategy-snapshot"
 import { KpiSkeleton, TableSkeleton } from "@/components/layout/loading-state"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
+import { useScopedTrades } from "@/components/layout/use-scoped-trades"
 import { Skeleton } from "@/components/ui/skeleton"
-import { useTrades } from "@/components/trades/trades-provider"
+import { accountEquity } from "@/lib/account-scope"
 import { copy } from "@/lib/labels"
-import {
-  buildEquityCurve,
-  computeDashboardStats,
-} from "@/lib/trade-calculations"
+import { buildEquityCurve } from "@/lib/trade-calculations"
 
 const EquityCurve = dynamic(
   () =>
@@ -26,10 +25,21 @@ const EquityCurve = dynamic(
 )
 
 export function DashboardPage() {
-  const { trades, isReady } = useTrades()
+  const {
+    trades,
+    isReady,
+    account,
+    capital,
+    riskPercent,
+    riskUsd,
+    markets,
+    stats,
+  } = useScopedTrades()
 
-  const stats = useMemo(() => computeDashboardStats(trades), [trades])
-  const equity = useMemo(() => buildEquityCurve(trades), [trades])
+  const equity = useMemo(
+    () => buildEquityCurve(trades, capital),
+    [trades, capital]
+  )
 
   return (
     <PageFrame>
@@ -45,6 +55,14 @@ export function DashboardPage() {
         </div>
       ) : (
         <div className="space-y-4">
+          <AccountStrip
+            account={account}
+            capital={capital}
+            equity={accountEquity(capital, stats.netPnl)}
+            riskUsd={riskUsd}
+            riskPercent={riskPercent}
+            markets={markets}
+          />
           <KpiCards stats={stats} />
           <EquityCurve data={equity} />
           <div className="grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(280px,0.8fr)]">

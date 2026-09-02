@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 
 import { Field, OptionPills } from "@/components/forms/field"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
+import { useWorkspaceChrome } from "@/components/layout/workspace-chrome"
 import { useWorkspace } from "@/components/layout/workspace-provider"
 import { PlaybookFieldInput } from "@/components/playbooks/playbook-field-input"
 import { MarketBadges } from "@/components/trades/market-badges"
@@ -13,7 +14,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { classifyMarket } from "@/lib/market-classification"
-import { copy } from "@/lib/labels"
+import { dollarsPerR } from "@/lib/account-scope"
+import { formatUsd } from "@/lib/format"
+import { ACCOUNT_LABELS, copy } from "@/lib/labels"
 import { todayIsoDate } from "@/lib/locale"
 import { applyTitanFieldValuesToLegacy } from "@/lib/playbook-legacy"
 import {
@@ -30,8 +33,10 @@ import {
 } from "@/lib/trade-calculations"
 import type { TradeFieldValue } from "@/types/playbook"
 import {
+  ACCOUNTS,
   DEFAULT_STRATEGY,
   TRADE_DIRECTIONS,
+  type Account,
   type Trade,
   type TradeDirection,
 } from "@/types/trade"
@@ -54,7 +59,8 @@ export function NewTradeForm() {
 export function TradeForm({ trade }: { trade?: Trade }) {
   const router = useRouter()
   const { saveTrade, updateTrade } = useTrades()
-  const { preferences, playbooks } = useWorkspace()
+  const { preferences, playbooks, profile } = useWorkspace()
+  const { account: chromeAccount } = useWorkspaceChrome()
   const editing = trade != null
   const available = activePlaybooks(playbooks)
   const currentPlaybook = trade
@@ -75,7 +81,10 @@ export function TradeForm({ trade }: { trade?: Trade }) {
   const [stopLoss, setStopLoss] = useState(trade ? String(trade.stopLoss) : "")
   const [takeProfit, setTakeProfit] = useState(trade ? String(trade.takeProfit) : "")
   const [riskPercent, setRiskPercent] = useState(
-    String(trade?.riskPercent ?? preferences.defaultRisk)
+    String(trade?.riskPercent ?? profile.riskPercent ?? preferences.defaultRisk)
+  )
+  const [account, setAccount] = useState<Account>(
+    trade?.account ?? chromeAccount
   )
   const [playbookId, setPlaybookId] = useState(
     defaultPlaybook?.id ?? TITAN_SWING_PLAYBOOK_ID
@@ -104,6 +113,10 @@ export function TradeForm({ trade }: { trade?: Trade }) {
   const values = fieldValueMap(fieldValues)
   const showResult =
     editing && (trade.status === "CLOSED" || trade.status === "REVIEWED")
+  const riskUsd = dollarsPerR(
+    profile.capital[account],
+    parseOptionalNumber(riskPercent) ?? profile.riskPercent
+  )
 
   async function handleScreenshot(file: File | undefined) {
     if (!file) return
@@ -139,6 +152,7 @@ export function TradeForm({ trade }: { trade?: Trade }) {
       direction,
       strategy: playbook?.name ?? DEFAULT_STRATEGY,
       playbookId: playbook?.id ?? TITAN_SWING_PLAYBOOK_ID,
+      account,
       htfTrend: legacy.htfTrend ?? trade?.htfTrend ?? "Uptrend",
       tradeTrend: legacy.tradeTrend ?? trade?.tradeTrend ?? "Uptrend",
       location: legacy.location ?? trade?.location ?? "Discount",
@@ -153,7 +167,7 @@ export function TradeForm({ trade }: { trade?: Trade }) {
       entry: entryN,
       stopLoss: sl,
       takeProfit: tp,
-      riskPercent: parseOptionalNumber(riskPercent) ?? preferences.defaultRisk,
+      riskPercent: parseOptionalNumber(riskPercent) ?? profile.riskPercent,
       plannedRRR,
       notes: notes.trim(),
       screenshot,
@@ -176,7 +190,6 @@ export function TradeForm({ trade }: { trade?: Trade }) {
 
     const created = saveTrade({
       ...patch,
-      account: preferences.defaultAccount,
       status: "PLANNED",
       zoneTimeframe: "Daily",
       original: true,
@@ -214,6 +227,14 @@ export function TradeForm({ trade }: { trade?: Trade }) {
               />
             </Field>
           ) : null}
+          <Field label={copy.form.account}>
+            <OptionPills
+              value={account}
+              options={ACCOUNTS}
+              labels={ACCOUNT_LABELS}
+              onChange={setAccount}
+            />
+          </Field>
           <Field label={copy.form.symbol}>
             <Input
               autoFocus={!editing}
@@ -248,7 +269,14 @@ export function TradeForm({ trade }: { trade?: Trade }) {
             </Field>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
-            <Field label={copy.form.risk}>
+            <Field
+              label={copy.form.risk}
+              hint={
+                riskUsd > 0
+                  ? `${formatUsd(riskUsd)} ${copy.form.riskHint}`
+                  : undefined
+              }
+            >
               <Input
                 value={riskPercent}
                 onChange={(event) => setRiskPercent(event.target.value)}

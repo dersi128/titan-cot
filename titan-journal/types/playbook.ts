@@ -43,10 +43,28 @@ export type ThemeId = (typeof THEMES)[number]
 export const DENSITIES = ["compact", "comfortable", "large"] as const
 export type Density = (typeof DENSITIES)[number]
 
+export const TRADING_MARKETS = [
+  "Forex",
+  "Index",
+  "Commodity",
+  "Crypto",
+  "Stock",
+] as const
+export type TradingMarket = (typeof TRADING_MARKETS)[number]
+
+export type AccountCapital = {
+  Personal: number
+  Challenge: number
+  Funded: number
+}
+
 export type UserProfile = {
   displayName: string
   traderType: string
   bio: string
+  capital: AccountCapital
+  riskPercent: number
+  markets: TradingMarket[]
 }
 
 export type UserPreferences = {
