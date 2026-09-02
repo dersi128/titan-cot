@@ -47,6 +47,7 @@ export function SettingsPage() {
                 light: copy.settings.light,
                 slate: copy.settings.slate,
                 dark: copy.settings.dark,
+                gold: copy.settings.gold,
                 cyberpunk: copy.settings.cyberpunk,
               }}
               onChange={(theme: ThemeId) => updatePreferences({ theme })}
