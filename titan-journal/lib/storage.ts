@@ -10,6 +10,7 @@ export interface TradeRepository {
   getAll(): Trade[]
   getById(id: string): Trade | undefined
   upsert(trade: Trade): Trade
+  remove(id: string): void
   replaceAll(trades: Trade[]): void
   subscribe(listener: () => void): () => void
 }
@@ -64,15 +65,26 @@ export function createLocalStorageRepository(): TradeRepository {
   let cachedRaw: string | null | undefined
   let cachedTrades: Trade[] = SORTED_MOCK
 
+  function storedList(): Trade[] {
+    const raw = readRaw()
+    if (raw == null) return SORTED_MOCK.slice()
+    return parseTrades(raw)
+  }
+
   function snapshot(): Trade[] {
     const raw = readRaw()
     if (raw === cachedRaw) return cachedTrades
 
-    const stored = parseTrades(raw)
-    cachedRaw = raw
-    cachedTrades = stored.length === 0 ? SORTED_MOCK : sortTrades(stored)
+    if (raw == null) {
+      cachedRaw = raw
+      cachedTrades = SORTED_MOCK
+      return cachedTrades
+    }
 
-    if (stored.length > 0 && looksLegacy(raw)) {
+    cachedRaw = raw
+    cachedTrades = sortTrades(parseTrades(raw))
+
+    if (looksLegacy(raw)) {
       writeLocal(cachedTrades)
       cachedRaw = readRaw()
     }
@@ -87,7 +99,7 @@ export function createLocalStorageRepository(): TradeRepository {
 
   function seedIfEmpty() {
     if (!canUseLocalStorage()) return
-    if (parseTrades(readRaw()).length === 0) {
+    if (readRaw() == null) {
       writeLocal(SORTED_MOCK)
     }
   }
@@ -100,8 +112,7 @@ export function createLocalStorageRepository(): TradeRepository {
       return snapshot().find((trade) => trade.id === id)
     },
     upsert(trade: Trade) {
-      const current = parseTrades(readRaw())
-      const base = current.length === 0 ? SORTED_MOCK.slice() : current
+      const base = storedList()
       const index = base.findIndex((item) => item.id === trade.id)
       if (index >= 0) {
         base[index] = trade
@@ -111,6 +122,10 @@ export function createLocalStorageRepository(): TradeRepository {
       writeLocal(base)
       emit()
       return trade
+    },
+    remove(id: string) {
+      writeLocal(storedList().filter((item) => item.id !== id))
+      emit()
     },
     replaceAll(trades: Trade[]) {
       writeLocal(trades)

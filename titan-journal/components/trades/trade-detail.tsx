@@ -1,6 +1,8 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -110,12 +112,20 @@ function CloseTradePanel({ trade }: { trade: Trade }) {
 }
 
 export function TradeDetail({ trade }: { trade: Trade }) {
+  const router = useRouter()
+  const { deleteTrade } = useTrades()
   const classification = classifyMarket(trade.symbol)
   const { getPlaybook } = useWorkspace()
   const playbook = getPlaybook(trade.playbookId)
   const values = fieldValueMap(trade.fieldValues)
   const showStrategy = playbookHasValues(playbook, trade.fieldValues)
   const notes = trade.notes.trim()
+  const [confirmDelete, setConfirmDelete] = useState(false)
+
+  function handleDelete() {
+    deleteTrade(trade.id)
+    router.push("/journal")
+  }
 
   return (
     <div className="space-y-4">
@@ -130,7 +140,46 @@ export function TradeDetail({ trade }: { trade: Trade }) {
             <span className="text-sm text-muted-foreground">{trade.strategy}</span>
           </div>
         </div>
-        <StatusBadge status={trade.status} />
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <StatusBadge status={trade.status} />
+          <Button variant="outline" size="sm" asChild>
+            <Link href={`/journal/${trade.id}/edit`}>{copy.detail.edit}</Link>
+          </Button>
+          {confirmDelete ? (
+            <>
+              <Button
+                variant="destructive"
+                size="sm"
+                type="button"
+                onClick={handleDelete}
+              >
+                {copy.detail.delete}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                type="button"
+                onClick={() => setConfirmDelete(false)}
+              >
+                {copy.detail.cancel}
+              </Button>
+            </>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              type="button"
+              onClick={() => setConfirmDelete(true)}
+            >
+              {copy.detail.delete}
+            </Button>
+          )}
+          {confirmDelete ? (
+            <p className="basis-full text-right text-[12px] text-destructive">
+              {copy.detail.deleteConfirm}
+            </p>
+          ) : null}
+        </div>
       </div>
 
       <Section title={copy.detail.trade}>
