@@ -9,14 +9,17 @@ export function AvatarBubble({
   src: string | null
   size?: "sm" | "md"
 }) {
-  const dim = size === "sm" ? "h-8 w-8 text-[11px]" : "h-16 w-16 text-lg"
+  const dim = size === "sm" ? "h-10 w-10 text-[12px]" : "h-16 w-16 text-lg"
   if (src) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
         src={src}
         alt=""
-        className={cn("shrink-0 rounded-full border border-border object-cover", dim)}
+        className={cn(
+          "shrink-0 rounded-full border border-border bg-muted object-cover",
+          dim
+        )}
       />
     )
   }
