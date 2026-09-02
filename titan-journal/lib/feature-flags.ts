@@ -1,8 +1,5 @@
 /**
- * Phase 1 feature flags. Flip these as later phases land —
- * UI already reads them instead of scattering conditionals.
+ * Phase flags for later modules. Phase 2 COT visibility is driven by
+ * classifyMarket().cotEnabled, not a flag.
  */
-export const FEATURE_FLAGS = {
-  /** When true, COT fields are hidden for Forex Cross pairs. */
-  hideCotForCrossPairs: false,
-} as const
+export const FEATURE_FLAGS = {} as const

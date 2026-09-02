@@ -4,14 +4,16 @@ import {
   StatusBadge,
 } from "@/components/trades/trade-badges"
 import { ResultR } from "@/components/trades/result-r"
-import { formatMarketLabel } from "@/lib/market-classification"
+import { formatMarketLabel, classifyMarket, shouldDisplayCot } from "@/lib/market-classification"
 import { formatRRR } from "@/lib/trade-calculations"
 import { formatYesNo } from "@/lib/format"
 import {
+  ASSET_CLASS_LABELS,
   BIAS_LABELS,
   copy,
   IMPULSE_LABELS,
   LOCATION_LABELS,
+  MARKET_TYPE_LABELS,
   TREND_LABELS,
   ZONE_TIMEFRAME_LABELS,
   ZONE_TYPE_LABELS,
@@ -49,12 +51,15 @@ function Section({
 }
 
 export function TradeDetail({ trade }: { trade: Trade }) {
+  const classification = classifyMarket(trade.symbol)
+  const showCot = shouldDisplayCot(classification)
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-xs text-muted-foreground">
-            {formatMarketLabel(trade)}
+            {formatMarketLabel(classification)}
           </p>
           <h1 className="mt-1 text-[22px] font-semibold tracking-tight">
             {trade.symbol}
@@ -79,6 +84,14 @@ export function TradeDetail({ trade }: { trade: Trade }) {
       </Section>
 
       <Section title={copy.detail.marketContext}>
+        <Field
+          label={copy.detail.market}
+          value={ASSET_CLASS_LABELS[classification.assetClass]}
+        />
+        <Field
+          label={copy.detail.type}
+          value={MARKET_TYPE_LABELS[classification.marketType]}
+        />
         <Field label={copy.detail.htfTrend} value={TREND_LABELS[trade.htfTrend]} />
         <Field label={copy.detail.tradeTrend} value={TREND_LABELS[trade.tradeTrend]} />
         <Field label={copy.detail.location} value={LOCATION_LABELS[trade.location]} />
@@ -95,10 +108,35 @@ export function TradeDetail({ trade }: { trade: Trade }) {
         <Field label={copy.detail.mitigation} value={`${trade.mitigation} %`} />
       </Section>
 
-      <Section title={copy.detail.cot}>
-        <Field label={copy.detail.bias} value={BIAS_LABELS[trade.cotBias]} />
-        <Field label={copy.detail.score} value={trade.cotScore} />
-      </Section>
+      {showCot ? (
+        <Section title={copy.detail.cot}>
+          <Field
+            label={copy.detail.bias}
+            value={trade.cotBias ? BIAS_LABELS[trade.cotBias] : "—"}
+          />
+          <Field
+            label={copy.detail.score}
+            value={trade.cotScore == null ? "—" : trade.cotScore}
+          />
+          <Field
+            label={copy.detail.commercials}
+            value={
+              trade.commercialsBias ? BIAS_LABELS[trade.commercialsBias] : "—"
+            }
+          />
+        </Section>
+      ) : classification.marketType === "Cross" ? (
+        <Card>
+          <CardHeader className="border-b border-white/[0.06]">
+            <CardTitle>{copy.detail.cot}</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-4">
+            <p className="text-sm text-muted-foreground">
+              {copy.detail.cotHiddenCross}
+            </p>
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Card>
         <CardHeader className="border-b border-white/[0.06]">

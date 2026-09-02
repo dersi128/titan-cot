@@ -23,6 +23,11 @@ describe("mock journal seed", () => {
       direction: "SHORT",
       grade: "B+",
       resultR: 2,
+      assetClass: "Forex",
+      marketType: "Cross",
+      cotEnabled: false,
+      cotBias: null,
+      commercialsBias: null,
     })
   })
 })

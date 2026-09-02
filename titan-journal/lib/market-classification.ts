@@ -1,14 +1,17 @@
-import { PAIR_CLASS_LABELS } from "@/lib/labels"
-import { FEATURE_FLAGS } from "@/lib/feature-flags"
-import type { MarketClassification, PairClass } from "@/types/trade"
+import type {
+  AssetClass,
+  Bias,
+  MarketClassification,
+  MarketType,
+} from "@/types/trade"
 
 const FOREX_MAJORS = new Set([
-  "AUDUSD",
   "EURUSD",
   "GBPUSD",
   "USDJPY",
   "USDCHF",
   "USDCAD",
+  "AUDUSD",
   "NZDUSD",
 ])
 
@@ -17,67 +20,106 @@ const FOREX_CURRENCIES = new Set([
   "EUR",
   "GBP",
   "JPY",
+  "CHF",
+  "CAD",
   "AUD",
   "NZD",
-  "CAD",
-  "CHF",
 ])
 
-export function normalizeSymbol(input: string): string {
-  return input.replace(/[^A-Za-z]/g, "").toUpperCase()
+const UNKNOWN: Omit<MarketClassification, "symbol"> = {
+  assetClass: "Unknown",
+  marketType: "Unknown",
+  cotEnabled: false,
 }
 
-function pairClassForForex(symbol: string): PairClass {
-  if (FOREX_MAJORS.has(symbol)) return "Major"
+export function normalizeSymbol(input: string): string {
+  return input.toUpperCase().replaceAll(" ", "").replaceAll("/", "")
+}
+
+function isForexCurrency(code: string): boolean {
+  return FOREX_CURRENCIES.has(code)
+}
+
+function classifyForexPair(symbol: string): MarketClassification | null {
+  if (symbol.length !== 6) return null
 
   const base = symbol.slice(0, 3)
   const quote = symbol.slice(3, 6)
-  if (FOREX_CURRENCIES.has(base) && FOREX_CURRENCIES.has(quote)) {
-    return "Cross"
-  }
+  if (base === quote) return null
+  if (!isForexCurrency(base) || !isForexCurrency(quote)) return null
 
-  return "Exotic"
-}
-
-export function classifyMarket(rawSymbol: string): MarketClassification {
-  const symbol = normalizeSymbol(rawSymbol)
-
-  if (symbol.length === 6) {
+  if (FOREX_MAJORS.has(symbol)) {
     return {
       symbol,
-      marketType: "Forex",
-      pairClass: pairClassForForex(symbol),
+      assetClass: "Forex",
+      marketType: "Major",
+      cotEnabled: true,
     }
   }
 
   return {
     symbol,
-    marketType: "Unknown",
-    pairClass: "Unknown",
+    assetClass: "Forex",
+    marketType: "Cross",
+    cotEnabled: false,
   }
 }
 
-export function formatMarketLabel(classification: MarketClassification): string {
-  if (classification.marketType === "Unknown" || !classification.symbol) {
-    return "Neznámý trh"
+export function classifyMarket(rawSymbol: string): MarketClassification {
+  const symbol = normalizeSymbol(rawSymbol)
+  if (!symbol) {
+    return { symbol: "", ...UNKNOWN }
   }
 
-  return `${classification.marketType} · ${PAIR_CLASS_LABELS[classification.pairClass]}`
+  return classifyForexPair(symbol) ?? { symbol, ...UNKNOWN }
 }
 
-/**
- * COT is currently shown for every market. Later, set
- * `FEATURE_FLAGS.hideCotForCrossPairs` to hide it on Cross pairs.
- */
+export function formatMarketLabel(classification: {
+  assetClass: AssetClass
+  marketType: MarketType
+  symbol?: string
+}): string {
+  if (classification.assetClass === "Unknown" || !classification.symbol) {
+    return classification.symbol ? "Unknown" : ""
+  }
+
+  return `${classification.assetClass} · ${classification.marketType}`
+}
+
 export function shouldDisplayCot(
-  classification: MarketClassification
+  classification: Pick<MarketClassification, "cotEnabled">
 ): boolean {
-  if (
-    FEATURE_FLAGS.hideCotForCrossPairs &&
-    classification.pairClass === "Cross"
-  ) {
-    return false
+  return classification.cotEnabled
+}
+
+export function cotFieldsForClassification(
+  classification: Pick<MarketClassification, "cotEnabled">,
+  entered: {
+    cotBias: Bias
+    cotScore: number | null
+    commercialsBias: Bias
+  }
+): {
+  cotBias: Bias | null
+  cotScore: number | null
+  commercialsBias: Bias | null
+} {
+  if (!classification.cotEnabled) {
+    return {
+      cotBias: null,
+      cotScore: null,
+      commercialsBias: null,
+    }
   }
 
-  return true
+  const score =
+    entered.cotScore == null || !Number.isFinite(entered.cotScore)
+      ? 0
+      : Math.min(100, Math.max(-100, entered.cotScore))
+
+  return {
+    cotBias: entered.cotBias,
+    cotScore: score,
+    commercialsBias: entered.commercialsBias,
+  }
 }

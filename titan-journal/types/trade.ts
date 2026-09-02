@@ -57,16 +57,24 @@ export type Bias = (typeof BIASES)[number]
 export const GRADES = ["A+", "A", "B+", "B"] as const
 export type Grade = (typeof GRADES)[number]
 
-export const MARKET_TYPES = ["Forex", "Unknown"] as const
-export type MarketType = (typeof MARKET_TYPES)[number]
+export const ASSET_CLASSES = [
+  "Forex",
+  "Stock",
+  "Commodity",
+  "Index",
+  "Crypto",
+  "Unknown",
+] as const
+export type AssetClass = (typeof ASSET_CLASSES)[number]
 
-export const PAIR_CLASSES = ["Major", "Cross", "Exotic", "Unknown"] as const
-export type PairClass = (typeof PAIR_CLASSES)[number]
+export const MARKET_TYPES = ["Major", "Cross", "Unknown"] as const
+export type MarketType = (typeof MARKET_TYPES)[number]
 
 export type MarketClassification = {
   symbol: string
+  assetClass: AssetClass
   marketType: MarketType
-  pairClass: PairClass
+  cotEnabled: boolean
 }
 
 export type Trade = {
@@ -75,8 +83,9 @@ export type Trade = {
   date: string
 
   symbol: string
+  assetClass: AssetClass
   marketType: MarketType
-  pairClass: PairClass
+  cotEnabled: boolean
 
   direction: TradeDirection
   strategy: Strategy
@@ -96,8 +105,9 @@ export type Trade = {
   impulse: Impulse
   mitigation: number
 
-  cotBias: Bias
-  cotScore: number
+  cotBias: Bias | null
+  cotScore: number | null
+  commercialsBias: Bias | null
 
   seasonalityBias: Bias
   seasonalWindow: boolean

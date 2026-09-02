@@ -1,4 +1,5 @@
 import { MOCK_TRADES, sortTrades } from "@/lib/mock-data"
+import { hydrateTrades, isLegacyTradeShape } from "@/lib/trade-hydration"
 import type { Trade } from "@/types/trade"
 
 /**
@@ -29,10 +30,19 @@ function readRaw(): string | null {
 function parseTrades(raw: string | null): Trade[] {
   if (!raw) return []
   try {
-    const parsed: unknown = JSON.parse(raw)
-    return Array.isArray(parsed) ? (parsed as Trade[]) : []
+    return hydrateTrades(JSON.parse(raw))
   } catch {
     return []
+  }
+}
+
+function looksLegacy(raw: string | null): boolean {
+  if (!raw) return false
+  try {
+    const parsed: unknown = JSON.parse(raw)
+    return Array.isArray(parsed) && parsed.some(isLegacyTradeShape)
+  } catch {
+    return false
   }
 }
 
@@ -53,6 +63,12 @@ export function createLocalStorageRepository(): TradeRepository {
     const stored = parseTrades(raw)
     cachedRaw = raw
     cachedTrades = stored.length === 0 ? SORTED_MOCK : sortTrades(stored)
+
+    if (stored.length > 0 && looksLegacy(raw)) {
+      writeLocal(cachedTrades)
+      cachedRaw = readRaw()
+    }
+
     return cachedTrades
   }
 
