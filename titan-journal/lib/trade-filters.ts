@@ -1,19 +1,30 @@
-import type { Grade, Strategy, Trade, TradeDirection, TradeStatus } from "@/types/trade"
+import type { Trade, TradeDirection } from "@/types/trade"
+
+export type ResultFilter = "ALL" | "WIN" | "LOSS" | "BE"
 
 export type TradeFilters = {
   query: string
-  strategy: Strategy | "ALL"
-  grade: Grade | "ALL"
+  playbookId: string | "ALL"
   direction: TradeDirection | "ALL"
-  status: TradeStatus | "ALL"
+  result: ResultFilter
+  dateFrom: string
+  dateTo: string
 }
 
 export const EMPTY_TRADE_FILTERS: TradeFilters = {
   query: "",
-  strategy: "ALL",
-  grade: "ALL",
+  playbookId: "ALL",
   direction: "ALL",
-  status: "ALL",
+  result: "ALL",
+  dateFrom: "",
+  dateTo: "",
+}
+
+function resultBucket(resultR: number | null): ResultFilter | null {
+  if (resultR == null) return null
+  if (resultR > 0) return "WIN"
+  if (resultR < 0) return "LOSS"
+  return "BE"
 }
 
 export function filterTrades(trades: Trade[], filters: TradeFilters): Trade[] {
@@ -21,10 +32,17 @@ export function filterTrades(trades: Trade[], filters: TradeFilters): Trade[] {
 
   return trades.filter((trade) => {
     if (query && !trade.symbol.includes(query)) return false
-    if (filters.strategy !== "ALL" && trade.strategy !== filters.strategy) return false
-    if (filters.grade !== "ALL" && trade.grade !== filters.grade) return false
-    if (filters.direction !== "ALL" && trade.direction !== filters.direction) return false
-    if (filters.status !== "ALL" && trade.status !== filters.status) return false
+    if (filters.playbookId !== "ALL" && trade.playbookId !== filters.playbookId) {
+      return false
+    }
+    if (filters.direction !== "ALL" && trade.direction !== filters.direction) {
+      return false
+    }
+    if (filters.result !== "ALL" && resultBucket(trade.resultR) !== filters.result) {
+      return false
+    }
+    if (filters.dateFrom && trade.date < filters.dateFrom) return false
+    if (filters.dateTo && trade.date > filters.dateTo) return false
     return true
   })
 }

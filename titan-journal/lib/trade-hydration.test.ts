@@ -55,6 +55,7 @@ describe("hydrateTrade", () => {
       cotBias: null,
       cotScore: null,
       commercialsBias: null,
+      playbookId: "pb-titan-swing",
     })
   })
 
@@ -104,6 +105,19 @@ describe("hydrateTrade", () => {
       tradeQuality: "Good Trade",
       tags: ["Good Patience"],
     })
+  })
+
+  it("maps legacy TITAN fields onto the default playbook", () => {
+    const trade = hydrateTrade(legacyCross)
+    expect(trade?.playbookId).toBe("pb-titan-swing")
+    expect(trade?.fieldValues).toEqual(
+      expect.arrayContaining([
+        { fieldId: "titan-trend", value: "Downtrend" },
+        { fieldId: "titan-location", value: "Premium" },
+        { fieldId: "titan-zone", value: "Supply" },
+        { fieldId: "titan-grade", value: "B+" },
+      ])
+    )
   })
 
   it("treats a garbage review payload as null", () => {

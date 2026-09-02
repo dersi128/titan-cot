@@ -1,12 +1,12 @@
 import type { Metadata } from "next"
 
-import { AnalyticsPage } from "@/components/analytics/analytics-page"
+import { PlaybookListPage } from "@/components/playbooks/playbook-list"
 import { copy } from "@/lib/labels"
 
 export const metadata: Metadata = {
-  title: copy.analytics.title,
+  title: copy.playbook.title,
 }
 
 export default function Page() {
-  return <AnalyticsPage />
+  return <PlaybookListPage />
 }

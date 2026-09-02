@@ -1,27 +1,33 @@
+"use client"
+
+import { useState } from "react"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Field } from "@/components/forms/field"
 import {
   DirectionBadge,
   StatusBadge,
 } from "@/components/trades/trade-badges"
 import { ResultR } from "@/components/trades/result-r"
-import { TradeReviewPanel } from "@/components/trades/trade-review-panel"
-import { formatMarketLabel, classifyMarket, shouldDisplayCot } from "@/lib/market-classification"
+import { SimpleReviewPanel } from "@/components/trades/simple-review-panel"
+import { useTrades } from "@/components/trades/trades-provider"
+import { useWorkspace } from "@/components/layout/workspace-provider"
+import { formatMarketLabel, classifyMarket } from "@/lib/market-classification"
 import { formatRRR } from "@/lib/trade-calculations"
-import { formatYesNo } from "@/lib/format"
+import { formatSignedUsd } from "@/lib/format"
+import { copy } from "@/lib/labels"
 import {
-  ASSET_CLASS_LABELS,
-  BIAS_LABELS,
-  copy,
-  IMPULSE_LABELS,
-  LOCATION_LABELS,
-  MARKET_TYPE_LABELS,
-  TREND_LABELS,
-  ZONE_TIMEFRAME_LABELS,
-  ZONE_TYPE_LABELS,
-} from "@/lib/labels"
+  fieldValueMap,
+  formatFieldValue,
+  playbookHasValues,
+  sortedFields,
+} from "@/lib/playbooks"
+import { parseOptionalNumber } from "@/lib/trade-calculations"
 import type { Trade } from "@/types/trade"
 
-function Field({ label, value }: { label: string; value: React.ReactNode }) {
+function FieldRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div>
       <dt className="text-xs text-muted-foreground">{label}</dt>
@@ -39,7 +45,7 @@ function Section({
 }) {
   return (
     <Card>
-      <CardHeader className="border-b border-white/[0.06]">
+      <CardHeader className="border-b border-border">
         <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardContent className="pt-4">
@@ -51,9 +57,66 @@ function Section({
   )
 }
 
+function CloseTradePanel({ trade }: { trade: Trade }) {
+  const { updateTrade } = useTrades()
+  const [resultR, setResultR] = useState(
+    trade.resultR == null ? "" : String(trade.resultR)
+  )
+  const [pnl, setPnl] = useState(trade.pnl == null ? "" : String(trade.pnl))
+
+  if (trade.status === "CLOSED" || trade.status === "REVIEWED") return null
+  if (trade.status === "CANCELLED") return null
+
+  function handleClose() {
+    const r = parseOptionalNumber(resultR)
+    if (r == null) return
+    const money = parseOptionalNumber(pnl)
+    updateTrade({
+      ...trade,
+      status: "CLOSED",
+      resultR: r,
+      pnl: money ?? Math.round(r * 130),
+    })
+  }
+
+  return (
+    <Card>
+      <CardHeader className="border-b border-border">
+        <CardTitle>{copy.detail.result}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3 pt-4">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Field label={copy.detail.resultR}>
+            <Input
+              value={resultR}
+              onChange={(event) => setResultR(event.target.value)}
+              placeholder="-1"
+            />
+          </Field>
+          <Field label={copy.detail.pnl}>
+            <Input
+              value={pnl}
+              onChange={(event) => setPnl(event.target.value)}
+              placeholder="optional"
+            />
+          </Field>
+        </div>
+        <Button type="button" onClick={handleClose} disabled={parseOptionalNumber(resultR) == null}>
+          Close trade
+        </Button>
+      </CardContent>
+    </Card>
+  )
+}
+
 export function TradeDetail({ trade }: { trade: Trade }) {
   const classification = classifyMarket(trade.symbol)
-  const showCot = shouldDisplayCot(classification)
+  const { getPlaybook, preferences } = useWorkspace()
+  const playbook = getPlaybook(trade.playbookId)
+  const values = fieldValueMap(trade.fieldValues)
+  const showStrategy =
+    preferences.journalMode === "advanced" &&
+    playbookHasValues(playbook, trade.fieldValues)
 
   return (
     <div className="space-y-4">
@@ -62,104 +125,81 @@ export function TradeDetail({ trade }: { trade: Trade }) {
           <p className="text-xs text-muted-foreground">
             {formatMarketLabel(classification)}
           </p>
-          <h1 className="mt-1 text-[22px] font-semibold tracking-tight">
-            {trade.symbol}
-          </h1>
+          <h1 className="mt-1 font-semibold tracking-tight">{trade.symbol}</h1>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <DirectionBadge direction={trade.direction} />
-            <span className="text-sm text-muted-foreground">
-              {trade.grade} {copy.detail.setup}
-            </span>
+            <span className="text-sm text-muted-foreground">{trade.strategy}</span>
           </div>
         </div>
         <StatusBadge status={trade.status} />
       </div>
 
-      <Section title={copy.detail.tradePlan}>
-        <Field label={copy.detail.entry} value={trade.entry} />
-        <Field label={copy.detail.stopLoss} value={trade.stopLoss} />
-        <Field label={copy.detail.takeProfit} value={trade.takeProfit} />
-        <Field label={copy.detail.riskPercent} value={`${trade.riskPercent} %`} />
-        <Field label={copy.detail.plannedRrr} value={formatRRR(trade.plannedRRR)} />
-        <Field label={copy.detail.resultR} value={<ResultR value={trade.resultR} />} />
+      <Section title={copy.detail.trade}>
+        <FieldRow label={copy.journal.date} value={trade.date} />
+        <FieldRow label={copy.journal.playbook} value={trade.strategy} />
+        <FieldRow label={copy.detail.market} value={classification.assetClass} />
       </Section>
 
-      <TradeReviewPanel trade={trade} />
-
-      <Section title={copy.detail.marketContext}>
-        <Field
-          label={copy.detail.market}
-          value={ASSET_CLASS_LABELS[classification.assetClass]}
-        />
-        <Field
-          label={copy.detail.type}
-          value={MARKET_TYPE_LABELS[classification.marketType]}
-        />
-        <Field label={copy.detail.htfTrend} value={TREND_LABELS[trade.htfTrend]} />
-        <Field label={copy.detail.tradeTrend} value={TREND_LABELS[trade.tradeTrend]} />
-        <Field label={copy.detail.location} value={LOCATION_LABELS[trade.location]} />
+      <Section title={copy.detail.plan}>
+        <FieldRow label={copy.detail.entry} value={trade.entry} />
+        <FieldRow label={copy.detail.stopLoss} value={trade.stopLoss} />
+        <FieldRow label={copy.detail.takeProfit} value={trade.takeProfit} />
+        <FieldRow label={copy.detail.riskPercent} value={`${trade.riskPercent} %`} />
+        <FieldRow label={copy.detail.plannedRrr} value={formatRRR(trade.plannedRRR)} />
       </Section>
 
-      <Section title={copy.detail.supplyDemand}>
-        <Field label={copy.detail.zoneType} value={ZONE_TYPE_LABELS[trade.zoneType]} />
-        <Field label={copy.detail.timeframe} value={ZONE_TIMEFRAME_LABELS[trade.zoneTimeframe]} />
-        <Field label={copy.detail.original} value={formatYesNo(trade.original)} />
-        <Field label={copy.detail.fresh} value={formatYesNo(trade.fresh)} />
-        <Field label={copy.detail.touchCount} value={trade.touchCount} />
-        <Field label={copy.detail.hq} value={formatYesNo(trade.hq)} />
-        <Field label={copy.detail.impulse} value={IMPULSE_LABELS[trade.impulse]} />
-        <Field label={copy.detail.mitigation} value={`${trade.mitigation} %`} />
-      </Section>
-
-      {showCot ? (
-        <Section title={copy.detail.cot}>
-          <Field
-            label={copy.detail.bias}
-            value={trade.cotBias ? BIAS_LABELS[trade.cotBias] : "—"}
+      {trade.resultR != null || trade.pnl != null ? (
+        <Section title={copy.detail.result}>
+          <FieldRow
+            label={copy.detail.resultR}
+            value={<ResultR value={trade.resultR} />}
           />
-          <Field
-            label={copy.detail.score}
-            value={trade.cotScore == null ? "—" : trade.cotScore}
-          />
-          <Field
-            label={copy.detail.commercials}
-            value={
-              trade.commercialsBias ? BIAS_LABELS[trade.commercialsBias] : "—"
-            }
-          />
+          <FieldRow label={copy.detail.pnl} value={formatSignedUsd(trade.pnl)} />
         </Section>
-      ) : classification.marketType === "Cross" ? (
-        <Card>
-          <CardHeader className="border-b border-white/[0.06]">
-            <CardTitle>{copy.detail.cot}</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-4">
-            <p className="text-sm text-muted-foreground">
-              {copy.detail.cotHiddenCross}
-            </p>
-          </CardContent>
-        </Card>
+      ) : (
+        <CloseTradePanel trade={trade} />
+      )}
+
+      <SimpleReviewPanel trade={trade} />
+
+      {showStrategy && playbook ? (
+        <Section title={copy.detail.strategyContext}>
+          {sortedFields(playbook).map((field) => {
+            const label = formatFieldValue(field, values[field.id] ?? null)
+            if (!label) return null
+            return <FieldRow key={field.id} label={field.name} value={label} />
+          })}
+        </Section>
       ) : null}
 
       <Card>
-        <CardHeader className="border-b border-white/[0.06]">
-          <CardTitle>{copy.detail.notes}</CardTitle>
+        <CardHeader className="border-b border-border">
+          <CardTitle>{copy.detail.screenshot}</CardTitle>
         </CardHeader>
         <CardContent className="pt-4">
-          <p className="text-sm whitespace-pre-wrap text-muted-foreground">
-            {trade.notes || copy.detail.noNote}
-          </p>
+          {trade.screenshot ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={trade.screenshot}
+              alt=""
+              className="max-h-80 rounded-md border border-border object-contain"
+            />
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              {copy.detail.noScreenshot}
+            </p>
+          )}
         </CardContent>
       </Card>
 
       <Card>
-        <CardHeader className="border-b border-white/[0.06]">
-          <CardTitle>{copy.detail.screenshots}</CardTitle>
+        <CardHeader className="border-b border-border">
+          <CardTitle>{copy.detail.notes}</CardTitle>
         </CardHeader>
         <CardContent className="pt-4">
-          <div className="flex h-40 items-center justify-center rounded-lg border border-dashed border-border text-sm text-muted-foreground">
-            {copy.detail.screenshotsPlaceholder}
-          </div>
+          <p className="whitespace-pre-wrap text-sm text-muted-foreground">
+            {trade.notes || copy.detail.noNote}
+          </p>
         </CardContent>
       </Card>
     </div>

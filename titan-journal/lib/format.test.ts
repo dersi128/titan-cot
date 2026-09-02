@@ -17,8 +17,8 @@ describe("cs-CZ locale", () => {
     expect(formatPercent(0.48)).toBe("48 %")
   })
 
-  it("formats yes/no as ANO/NE", () => {
-    expect(formatYesNo(true)).toBe("ANO")
-    expect(formatYesNo(false)).toBe("NE")
+  it("formats yes/no as Yes/No", () => {
+    expect(formatYesNo(true)).toBe("Yes")
+    expect(formatYesNo(false)).toBe("No")
   })
 })

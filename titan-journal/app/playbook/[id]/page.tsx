@@ -1,9 +1,10 @@
 import type { Metadata } from "next"
 
-import { TradeDetailPage } from "@/components/trades/trade-detail-page"
+import { PlaybookEditPage } from "@/components/playbooks/playbook-edit-page"
+import { copy } from "@/lib/labels"
 
 export const metadata: Metadata = {
-  title: "Trade",
+  title: copy.playbook.title,
 }
 
 export default async function Page({
@@ -12,5 +13,5 @@ export default async function Page({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  return <TradeDetailPage id={id} />
+  return <PlaybookEditPage id={id} />
 }

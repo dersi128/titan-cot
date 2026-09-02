@@ -29,7 +29,7 @@ export function OptionPills<T extends string>({
   labels,
   onChange,
 }: {
-  value: T
+  value: T | null
   options: readonly T[]
   labels?: Partial<Record<T, string>>
   onChange: (value: T) => void

@@ -1,8 +1,11 @@
+import type { TradeFieldValue } from "@/types/playbook"
+
 export const TRADE_DIRECTIONS = ["LONG", "SHORT"] as const
 export type TradeDirection = (typeof TRADE_DIRECTIONS)[number]
 
-export const STRATEGIES = ["TITAN Swing"] as const
-export type Strategy = (typeof STRATEGIES)[number]
+export const DEFAULT_STRATEGY = "TITAN Swing"
+export const STRATEGIES = [DEFAULT_STRATEGY] as const
+export type Strategy = string
 
 export const ACCOUNTS = ["Personal", "Challenge", "Funded"] as const
 export type Account = (typeof ACCOUNTS)[number]
@@ -172,6 +175,7 @@ export type Trade = {
 
   direction: TradeDirection
   strategy: Strategy
+  playbookId: string
   account: Account
   status: TradeStatus
 
@@ -207,7 +211,8 @@ export type Trade = {
   pnl: number | null
 
   notes: string
-
+  screenshot?: string | null
+  fieldValues?: TradeFieldValue[]
   review?: TradeReview | null
 }
 

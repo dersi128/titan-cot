@@ -1,12 +1,12 @@
 import type { Metadata } from "next"
 
-import { AnalyticsPage } from "@/components/analytics/analytics-page"
+import { SettingsPage } from "@/components/settings/settings-page"
 import { copy } from "@/lib/labels"
 
 export const metadata: Metadata = {
-  title: copy.analytics.title,
+  title: copy.settings.title,
 }
 
 export default function Page() {
-  return <AnalyticsPage />
+  return <SettingsPage />
 }

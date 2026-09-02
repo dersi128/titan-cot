@@ -1,14 +1,16 @@
 import { classifyMarket } from "@/lib/market-classification"
+import { buildTradeReview } from "@/lib/review-calculations"
+import { hydrateTradePlaybookFields } from "@/lib/trade-playbook"
 import {
   ACCOUNTS,
   BIASES,
+  DEFAULT_STRATEGY,
   EMOTIONAL_STATES,
   EXECUTION_QUALITY_OPTIONS,
   GRADES,
   IMPULSES,
   LOCATIONS,
   PLAN_FOLLOWED_OPTIONS,
-  STRATEGIES,
   TOUCH_COUNTS,
   TRADE_DIRECTIONS,
   TRADE_QUALITY_OPTIONS,
@@ -24,7 +26,6 @@ import {
   type TradeQuality,
   type TradeReview,
 } from "@/types/trade"
-import { buildTradeReview } from "@/lib/review-calculations"
 
 function asEnum<T extends string>(
   value: unknown,
@@ -152,7 +153,8 @@ export function isLegacyTradeShape(raw: unknown): boolean {
     "pairClass" in row ||
     !("assetClass" in row) ||
     !("cotEnabled" in row) ||
-    !("commercialsBias" in row)
+    !("commercialsBias" in row) ||
+    !("playbookId" in row)
   )
 }
 
@@ -167,7 +169,7 @@ export function hydrateTrade(raw: unknown): Trade | null {
 
   const cotEnabled = classified.cotEnabled
 
-  return {
+  const trade: Trade = {
     id: row.id,
     createdAt: asString(row.createdAt, new Date(0).toISOString()),
     date: asString(row.date),
@@ -176,7 +178,8 @@ export function hydrateTrade(raw: unknown): Trade | null {
     marketType: classified.marketType,
     cotEnabled,
     direction: asEnum(row.direction, TRADE_DIRECTIONS, "LONG"),
-    strategy: asEnum(row.strategy, STRATEGIES, "TITAN Swing"),
+    strategy: asString(row.strategy, DEFAULT_STRATEGY),
+    playbookId: "",
     account: asEnum(row.account, ACCOUNTS, "Personal"),
     status: asEnum(row.status, TRADE_STATUSES, "PLANNED"),
     htfTrend: asEnum(row.htfTrend, TRENDS, "Uptrend"),
@@ -207,8 +210,12 @@ export function hydrateTrade(raw: unknown): Trade | null {
     resultR: asNullableNumber(row.resultR),
     pnl: asNullableNumber(row.pnl),
     notes: asString(row.notes),
+    screenshot: null,
+    fieldValues: [],
     review: hydrateReview(row.review),
   }
+
+  return hydrateTradePlaybookFields(row, trade)
 }
 
 export function hydrateTrades(raw: unknown): Trade[] {
