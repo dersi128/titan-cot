@@ -1,6 +1,8 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -14,10 +16,11 @@ import { ResultR } from "@/components/trades/result-r"
 import { SimpleReviewPanel } from "@/components/trades/simple-review-panel"
 import { useTrades } from "@/components/trades/trades-provider"
 import { useWorkspace } from "@/components/layout/workspace-provider"
+import { dollarsPerR, suggestedPnl } from "@/lib/account-scope"
 import { formatMarketLabel, classifyMarket } from "@/lib/market-classification"
 import { formatRRR } from "@/lib/trade-calculations"
 import { formatSignedUsd } from "@/lib/format"
-import { copy } from "@/lib/labels"
+import { ACCOUNT_LABELS, copy } from "@/lib/labels"
 import {
   fieldValueMap,
   formatFieldValue,
@@ -59,10 +62,15 @@ function Section({
 
 function CloseTradePanel({ trade }: { trade: Trade }) {
   const { updateTrade } = useTrades()
+  const { profile } = useWorkspace()
   const [resultR, setResultR] = useState(
     trade.resultR == null ? "" : String(trade.resultR)
   )
   const [pnl, setPnl] = useState(trade.pnl == null ? "" : String(trade.pnl))
+  const riskUsd = dollarsPerR(
+    profile.capital[trade.account],
+    trade.riskPercent
+  )
 
   if (trade.status === "CLOSED" || trade.status === "REVIEWED") return null
   if (trade.status === "CANCELLED") return null
@@ -75,7 +83,9 @@ function CloseTradePanel({ trade }: { trade: Trade }) {
       ...trade,
       status: "CLOSED",
       resultR: r,
-      pnl: money ?? Math.round(r * 130),
+      pnl:
+        money ??
+        suggestedPnl(r, profile.capital[trade.account], trade.riskPercent),
     })
   }
 
@@ -97,7 +107,7 @@ function CloseTradePanel({ trade }: { trade: Trade }) {
             <Input
               value={pnl}
               onChange={(event) => setPnl(event.target.value)}
-              placeholder="optional"
+              placeholder={riskUsd > 0 ? String(Math.round(riskUsd)) : "optional"}
             />
           </Field>
         </div>
@@ -110,12 +120,20 @@ function CloseTradePanel({ trade }: { trade: Trade }) {
 }
 
 export function TradeDetail({ trade }: { trade: Trade }) {
+  const router = useRouter()
+  const { deleteTrade } = useTrades()
   const classification = classifyMarket(trade.symbol)
   const { getPlaybook } = useWorkspace()
   const playbook = getPlaybook(trade.playbookId)
   const values = fieldValueMap(trade.fieldValues)
   const showStrategy = playbookHasValues(playbook, trade.fieldValues)
   const notes = trade.notes.trim()
+  const [confirmDelete, setConfirmDelete] = useState(false)
+
+  function handleDelete() {
+    deleteTrade(trade.id)
+    router.push("/journal")
+  }
 
   return (
     <div className="space-y-4">
@@ -130,11 +148,51 @@ export function TradeDetail({ trade }: { trade: Trade }) {
             <span className="text-sm text-muted-foreground">{trade.strategy}</span>
           </div>
         </div>
-        <StatusBadge status={trade.status} />
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <StatusBadge status={trade.status} />
+          <Button variant="outline" size="sm" asChild>
+            <Link href={`/journal/${trade.id}/edit`}>{copy.detail.edit}</Link>
+          </Button>
+          {confirmDelete ? (
+            <>
+              <Button
+                variant="destructive"
+                size="sm"
+                type="button"
+                onClick={handleDelete}
+              >
+                {copy.detail.delete}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                type="button"
+                onClick={() => setConfirmDelete(false)}
+              >
+                {copy.detail.cancel}
+              </Button>
+            </>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              type="button"
+              onClick={() => setConfirmDelete(true)}
+            >
+              {copy.detail.delete}
+            </Button>
+          )}
+          {confirmDelete ? (
+            <p className="basis-full text-right text-[12px] text-destructive">
+              {copy.detail.deleteConfirm}
+            </p>
+          ) : null}
+        </div>
       </div>
 
       <Section title={copy.detail.trade}>
         <FieldRow label={copy.journal.date} value={trade.date} />
+        <FieldRow label={copy.detail.account} value={ACCOUNT_LABELS[trade.account]} />
         <FieldRow label={copy.journal.playbook} value={trade.strategy} />
         <FieldRow label={copy.detail.market} value={classification.assetClass} />
       </Section>

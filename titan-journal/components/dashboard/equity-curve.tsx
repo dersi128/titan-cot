@@ -10,11 +10,6 @@ import {
   YAxis,
 } from "recharts"
 
-import { SegmentedControl } from "@/components/layout/segmented-control"
-import {
-  DATE_RANGES,
-  useWorkspaceChrome,
-} from "@/components/layout/workspace-chrome"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   formatChartDate,
@@ -52,19 +47,10 @@ function EquityTooltip({
 }
 
 export function EquityCurve({ data }: { data: EquityPoint[] }) {
-  const { range, setRange } = useWorkspaceChrome()
-
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between gap-3 border-b border-border py-3">
+      <CardHeader className="border-b border-border py-3">
         <CardTitle>{copy.dashboard.equityCurve}</CardTitle>
-        <SegmentedControl
-          aria-label={copy.shell.range}
-          size="sm"
-          options={DATE_RANGES}
-          value={range}
-          onChange={setRange}
-        />
       </CardHeader>
       <CardContent className="pt-3">
         <div className="h-52">
@@ -89,7 +75,7 @@ export function EquityCurve({ data }: { data: EquityPoint[] }) {
                 tick={{ fill: "#8a96a8", fontSize: 11 }}
                 tickLine={false}
                 axisLine={false}
-                width={64}
+                width={76}
                 tickFormatter={(value: number) =>
                   Math.round(value).toLocaleString(LOCALE)
                 }

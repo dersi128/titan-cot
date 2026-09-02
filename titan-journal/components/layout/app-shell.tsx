@@ -27,7 +27,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet"
-import { copy } from "@/lib/labels"
+import { ACCOUNT_LABELS, copy } from "@/lib/labels"
 import { cn } from "@/lib/utils"
 import { ACCOUNTS } from "@/types/trade"
 
@@ -139,6 +139,7 @@ function TopBar({ onOpenNav }: { onOpenNav: () => void }) {
         <SegmentedControl
           aria-label={copy.shell.account}
           options={ACCOUNTS}
+          labels={ACCOUNT_LABELS}
           value={account}
           onChange={setAccount}
         />

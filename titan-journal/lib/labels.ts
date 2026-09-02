@@ -34,7 +34,11 @@ export const copy = {
 
   dashboard: {
     title: "Dashboard",
-    description: "Performance, recent trades, and the playbook that is working.",
+    description: "Capital, risk, and results for the selected account.",
+    startingCapital: "Starting capital",
+    equityNow: "Equity",
+    riskPerTrade: "Risk / trade",
+    markets: "Markets",
     netPnl: "Net PnL",
     totalR: "Total R",
     winRate: "Win Rate",
@@ -59,7 +63,7 @@ export const copy = {
 
   journal: {
     title: "Journal",
-    description: "Every logged trade. Click a row for the full record.",
+    description: "Trades on the selected account. Click a row for the full record.",
     searchSymbol: "Search symbol",
     allPlaybooks: "All playbooks",
     allDirections: "All directions",
@@ -94,6 +98,7 @@ export const copy = {
     plannedRrr: "RRR",
     resultR: "R",
     pnl: "PnL",
+    account: "Account",
     market: "Market",
     type: "Type",
     simpleReview: "Review",
@@ -104,11 +109,17 @@ export const copy = {
     reviewSaved: "Review saved",
     yes: "Yes",
     no: "No",
+    edit: "Edit",
+    delete: "Delete",
+    cancel: "Cancel",
+    deleteConfirm: "Delete this trade? This cannot be undone.",
   },
 
   form: {
     title: "New Trade",
+    editTitle: "Edit Trade",
     description: "Log the trade. Keep it fast.",
+    editDescription: "Fix a mistake. Keep the record accurate.",
     symbol: "Symbol",
     direction: "Direction",
     entry: "Entry",
@@ -116,11 +127,15 @@ export const copy = {
     takeProfit: "Take profit",
     risk: "Risk",
     riskPercent: "Risk %",
+    riskHint: "per 1R",
     plannedRrr: "RRR",
     playbook: "Playbook",
+    account: "Account",
     screenshot: "Screenshot",
     note: "Note",
+    date: "Date",
     save: "Save Trade",
+    saveChanges: "Save changes",
     symbolRequired: "Enter a symbol.",
     planRequired: "Entry, stop loss and take profit are required.",
     advancedFields: "Playbook fields",
@@ -128,7 +143,7 @@ export const copy = {
 
   analytics: {
     title: "Analytics",
-    description: "The numbers that matter. No extra charts.",
+    description: "The numbers that matter for the selected account.",
     byPlaybook: "By Playbook",
     byDirection: "By Direction",
     bySymbol: "By Symbol",
@@ -188,18 +203,22 @@ export const copy = {
     large: "Large",
     trading: "Trading",
     defaultAccount: "Default Account",
-    defaultRisk: "Default Risk",
     defaultPlaybook: "Default Playbook",
+    riskOnProfile: "Risk % is set on Profile.",
   },
 
   profile: {
     title: "Profile",
-    description: "Minimal identity for this journal.",
+    description: "Who you are, and how you size the book.",
     displayName: "Display name",
     traderType: "Trader type",
     bio: "Short bio",
     avatar: "Avatar",
     avatarPlaceholder: "Avatar comes later.",
+    trading: "Trading",
+    capital: "Starting capital",
+    riskPercent: "Risk per trade",
+    markets: "Markets I trade",
     save: "Save Profile",
   },
 
@@ -231,8 +250,8 @@ export const STATUS_LABELS: Record<TradeStatus, string> = {
 }
 
 export const ACCOUNT_LABELS: Record<Account, string> = {
-  Personal: "Personal",
-  Challenge: "Challenge",
+  Personal: "Own capital",
+  Challenge: "Prop challenge",
   Funded: "Funded",
 }
 

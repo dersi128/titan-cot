@@ -1,0 +1,46 @@
+import { describe, expect, it } from "vitest"
+
+import {
+  capitalForAccount,
+  dollarsPerR,
+  filterTradesByAccount,
+  filterTradesByScope,
+  suggestedPnl,
+} from "@/lib/account-scope"
+import { MOCK_TRADES } from "@/lib/mock-data"
+import { DEFAULT_PROFILE } from "@/lib/workspace-storage"
+
+describe("account scope", () => {
+  it("keeps Personal and Challenge books separate", () => {
+    const personal = filterTradesByAccount(MOCK_TRADES, "Personal")
+    const challenge = filterTradesByAccount(MOCK_TRADES, "Challenge")
+    expect(personal.every((trade) => trade.account === "Personal")).toBe(true)
+    expect(challenge.every((trade) => trade.account === "Challenge")).toBe(true)
+    expect(personal.length).toBeGreaterThan(0)
+    expect(challenge.length).toBeGreaterThan(0)
+    expect(personal.length).not.toBe(challenge.length)
+  })
+
+  it("applies a date range after the account filter", () => {
+    const scoped = filterTradesByScope(
+      MOCK_TRADES,
+      { account: "Personal", range: "7D" },
+      new Date("2026-09-02T12:00:00")
+    )
+    expect(scoped.every((trade) => trade.account === "Personal")).toBe(true)
+    expect(scoped.every((trade) => trade.date >= "2026-08-26")).toBe(true)
+    expect(scoped.length).toBeLessThan(
+      filterTradesByAccount(MOCK_TRADES, "Personal").length
+    )
+  })
+
+  it("sizes 1R from capital and risk percent", () => {
+    expect(dollarsPerR(10_000, 1)).toBe(100)
+    expect(suggestedPnl(2, 10_000, 1)).toBe(200)
+    expect(suggestedPnl(-1, 100_000, 1)).toBe(-1000)
+    expect(dollarsPerR(0, 1)).toBe(0)
+    expect(
+      capitalForAccount(DEFAULT_PROFILE.capital, "Challenge")
+    ).toBe(100_000)
+  })
+})
