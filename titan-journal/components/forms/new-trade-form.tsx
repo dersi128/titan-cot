@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { AlertTriangle } from "lucide-react"
 
@@ -177,6 +177,19 @@ export function NewTradeForm() {
     [draft.symbol]
   )
   const showCot = shouldDisplayCot(classification)
+  const showCrossCotNote = classification.marketType === "Cross"
+  const [openSections, setOpenSections] = useState<string[]>(() => [...OPEN_SECTIONS])
+
+  useEffect(() => {
+    setOpenSections((current) => {
+      const withoutCot = current.filter(
+        (value) => value !== "cot" && value !== "cot-off"
+      )
+      if (showCot) return [...withoutCot, "cot"]
+      if (showCrossCotNote) return [...withoutCot, "cot-off"]
+      return withoutCot
+    })
+  }, [showCot, showCrossCotNote])
 
   const plannedRRR = useMemo(() => {
     const entry = parseOptionalNumber(draft.entry)
@@ -273,7 +286,8 @@ export function NewTradeForm() {
       <form onSubmit={handleSubmit} className="space-y-3 pb-20">
         <Accordion
           type="multiple"
-          defaultValue={OPEN_SECTIONS}
+          value={openSections}
+          onValueChange={setOpenSections}
           className="gap-3"
         >
           <AccordionItem
@@ -507,10 +521,15 @@ export function NewTradeForm() {
                 </div>
               </AccordionContent>
             </AccordionItem>
-          ) : classification.marketType === "Cross" ? (
-            <p className="px-1 text-[12px] text-muted-foreground">
-              {copy.form.cotHiddenCross}
-            </p>
+          ) : showCrossCotNote ? (
+            <AccordionItem
+              value="cot-off"
+              className="titan-glass rounded-[10px] px-4 py-3 not-last:border-b-0"
+            >
+              <p className="text-[12px] leading-relaxed text-muted-foreground">
+                {copy.form.cotHiddenCross}
+              </p>
+            </AccordionItem>
           ) : null}
 
           <AccordionItem

@@ -16,17 +16,17 @@ export function MarketBadges({
     <div className="flex flex-wrap items-center gap-1.5">
       <Badge
         variant="outline"
-        className="h-5 rounded-md border-white/10 px-1.5 text-[10px] font-medium text-muted-foreground"
+        className="h-5 rounded-md border-white/15 bg-white/[0.03] px-1.5 text-[10px] font-medium tracking-wide text-muted-foreground"
       >
         {classification.assetClass}
       </Badge>
       <Badge
         variant="outline"
         className={cn(
-          "h-5 rounded-md px-1.5 text-[10px] font-medium",
+          "h-5 rounded-md px-1.5 text-[10px] font-medium tracking-wide",
           major
-            ? "border-primary/30 bg-primary/10 text-primary"
-            : "border-white/10 text-muted-foreground"
+            ? "border-primary/40 bg-primary/12 text-primary"
+            : "border-white/15 bg-white/[0.03] text-muted-foreground"
         )}
       >
         {classification.marketType}

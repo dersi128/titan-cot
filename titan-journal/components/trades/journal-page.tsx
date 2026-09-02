@@ -25,6 +25,7 @@ import { TableSkeleton } from "@/components/layout/loading-state"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
 import { ResultR } from "@/components/trades/result-r"
 import { MarketCaption } from "@/components/trades/market-badges"
+import { classifyMarket } from "@/lib/market-classification"
 import {
   DirectionBadge,
   GradeBadge,
@@ -227,7 +228,9 @@ export function JournalPage() {
                     <TableCell>
                       <div>
                         <p className="font-medium">{trade.symbol}</p>
-                        <MarketCaption classification={trade} />
+                        <MarketCaption
+                          classification={classifyMarket(trade.symbol)}
+                        />
                       </div>
                     </TableCell>
                     <TableCell>
