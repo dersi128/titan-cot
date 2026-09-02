@@ -163,20 +163,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent
-          side="left"
-          className="w-[240px] border-r border-sidebar-border bg-sidebar p-0"
-        >
-          <SheetHeader className="sr-only">
-            <SheetTitle>TITAN Journal</SheetTitle>
-          </SheetHeader>
-          <SidebarBody onNavigate={() => setOpen(false)} />
-        </SheetContent>
+        {open ? (
+          <SheetContent
+            side="left"
+            className="w-[240px] border-r border-sidebar-border bg-sidebar p-0"
+          >
+            <SheetHeader className="sr-only">
+              <SheetTitle>TITAN Journal</SheetTitle>
+            </SheetHeader>
+            <SidebarBody onNavigate={() => setOpen(false)} />
+          </SheetContent>
+        ) : null}
       </Sheet>
 
       <div className="flex min-w-0 flex-1 flex-col">
         <TopBar onOpenNav={() => setOpen(true)} />
-        <main className="min-w-0 flex-1 px-4 py-5 md:px-6 lg:px-8 lg:py-6">
+        <main className="titan-main min-w-0 flex-1">
           {children}
         </main>
       </div>

@@ -263,6 +263,16 @@
     background: transparent;
   }
 
+  .titan-main {
+    padding: var(--ui-pad) calc(var(--ui-pad) + 0.5rem);
+  }
+
+  @media (min-width: 1024px) {
+    .titan-main {
+      padding: calc(var(--ui-pad) + 0.15rem) calc(var(--ui-pad) + 1rem);
+    }
+  }
+
   .titan-topbar {
     border-bottom: 1px solid var(--sidebar-border);
     background: color-mix(in srgb, var(--sidebar) 82%, transparent);
@@ -305,8 +315,8 @@
     align-items: center;
     gap: 0.625rem;
     border-radius: 8px;
-    padding: 0.5rem 0.625rem;
-    font-size: 13px;
+    padding: calc(var(--ui-row) + 0.2rem) 0.625rem;
+    font-size: var(--ui-font);
     font-weight: 500;
     color: var(--muted-foreground);
     transition:

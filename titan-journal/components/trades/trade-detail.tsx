@@ -111,12 +111,11 @@ function CloseTradePanel({ trade }: { trade: Trade }) {
 
 export function TradeDetail({ trade }: { trade: Trade }) {
   const classification = classifyMarket(trade.symbol)
-  const { getPlaybook, preferences } = useWorkspace()
+  const { getPlaybook } = useWorkspace()
   const playbook = getPlaybook(trade.playbookId)
   const values = fieldValueMap(trade.fieldValues)
-  const showStrategy =
-    preferences.journalMode === "advanced" &&
-    playbookHasValues(playbook, trade.fieldValues)
+  const showStrategy = playbookHasValues(playbook, trade.fieldValues)
+  const notes = trade.notes.trim()
 
   return (
     <div className="space-y-4">
@@ -172,36 +171,34 @@ export function TradeDetail({ trade }: { trade: Trade }) {
         </Section>
       ) : null}
 
-      <Card>
-        <CardHeader className="border-b border-border">
-          <CardTitle>{copy.detail.screenshot}</CardTitle>
-        </CardHeader>
-        <CardContent className="pt-4">
-          {trade.screenshot ? (
-            // eslint-disable-next-line @next/next/no-img-element
+      {trade.screenshot ? (
+        <Card>
+          <CardHeader className="border-b border-border">
+            <CardTitle>{copy.detail.screenshot}</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-4">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={trade.screenshot}
               alt=""
               className="max-h-80 rounded-md border border-border object-contain"
             />
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              {copy.detail.noScreenshot}
-            </p>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      ) : null}
 
-      <Card>
-        <CardHeader className="border-b border-border">
-          <CardTitle>{copy.detail.notes}</CardTitle>
-        </CardHeader>
-        <CardContent className="pt-4">
-          <p className="whitespace-pre-wrap text-sm text-muted-foreground">
-            {trade.notes || copy.detail.noNote}
-          </p>
-        </CardContent>
-      </Card>
+      {notes ? (
+        <Card>
+          <CardHeader className="border-b border-border">
+            <CardTitle>{copy.detail.notes}</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-4">
+            <p className="whitespace-pre-wrap text-sm text-muted-foreground">
+              {notes}
+            </p>
+          </CardContent>
+        </Card>
+      ) : null}
     </div>
   )
 }

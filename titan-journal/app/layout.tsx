@@ -1,5 +1,4 @@
 import type { Metadata } from "next"
-import Script from "next/script"
 import { Geist, Geist_Mono } from "next/font/google"
 
 import { Providers } from "@/components/layout/providers"
@@ -32,12 +31,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       data-density="comfortable"
       className={`${geist.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-background font-sans text-foreground">
-        <Script
-          id="titan-theme-boot"
-          strategy="beforeInteractive"
+      <head>
+        <script
           dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }}
         />
+      </head>
+      <body className="min-h-full bg-background font-sans text-foreground">
         <Providers>{children}</Providers>
       </body>
     </html>

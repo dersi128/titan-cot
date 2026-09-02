@@ -37,7 +37,18 @@ export function PlaybookListPage() {
               }
             >
               <div className="flex items-start justify-between gap-3">
-                <div>
+                <div className="flex min-w-0 items-start gap-3">
+                  <div
+                    className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-border text-xs font-semibold"
+                    style={
+                      playbook.color
+                        ? { background: `${playbook.color}22`, color: playbook.color }
+                        : undefined
+                    }
+                  >
+                    {playbook.icon || playbook.name.slice(0, 1).toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
                   <h2 className="text-sm font-semibold">{playbook.name}</h2>
                   {playbook.description ? (
                     <p className="mt-1 text-[13px] text-muted-foreground">
@@ -50,6 +61,7 @@ export function PlaybookListPage() {
                       ? ` · ${copy.playbook.archived}`
                       : ""}
                   </p>
+                </div>
                 </div>
               </div>
               <div className="mt-3 flex flex-wrap gap-2">

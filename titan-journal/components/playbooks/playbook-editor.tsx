@@ -15,6 +15,7 @@ import {
   emptyField,
   emptyPlaybook,
   moveField,
+  PLAYBOOK_COLORS,
   sortedFields,
 } from "@/lib/playbooks"
 import { PLAYBOOK_FIELD_TYPES, type Playbook, type PlaybookFieldType } from "@/types/playbook"
@@ -84,6 +85,47 @@ export function PlaybookEditor({ playbook }: { playbook?: Playbook }) {
               }
             />
           </Field>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Field label={copy.playbook.icon}>
+              <Input
+                maxLength={2}
+                placeholder="↗"
+                value={draft.icon ?? ""}
+                onChange={(event) =>
+                  setDraft((current) => ({
+                    ...current,
+                    icon: event.target.value.slice(0, 2) || null,
+                  }))
+                }
+              />
+            </Field>
+            <Field label={copy.playbook.color}>
+              <div className="flex flex-wrap gap-2">
+                {PLAYBOOK_COLORS.map((color) => (
+                  <button
+                    key={color}
+                    type="button"
+                    aria-label={color}
+                    onClick={() =>
+                      setDraft((current) => ({
+                        ...current,
+                        color: current.color === color ? null : color,
+                      }))
+                    }
+                    className="size-7 rounded-full border border-border"
+                    style={{
+                      background: color,
+                      outline:
+                        draft.color === color
+                          ? "2px solid var(--primary)"
+                          : undefined,
+                      outlineOffset: 2,
+                    }}
+                  />
+                ))}
+              </div>
+            </Field>
+          </div>
         </div>
 
         <div className="titan-glass rounded-[10px] p-4 space-y-3">

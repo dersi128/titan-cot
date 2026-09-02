@@ -44,7 +44,7 @@ export function OptionPills<T extends string>({
             type="button"
             onClick={() => onChange(option)}
             className={cn(
-              "h-8 rounded-[8px] border px-2.5 text-[12px] font-medium transition-colors",
+              "h-[length:var(--ui-control)] rounded-[8px] border px-2.5 text-[12px] font-medium transition-colors",
               selected
                 ? "border-primary/40 bg-primary/10 text-primary"
                 : "border-border text-muted-foreground hover:border-primary/30 hover:text-foreground"

@@ -23,6 +23,7 @@ export type Playbook = {
   name: string
   description: string
   color: string | null
+  icon: string | null
   status: PlaybookStatus
   fields: PlaybookField[]
   createdAt: string

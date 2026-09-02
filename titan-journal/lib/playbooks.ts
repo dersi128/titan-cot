@@ -8,6 +8,14 @@ import {
 
 export const TITAN_SWING_PLAYBOOK_ID = "pb-titan-swing"
 
+export const PLAYBOOK_COLORS = [
+  "#5ba8ff",
+  "#2f9e6a",
+  "#e85d6c",
+  "#c9a227",
+  "#9b7bff",
+] as const
+
 export const TITAN_FIELD_IDS = {
   trend: "titan-trend",
   location: "titan-location",
@@ -42,6 +50,7 @@ export function createTitanSwingPlaybook(): Playbook {
     name: "TITAN Swing",
     description: "Supply and demand swing framework.",
     color: "#5ba8ff",
+    icon: null,
     status: "active",
     createdAt: "2026-01-01T00:00:00.000Z",
     fields: [
@@ -72,6 +81,7 @@ export function emptyPlaybook(partial?: Partial<Playbook>): Playbook {
     name: "",
     description: "",
     color: null,
+    icon: null,
     status: "active",
     fields: [],
     createdAt: new Date().toISOString(),

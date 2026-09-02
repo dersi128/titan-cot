@@ -39,7 +39,7 @@ export function PlaybookFieldInput({
     return (
       <Field label={field.name}>
         <OptionPills
-          value={selected == null ? "YES" : selected ? "YES" : "NO"}
+          value={selected == null ? null : selected ? "YES" : "NO"}
           options={["YES", "NO"] as const}
           labels={{ YES: "Yes", NO: "No" }}
           onChange={(next) => onChange(next === "YES")}

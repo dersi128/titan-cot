@@ -24,7 +24,11 @@ function canUseLocalStorage(): boolean {
 
 function readRaw(): string | null {
   if (!canUseLocalStorage()) return null
-  return window.localStorage.getItem(TRADES_STORAGE_KEY)
+  try {
+    return window.localStorage.getItem(TRADES_STORAGE_KEY)
+  } catch {
+    return null
+  }
 }
 
 function parseTrades(raw: string | null): Trade[] {
@@ -48,7 +52,11 @@ function looksLegacy(raw: string | null): boolean {
 
 function writeLocal(trades: Trade[]): void {
   if (!canUseLocalStorage()) return
-  window.localStorage.setItem(TRADES_STORAGE_KEY, JSON.stringify(trades))
+  try {
+    window.localStorage.setItem(TRADES_STORAGE_KEY, JSON.stringify(trades))
+  } catch {
+    // Private mode / quota must not crash the tree.
+  }
 }
 
 export function createLocalStorageRepository(): TradeRepository {

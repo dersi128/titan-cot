@@ -4,7 +4,7 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
+  useLayoutEffect,
   useMemo,
   useSyncExternalStore,
 } from "react"
@@ -52,7 +52,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     () => SERVER_PLAYBOOKS
   )
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     applyDocumentAppearance(preferences)
   }, [preferences])
 

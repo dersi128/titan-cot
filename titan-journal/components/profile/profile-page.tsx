@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import { Field } from "@/components/forms/field"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
@@ -13,6 +13,10 @@ import { copy } from "@/lib/labels"
 export function ProfilePage() {
   const { profile, updateProfile } = useWorkspace()
   const [draft, setDraft] = useState(profile)
+
+  useEffect(() => {
+    setDraft(profile)
+  }, [profile])
 
   return (
     <PageFrame width="narrow">

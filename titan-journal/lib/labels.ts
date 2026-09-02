@@ -150,6 +150,8 @@ export const copy = {
     fieldType: "Type",
     options: "Options",
     optionsHint: "One option per line.",
+    icon: "Icon",
+    color: "Color",
     save: "Save Playbook",
     archived: "Archived",
     archive: "Archive",

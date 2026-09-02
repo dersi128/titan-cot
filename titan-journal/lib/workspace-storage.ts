@@ -35,9 +35,17 @@ function canUseLocalStorage(): boolean {
   return typeof window !== "undefined" && typeof window.localStorage !== "undefined"
 }
 
-function readJson(key: string): unknown {
+function readRaw(key: string): string | null {
   if (!canUseLocalStorage()) return null
-  const raw = window.localStorage.getItem(key)
+  try {
+    return window.localStorage.getItem(key)
+  } catch {
+    return null
+  }
+}
+
+function readJson(key: string): unknown {
+  const raw = readRaw(key)
   if (!raw) return null
   try {
     return JSON.parse(raw)
@@ -48,7 +56,11 @@ function readJson(key: string): unknown {
 
 function writeJson(key: string, value: unknown) {
   if (!canUseLocalStorage()) return
-  window.localStorage.setItem(key, JSON.stringify(value))
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value))
+  } catch {
+    // Private mode / quota must not crash the tree.
+  }
 }
 
 function asAccount(value: unknown): Account {
@@ -139,6 +151,7 @@ export function hydratePlaybook(raw: unknown): Playbook | null {
     name: row.name,
     description: typeof row.description === "string" ? row.description : "",
     color: typeof row.color === "string" ? row.color : null,
+    icon: typeof row.icon === "string" && row.icon.trim() ? row.icon.trim().slice(0, 2) : null,
     status: row.status === "archived" ? "archived" : "active",
     fields,
     createdAt:
@@ -168,19 +181,19 @@ function createStore<T>(key: string, read: () => T, fallback: T) {
   const listeners = new Set<Listener>()
   let cachedRaw: string | null | undefined
   let cached: T = fallback
-  let started = false
 
   function snapshot(): T {
     if (!canUseLocalStorage()) return fallback
-    if (!started) {
-      started = true
-      if (readJson(key) == null) writeJson(key, fallback)
-    }
-    const raw = window.localStorage.getItem(key)
+    const raw = readRaw(key)
+    if (raw == null) return fallback
     if (raw === cachedRaw) return cached
     cachedRaw = raw
     cached = read()
     return cached
+  }
+
+  function seed() {
+    if (readRaw(key) == null) writeJson(key, fallback)
   }
 
   return {
@@ -189,12 +202,13 @@ function createStore<T>(key: string, read: () => T, fallback: T) {
     },
     set(value: T): T {
       writeJson(key, value)
-      cachedRaw = canUseLocalStorage() ? window.localStorage.getItem(key) : JSON.stringify(value)
+      cachedRaw = readRaw(key)
       cached = value
       listeners.forEach((listener) => listener())
       return value
     },
     subscribe(listener: Listener) {
+      seed()
       snapshot()
       listeners.add(listener)
       if (typeof window !== "undefined") {
