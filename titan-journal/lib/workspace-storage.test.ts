@@ -20,6 +20,7 @@ describe("workspace hydration", () => {
       theme: "light",
     })
     expect(hydratePreferences({ theme: "cyberpunk" }).theme).toBe("cyberpunk")
+    expect(hydratePreferences({ theme: "gold" }).theme).toBe("gold")
   })
 
   it("hydrates a stored playbook that predates icon", () => {

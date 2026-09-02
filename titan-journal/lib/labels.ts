@@ -197,6 +197,7 @@ export const copy = {
     light: "Light",
     slate: "Slate",
     dark: "Dark",
+    gold: "Navy Gold",
     cyberpunk: "Cyberpunk",
     density: "Interface Size",
     compact: "Compact",
