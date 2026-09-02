@@ -166,7 +166,8 @@ type Listener = () => void
 
 function createStore<T>(key: string, read: () => T, fallback: T) {
   const listeners = new Set<Listener>()
-  let cached: T | undefined
+  let cachedRaw: string | null | undefined
+  let cached: T = fallback
   let started = false
 
   function snapshot(): T {
@@ -175,6 +176,9 @@ function createStore<T>(key: string, read: () => T, fallback: T) {
       started = true
       if (readJson(key) == null) writeJson(key, fallback)
     }
+    const raw = window.localStorage.getItem(key)
+    if (raw === cachedRaw) return cached
+    cachedRaw = raw
     cached = read()
     return cached
   }
@@ -185,6 +189,7 @@ function createStore<T>(key: string, read: () => T, fallback: T) {
     },
     set(value: T): T {
       writeJson(key, value)
+      cachedRaw = canUseLocalStorage() ? window.localStorage.getItem(key) : JSON.stringify(value)
       cached = value
       listeners.forEach((listener) => listener())
       return value

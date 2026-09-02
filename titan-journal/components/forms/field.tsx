@@ -47,7 +47,7 @@ export function OptionPills<T extends string>({
               "h-8 rounded-[8px] border px-2.5 text-[12px] font-medium transition-colors",
               selected
                 ? "border-primary/40 bg-primary/10 text-primary"
-                : "border-white/10 text-muted-foreground hover:border-white/20 hover:text-foreground"
+                : "border-border text-muted-foreground hover:border-primary/30 hover:text-foreground"
             )}
           >
             {labels?.[option] ?? option}
