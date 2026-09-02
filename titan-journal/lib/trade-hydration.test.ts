@@ -120,6 +120,15 @@ describe("hydrateTrade", () => {
     )
   })
 
+  it("keeps an explicit empty fieldValues list from Simple mode", () => {
+    const trade = hydrateTrade({
+      ...legacyCross,
+      playbookId: "pb-titan-swing",
+      fieldValues: [],
+    })
+    expect(trade?.fieldValues).toEqual([])
+  })
+
   it("treats a garbage review payload as null", () => {
     const trade = hydrateTrade({ ...legacyCross, review: "nope" })
     expect(trade?.review).toBeNull()

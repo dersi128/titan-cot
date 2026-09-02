@@ -15,8 +15,10 @@ export function hydrateTradePlaybookFields(row: Record<string, unknown>, trade: 
       : DEFAULT_STRATEGY
   const screenshot =
     typeof row.screenshot === "string" && row.screenshot ? row.screenshot : null
-  const storedValues = Array.isArray(row.fieldValues)
-    ? row.fieldValues.filter((item): item is TradeFieldValue => {
+  const rawValues = row.fieldValues
+  const hasStoredValues = Array.isArray(rawValues)
+  const storedValues = hasStoredValues
+    ? rawValues.filter((item): item is TradeFieldValue => {
         if (!item || typeof item !== "object") return false
         return typeof (item as TradeFieldValue).fieldId === "string"
       })
@@ -27,7 +29,6 @@ export function hydrateTradePlaybookFields(row: Record<string, unknown>, trade: 
     playbookId,
     strategy,
     screenshot,
-    fieldValues:
-      storedValues.length > 0 ? storedValues : fieldValuesFromLegacy(trade),
+    fieldValues: hasStoredValues ? storedValues : fieldValuesFromLegacy(trade),
   }
 }

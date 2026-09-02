@@ -42,12 +42,12 @@ export function PlaybookEditor({ playbook }: { playbook?: Playbook }) {
       setError(copy.playbook.nameRequired)
       return
     }
-    const saved = savePlaybook({
+    savePlaybook({
       ...draft,
       name: draft.name.trim(),
       fields: sortedFields(draft).filter((field) => field.name.trim()),
     })
-    router.push(`/playbook/${saved.id}`)
+    router.push("/playbook")
   }
 
   const fields = sortedFields(draft)

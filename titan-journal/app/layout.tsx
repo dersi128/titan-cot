@@ -29,7 +29,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       data-theme="slate"
       data-density="comfortable"
-      className={`${geist.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geist.variable} ${geistMono.variable} dark h-full antialiased`}
+      style={{ colorScheme: "dark" }}
+      suppressHydrationWarning
     >
       <head>
         <script
