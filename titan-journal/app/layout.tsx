@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 
 import { Providers } from "@/components/layout/providers"
+import { THEME_BOOT_SCRIPT } from "@/lib/workspace-storage"
 import "./globals.css"
 
 const geist = Geist({
@@ -19,16 +20,24 @@ export const metadata: Metadata = {
     default: "TITAN Journal",
     template: "%s · TITAN Journal",
   },
-  description:
-    "Obchodní deník TITAN Swing — zapisuje, proč byl obchod vzat.",
+  description: "A simple trading journal. Fast to log, easy to customize.",
 }
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
-      lang="cs"
-      className={`dark ${geist.variable} ${geistMono.variable} h-full antialiased`}
+      lang="en"
+      data-theme="slate"
+      data-density="comfortable"
+      className={`${geist.variable} ${geistMono.variable} dark h-full antialiased`}
+      style={{ colorScheme: "dark" }}
+      suppressHydrationWarning
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }}
+        />
+      </head>
       <body className="min-h-full bg-background font-sans text-foreground">
         <Providers>{children}</Providers>
       </body>

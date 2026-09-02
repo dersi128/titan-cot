@@ -7,9 +7,10 @@ import {
   BookOpen,
   LayoutDashboard,
   Menu,
+  NotebookPen,
   PlusCircle,
   Settings,
-  Target,
+  User,
 } from "lucide-react"
 import { useState } from "react"
 
@@ -18,6 +19,7 @@ import {
   DATE_RANGES,
   useWorkspaceChrome,
 } from "@/components/layout/workspace-chrome"
+import { useWorkspace } from "@/components/layout/workspace-provider"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
@@ -29,12 +31,17 @@ import { copy } from "@/lib/labels"
 import { cn } from "@/lib/utils"
 import { ACCOUNTS } from "@/types/trade"
 
-const NAV_ITEMS = [
+const MAIN_NAV = [
   { href: "/dashboard", label: copy.nav.dashboard, icon: LayoutDashboard },
   { href: "/journal", label: copy.nav.journal, icon: BookOpen },
   { href: "/new-trade", label: copy.nav.newTrade, icon: PlusCircle },
   { href: "/analytics", label: copy.nav.analytics, icon: BarChart3 },
-  { href: "/strategy", label: copy.nav.strategy, icon: Target },
+  { href: "/playbook", label: copy.nav.playbook, icon: NotebookPen },
+] as const
+
+const BOTTOM_NAV = [
+  { href: "/profile", label: copy.nav.profile, icon: User },
+  { href: "/settings", label: copy.nav.settings, icon: Settings },
 ] as const
 
 function isActive(pathname: string, href: string) {
@@ -61,18 +68,18 @@ function BrandMark() {
   )
 }
 
-function NavLinks({
+function NavGroup({
+  items,
   onNavigate,
-  className,
 }: {
+  items: typeof MAIN_NAV | typeof BOTTOM_NAV
   onNavigate?: () => void
-  className?: string
 }) {
   const pathname = usePathname()
 
   return (
-    <nav className={cn("titan-nav", className)} aria-label="Main">
-      {NAV_ITEMS.map((item) => {
+    <nav className="titan-nav" aria-label="Main">
+      {items.map((item) => {
         const active = isActive(pathname, item.href)
         const Icon = item.icon
         return (
@@ -93,13 +100,21 @@ function NavLinks({
 }
 
 function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
+  const { profile } = useWorkspace()
+
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-16 items-center px-4">
         <BrandMark />
       </div>
       <div className="flex-1 px-3 py-2">
-        <NavLinks onNavigate={onNavigate} />
+        <NavGroup items={MAIN_NAV} onNavigate={onNavigate} />
+      </div>
+      <div className="border-t border-sidebar-border px-3 py-3">
+        <NavGroup items={BOTTOM_NAV} onNavigate={onNavigate} />
+        <p className="mt-3 truncate px-2 text-[11px] text-muted-foreground">
+          {profile.displayName}
+        </p>
       </div>
     </div>
   )
@@ -134,15 +149,6 @@ function TopBar({ onOpenNav }: { onOpenNav: () => void }) {
           onChange={setRange}
         />
       </div>
-
-      <Button
-        variant="ghost"
-        size="icon-sm"
-        aria-label={copy.shell.settings}
-        className="shrink-0 text-muted-foreground"
-      >
-        <Settings />
-      </Button>
     </header>
   )
 }
@@ -157,20 +163,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent
-          side="left"
-          className="w-[240px] border-r border-sidebar-border bg-sidebar p-0"
-        >
-          <SheetHeader className="sr-only">
-            <SheetTitle>TITAN Journal</SheetTitle>
-          </SheetHeader>
-          <SidebarBody onNavigate={() => setOpen(false)} />
-        </SheetContent>
+        {open ? (
+          <SheetContent
+            side="left"
+            className="w-[240px] border-r border-sidebar-border bg-sidebar p-0"
+          >
+            <SheetHeader className="sr-only">
+              <SheetTitle>TITAN Journal</SheetTitle>
+            </SheetHeader>
+            <SidebarBody onNavigate={() => setOpen(false)} />
+          </SheetContent>
+        ) : null}
       </Sheet>
 
       <div className="flex min-w-0 flex-1 flex-col">
         <TopBar onOpenNav={() => setOpen(true)} />
-        <main className="min-w-0 flex-1 px-4 py-5 md:px-6 lg:px-8 lg:py-6">
+        <main className="titan-main min-w-0 flex-1">
           {children}
         </main>
       </div>

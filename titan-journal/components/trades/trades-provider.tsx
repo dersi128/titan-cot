@@ -13,6 +13,7 @@ type TradesContextValue = {
   isReady: boolean
   getById: (id: string) => Trade | undefined
   saveTrade: (input: NewTradeInput) => Trade
+  updateTrade: (trade: Trade) => Trade
 }
 
 const TradesContext = createContext<TradesContextValue | null>(null)
@@ -34,13 +35,18 @@ export function TradesProvider({ children }: { children: React.ReactNode }) {
       ...input,
       id: crypto.randomUUID(),
       createdAt: new Date().toISOString(),
+      review: input.review ?? null,
     }
     return tradeRepository.upsert(trade)
   }, [])
 
+  const updateTrade = useCallback((trade: Trade) => {
+    return tradeRepository.upsert(trade)
+  }, [])
+
   const value = useMemo(
-    () => ({ trades, isReady: true, getById, saveTrade }),
-    [trades, getById, saveTrade]
+    () => ({ trades, isReady: true, getById, saveTrade, updateTrade }),
+    [trades, getById, saveTrade, updateTrade]
   )
 
   return <TradesContext.Provider value={value}>{children}</TradesContext.Provider>

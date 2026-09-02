@@ -28,6 +28,8 @@ describe("mock journal seed", () => {
       cotEnabled: false,
       cotBias: null,
       commercialsBias: null,
+      review: null,
+      playbookId: "pb-titan-swing",
     })
   })
 })
@@ -36,10 +38,11 @@ describe("filterTrades", () => {
   it("filters by symbol and direction", () => {
     const result = filterTrades(MOCK_TRADES, {
       query: "aud",
-      strategy: "ALL",
-      grade: "ALL",
+      playbookId: "ALL",
       direction: "SHORT",
-      status: "ALL",
+      result: "ALL",
+      dateFrom: "",
+      dateTo: "",
     })
 
     expect(result.every((trade) => trade.symbol.includes("AUD"))).toBe(true)

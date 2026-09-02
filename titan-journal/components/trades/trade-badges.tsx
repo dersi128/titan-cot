@@ -9,6 +9,7 @@ export function StatusBadge({ status }: { status: TradeStatus }) {
     PLANNED: "border-primary/35 bg-primary/10 text-primary",
     ACTIVE: "border-amber-500/35 bg-amber-500/10 text-amber-200",
     CLOSED: "border-white/10 bg-titan-elevated/70 text-stone-200",
+    REVIEWED: "border-primary/25 bg-primary/[0.08] text-stone-200",
     CANCELLED: "border-white/10 text-stone-500",
   }
 

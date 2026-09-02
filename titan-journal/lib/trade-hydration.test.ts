@@ -55,6 +55,7 @@ describe("hydrateTrade", () => {
       cotBias: null,
       cotScore: null,
       commercialsBias: null,
+      playbookId: "pb-titan-swing",
     })
   })
 
@@ -76,9 +77,60 @@ describe("hydrateTrade", () => {
     })
   })
 
-  it("returns null for garbage instead of throwing", () => {
-    expect(hydrateTrade(null)).toBeNull()
-    expect(hydrateTrade({})).toBeNull()
-    expect(hydrateTrade("nope")).toBeNull()
+  it("defaults missing review to null and does not crash", () => {
+    const trade = hydrateTrade(legacyCross)
+    expect(trade?.review).toBeNull()
+  })
+
+  it("hydrates REVIEWED status and recomputes a stored review", () => {
+    const trade = hydrateTrade({
+      ...legacyCross,
+      status: "REVIEWED",
+      review: {
+        completed: true,
+        planFollowed: "Yes",
+        setupValid: true,
+        wouldTakeAgain: true,
+        executionQuality: "Good",
+        tags: ["Good Patience"],
+        executionScore: 1,
+        tradeQuality: "Needs Review",
+      },
+    })
+
+    expect(trade?.status).toBe("REVIEWED")
+    expect(trade?.review).toMatchObject({
+      completed: true,
+      executionScore: 94,
+      tradeQuality: "Good Trade",
+      tags: ["Good Patience"],
+    })
+  })
+
+  it("maps legacy TITAN fields onto the default playbook", () => {
+    const trade = hydrateTrade(legacyCross)
+    expect(trade?.playbookId).toBe("pb-titan-swing")
+    expect(trade?.fieldValues).toEqual(
+      expect.arrayContaining([
+        { fieldId: "titan-trend", value: "Downtrend" },
+        { fieldId: "titan-location", value: "Premium" },
+        { fieldId: "titan-zone", value: "Supply" },
+        { fieldId: "titan-grade", value: "B+" },
+      ])
+    )
+  })
+
+  it("keeps an explicit empty fieldValues list from Simple mode", () => {
+    const trade = hydrateTrade({
+      ...legacyCross,
+      playbookId: "pb-titan-swing",
+      fieldValues: [],
+    })
+    expect(trade?.fieldValues).toEqual([])
+  })
+
+  it("treats a garbage review payload as null", () => {
+    const trade = hydrateTrade({ ...legacyCross, review: "nope" })
+    expect(trade?.review).toBeNull()
   })
 })

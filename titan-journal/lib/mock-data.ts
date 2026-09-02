@@ -1,4 +1,6 @@
 import { classifyMarket } from "@/lib/market-classification"
+import { fieldValuesFromLegacy } from "@/lib/playbook-legacy"
+import { TITAN_SWING_PLAYBOOK_ID } from "@/lib/playbooks"
 import type {
   Account,
   Grade,
@@ -55,7 +57,7 @@ function fromSeed(seed: Seed): Trade {
   const resultR = seed.resultR
   const isShort = seed.direction === "SHORT"
 
-  return {
+  const trade: Trade = {
     id: seed.id,
     createdAt: `${seed.date}T08:30:00.000Z`,
     date: seed.date,
@@ -98,7 +100,14 @@ function fromSeed(seed: Seed): Trade {
     resultR,
     pnl: resultR == null ? null : Math.round(resultR * R_PER_DOLLAR),
     notes: seed.notes ?? "",
+    screenshot: null,
+    playbookId: TITAN_SWING_PLAYBOOK_ID,
+    fieldValues: [],
+    review: null,
   }
+
+  trade.fieldValues = fieldValuesFromLegacy(trade)
+  return trade
 }
 
 const FEATURED: Seed[] = [

@@ -37,7 +37,7 @@ function EquityTooltip({
   const point = payload[0].payload
 
   return (
-    <div className="rounded-[10px] border border-[rgba(46,168,255,0.18)] bg-[#0c121a] px-3 py-2 text-[12px] shadow-lg">
+    <div className="rounded-[10px] border border-border bg-popover px-3 py-2 text-[12px] shadow-lg">
       <p className="text-muted-foreground">
         {point.date ? formatDate(point.date) : point.label}
       </p>
@@ -56,7 +56,7 @@ export function EquityCurve({ data }: { data: EquityPoint[] }) {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between gap-3 border-b border-white/[0.06] py-3">
+      <CardHeader className="flex flex-row items-center justify-between gap-3 border-b border-border py-3">
         <CardTitle>{copy.dashboard.equityCurve}</CardTitle>
         <SegmentedControl
           aria-label={copy.shell.range}

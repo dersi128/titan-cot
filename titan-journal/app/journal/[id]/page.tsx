@@ -3,7 +3,7 @@ import type { Metadata } from "next"
 import { TradeDetailPage } from "@/components/trades/trade-detail-page"
 
 export const metadata: Metadata = {
-  title: "Obchod",
+  title: "Trade",
 }
 
 export default async function Page({

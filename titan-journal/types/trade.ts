@@ -1,8 +1,11 @@
+import type { TradeFieldValue } from "@/types/playbook"
+
 export const TRADE_DIRECTIONS = ["LONG", "SHORT"] as const
 export type TradeDirection = (typeof TRADE_DIRECTIONS)[number]
 
-export const STRATEGIES = ["TITAN Swing"] as const
-export type Strategy = (typeof STRATEGIES)[number]
+export const DEFAULT_STRATEGY = "TITAN Swing"
+export const STRATEGIES = [DEFAULT_STRATEGY] as const
+export type Strategy = string
 
 export const ACCOUNTS = ["Personal", "Challenge", "Funded"] as const
 export type Account = (typeof ACCOUNTS)[number]
@@ -12,6 +15,7 @@ export const TRADE_STATUSES = [
   "PLANNED",
   "ACTIVE",
   "CLOSED",
+  "REVIEWED",
   "CANCELLED",
 ] as const
 export type TradeStatus = (typeof TRADE_STATUSES)[number]
@@ -77,6 +81,88 @@ export type MarketClassification = {
   cotEnabled: boolean
 }
 
+export const PLAN_FOLLOWED_OPTIONS = ["Yes", "Partially", "No"] as const
+export type PlanFollowed = (typeof PLAN_FOLLOWED_OPTIONS)[number]
+
+export const EXECUTION_QUALITY_OPTIONS = [
+  "Perfect",
+  "Good",
+  "Average",
+  "Poor",
+] as const
+export type ExecutionQuality = (typeof EXECUTION_QUALITY_OPTIONS)[number]
+
+export const EMOTIONAL_STATES = [
+  "Calm",
+  "Confident",
+  "Hesitant",
+  "Fear",
+  "FOMO",
+  "Frustrated",
+  "Revenge",
+] as const
+export type EmotionalState = (typeof EMOTIONAL_STATES)[number]
+
+export const POSITIVE_EXECUTION_TAGS = [
+  "Perfect Execution",
+  "Good Patience",
+  "Followed Plan",
+  "Correct Risk",
+  "Clean Entry",
+] as const
+
+export const NEGATIVE_EXECUTION_TAGS = [
+  "Early Entry",
+  "Late Entry",
+  "Early Exit",
+  "Late Exit",
+  "Moved Stop Loss",
+  "Wrong Position Size",
+  "Overrisk",
+  "FOMO",
+  "Fear",
+  "Revenge Trade",
+  "Impulsive Entry",
+  "Wrong Trend",
+  "Bad Location",
+  "Invalid Zone",
+  "Ignored COT",
+  "Ignored News",
+  "Manual Mistake",
+] as const
+
+export const EXECUTION_TAGS = [
+  ...POSITIVE_EXECUTION_TAGS,
+  ...NEGATIVE_EXECUTION_TAGS,
+] as const
+export type ExecutionTag = (typeof EXECUTION_TAGS)[number]
+
+export const TRADE_QUALITY_OPTIONS = ["Good Trade", "Needs Review"] as const
+export type TradeQuality = (typeof TRADE_QUALITY_OPTIONS)[number]
+
+export const EXECUTION_SCORE_LABELS = [
+  "Excellent",
+  "Good",
+  "Average",
+  "Poor",
+] as const
+export type ExecutionScoreLabel = (typeof EXECUTION_SCORE_LABELS)[number]
+
+export type TradeReview = {
+  completed: boolean
+  planFollowed: PlanFollowed | null
+  setupValid: boolean | null
+  wouldTakeAgain: boolean | null
+  executionQuality: ExecutionQuality | null
+  emotionalState?: EmotionalState | null
+  tags: string[]
+  learningNote?: string
+  nextTimeNote?: string
+  executionScore: number | null
+  tradeQuality: TradeQuality | null
+  reviewedAt?: string | null
+}
+
 export type Trade = {
   id: string
   createdAt: string
@@ -89,6 +175,7 @@ export type Trade = {
 
   direction: TradeDirection
   strategy: Strategy
+  playbookId: string
   account: Account
   status: TradeStatus
 
@@ -124,6 +211,9 @@ export type Trade = {
   pnl: number | null
 
   notes: string
+  screenshot?: string | null
+  fieldValues?: TradeFieldValue[]
+  review?: TradeReview | null
 }
 
 export type NewTradeInput = Omit<Trade, "id" | "createdAt">

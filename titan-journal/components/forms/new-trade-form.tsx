@@ -1,275 +1,147 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
-import { AlertTriangle } from "lucide-react"
 
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Slider } from "@/components/ui/slider"
-import { Textarea } from "@/components/ui/textarea"
 import { Field, OptionPills } from "@/components/forms/field"
-import { SelectField } from "@/components/forms/select-field"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
+import { useWorkspace } from "@/components/layout/workspace-provider"
+import { PlaybookFieldInput } from "@/components/playbooks/playbook-field-input"
 import { MarketBadges } from "@/components/trades/market-badges"
 import { useTrades } from "@/components/trades/trades-provider"
-import {
-  classifyMarket,
-  cotFieldsForClassification,
-  shouldDisplayCot,
-} from "@/lib/market-classification"
-import {
-  ACCOUNT_LABELS,
-  BIAS_LABELS,
-  copy,
-  IMPULSE_LABELS,
-  LOCATION_LABELS,
-  STATUS_LABELS,
-  TREND_LABELS,
-  YES_NO_LABELS,
-  ZONE_TIMEFRAME_LABELS,
-  ZONE_TYPE_LABELS,
-} from "@/lib/labels"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { classifyMarket } from "@/lib/market-classification"
+import { copy } from "@/lib/labels"
 import { todayIsoDate } from "@/lib/locale"
+import { applyTitanFieldValuesToLegacy } from "@/lib/playbook-legacy"
+import {
+  activePlaybooks,
+  fieldValueMap,
+  sortedFields,
+  TITAN_SWING_PLAYBOOK_ID,
+  upsertFieldValue,
+} from "@/lib/playbooks"
 import {
   calculatePlannedRRR,
   formatRRR,
-  isZoneInvalid,
   parseOptionalNumber,
 } from "@/lib/trade-calculations"
+import type { TradeFieldValue } from "@/types/playbook"
 import {
-  ACCOUNTS,
-  BIASES,
-  GRADES,
-  IMPULSES,
-  LOCATIONS,
-  NEW_TRADE_STATUSES,
-  STRATEGIES,
-  TOUCH_COUNTS,
+  DEFAULT_STRATEGY,
   TRADE_DIRECTIONS,
-  TRENDS,
-  ZONE_TIMEFRAMES,
-  ZONE_TYPES,
-  type Account,
-  type Bias,
-  type Grade,
-  type Impulse,
-  type Location,
   type NewTradeInput,
-  type NewTradeStatus,
-  type Strategy,
-  type TouchCount,
   type TradeDirection,
-  type Trend,
-  type ZoneTimeframe,
-  type ZoneType,
 } from "@/types/trade"
 
-const YES_NO = ["YES", "NO"] as const
-
-type Draft = {
-  symbol: string
-  direction: TradeDirection
-  strategy: Strategy
-  account: Account
-  status: NewTradeStatus
-  date: string
-  htfTrend: Trend
-  tradeTrend: Trend
-  location: Location
-  zoneType: ZoneType
-  zoneTimeframe: ZoneTimeframe
-  original: boolean
-  fresh: boolean
-  touchCount: TouchCount
-  hq: boolean
-  impulse: Impulse
-  mitigation: number
-  cotBias: Bias
-  cotScore: string
-  commercialsBias: Bias
-  seasonalityBias: Bias
-  seasonalWindow: boolean
-  grade: Grade
-  entry: string
-  stopLoss: string
-  takeProfit: string
-  riskPercent: string
-  notes: string
-}
-
-function createDraft(): Draft {
-  return {
-    symbol: "",
-    direction: "LONG",
-    strategy: "TITAN Swing",
-    account: "Personal",
-    status: "PLANNED",
-    date: todayIsoDate(),
-    htfTrend: "Uptrend",
-    tradeTrend: "Uptrend",
-    location: "Discount",
-    zoneType: "Demand",
-    zoneTimeframe: "Daily",
-    original: true,
-    fresh: true,
-    touchCount: "0",
-    hq: true,
-    impulse: "Strong",
-    mitigation: 0,
-    cotBias: "Neutral",
-    cotScore: "0",
-    commercialsBias: "Neutral",
-    seasonalityBias: "Neutral",
-    seasonalWindow: false,
-    grade: "A",
-    entry: "",
-    stopLoss: "",
-    takeProfit: "",
-    riskPercent: "1",
-    notes: "",
-  }
-}
-
-const OPEN_SECTIONS = [
-  "basic",
-  "context",
-  "sd",
-  "cot",
-  "seasonality",
-  "plan",
-  "grade",
-  "notes",
-]
-
-function YesNo({
-  value,
-  onChange,
-}: {
-  value: boolean
-  onChange: (value: boolean) => void
-}) {
-  return (
-    <OptionPills
-      value={value ? "YES" : "NO"}
-      options={YES_NO}
-      labels={YES_NO_LABELS}
-      onChange={(next) => onChange(next === "YES")}
-    />
-  )
+function readScreenshot(file: File): Promise<string | null> {
+  if (file.size > 450_000) return Promise.resolve(null)
+  return new Promise((resolve) => {
+    const reader = new FileReader()
+    reader.onload = () =>
+      resolve(typeof reader.result === "string" ? reader.result : null)
+    reader.onerror = () => resolve(null)
+    reader.readAsDataURL(file)
+  })
 }
 
 export function NewTradeForm() {
   const router = useRouter()
   const { saveTrade } = useTrades()
-  const [draft, setDraft] = useState<Draft>(createDraft)
+  const { preferences, playbooks } = useWorkspace()
+  const available = activePlaybooks(playbooks)
+  const defaultPlaybook =
+    available.find((item) => item.id === preferences.defaultPlaybookId) ??
+    available[0]
+
+  const [symbol, setSymbol] = useState("")
+  const [direction, setDirection] = useState<TradeDirection>("LONG")
+  const [entry, setEntry] = useState("")
+  const [stopLoss, setStopLoss] = useState("")
+  const [takeProfit, setTakeProfit] = useState("")
+  const [riskPercent, setRiskPercent] = useState(String(preferences.defaultRisk))
+  const [playbookId, setPlaybookId] = useState(defaultPlaybook?.id ?? TITAN_SWING_PLAYBOOK_ID)
+  const [notes, setNotes] = useState("")
+  const [screenshot, setScreenshot] = useState<string | null>(null)
+  const [fieldValues, setFieldValues] = useState<TradeFieldValue[]>([])
   const [error, setError] = useState<string | null>(null)
 
-  const classification = useMemo(
-    () => classifyMarket(draft.symbol),
-    [draft.symbol]
-  )
-  const showCot = shouldDisplayCot(classification)
-  const showCrossCotNote = classification.marketType === "Cross"
-  const [openSections, setOpenSections] = useState<string[]>(() => [...OPEN_SECTIONS])
+  const classification = useMemo(() => classifyMarket(symbol), [symbol])
+  const playbook = available.find((item) => item.id === playbookId) ?? defaultPlaybook
+  const plannedRRR = calculatePlannedRRR({
+    direction,
+    entry: Number(entry),
+    stopLoss: Number(stopLoss),
+    takeProfit: Number(takeProfit),
+  })
+  const advanced = preferences.journalMode === "advanced"
+  const values = fieldValueMap(fieldValues)
 
-  useEffect(() => {
-    setOpenSections((current) => {
-      const withoutCot = current.filter(
-        (value) => value !== "cot" && value !== "cot-off"
-      )
-      if (showCot) return [...withoutCot, "cot"]
-      if (showCrossCotNote) return [...withoutCot, "cot-off"]
-      return withoutCot
-    })
-  }, [showCot, showCrossCotNote])
-
-  const plannedRRR = useMemo(() => {
-    const entry = parseOptionalNumber(draft.entry)
-    const stopLoss = parseOptionalNumber(draft.stopLoss)
-    const takeProfit = parseOptionalNumber(draft.takeProfit)
-    if (entry == null || stopLoss == null || takeProfit == null) return null
-    return calculatePlannedRRR({
-      direction: draft.direction,
-      entry,
-      stopLoss,
-      takeProfit,
-    })
-  }, [draft.direction, draft.entry, draft.stopLoss, draft.takeProfit])
-
-  const zoneInvalid = isZoneInvalid(draft.mitigation)
-  const riskPercent = parseOptionalNumber(draft.riskPercent) ?? 1
-
-  function patch(update: Partial<Draft>) {
-    setDraft((current) => ({ ...current, ...update }))
+  async function handleScreenshot(file: File | undefined) {
+    if (!file) return
+    const data = await readScreenshot(file)
+    setScreenshot(data)
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
-    setError(null)
-
-    const symbol = classification.symbol
-    if (!symbol) {
+    const nextSymbol = classification.symbol || symbol.trim().toUpperCase()
+    if (!nextSymbol) {
       setError(copy.form.symbolRequired)
       return
     }
-
-    const entry = parseOptionalNumber(draft.entry)
-    const stopLoss = parseOptionalNumber(draft.stopLoss)
-    const takeProfit = parseOptionalNumber(draft.takeProfit)
-    if (entry == null || stopLoss == null || takeProfit == null) {
+    const entryN = parseOptionalNumber(entry)
+    const sl = parseOptionalNumber(stopLoss)
+    const tp = parseOptionalNumber(takeProfit)
+    if (entryN == null || sl == null || tp == null) {
       setError(copy.form.planRequired)
       return
     }
 
-    const cot = cotFieldsForClassification(classification, {
-      cotBias: draft.cotBias,
-      cotScore: parseOptionalNumber(draft.cotScore),
-      commercialsBias: draft.commercialsBias,
-    })
-
+    const legacy = applyTitanFieldValuesToLegacy(fieldValues)
     const input: NewTradeInput = {
-      date: draft.date,
-      symbol,
+      date: todayIsoDate(),
+      symbol: nextSymbol,
       assetClass: classification.assetClass,
       marketType: classification.marketType,
       cotEnabled: classification.cotEnabled,
-      direction: draft.direction,
-      strategy: draft.strategy,
-      account: draft.account,
-      status: draft.status,
-      htfTrend: draft.htfTrend,
-      tradeTrend: draft.tradeTrend,
-      location: draft.location,
-      zoneType: draft.zoneType,
-      zoneTimeframe: draft.zoneTimeframe,
-      original: draft.original,
-      fresh: draft.fresh,
-      touchCount: draft.touchCount,
-      hq: draft.hq,
-      impulse: draft.impulse,
-      mitigation: draft.mitigation,
-      cotBias: cot.cotBias,
-      cotScore: cot.cotScore,
-      commercialsBias: cot.commercialsBias,
-      seasonalityBias: draft.seasonalityBias,
-      seasonalWindow: draft.seasonalWindow,
-      grade: draft.grade,
-      entry,
-      stopLoss,
-      takeProfit,
-      riskPercent,
+      direction,
+      strategy: playbook?.name ?? DEFAULT_STRATEGY,
+      playbookId: playbook?.id ?? TITAN_SWING_PLAYBOOK_ID,
+      account: preferences.defaultAccount,
+      status: "PLANNED",
+      htfTrend: legacy.htfTrend ?? "Uptrend",
+      tradeTrend: legacy.tradeTrend ?? "Uptrend",
+      location: legacy.location ?? "Discount",
+      zoneType: legacy.zoneType ?? "Demand",
+      zoneTimeframe: "Daily",
+      original: true,
+      fresh: true,
+      touchCount: "0",
+      hq: false,
+      impulse: "Normal",
+      mitigation: 0,
+      cotBias: classification.cotEnabled ? (legacy.cotBias ?? "Neutral") : null,
+      cotScore: classification.cotEnabled ? 0 : null,
+      commercialsBias: classification.cotEnabled
+        ? (legacy.commercialsBias ?? "Neutral")
+        : null,
+      seasonalityBias: "Neutral",
+      seasonalWindow: false,
+      grade: legacy.grade ?? "B",
+      entry: entryN,
+      stopLoss: sl,
+      takeProfit: tp,
+      riskPercent: parseOptionalNumber(riskPercent) ?? preferences.defaultRisk,
       plannedRRR,
       resultR: null,
       pnl: null,
-      notes: draft.notes.trim(),
+      notes: notes.trim(),
+      screenshot,
+      fieldValues: advanced ? fieldValues : [],
+      review: null,
     }
 
     const trade = saveTrade(input)
@@ -282,398 +154,106 @@ export function NewTradeForm() {
         title={copy.form.title}
         description={copy.form.description}
       />
-
-      <form onSubmit={handleSubmit} className="space-y-3 pb-20">
-        <Accordion
-          type="multiple"
-          value={openSections}
-          onValueChange={setOpenSections}
-          className="gap-3"
-        >
-          <AccordionItem
-            value="basic"
-            className="titan-glass rounded-[10px] px-4 not-last:border-b-0"
-          >
-            <AccordionTrigger className="hover:no-underline">
-              {copy.form.basic}
-            </AccordionTrigger>
-            <AccordionContent>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field
-                  label={copy.form.symbol}
-                  hint={!draft.symbol ? copy.form.symbolHint : undefined}
-                  className="sm:col-span-2"
-                >
-                  <Input
-                    value={draft.symbol}
-                    onChange={(event) =>
-                      patch({ symbol: event.target.value.toUpperCase() })
-                    }
-                    placeholder="EURUSD"
-                    autoComplete="off"
-                  />
-                  {draft.symbol.trim() ? (
-                    <div className="pt-1">
-                      <MarketBadges classification={classification} />
-                    </div>
-                  ) : null}
-                </Field>
-                <Field label={copy.form.direction}>
-                  <OptionPills
-                    value={draft.direction}
-                    options={TRADE_DIRECTIONS}
-                    onChange={(direction) => patch({ direction })}
-                  />
-                </Field>
-                <SelectField
-                  label={copy.form.strategy}
-                  value={draft.strategy}
-                  options={STRATEGIES}
-                  onChange={(strategy) => patch({ strategy })}
-                />
-                <SelectField
-                  label={copy.form.account}
-                  value={draft.account}
-                  options={ACCOUNTS}
-                  labels={ACCOUNT_LABELS}
-                  onChange={(account) => patch({ account })}
-                />
-                <Field label={copy.form.status}>
-                  <OptionPills
-                    value={draft.status}
-                    options={NEW_TRADE_STATUSES}
-                    labels={STATUS_LABELS}
-                    onChange={(status) => patch({ status })}
-                  />
-                </Field>
-                <Field label={copy.form.date}>
-                  <Input
-                    type="date"
-                    value={draft.date}
-                    onChange={(event) => patch({ date: event.target.value })}
-                  />
-                </Field>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-
-          <AccordionItem
-            value="context"
-            className="titan-glass rounded-[10px] px-4 not-last:border-b-0"
-          >
-            <AccordionTrigger className="hover:no-underline">
-              {copy.form.context}
-            </AccordionTrigger>
-            <AccordionContent>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <SelectField
-                  label={copy.form.htfTrend}
-                  value={draft.htfTrend}
-                  options={TRENDS}
-                  labels={TREND_LABELS}
-                  onChange={(htfTrend) => patch({ htfTrend })}
-                />
-                <SelectField
-                  label={copy.form.tradeTrend}
-                  value={draft.tradeTrend}
-                  options={TRENDS}
-                  labels={TREND_LABELS}
-                  onChange={(tradeTrend) => patch({ tradeTrend })}
-                />
-                <SelectField
-                  label={copy.form.location}
-                  value={draft.location}
-                  options={LOCATIONS}
-                  labels={LOCATION_LABELS}
-                  onChange={(location) => patch({ location })}
-                />
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-
-          <AccordionItem
-            value="sd"
-            className="titan-glass rounded-[10px] px-4 not-last:border-b-0"
-          >
-            <AccordionTrigger className="hover:no-underline">
-              {copy.form.supplyDemand}
-            </AccordionTrigger>
-            <AccordionContent>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field label={copy.form.zoneType}>
-                  <OptionPills
-                    value={draft.zoneType}
-                    options={ZONE_TYPES}
-                    labels={ZONE_TYPE_LABELS}
-                    onChange={(zoneType) => patch({ zoneType })}
-                  />
-                </Field>
-                <SelectField
-                  label={copy.form.zoneTimeframe}
-                  value={draft.zoneTimeframe}
-                  options={ZONE_TIMEFRAMES}
-                  labels={ZONE_TIMEFRAME_LABELS}
-                  onChange={(zoneTimeframe) => patch({ zoneTimeframe })}
-                />
-                <Field label={copy.form.original}>
-                  <YesNo
-                    value={draft.original}
-                    onChange={(original) => patch({ original })}
-                  />
-                </Field>
-                <Field label={copy.form.fresh}>
-                  <YesNo
-                    value={draft.fresh}
-                    onChange={(fresh) => patch({ fresh })}
-                  />
-                </Field>
-                <Field label={copy.form.touchCount}>
-                  <OptionPills
-                    value={draft.touchCount}
-                    options={TOUCH_COUNTS}
-                    onChange={(touchCount) => patch({ touchCount })}
-                  />
-                </Field>
-                <Field label={copy.form.hq}>
-                  <YesNo value={draft.hq} onChange={(hq) => patch({ hq })} />
-                </Field>
-                <SelectField
-                  label={copy.form.impulse}
-                  value={draft.impulse}
-                  options={IMPULSES}
-                  labels={IMPULSE_LABELS}
-                  onChange={(impulse) => patch({ impulse })}
-                />
-                <Field
-                  label={`${copy.form.mitigation}  ${draft.mitigation} %`}
-                  hint={
-                    zoneInvalid ? (
-                      <span className="text-amber-400">
-                        {copy.form.zoneInvalidHint}
-                      </span>
-                    ) : undefined
-                  }
-                  className="sm:col-span-2"
-                >
-                  <Slider
-                    min={0}
-                    max={100}
-                    step={1}
-                    value={[draft.mitigation]}
-                    onValueChange={([mitigation]) =>
-                      patch({ mitigation: mitigation ?? 0 })
-                    }
-                  />
-                </Field>
-              </div>
-              {zoneInvalid ? (
-                <Alert className="mt-4 border-amber-500/40 bg-amber-500/15 text-amber-200">
-                  <AlertTriangle />
-                  <AlertTitle>{copy.form.zoneInvalidTitle}</AlertTitle>
-                  <AlertDescription className="text-amber-200/80">
-                    {copy.form.zoneInvalidBody}
-                  </AlertDescription>
-                </Alert>
-              ) : null}
-            </AccordionContent>
-          </AccordionItem>
-
-          {showCot ? (
-            <AccordionItem
-              value="cot"
-              className="titan-glass rounded-[10px] px-4 not-last:border-b-0"
-            >
-              <AccordionTrigger className="hover:no-underline">
-                {copy.form.cot}
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label={copy.form.cotBias}>
-                    <OptionPills
-                      value={draft.cotBias}
-                      options={BIASES}
-                      labels={BIAS_LABELS}
-                      onChange={(cotBias) => patch({ cotBias })}
-                    />
-                  </Field>
-                  <Field
-                    label={copy.form.cotScore}
-                    hint={copy.form.cotHint}
-                  >
-                    <Input
-                      type="number"
-                      min={-100}
-                      max={100}
-                      value={draft.cotScore}
-                      onChange={(event) =>
-                        patch({ cotScore: event.target.value })
-                      }
-                    />
-                  </Field>
-                  <Field label={copy.form.commercials} className="sm:col-span-2">
-                    <OptionPills
-                      value={draft.commercialsBias}
-                      options={BIASES}
-                      labels={BIAS_LABELS}
-                      onChange={(commercialsBias) => patch({ commercialsBias })}
-                    />
-                  </Field>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          ) : showCrossCotNote ? (
-            <AccordionItem
-              value="cot-off"
-              className="titan-glass rounded-[10px] px-4 py-3 not-last:border-b-0"
-            >
-              <p className="text-[12px] leading-relaxed text-muted-foreground">
-                {copy.form.cotHiddenCross}
-              </p>
-            </AccordionItem>
-          ) : null}
-
-          <AccordionItem
-            value="seasonality"
-            className="titan-glass rounded-[10px] px-4 not-last:border-b-0"
-          >
-            <AccordionTrigger className="hover:no-underline">
-              {copy.form.seasonality}
-            </AccordionTrigger>
-            <AccordionContent>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field label={copy.form.seasonalityBias}>
-                  <OptionPills
-                    value={draft.seasonalityBias}
-                    options={BIASES}
-                    labels={BIAS_LABELS}
-                    onChange={(seasonalityBias) => patch({ seasonalityBias })}
-                  />
-                </Field>
-                <Field label={copy.form.seasonalWindow}>
-                  <YesNo
-                    value={draft.seasonalWindow}
-                    onChange={(seasonalWindow) => patch({ seasonalWindow })}
-                  />
-                </Field>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-
-          <AccordionItem
-            value="plan"
-            className="titan-glass rounded-[10px] px-4 not-last:border-b-0"
-          >
-            <AccordionTrigger className="hover:no-underline">
-              {copy.form.plan}
-            </AccordionTrigger>
-            <AccordionContent>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field label={copy.form.entry}>
-                  <Input
-                    type="number"
-                    step="any"
-                    value={draft.entry}
-                    onChange={(event) => patch({ entry: event.target.value })}
-                  />
-                </Field>
-                <Field label={copy.form.stopLoss}>
-                  <Input
-                    type="number"
-                    step="any"
-                    value={draft.stopLoss}
-                    onChange={(event) =>
-                      patch({ stopLoss: event.target.value })
-                    }
-                  />
-                </Field>
-                <Field label={copy.form.takeProfit}>
-                  <Input
-                    type="number"
-                    step="any"
-                    value={draft.takeProfit}
-                    onChange={(event) =>
-                      patch({ takeProfit: event.target.value })
-                    }
-                  />
-                </Field>
-                <Field label={copy.form.riskPercent}>
-                  <Input
-                    type="number"
-                    step="any"
-                    min={0}
-                    value={draft.riskPercent}
-                    onChange={(event) =>
-                      patch({ riskPercent: event.target.value })
-                    }
-                  />
-                </Field>
-              </div>
-              <div className="mt-4 grid grid-cols-2 gap-3 rounded-lg border border-border px-3 py-3 text-sm">
-                <div>
-                  <p className="text-xs text-muted-foreground">{copy.form.risk}</p>
-                  <p className="mt-1 font-mono">{riskPercent} %</p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">
-                    {copy.form.plannedRrr}
-                  </p>
-                  <p className="mt-1 font-mono">{formatRRR(plannedRRR)}</p>
-                </div>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-
-          <AccordionItem
-            value="grade"
-            className="titan-glass rounded-[10px] px-4 not-last:border-b-0"
-          >
-            <AccordionTrigger className="hover:no-underline">
-              {copy.form.grade}
-            </AccordionTrigger>
-            <AccordionContent>
-              <OptionPills
-                value={draft.grade}
-                options={GRADES}
-                onChange={(grade) => patch({ grade })}
+      <form onSubmit={handleSubmit} className="space-y-4 pb-16">
+        <div className="titan-glass space-y-3 rounded-[10px] p-4">
+          <Field label={copy.form.symbol}>
+            <Input
+              autoFocus
+              value={symbol}
+              onChange={(event) => setSymbol(event.target.value)}
+              placeholder="AUDUSD"
+            />
+            <MarketBadges classification={classification} />
+          </Field>
+          <Field label={copy.form.direction}>
+            <OptionPills
+              value={direction}
+              options={TRADE_DIRECTIONS}
+              onChange={setDirection}
+            />
+          </Field>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <Field label={copy.form.entry}>
+              <Input value={entry} onChange={(event) => setEntry(event.target.value)} />
+            </Field>
+            <Field label={copy.form.stopLoss}>
+              <Input
+                value={stopLoss}
+                onChange={(event) => setStopLoss(event.target.value)}
               />
-              <p className="mt-3 text-xs text-muted-foreground">
-                {copy.form.gradeHint}
+            </Field>
+            <Field label={copy.form.takeProfit}>
+              <Input
+                value={takeProfit}
+                onChange={(event) => setTakeProfit(event.target.value)}
+              />
+            </Field>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Field label={copy.form.risk}>
+              <Input
+                value={riskPercent}
+                onChange={(event) => setRiskPercent(event.target.value)}
+              />
+            </Field>
+            <Field label={copy.form.plannedRrr}>
+              <p className="flex h-8 items-center font-mono text-sm">
+                {formatRRR(plannedRRR)}
               </p>
-            </AccordionContent>
-          </AccordionItem>
+            </Field>
+          </div>
+          <Field label={copy.form.playbook}>
+            <OptionPills
+              value={playbookId}
+              options={available.map((item) => item.id)}
+              labels={Object.fromEntries(available.map((item) => [item.id, item.name]))}
+              onChange={setPlaybookId}
+            />
+          </Field>
+          <Field label={copy.form.screenshot}>
+            <Input
+              type="file"
+              accept="image/*"
+              onChange={(event) => handleScreenshot(event.target.files?.[0])}
+            />
+            {screenshot ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={screenshot}
+                alt=""
+                className="mt-2 max-h-40 rounded-md border border-border object-contain"
+              />
+            ) : null}
+          </Field>
+          <Field label={copy.form.note}>
+            <Textarea
+              rows={3}
+              value={notes}
+              onChange={(event) => setNotes(event.target.value)}
+            />
+          </Field>
+        </div>
 
-          <AccordionItem
-            value="notes"
-            className="titan-glass rounded-[10px] px-4 not-last:border-b-0"
-          >
-            <AccordionTrigger className="hover:no-underline">
-              {copy.form.notes}
-            </AccordionTrigger>
-            <AccordionContent>
-              <Field label={copy.form.why}>
-                <Textarea
-                  value={draft.notes}
-                  onChange={(event) => patch({ notes: event.target.value })}
-                  placeholder={copy.form.why}
-                  rows={5}
-                />
-              </Field>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-
-        {error ? (
-          <Alert variant="destructive">
-            <AlertTitle>{copy.form.cannotSave}</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
+        {advanced && playbook && sortedFields(playbook).length > 0 ? (
+          <div className="titan-glass space-y-3 rounded-[10px] p-4">
+            <p className="text-sm font-medium">{copy.form.advancedFields}</p>
+            {sortedFields(playbook).map((field) => (
+              <PlaybookFieldInput
+                key={field.id}
+                field={field}
+                value={values[field.id] ?? null}
+                onChange={(value) =>
+                  setFieldValues((current) =>
+                    upsertFieldValue(current, field.id, value)
+                  )
+                }
+              />
+            ))}
+          </div>
         ) : null}
 
-        <div className="sticky bottom-0 z-10 -mx-4 border-t border-white/[0.06] bg-background/95 px-4 py-3 backdrop-blur md:mx-0 md:rounded-b-[10px]">
-          <Button type="submit" className="w-full sm:w-auto">
-            {copy.form.save}
-          </Button>
-        </div>
+        {error ? <p className="text-sm text-destructive">{error}</p> : null}
+        <Button type="submit">{copy.form.save}</Button>
       </form>
     </PageFrame>
   )

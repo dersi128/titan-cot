@@ -11,10 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import {
-  DirectionBadge,
-  GradeBadge,
-} from "@/components/trades/trade-badges"
+import { DirectionBadge } from "@/components/trades/trade-badges"
 import { ResultR } from "@/components/trades/result-r"
 import type { Trade } from "@/types/trade"
 import { tradeRowProps } from "@/components/trades/trade-row"
@@ -27,7 +24,7 @@ export function RecentTrades({ trades }: { trades: Trade[] }) {
 
   return (
     <Card>
-      <CardHeader className="border-b border-white/[0.06] py-3">
+      <CardHeader className="border-b border-border py-3">
         <CardTitle>{copy.dashboard.recentTrades}</CardTitle>
       </CardHeader>
       <CardContent className="px-0">
@@ -41,7 +38,7 @@ export function RecentTrades({ trades }: { trades: Trade[] }) {
                 {copy.dashboard.direction}
               </TableHead>
               <TableHead className="text-[11px] font-medium text-muted-foreground">
-                {copy.dashboard.grade}
+                {copy.journal.playbook}
               </TableHead>
               <TableHead className="text-[11px] font-medium text-muted-foreground">
                 {copy.dashboard.result}
@@ -58,9 +55,7 @@ export function RecentTrades({ trades }: { trades: Trade[] }) {
                 <TableCell>
                   <DirectionBadge direction={trade.direction} />
                 </TableCell>
-                <TableCell>
-                  <GradeBadge grade={trade.grade} />
-                </TableCell>
+                <TableCell>{trade.strategy}</TableCell>
                 <TableCell className={signedClassName(trade.resultR)}>
                   {trade.resultR == null
                     ? "—"

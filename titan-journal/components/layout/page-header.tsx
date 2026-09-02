@@ -10,7 +10,7 @@ export function PageHeader({
   return (
     <header className="mb-5 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
       <div className="min-w-0">
-        <h1 className="text-[22px] font-semibold tracking-tight text-foreground">
+        <h1 className="text-[length:var(--ui-title)] font-semibold tracking-tight text-foreground">
           {title}
         </h1>
         {description ? (
