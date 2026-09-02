@@ -12,16 +12,10 @@ export function TableSkeleton({ rows = 6 }: { rows?: number }) {
 
 export function KpiSkeleton() {
   return (
-    <div className="space-y-3">
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Skeleton className="h-[92px] w-full rounded-[10px]" />
-        <Skeleton className="h-[92px] w-full rounded-[10px]" />
-      </div>
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {Array.from({ length: 4 }, (_, index) => (
-          <Skeleton key={index} className="h-[72px] w-full rounded-[10px]" />
-        ))}
-      </div>
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+      {Array.from({ length: 6 }, (_, index) => (
+        <Skeleton key={index} className="h-[58px] w-full rounded-[10px]" />
+      ))}
     </div>
   )
 }

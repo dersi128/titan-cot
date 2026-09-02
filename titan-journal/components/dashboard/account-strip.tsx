@@ -9,7 +9,7 @@ function Cell({ label, value }: { label: string; value: string }) {
       <p className="text-[11px] font-medium tracking-wide text-muted-foreground">
         {label}
       </p>
-      <p className="mt-1 truncate font-mono text-[13px] tabular-nums text-foreground">
+      <p className="mt-0.5 truncate font-mono text-[13px] tabular-nums text-foreground">
         {value}
       </p>
     </div>
@@ -32,7 +32,7 @@ export function AccountStrip({
   markets: TradingMarket[]
 }) {
   return (
-    <section className="titan-glass grid gap-3 rounded-[10px] px-4 py-3 sm:grid-cols-2 lg:grid-cols-5">
+    <section className="titan-glass grid shrink-0 gap-2 rounded-[10px] px-3 py-2 sm:grid-cols-2 lg:grid-cols-5">
       <Cell label={copy.shell.account} value={ACCOUNT_LABELS[account]} />
       <Cell label={copy.dashboard.startingCapital} value={formatUsd(capital)} />
       <Cell label={copy.dashboard.equityNow} value={formatUsd(equity)} />
