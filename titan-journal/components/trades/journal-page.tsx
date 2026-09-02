@@ -35,6 +35,7 @@ import { useTrades } from "@/components/trades/trades-provider"
 import { tradeRowProps } from "@/components/trades/trade-row"
 import { formatDate } from "@/lib/format"
 import { copy, LOCATION_LABELS, STATUS_LABELS, TREND_LABELS } from "@/lib/labels"
+import { journalReviewCaption } from "@/lib/review-calculations"
 import {
   EMPTY_TRADE_FILTERS,
   filterTrades,
@@ -45,6 +46,7 @@ import {
   STRATEGIES,
   TRADE_DIRECTIONS,
   TRADE_STATUSES,
+  type Trade,
 } from "@/types/trade"
 
 function outcomeLabel(resultR: number | null) {
@@ -52,6 +54,19 @@ function outcomeLabel(resultR: number | null) {
   if (resultR > 0) return copy.outcome.win
   if (resultR < 0) return copy.outcome.loss
   return copy.outcome.be
+}
+
+function StatusCell({ trade }: { trade: Trade }) {
+  const caption = journalReviewCaption(trade)
+
+  return (
+    <div>
+      <StatusBadge status={trade.status} />
+      {caption ? (
+        <p className="mt-1 text-[10px] text-muted-foreground">{caption}</p>
+      ) : null}
+    </div>
+  )
 }
 
 export function JournalPage() {
@@ -247,7 +262,7 @@ export function JournalPage() {
                       <ResultR value={trade.resultR} />
                     </TableCell>
                     <TableCell>
-                      <StatusBadge status={trade.status} />
+                      <StatusCell trade={trade} />
                     </TableCell>
                   </TableRow>
                 ))

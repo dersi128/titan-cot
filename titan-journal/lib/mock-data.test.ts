@@ -28,6 +28,7 @@ describe("mock journal seed", () => {
       cotEnabled: false,
       cotBias: null,
       commercialsBias: null,
+      review: null,
     })
   })
 })

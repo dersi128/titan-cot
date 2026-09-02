@@ -1,6 +1,10 @@
-import type { Trade, TradeDirection } from "@/types/trade"
+import type { Trade, TradeDirection, TradeStatus } from "@/types/trade"
 
 export const ZONE_INVALID_MITIGATION_PERCENT = 25
+
+export function isRealizedTradeStatus(status: TradeStatus): boolean {
+  return status === "CLOSED" || status === "REVIEWED"
+}
 
 export function calculatePlannedRRR(params: {
   direction: TradeDirection
@@ -59,7 +63,7 @@ export type DashboardStats = {
 
 export function computeDashboardStats(trades: Trade[]): DashboardStats {
   const closed = trades.filter(
-    (trade) => trade.status === "CLOSED" && trade.resultR != null
+    (trade) => isRealizedTradeStatus(trade.status) && trade.resultR != null
   )
 
   const totalR = closed.reduce((sum, trade) => sum + (trade.resultR ?? 0), 0)
@@ -97,7 +101,7 @@ export type EquityPoint = {
 
 export function buildEquityCurve(trades: Trade[]): EquityPoint[] {
   const closed = trades
-    .filter((trade) => trade.status === "CLOSED" && trade.resultR != null)
+    .filter((trade) => isRealizedTradeStatus(trade.status) && trade.resultR != null)
     .slice()
     .sort((a, b) => a.date.localeCompare(b.date) || a.createdAt.localeCompare(b.createdAt))
 

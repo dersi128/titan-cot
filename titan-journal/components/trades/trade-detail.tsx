@@ -4,6 +4,7 @@ import {
   StatusBadge,
 } from "@/components/trades/trade-badges"
 import { ResultR } from "@/components/trades/result-r"
+import { TradeReviewPanel } from "@/components/trades/trade-review-panel"
 import { formatMarketLabel, classifyMarket, shouldDisplayCot } from "@/lib/market-classification"
 import { formatRRR } from "@/lib/trade-calculations"
 import { formatYesNo } from "@/lib/format"
@@ -82,6 +83,8 @@ export function TradeDetail({ trade }: { trade: Trade }) {
         <Field label={copy.detail.plannedRrr} value={formatRRR(trade.plannedRRR)} />
         <Field label={copy.detail.resultR} value={<ResultR value={trade.resultR} />} />
       </Section>
+
+      <TradeReviewPanel trade={trade} />
 
       <Section title={copy.detail.marketContext}>
         <Field

@@ -98,6 +98,7 @@ function fromSeed(seed: Seed): Trade {
     resultR,
     pnl: resultR == null ? null : Math.round(resultR * R_PER_DOLLAR),
     notes: seed.notes ?? "",
+    review: null,
   }
 }
 

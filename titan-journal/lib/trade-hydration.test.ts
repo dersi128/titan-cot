@@ -76,9 +76,38 @@ describe("hydrateTrade", () => {
     })
   })
 
-  it("returns null for garbage instead of throwing", () => {
-    expect(hydrateTrade(null)).toBeNull()
-    expect(hydrateTrade({})).toBeNull()
-    expect(hydrateTrade("nope")).toBeNull()
+  it("defaults missing review to null and does not crash", () => {
+    const trade = hydrateTrade(legacyCross)
+    expect(trade?.review).toBeNull()
+  })
+
+  it("hydrates REVIEWED status and recomputes a stored review", () => {
+    const trade = hydrateTrade({
+      ...legacyCross,
+      status: "REVIEWED",
+      review: {
+        completed: true,
+        planFollowed: "Yes",
+        setupValid: true,
+        wouldTakeAgain: true,
+        executionQuality: "Good",
+        tags: ["Good Patience"],
+        executionScore: 1,
+        tradeQuality: "Needs Review",
+      },
+    })
+
+    expect(trade?.status).toBe("REVIEWED")
+    expect(trade?.review).toMatchObject({
+      completed: true,
+      executionScore: 94,
+      tradeQuality: "Good Trade",
+      tags: ["Good Patience"],
+    })
+  })
+
+  it("treats a garbage review payload as null", () => {
+    const trade = hydrateTrade({ ...legacyCross, review: "nope" })
+    expect(trade?.review).toBeNull()
   })
 })

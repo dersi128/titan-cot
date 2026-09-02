@@ -270,6 +270,7 @@ export function NewTradeForm() {
       resultR: null,
       pnl: null,
       notes: draft.notes.trim(),
+      review: null,
     }
 
     const trade = saveTrade(input)

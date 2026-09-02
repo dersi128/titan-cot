@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest"
 
 import {
   calculatePlannedRRR,
+  computeDashboardStats,
   formatRRR,
   isZoneInvalid,
 } from "@/lib/trade-calculations"
+import { MOCK_TRADES } from "@/lib/mock-data"
 
 describe("calculatePlannedRRR", () => {
   it("computes LONG RRR", () => {
@@ -51,5 +53,21 @@ describe("isZoneInvalid", () => {
   it("warns above 25% mitigation", () => {
     expect(isZoneInvalid(25)).toBe(false)
     expect(isZoneInvalid(26)).toBe(true)
+  })
+})
+
+describe("computeDashboardStats", () => {
+  it("keeps REVIEWED trades in realized PnL and R", () => {
+    const realized = MOCK_TRADES.filter(
+      (trade) => trade.status === "CLOSED" && trade.resultR != null
+    )
+    const baseline = computeDashboardStats(realized)
+    const reviewed = realized.map((trade) => ({
+      ...trade,
+      status: "REVIEWED" as const,
+    }))
+
+    expect(computeDashboardStats(reviewed)).toEqual(baseline)
+    expect(baseline.closedTrades).toBeGreaterThan(0)
   })
 })

@@ -2,19 +2,29 @@ import { classifyMarket } from "@/lib/market-classification"
 import {
   ACCOUNTS,
   BIASES,
+  EMOTIONAL_STATES,
+  EXECUTION_QUALITY_OPTIONS,
   GRADES,
   IMPULSES,
   LOCATIONS,
+  PLAN_FOLLOWED_OPTIONS,
   STRATEGIES,
   TOUCH_COUNTS,
   TRADE_DIRECTIONS,
+  TRADE_QUALITY_OPTIONS,
   TRADE_STATUSES,
   TRENDS,
   ZONE_TIMEFRAMES,
   ZONE_TYPES,
   type Bias,
+  type EmotionalState,
+  type ExecutionQuality,
+  type PlanFollowed,
   type Trade,
+  type TradeQuality,
+  type TradeReview,
 } from "@/types/trade"
+import { buildTradeReview } from "@/lib/review-calculations"
 
 function asEnum<T extends string>(
   value: unknown,
@@ -47,6 +57,92 @@ function asNullableBias(value: unknown): Bias | null {
 
 function asString(value: unknown, fallback = ""): string {
   return typeof value === "string" ? value : fallback
+}
+
+function asNullableEnum<T extends string>(
+  value: unknown,
+  allowed: readonly T[]
+): T | null {
+  return typeof value === "string" && (allowed as readonly string[]).includes(value)
+    ? (value as T)
+    : null
+}
+
+function asNullableBoolean(value: unknown): boolean | null {
+  return typeof value === "boolean" ? value : null
+}
+
+function hydrateReview(raw: unknown): TradeReview | null {
+  if (raw == null) return null
+  if (typeof raw !== "object") return null
+
+  const row = raw as Record<string, unknown>
+  const planFollowed = asNullableEnum<PlanFollowed>(
+    row.planFollowed,
+    PLAN_FOLLOWED_OPTIONS
+  )
+  const setupValid = asNullableBoolean(row.setupValid)
+  const wouldTakeAgain = asNullableBoolean(row.wouldTakeAgain)
+  const executionQuality = asNullableEnum<ExecutionQuality>(
+    row.executionQuality,
+    EXECUTION_QUALITY_OPTIONS
+  )
+  const emotionalState = asNullableEnum<EmotionalState>(
+    row.emotionalState,
+    EMOTIONAL_STATES
+  )
+  const tags = Array.isArray(row.tags)
+    ? row.tags.filter((tag): tag is string => typeof tag === "string" && tag.length > 0)
+    : []
+  const learningNote = asString(row.learningNote).trim()
+  const nextTimeNote = asString(row.nextTimeNote).trim()
+
+  const completedReview = buildTradeReview({
+    planFollowed,
+    setupValid,
+    wouldTakeAgain,
+    executionQuality,
+    emotionalState,
+    tags,
+    learningNote,
+    nextTimeNote,
+  })
+
+  if (completedReview) {
+    return {
+      ...completedReview,
+      reviewedAt: asString(row.reviewedAt) || completedReview.reviewedAt,
+    }
+  }
+
+  if (
+    planFollowed == null &&
+    setupValid == null &&
+    wouldTakeAgain == null &&
+    executionQuality == null &&
+    emotionalState == null &&
+    tags.length === 0 &&
+    !learningNote &&
+    !nextTimeNote &&
+    row.completed !== true
+  ) {
+    return null
+  }
+
+  return {
+    completed: false,
+    planFollowed,
+    setupValid,
+    wouldTakeAgain,
+    executionQuality,
+    emotionalState,
+    tags,
+    learningNote: learningNote || undefined,
+    nextTimeNote: nextTimeNote || undefined,
+    executionScore: asNullableNumber(row.executionScore),
+    tradeQuality: asNullableEnum<TradeQuality>(row.tradeQuality, TRADE_QUALITY_OPTIONS),
+    reviewedAt: asString(row.reviewedAt) || null,
+  }
 }
 
 export function isLegacyTradeShape(raw: unknown): boolean {
@@ -111,6 +207,7 @@ export function hydrateTrade(raw: unknown): Trade | null {
     resultR: asNullableNumber(row.resultR),
     pnl: asNullableNumber(row.pnl),
     notes: asString(row.notes),
+    review: hydrateReview(row.review),
   }
 }
 
