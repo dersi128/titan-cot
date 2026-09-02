@@ -18,10 +18,11 @@ import { Textarea } from "@/components/ui/textarea"
 import { Field, OptionPills } from "@/components/forms/field"
 import { SelectField } from "@/components/forms/select-field"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
+import { MarketBadges } from "@/components/trades/market-badges"
 import { useTrades } from "@/components/trades/trades-provider"
 import {
   classifyMarket,
-  formatMarketLabel,
+  cotFieldsForClassification,
   shouldDisplayCot,
 } from "@/lib/market-classification"
 import {
@@ -93,6 +94,7 @@ type Draft = {
   mitigation: number
   cotBias: Bias
   cotScore: string
+  commercialsBias: Bias
   seasonalityBias: Bias
   seasonalWindow: boolean
   grade: Grade
@@ -124,6 +126,7 @@ function createDraft(): Draft {
     mitigation: 0,
     cotBias: "Neutral",
     cotScore: "0",
+    commercialsBias: "Neutral",
     seasonalityBias: "Neutral",
     seasonalWindow: false,
     grade: "A",
@@ -213,13 +216,18 @@ export function NewTradeForm() {
       return
     }
 
-    const cotScore = parseOptionalNumber(draft.cotScore) ?? 0
+    const cot = cotFieldsForClassification(classification, {
+      cotBias: draft.cotBias,
+      cotScore: parseOptionalNumber(draft.cotScore),
+      commercialsBias: draft.commercialsBias,
+    })
 
     const input: NewTradeInput = {
       date: draft.date,
       symbol,
+      assetClass: classification.assetClass,
       marketType: classification.marketType,
-      pairClass: classification.pairClass,
+      cotEnabled: classification.cotEnabled,
       direction: draft.direction,
       strategy: draft.strategy,
       account: draft.account,
@@ -235,8 +243,9 @@ export function NewTradeForm() {
       hq: draft.hq,
       impulse: draft.impulse,
       mitigation: draft.mitigation,
-      cotBias: draft.cotBias,
-      cotScore: Math.min(100, Math.max(-100, cotScore)),
+      cotBias: cot.cotBias,
+      cotScore: cot.cotScore,
+      commercialsBias: cot.commercialsBias,
       seasonalityBias: draft.seasonalityBias,
       seasonalWindow: draft.seasonalWindow,
       grade: draft.grade,
@@ -278,13 +287,7 @@ export function NewTradeForm() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field
                   label={copy.form.symbol}
-                  hint={
-                    !draft.symbol
-                      ? copy.form.symbolHint
-                      : classification.symbol.length < 6
-                        ? copy.form.symbolIncomplete
-                        : formatMarketLabel(classification)
-                  }
+                  hint={!draft.symbol ? copy.form.symbolHint : undefined}
                   className="sm:col-span-2"
                 >
                   <Input
@@ -295,6 +298,11 @@ export function NewTradeForm() {
                     placeholder="EURUSD"
                     autoComplete="off"
                   />
+                  {draft.symbol.trim() ? (
+                    <div className="pt-1">
+                      <MarketBadges classification={classification} />
+                    </div>
+                  ) : null}
                 </Field>
                 <Field label={copy.form.direction}>
                   <OptionPills
@@ -488,9 +496,21 @@ export function NewTradeForm() {
                       }
                     />
                   </Field>
+                  <Field label={copy.form.commercials} className="sm:col-span-2">
+                    <OptionPills
+                      value={draft.commercialsBias}
+                      options={BIASES}
+                      labels={BIAS_LABELS}
+                      onChange={(commercialsBias) => patch({ commercialsBias })}
+                    />
+                  </Field>
                 </div>
               </AccordionContent>
             </AccordionItem>
+          ) : classification.marketType === "Cross" ? (
+            <p className="px-1 text-[12px] text-muted-foreground">
+              {copy.form.cotHiddenCross}
+            </p>
           ) : null}
 
           <AccordionItem

@@ -60,8 +60,9 @@ function fromSeed(seed: Seed): Trade {
     createdAt: `${seed.date}T08:30:00.000Z`,
     date: seed.date,
     symbol: classification.symbol || seed.symbol,
+    assetClass: classification.assetClass,
     marketType: classification.marketType,
-    pairClass: classification.pairClass,
+    cotEnabled: classification.cotEnabled,
     direction: seed.direction,
     strategy: "TITAN Swing",
     account: seed.account ?? "Personal",
@@ -77,8 +78,15 @@ function fromSeed(seed: Seed): Trade {
     hq: seed.grade === "A+" || seed.grade === "A",
     impulse: seed.grade === "A+" ? "Strong" : seed.grade === "B" ? "Weak" : "Normal",
     mitigation: seed.fresh ? 8 : seed.touchCount === "2+" ? 31 : 18,
-    cotBias: isShort ? "Bearish" : "Bullish",
-    cotScore: seed.cotScore ?? (isShort ? -38 : 41),
+    cotBias: classification.cotEnabled ? (isShort ? "Bearish" : "Bullish") : null,
+    cotScore: classification.cotEnabled
+      ? seed.cotScore ?? (isShort ? -38 : 41)
+      : null,
+    commercialsBias: classification.cotEnabled
+      ? isShort
+        ? "Bearish"
+        : "Bullish"
+      : null,
     seasonalityBias: "Neutral",
     seasonalWindow: false,
     grade: seed.grade,

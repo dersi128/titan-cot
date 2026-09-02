@@ -1,9 +1,10 @@
 import type {
   Account,
+  AssetClass,
   Bias,
   Impulse,
   Location,
-  PairClass,
+  MarketType,
   TradeDirection,
   TradeStatus,
   Trend,
@@ -81,6 +82,10 @@ export const copy = {
     marketContext: "Tržní kontext",
     supplyDemand: "Supply / Demand",
     cot: "COT",
+    market: "Market",
+    type: "Type",
+    commercials: "Commercials",
+    cotHiddenCross: "COT se pro cross páry v této strategii nepoužívá.",
     notes: "Poznámky",
     screenshots: "Screenshoty",
     noNote: "Bez poznámky před vstupem.",
@@ -120,8 +125,8 @@ export const copy = {
     grade: "Známka",
     notes: "Poznámky",
     symbol: "Symbol",
-    symbolHint: "AUDUSD → Forex · major",
-    symbolIncomplete: "Zadej 6písmenný FX pár",
+    symbolHint: "AUDUSD → Forex · Major",
+    symbolIncomplete: "Pokračuj v symbolu, nebo ulož i neznámý trh.",
     direction: "Směr",
     strategy: "Strategie",
     account: "Účet",
@@ -145,7 +150,9 @@ export const copy = {
       "Mitigace je nad 25 %. Je to jen varování — obchod jde uložit.",
     cotBias: "COT bias",
     cotScore: "COT skóre",
+    commercials: "Commercials",
     cotHint: "Zatím ručně. Později napojíme TITAN COT API.",
+    cotHiddenCross: "COT není součástí této strategie pro cross páry.",
     seasonalityBias: "Bias",
     seasonalWindow: "Uvnitř seasonal okna",
     entry: "Vstup",
@@ -249,11 +256,19 @@ export const BIAS_LABELS: Record<Bias, string> = {
   Bearish: "Medvědí",
 }
 
-export const PAIR_CLASS_LABELS: Record<PairClass, string> = {
-  Major: "major",
-  Cross: "křížový",
-  Exotic: "exotický",
-  Unknown: "neznámý",
+export const ASSET_CLASS_LABELS: Record<AssetClass, string> = {
+  Forex: "Forex",
+  Stock: "Stock",
+  Commodity: "Commodity",
+  Index: "Index",
+  Crypto: "Crypto",
+  Unknown: "Unknown",
+}
+
+export const MARKET_TYPE_LABELS: Record<MarketType, string> = {
+  Major: "Major",
+  Cross: "Cross",
+  Unknown: "Unknown",
 }
 
 export const YES_NO_LABELS = {
