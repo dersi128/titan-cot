@@ -6,6 +6,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { CloseTradePanel } from "@/components/trades/close-trade-panel"
 import { ResultR } from "@/components/trades/result-r"
+import { TradeCotSummary } from "@/components/trades/trade-cot"
 import {
   DirectionBadge,
   OutcomeBadge,
@@ -102,6 +103,7 @@ export function TradePanel({
               .join(" · ")}
           </Row>
         ) : null}
+        <TradeCotSummary trade={trade} compact />
         {trade.notes.trim() ? (
           <div className="mt-2">
             <p className="text-[11px] text-muted-foreground">{copy.detail.notes}</p>

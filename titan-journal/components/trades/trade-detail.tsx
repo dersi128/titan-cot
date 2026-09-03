@@ -13,6 +13,7 @@ import {
 import { CloseTradePanel } from "@/components/trades/close-trade-panel"
 import { ResultR } from "@/components/trades/result-r"
 import { SimpleReviewPanel } from "@/components/trades/simple-review-panel"
+import { TradeCotSummary } from "@/components/trades/trade-cot"
 import { useTrades } from "@/components/trades/trades-provider"
 import { useWorkspace } from "@/components/layout/workspace-provider"
 import { formatMarketLabel, classifyMarket } from "@/lib/market-classification"
@@ -139,6 +140,17 @@ export function TradeDetail({ trade }: { trade: Trade }) {
         <FieldRow label={copy.journal.playbook} value={trade.strategy} />
         <FieldRow label={copy.detail.market} value={ASSET_CLASS_LABELS[classification.assetClass]} />
       </Section>
+
+      {trade.cotEnabled ? (
+        <Card>
+          <CardHeader className="border-b border-border">
+            <CardTitle>{copy.detail.cot}</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-4">
+            <TradeCotSummary trade={trade} />
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Section title={copy.detail.plan}>
         <FieldRow label={copy.detail.entry} value={trade.entry} />

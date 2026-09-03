@@ -218,6 +218,9 @@ export const copyEn = {
     setup: "Setup",
     id: "ID",
     tags: "Tags",
+    cot: "COT",
+    cotCommercials: "Commercials",
+    cotScore: "COT score",
   },
 
   form: {
@@ -256,6 +259,17 @@ export const copyEn = {
     planRequired: "Entry, stop loss and take profit are required.",
     resultHint: "Optional. Fill R to save the trade as closed.",
     advancedFields: "Playbook fields",
+    cotTitle: "Titan COT",
+    cotLoading: "Loading COT…",
+    cotUnavailable: "COT is unavailable. You can still save.",
+    cotCommercials: "Commercials",
+    cotPairLean: "Pair lean",
+    cotScore: "Score",
+    cotReport: "Report",
+    cotAligned: "Aligned",
+    cotAgainst: "Against COT",
+    cotNeutral: "Neutral COT",
+    cotInverse: "{pair} is inverse of {market}",
   },
 
   analytics: {
@@ -611,6 +625,9 @@ export const copyCs: Copy = {
     setup: "Setup",
     id: "ID",
     tags: "Tagy",
+    cot: "COT",
+    cotCommercials: "Commercials",
+    cotScore: "COT skóre",
   },
 
   form: {
@@ -649,6 +666,17 @@ export const copyCs: Copy = {
     planRequired: "Entry, stop loss a take profit jsou povinné.",
     resultHint: "Volitelné. Vyplň R a obchod se uloží jako uzavřený.",
     advancedFields: "Pole playbooku",
+    cotTitle: "Titan COT",
+    cotLoading: "Načítám COT…",
+    cotUnavailable: "COT teď není dostupné. Obchod můžeš uložit.",
+    cotCommercials: "Commercials",
+    cotPairLean: "Směr páru",
+    cotScore: "Skóre",
+    cotReport: "Report",
+    cotAligned: "V souladu",
+    cotAgainst: "Proti COT",
+    cotNeutral: "Neutrální COT",
+    cotInverse: "{pair} je inverzní k {market}",
   },
 
   analytics: {

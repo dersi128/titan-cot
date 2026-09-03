@@ -105,8 +105,20 @@ describe("classifyMarket", () => {
       symbol,
       assetClass,
       marketType: "Unknown",
-      cotEnabled: false,
     })
+  })
+
+  it.each([
+    ["XAUUSD", true],
+    ["GOLD", true],
+    ["NAS100", true],
+    ["USOIL", true],
+    ["COFFEE", true],
+    ["GER40", false],
+    ["BTCUSD", false],
+    ["AAPL", false],
+  ] as const)("COT enabled for %s is %s", (symbol, enabled) => {
+    expect(classifyMarket(symbol).cotEnabled).toBe(enabled)
   })
 
   it("classifies extra FX legs as Forex, not Stock", () => {
@@ -133,8 +145,9 @@ describe("classifyMarket", () => {
 })
 
 describe("COT payload", () => {
-  it("keeps COT for majors and nulls it for crosses", () => {
+  it("keeps COT for majors and mapped markets, and nulls it for crosses", () => {
     expect(shouldDisplayCot(classifyMarket("AUDUSD"))).toBe(true)
+    expect(shouldDisplayCot(classifyMarket("XAUUSD"))).toBe(true)
     expect(shouldDisplayCot(classifyMarket("EURAUD"))).toBe(false)
 
     expect(
