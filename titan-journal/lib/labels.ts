@@ -26,6 +26,7 @@ export const copyEn = {
   nav: {
     main: "Main",
     dashboard: "Dashboard",
+    calendar: "Calendar",
     journal: "Journal",
     newTrade: "New Trade",
     analytics: "Analytics",
@@ -42,7 +43,7 @@ export const copyEn = {
 
   dashboard: {
     title: "Dashboard",
-    description: "Capital, risk, and monthly results for the selected account.",
+    description: "Capital, risk, and results for the selected account.",
     startingCapital: "Starting capital",
     equityNow: "Equity",
     riskPerTrade: "Risk / trade",
@@ -73,7 +74,11 @@ export const copyEn = {
     result: "Result",
     r: "R",
     pnl: "PnL",
-    calendar: "Calendar",
+  },
+
+  calendar: {
+    title: "Calendar",
+    description: "Daily profit and loss for the selected account.",
     previousMonth: "Previous month",
     nextMonth: "Next month",
     weekdays: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
@@ -273,6 +278,7 @@ export const copyCs: Copy = {
   nav: {
     main: "Hlavní",
     dashboard: "Přehled",
+    calendar: "Kalendář",
     journal: "Deník",
     newTrade: "Nový obchod",
     analytics: "Analýzy",
@@ -289,7 +295,7 @@ export const copyCs: Copy = {
 
   dashboard: {
     title: "Přehled",
-    description: "Kapitál, riziko a měsíční výsledky vybraného účtu.",
+    description: "Kapitál, riziko a výsledky vybraného účtu.",
     startingCapital: "Počáteční kapitál",
     equityNow: "Equity",
     riskPerTrade: "Riziko / obchod",
@@ -320,7 +326,11 @@ export const copyCs: Copy = {
     result: "Výsledek",
     r: "R",
     pnl: "PnL",
-    calendar: "Kalendář",
+  },
+
+  calendar: {
+    title: "Kalendář",
+    description: "Denní zisk a ztráta vybraného účtu.",
     previousMonth: "Předchozí měsíc",
     nextMonth: "Další měsíc",
     weekdays: ["Po", "Út", "St", "Čt", "Pá", "So", "Ne"],

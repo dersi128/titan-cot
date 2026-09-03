@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 import {
   BarChart3,
   BookOpen,
+  Calendar,
   LayoutDashboard,
   Menu,
   NotebookPen,
@@ -96,6 +97,7 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
   const { copy } = useLabels()
   const mainNav: NavItem[] = [
     { href: "/dashboard", label: copy.nav.dashboard, icon: LayoutDashboard },
+    { href: "/calendar", label: copy.nav.calendar, icon: Calendar },
     { href: "/journal", label: copy.nav.journal, icon: BookOpen },
     { href: "/new-trade", label: copy.nav.newTrade, icon: PlusCircle },
     { href: "/analytics", label: copy.nav.analytics, icon: BarChart3 },
@@ -169,14 +171,14 @@ function TopBar({ onOpenNav }: { onOpenNav: () => void }) {
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
-  const dashboard = pathname === "/dashboard"
+  const fit = pathname === "/dashboard" || pathname === "/calendar"
   const { copy } = useLabels()
 
   return (
     <div
       className={cn(
         "titan-app flex min-h-screen",
-        dashboard && "lg:h-svh lg:max-h-svh lg:min-h-0 lg:overflow-hidden"
+        fit && "lg:h-svh lg:max-h-svh lg:min-h-0 lg:overflow-hidden"
       )}
     >
       <aside className="titan-sidebar hidden w-[232px] shrink-0 border-r border-sidebar-border lg:flex lg:flex-col">
@@ -200,14 +202,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div
         className={cn(
           "flex min-h-0 min-w-0 flex-1 flex-col",
-          dashboard && "lg:h-full lg:overflow-hidden"
+          fit && "lg:h-full lg:overflow-hidden"
         )}
       >
         <TopBar onOpenNav={() => setOpen(true)} />
         <main
           className={cn(
             "titan-main min-w-0 flex-1",
-            dashboard && "titan-main--fit flex min-h-0 flex-col lg:overflow-hidden"
+            fit && "titan-main--fit flex min-h-0 flex-col lg:overflow-hidden"
           )}
         >
           {children}
