@@ -58,8 +58,8 @@ export type TradingMarket = (typeof TRADING_MARKETS)[number]
 
 export type AccountCapital = {
   Personal: number
-  Challenge: number
   Funded: number
+  Backtesting: number
 }
 
 export type UserProfile = {
@@ -79,7 +79,7 @@ export type UserPreferences = {
   density: Density
   language: Language
   sidebarCollapsed: boolean
-  defaultAccount: "Personal" | "Challenge" | "Funded"
+  defaultAccount: "Personal" | "Funded" | "Backtesting"
   defaultRisk: number
   defaultPlaybookId: string
 }

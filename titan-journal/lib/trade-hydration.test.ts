@@ -143,4 +143,12 @@ describe("hydrateTrade", () => {
       cotEnabled: false,
     })
   })
+
+  it("maps a stored Challenge account onto Backtesting", () => {
+    const trade = hydrateTrade({
+      ...legacyCross,
+      account: "Challenge",
+    })
+    expect(trade?.account).toBe("Backtesting")
+  })
 })

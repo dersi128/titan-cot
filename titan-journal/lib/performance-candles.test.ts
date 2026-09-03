@@ -4,7 +4,9 @@ import { MOCK_TRADES } from "@/lib/mock-data"
 import {
   buildPerformanceCandles,
   isoWeekPeriod,
+  monthWeekPeriod,
   parsePerformancePeriod,
+  weekdayPeriod,
 } from "@/lib/performance-candles"
 import type { Trade } from "@/types/trade"
 
@@ -168,5 +170,58 @@ describe("buildPerformanceCandles", () => {
     expect(monthly.length).toBeGreaterThan(0)
     expect(monthly.every((candle) => candle.high >= candle.close)).toBe(true)
     expect(monthly.every((candle) => candle.low <= candle.open)).toBe(true)
+  })
+
+  it("groups by weekday, week of month, and months in the year", () => {
+    expect(weekdayPeriod("2026-08-24")).toBe("WD-1")
+    expect(monthWeekPeriod("2026-08-24")).toBe("2026-08-w4")
+    const weekdays = buildPerformanceCandles(
+      [
+        trade({ id: "a", date: "2026-08-24", pnl: 100, resultR: 1 }),
+        trade({
+          id: "b",
+          date: "2026-08-25",
+          createdAt: "2026-08-25T00:00:00.000Z",
+          pnl: -40,
+          resultR: -0.4,
+        }),
+      ],
+      10_000,
+      "weekday"
+    )
+    expect(weekdays.map((candle) => candle.period)).toEqual([
+      "WD-1",
+      "WD-2",
+      "WD-3",
+      "WD-4",
+      "WD-5",
+      "WD-6",
+      "WD-7",
+    ])
+    expect(weekdays[0]).toMatchObject({ pnl: 100, resultR: 1 })
+    expect(weekdays[1]).toMatchObject({ pnl: -40, resultR: -0.4 })
+    expect(parsePerformancePeriod("WD-1")).toEqual({ kind: "weekday", weekday: 1 })
+
+    const monthWeeks = buildPerformanceCandles(
+      [trade({ id: "a", date: "2026-08-24", pnl: 100, resultR: 1 })],
+      10_000,
+      "monthWeek"
+    )
+    expect(monthWeeks).toHaveLength(1)
+    expect(parsePerformancePeriod(monthWeeks[0]!.period)).toEqual({
+      kind: "monthWeek",
+      year: 2026,
+      month: 8,
+      week: 4,
+    })
+
+    const yearMonths = buildPerformanceCandles(
+      [trade({ id: "a", date: "2026-08-24", pnl: 100, resultR: 1 })],
+      10_000,
+      "yearMonth"
+    )
+    expect(yearMonths).toHaveLength(12)
+    expect(yearMonths[7]).toMatchObject({ period: "2026-08", pnl: 100 })
+    expect(yearMonths[0]?.pnl).toBe(0)
   })
 })

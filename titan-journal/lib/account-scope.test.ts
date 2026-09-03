@@ -11,14 +11,14 @@ import { MOCK_TRADES } from "@/lib/mock-data"
 import { DEFAULT_PROFILE } from "@/lib/workspace-storage"
 
 describe("account scope", () => {
-  it("keeps Personal and Challenge books separate", () => {
+  it("keeps Personal and Backtesting books separate", () => {
     const personal = filterTradesByAccount(MOCK_TRADES, "Personal")
-    const challenge = filterTradesByAccount(MOCK_TRADES, "Challenge")
+    const backtesting = filterTradesByAccount(MOCK_TRADES, "Backtesting")
     expect(personal.every((trade) => trade.account === "Personal")).toBe(true)
-    expect(challenge.every((trade) => trade.account === "Challenge")).toBe(true)
+    expect(backtesting.every((trade) => trade.account === "Backtesting")).toBe(true)
     expect(personal.length).toBeGreaterThan(0)
-    expect(challenge.length).toBeGreaterThan(0)
-    expect(personal.length).not.toBe(challenge.length)
+    expect(backtesting.length).toBeGreaterThan(0)
+    expect(personal.length).not.toBe(backtesting.length)
   })
 
   it("applies a date range after the account filter", () => {
@@ -40,7 +40,7 @@ describe("account scope", () => {
     expect(suggestedPnl(-1, 100_000, 1)).toBe(-1000)
     expect(dollarsPerR(0, 1)).toBe(0)
     expect(
-      capitalForAccount(DEFAULT_PROFILE.capital, "Challenge")
+      capitalForAccount(DEFAULT_PROFILE.capital, "Backtesting")
     ).toBe(100_000)
   })
 })

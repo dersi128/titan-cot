@@ -7,8 +7,16 @@ export const DEFAULT_STRATEGY = "Swing"
 export const STRATEGIES = [DEFAULT_STRATEGY] as const
 export type Strategy = string
 
-export const ACCOUNTS = ["Personal", "Challenge", "Funded"] as const
+export const ACCOUNTS = ["Personal", "Funded", "Backtesting"] as const
 export type Account = (typeof ACCOUNTS)[number]
+
+export function normalizeAccount(value: unknown): Account {
+  if (value === "Challenge") return "Backtesting"
+  if (typeof value === "string" && (ACCOUNTS as readonly string[]).includes(value)) {
+    return value as Account
+  }
+  return "Personal"
+}
 
 export const TRADE_STATUSES = [
   "IDEA",

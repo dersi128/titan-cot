@@ -42,18 +42,34 @@ import type { Trade } from "@/types/trade"
 function periodTitle(
   candle: PerformanceCandle,
   language: Language,
-  weekWord: string
+  weekWord: string,
+  weekdays: readonly string[]
 ): string {
   const parsed = parsePerformancePeriod(candle.period)
   if (!parsed) return candle.period
+  if (parsed.kind === "weekday") {
+    return weekdays[parsed.weekday - 1] ?? candle.period
+  }
   if (parsed.kind === "week") return `${weekWord} ${parsed.week}`
+  if (parsed.kind === "monthWeek") {
+    const month = formatMonthTitle(
+      { year: parsed.year, month: parsed.month },
+      language
+    )
+    return `${weekWord} ${parsed.week} · ${month}`
+  }
   return formatMonthTitle({ year: parsed.year, month: parsed.month }, language)
 }
 
-function tickLabel(candle: PerformanceCandle): string {
+function tickLabel(
+  candle: PerformanceCandle,
+  weekdays: readonly string[]
+): string {
   const parsed = parsePerformancePeriod(candle.period)
   if (!parsed) return candle.period
+  if (parsed.kind === "weekday") return weekdays[parsed.weekday - 1] ?? candle.period
   if (parsed.kind === "week") return `W${parsed.week}`
+  if (parsed.kind === "monthWeek") return `T${parsed.week}`
   return String(parsed.month)
 }
 
@@ -63,12 +79,14 @@ function BarTooltip({
   currency,
   language,
   weekWord,
+  weekdays,
 }: {
   active?: boolean
   payload?: Array<{ payload: PerformanceCandle }>
   currency: string
   language: Language
   weekWord: string
+  weekdays: readonly string[]
 }) {
   const { copy } = useLabels()
   if (!active || !payload?.[0]) return null
@@ -77,7 +95,7 @@ function BarTooltip({
   return (
     <div className="rounded-[10px] border border-border bg-popover px-3 py-2 text-[12px] shadow-lg">
       <p className="font-medium capitalize text-foreground">
-        {periodTitle(candle, language, weekWord)}
+        {periodTitle(candle, language, weekWord, weekdays)}
       </p>
       <p className={cn("mt-1 font-mono tabular-nums", signedClassName(candle.pnl))}>
         {formatSignedMoney(candle.pnl, currency)}
@@ -104,15 +122,19 @@ export function PerformanceBars({
     () => buildPerformanceCandles(trades, startCapital, period),
     [trades, startCapital, period]
   )
+  const weekdays = copy.calendar.weekdays
   const periodLabels: Record<PerformancePeriod, string> = {
     week: copy.dashboard.byWeek,
     month: copy.dashboard.byMonth,
+    weekday: copy.dashboard.byWeekday,
+    monthWeek: copy.dashboard.byMonthWeek,
+    yearMonth: copy.dashboard.byYearMonth,
   }
 
   return (
     <Card size="sm" className="h-full min-h-[240px] gap-0 py-0">
       <CardHeader className="shrink-0 border-b border-border py-2">
-        <div className="flex flex-wrap items-center justify-between gap-1.5">
+        <div className="flex flex-col gap-1.5">
           <CardTitle>{copy.dashboard.performance}</CardTitle>
           <SegmentedControl
             size="sm"
@@ -139,7 +161,8 @@ export function PerformanceBars({
                   tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
                   tickLine={false}
                   axisLine={false}
-                  tickFormatter={(_, index) => tickLabel(candles[index]!)}
+                  interval={0}
+                  tickFormatter={(_, index) => tickLabel(candles[index]!, weekdays)}
                 />
                 <YAxis
                   tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
@@ -155,6 +178,7 @@ export function PerformanceBars({
                       currency={currency}
                       language={language}
                       weekWord={copy.dashboard.byWeek}
+                      weekdays={weekdays}
                     />
                   }
                 />
