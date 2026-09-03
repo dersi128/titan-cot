@@ -1,8 +1,9 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useMemo, useState, type ReactNode } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { Hash, Percent, Scale, Sigma, Trash2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -26,24 +27,78 @@ import { PageFrame, PageHeader } from "@/components/layout/page-header"
 import { useScopedTrades } from "@/components/layout/use-scoped-trades"
 import { useWorkspace } from "@/components/layout/workspace-provider"
 import { ResultR } from "@/components/trades/result-r"
-import { DirectionBadge } from "@/components/trades/trade-badges"
+import {
+  DirectionBadge,
+  OutcomeBadge,
+  StatusBadge,
+} from "@/components/trades/trade-badges"
 import { tradeRowProps } from "@/components/trades/trade-row"
-import { formatDate, formatSignedUsd, signedClassName } from "@/lib/format"
+import { accountEdge } from "@/lib/analytics"
+import {
+  formatDate,
+  formatNumber,
+  formatPercent,
+  formatSignedR,
+  formatSignedUsd,
+  signedClassName,
+} from "@/lib/format"
+import { formatRRR } from "@/lib/trade-calculations"
 import { useLabels } from "@/lib/use-labels"
-import type { Copy } from "@/lib/labels"
+import { cn } from "@/lib/utils"
 import {
   EMPTY_TRADE_FILTERS,
   filterTrades,
   type ResultFilter,
   type TradeFilters,
 } from "@/lib/trade-filters"
-import { TRADE_DIRECTIONS } from "@/types/trade"
+import { TRADE_DIRECTIONS, type Trade } from "@/types/trade"
 
-function outcomeLabel(resultR: number | null, copy: Copy) {
-  if (resultR == null) return "—"
-  if (resultR > 0) return copy.outcome.win
-  if (resultR < 0) return copy.outcome.loss
-  return copy.outcome.be
+function avgPlannedRrr(trades: Trade[]): number | null {
+  const values = trades
+    .map((trade) => trade.plannedRRR)
+    .filter((value): value is number => value != null && Number.isFinite(value))
+  if (values.length === 0) return null
+  return Math.round((values.reduce((sum, value) => sum + value, 0) / values.length) * 100) / 100
+}
+
+function filtersActive(filters: TradeFilters) {
+  return (
+    filters.query !== "" ||
+    filters.playbookId !== "ALL" ||
+    filters.direction !== "ALL" ||
+    filters.result !== "ALL" ||
+    filters.dateFrom !== "" ||
+    filters.dateTo !== ""
+  )
+}
+
+function Stat({
+  label,
+  value,
+  icon,
+  valueClassName,
+}: {
+  label: string
+  value: string
+  icon: ReactNode
+  valueClassName?: string
+}) {
+  return (
+    <article className="titan-kpi rounded-[10px] px-3 py-2.5">
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-[11px] text-muted-foreground">{label}</p>
+        {icon}
+      </div>
+      <p
+        className={cn(
+          "mt-1 font-mono text-[16px] font-medium tabular-nums",
+          valueClassName
+        )}
+      >
+        {value}
+      </p>
+    </article>
+  )
 }
 
 export function JournalPage() {
@@ -55,6 +110,12 @@ export function JournalPage() {
   const visible = useMemo(
     () => filterTrades(accountTrades, filters),
     [accountTrades, filters]
+  )
+  const stats = useMemo(() => accountEdge(visible), [visible])
+  const planned = useMemo(() => avgPlannedRrr(visible), [visible])
+  const playbookNames = useMemo(
+    () => Object.fromEntries(playbooks.map((item) => [item.id, item.name])),
+    [playbooks]
   )
 
   return (
@@ -69,7 +130,42 @@ export function JournalPage() {
         }
       />
 
-      <div className="mb-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-6">
+      <div className="mb-4 grid grid-cols-2 gap-2 lg:grid-cols-6">
+        <Stat
+          label={copy.analytics.tradeCount}
+          value={String(stats.trades)}
+          icon={<Hash className="size-3.5 text-muted-foreground" />}
+        />
+        <Stat
+          label={copy.dashboard.averageR}
+          value={formatSignedR(stats.averageR)}
+          valueClassName={signedClassName(stats.averageR)}
+          icon={<Sigma className="size-3.5 text-muted-foreground" />}
+        />
+        <Stat
+          label={copy.dashboard.winRate}
+          value={formatPercent(stats.winRate)}
+          icon={<Percent className="size-3.5 text-muted-foreground" />}
+        />
+        <Stat
+          label={copy.dashboard.profitFactor}
+          value={formatNumber(stats.profitFactor)}
+          icon={<Scale className="size-3.5 text-muted-foreground" />}
+        />
+        <Stat
+          label={copy.dashboard.netPnl}
+          value={formatSignedUsd(stats.netPnl)}
+          valueClassName={signedClassName(stats.netPnl)}
+          icon={<Sigma className="size-3.5 text-muted-foreground" />}
+        />
+        <Stat
+          label={copy.journal.averageRrr}
+          value={planned == null ? "—" : formatRRR(planned)}
+          icon={<Scale className="size-3.5 text-muted-foreground" />}
+        />
+      </div>
+
+      <div className="mb-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-7">
         <Input
           type="date"
           value={filters.dateFrom}
@@ -151,6 +247,18 @@ export function JournalPage() {
             <SelectItem value="BE">{copy.outcome.be}</SelectItem>
           </SelectContent>
         </Select>
+        {filtersActive(filters) ? (
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => setFilters(EMPTY_TRADE_FILTERS)}
+          >
+            <Trash2 className="size-3.5" />
+            {copy.journal.clearFilters}
+          </Button>
+        ) : (
+          <div className="hidden lg:block" />
+        )}
       </div>
 
       {!isReady ? (
@@ -167,13 +275,14 @@ export function JournalPage() {
                 <TableHead>{copy.journal.result}</TableHead>
                 <TableHead>{copy.journal.r}</TableHead>
                 <TableHead>{copy.journal.pnl}</TableHead>
+                <TableHead>{copy.journal.status}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {visible.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={7}
+                    colSpan={8}
                     className="h-24 text-center text-muted-foreground"
                   >
                     {copy.journal.empty}
@@ -189,13 +298,20 @@ export function JournalPage() {
                     <TableCell>
                       <DirectionBadge direction={trade.direction} />
                     </TableCell>
-                    <TableCell>{trade.strategy}</TableCell>
-                    <TableCell>{outcomeLabel(trade.resultR, copy)}</TableCell>
+                    <TableCell>
+                      {playbookNames[trade.playbookId] ?? trade.strategy}
+                    </TableCell>
+                    <TableCell>
+                      <OutcomeBadge resultR={trade.resultR} />
+                    </TableCell>
                     <TableCell>
                       <ResultR value={trade.resultR} />
                     </TableCell>
                     <TableCell className={signedClassName(trade.pnl)}>
                       {formatSignedUsd(trade.pnl)}
+                    </TableCell>
+                    <TableCell>
+                      <StatusBadge status={trade.status} />
                     </TableCell>
                   </TableRow>
                 ))

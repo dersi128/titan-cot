@@ -136,8 +136,8 @@ export const copyEn = {
 
   journal: {
     title: "Journal",
-    description: "Trades on the selected account. Click a row for the full record.",
-    searchSymbol: "Search symbol",
+    description: "Complete overview of your trades.",
+    searchSymbol: "Search symbol or note",
     allPlaybooks: "All playbooks",
     allDirections: "All directions",
     allResults: "All results",
@@ -151,6 +151,9 @@ export const copyEn = {
     pnl: "PnL",
     dateFrom: "From",
     dateTo: "To",
+    clearFilters: "Clear filters",
+    status: "Status",
+    averageRrr: "Avg RRR",
   },
 
   detail: {
@@ -195,6 +198,12 @@ export const copyEn = {
     editTitle: "Edit Trade",
     description: "Log the trade. Keep it fast.",
     editDescription: "Fix a mistake. Keep the record accurate.",
+    clear: "Clear form",
+    basics: "Basics",
+    plan: "Trade plan",
+    screenshotHint: "Drop a PNG or JPG here, or click to choose.",
+    potential: "Potential",
+    noteLimit: "{n} / 1000",
     symbol: "Symbol",
     direction: "Direction",
     entry: "Entry",
@@ -253,7 +262,7 @@ export const copyEn = {
 
   playbook: {
     title: "Playbook",
-    description: "Your strategies. The form follows the playbook you pick.",
+    description: "Your strategies and repeatable setups.",
     new: "Create Playbook",
     name: "Name",
     descriptionLabel: "Description",
@@ -276,6 +285,10 @@ export const copyEn = {
     moveDown: "Move down",
     removeField: "Remove",
     edit: "Edit",
+    search: "Search playbook…",
+    active: "Active",
+    all: "All playbooks",
+    topMarkets: "Most traded",
     types: {
       select: "Select",
       yes_no: "Yes / No",
@@ -469,8 +482,8 @@ export const copyCs: Copy = {
 
   journal: {
     title: "Deník",
-    description: "Obchody na vybraném účtu. Klikni na řádek pro celý záznam.",
-    searchSymbol: "Hledat symbol",
+    description: "Kompletní přehled všech tvých obchodů.",
+    searchSymbol: "Hledat symbol nebo poznámku",
     allPlaybooks: "Všechny playbooky",
     allDirections: "Všechny směry",
     allResults: "Všechny výsledky",
@@ -484,6 +497,9 @@ export const copyCs: Copy = {
     pnl: "PnL",
     dateFrom: "Od",
     dateTo: "Do",
+    clearFilters: "Vymazat filtry",
+    status: "Stav",
+    averageRrr: "Průměrné RRR",
   },
 
   detail: {
@@ -528,6 +544,12 @@ export const copyCs: Copy = {
     editTitle: "Upravit obchod",
     description: "Zapiš obchod. Rychle a bez zbytečností.",
     editDescription: "Oprav chybu. Záznam ať sedí.",
+    clear: "Vymazat formulář",
+    basics: "Základní údaje",
+    plan: "Trade plán",
+    screenshotHint: "Přetáhni PNG nebo JPG, nebo klikni pro výběr.",
+    potential: "Potenciál",
+    noteLimit: "{n} / 1000",
     symbol: "Symbol",
     direction: "Směr",
     entry: "Entry",
@@ -586,7 +608,7 @@ export const copyCs: Copy = {
 
   playbook: {
     title: "Playbook",
-    description: "Tvoje strategie. Formulář se přizpůsobí vybranému playbooku.",
+    description: "Tvoje strategie a opakovatelné setupy.",
     new: "Nový playbook",
     name: "Název",
     descriptionLabel: "Popis",
@@ -609,6 +631,10 @@ export const copyCs: Copy = {
     moveDown: "Dolů",
     removeField: "Odebrat",
     edit: "Upravit",
+    search: "Hledat playbook…",
+    active: "Aktivní",
+    all: "Všechny playbooky",
+    topMarkets: "Nejčastější trhy",
     types: {
       select: "Výběr",
       yes_no: "Ano / Ne",
