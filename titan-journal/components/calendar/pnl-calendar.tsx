@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { formatSignedR, signedClassName } from "@/lib/format"
+import { formatSignedMoney, signedClassName } from "@/lib/format"
 import { todayIsoDate } from "@/lib/locale"
 import {
   formatMonthTitle,
@@ -22,12 +22,14 @@ export function PnlCalendar({
   onCursor,
   selectedDate,
   onSelect,
+  currency,
 }: {
   calendar: MonthCalendar
   cursor: MonthCursor
   onCursor: (cursor: MonthCursor) => void
   selectedDate: string | null
   onSelect: (date: string) => void
+  currency: string
 }) {
   const { copy, language } = useLabels()
   const today = todayIsoDate()
@@ -112,7 +114,7 @@ export function PnlCalendar({
                   type="button"
                   onClick={() => pickDay(day.date, day.inMonth)}
                   className={cn(
-                    "relative flex min-h-[68px] flex-col items-center px-1 pt-1.5 pb-2 text-center",
+                    "relative flex min-h-[88px] flex-col items-stretch px-1.5 pt-1.5 pb-1.5 text-left",
                     col < 6 && "border-r border-border",
                     !lastRow && "border-b border-border",
                     day.inMonth ? "hover:bg-muted/35" : "bg-muted/10",
@@ -130,20 +132,31 @@ export function PnlCalendar({
                   >
                     {day.day}
                   </span>
-                  <span className="mt-auto flex min-h-[1.25rem] items-end justify-center pb-0.5">
-                    {day.inMonth && day.trades > 0 ? (
+                  {day.trades > 0 ? (
+                    <span
+                      className={cn(
+                        "mt-auto w-full rounded-[8px] px-1.5 py-1",
+                        day.pnl > 0 && "bg-bull/15",
+                        day.pnl < 0 && "bg-bear/15",
+                        day.pnl === 0 && "bg-muted/70",
+                        !day.inMonth && "opacity-50"
+                      )}
+                    >
                       <span
                         className={cn(
-                          "max-w-full truncate font-mono text-[11px] leading-none tabular-nums",
-                          signedClassName(day.totalR)
+                          "block truncate font-mono text-[11px] font-medium leading-tight tabular-nums",
+                          signedClassName(day.pnl)
                         )}
                       >
-                        {formatSignedR(day.totalR)}
+                        {formatSignedMoney(day.pnl, currency)}
                       </span>
-                    ) : day.inMonth ? (
-                      <span className="mb-0.5 size-1.5 rounded-full bg-muted-foreground/35" />
-                    ) : null}
-                  </span>
+                      <span className="mt-0.5 block truncate text-[10px] leading-tight text-muted-foreground">
+                        {copy.calendar.dayTrades.replace("{n}", String(day.trades))}
+                      </span>
+                    </span>
+                  ) : day.inMonth ? (
+                    <span className="mt-auto mb-1 size-1.5 self-center rounded-full bg-muted-foreground/35" />
+                  ) : null}
                 </button>
               )
             })}

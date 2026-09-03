@@ -149,6 +149,7 @@ export const copyEn = {
     week: "Week {n}",
     avgPerDay: "avg {n}/day",
     totalResult: "Total result",
+    dayTrades: "Trades: {n}",
   },
 
   journal: {
@@ -529,6 +530,7 @@ export const copyCs: Copy = {
     week: "Týden {n}",
     avgPerDay: "prům. {n}/den",
     totalResult: "Celkový výsledek",
+    dayTrades: "Obchody: {n}",
   },
 
   journal: {

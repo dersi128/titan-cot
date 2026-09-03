@@ -252,6 +252,7 @@ export function CalendarPage() {
                 onCursor={setCursor}
                 selectedDate={selectedDate}
                 onSelect={setSelectedDate}
+                currency={profile.currency}
               />
               <div className="flex min-w-0 flex-col gap-2">
                 <div className="grid grid-cols-2 gap-2">
