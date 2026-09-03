@@ -6,10 +6,12 @@ import { Field, MultiPills } from "@/components/forms/field"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
 import { useWorkspace } from "@/components/layout/workspace-provider"
 import { AvatarBubble } from "@/components/profile/avatar-bubble"
+import { SaveButton } from "@/components/forms/save-button"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { readAvatarFile } from "@/lib/avatar"
+import { isDirty } from "@/lib/dirty"
 import { ACCOUNT_LABELS, copy } from "@/lib/labels"
 import { ACCOUNTS } from "@/types/trade"
 import { TRADING_MARKETS, type UserProfile } from "@/types/playbook"
@@ -33,6 +35,8 @@ export function ProfilePage() {
       updatePreferences({ defaultRisk: riskPercent })
     }
   }
+
+  const dirty = isDirty(draft, profile)
 
   async function handleAvatar(file: File | undefined) {
     if (!file) return
@@ -158,9 +162,9 @@ export function ProfilePage() {
           </Field>
         </div>
 
-        <Button type="button" onClick={save}>
+        <SaveButton type="button" dirty={dirty} onClick={save}>
           {copy.profile.save}
-        </Button>
+        </SaveButton>
       </div>
     </PageFrame>
   )

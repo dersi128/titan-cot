@@ -71,6 +71,32 @@
   }
 }
 
+@keyframes titan-save-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary) 0%, transparent);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--primary) 45%, transparent),
+      0 0 18px 2px color-mix(in srgb, var(--primary) 42%, transparent);
+  }
+}
+
+@keyframes titan-save-flash {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--bull) 0%, transparent);
+  }
+  35% {
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--bull) 50%, transparent),
+      0 0 16px 2px color-mix(in srgb, var(--bull) 35%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
 /* Slate is the default TITAN identity. */
 :root,
 [data-theme="slate"] {
@@ -468,6 +494,35 @@ html[data-density="large"] {
 
   .animate-fade-up {
     animation: var(--animate-fade-up);
+  }
+
+  .titan-save {
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease,
+      box-shadow 0.2s ease,
+      opacity 0.2s ease;
+  }
+
+  .titan-save--dirty {
+    animation: titan-save-glow 1.8s ease-in-out infinite;
+  }
+
+  .titan-save--flash {
+    animation: titan-save-flash 0.9s ease-out;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .titan-save--dirty,
+    .titan-save--flash {
+      animation: none;
+    }
+
+    .titan-save--dirty {
+      box-shadow:
+        0 0 0 1px color-mix(in srgb, var(--primary) 45%, transparent),
+        0 0 12px color-mix(in srgb, var(--primary) 28%, transparent);
+    }
   }
 
   [data-density="compact"] [data-slot="table-head"],

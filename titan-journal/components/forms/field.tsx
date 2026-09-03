@@ -25,9 +25,9 @@ export function Field({
 
 function pillClass(selected: boolean) {
   return cn(
-    "h-[length:var(--ui-control)] rounded-[8px] border px-2.5 text-[12px] font-medium transition-colors",
+    "h-[length:var(--ui-control)] rounded-[8px] border px-2.5 text-[12px] font-medium transition-[color,background-color,border-color,box-shadow,transform] duration-200",
     selected
-      ? "border-primary/40 bg-primary/10 text-primary"
+      ? "border-primary/40 bg-primary/10 text-primary shadow-[0_0_12px_color-mix(in_srgb,var(--primary)_22%,transparent)]"
       : "border-border text-muted-foreground hover:border-primary/30 hover:text-foreground"
   )
 }

@@ -2,14 +2,16 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useRef, useState } from "react"
 
 import { Field } from "@/components/forms/field"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
 import { useWorkspace } from "@/components/layout/workspace-provider"
+import { SaveButton } from "@/components/forms/save-button"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { isDirty } from "@/lib/dirty"
 import { copy } from "@/lib/labels"
 import {
   emptyField,
@@ -26,7 +28,9 @@ export function PlaybookEditor({ playbook }: { playbook?: Playbook }) {
   const [draft, setDraft] = useState<Playbook>(
     () => playbook ?? emptyPlaybook()
   )
+  const baseline = useRef(draft)
   const [error, setError] = useState<string | null>(null)
+  const dirty = isDirty(draft, baseline.current)
 
   function updateField(id: string, patch: Partial<Playbook["fields"][number]>) {
     setDraft((current) => ({
@@ -244,9 +248,9 @@ export function PlaybookEditor({ playbook }: { playbook?: Playbook }) {
 
         {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
-        <Button type="button" onClick={handleSave}>
+        <SaveButton type="button" dirty={dirty} onClick={handleSave}>
           {copy.playbook.save}
-        </Button>
+        </SaveButton>
       </div>
     </PageFrame>
   )

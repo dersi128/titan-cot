@@ -35,12 +35,12 @@ export function SegmentedControl<T extends string>({
             onClick={() => onChange(option)}
             aria-pressed={selected}
             className={cn(
-              "rounded-[6px] font-medium transition-colors",
+              "rounded-[6px] font-medium transition-[color,background-color,box-shadow] duration-200",
               size === "sm"
                 ? "h-6 px-2 text-[11px]"
                 : "h-7 px-2.5 text-[12px]",
               selected
-                ? "bg-primary/15 text-foreground"
+                ? "bg-primary/15 text-foreground shadow-[0_0_10px_color-mix(in_srgb,var(--primary)_18%,transparent)]"
                 : "text-muted-foreground hover:text-foreground"
             )}
           >
