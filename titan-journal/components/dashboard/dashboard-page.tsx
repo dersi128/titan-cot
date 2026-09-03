@@ -91,19 +91,21 @@ export function DashboardPage() {
             />
             <KpiCards stats={stats} dense />
             <div className="grid min-h-0 flex-1 grid-cols-1 gap-2 lg:grid-cols-[minmax(0,1.65fr)_minmax(260px,0.9fr)] lg:grid-rows-[minmax(0,1fr)] lg:overflow-hidden">
-              <div className="grid min-h-[200px] gap-2 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1.15fr)_minmax(240px,0.9fr)] lg:grid-rows-[minmax(0,1.15fr)_minmax(128px,0.85fr)] lg:overflow-hidden">
-                <div className="min-h-[140px] lg:col-start-1 lg:row-start-1 lg:min-h-0 lg:overflow-hidden">
-                  <EquityCurve data={equity} fill />
+              <div className="grid min-h-0 gap-2 lg:h-full lg:grid-cols-[minmax(0,1.15fr)_minmax(240px,0.9fr)] lg:overflow-hidden">
+                <div className="flex min-h-0 flex-col gap-2 lg:h-full lg:overflow-hidden">
+                  <div className="min-h-[160px] flex-1 overflow-hidden">
+                    <EquityCurve data={equity} fill />
+                  </div>
+                  <div className="h-[220px] shrink-0">
+                    <PerformanceCandles
+                      trades={trades}
+                      startCapital={capital}
+                      currency={profile.currency}
+                      fill
+                    />
+                  </div>
                 </div>
-                <div className="min-h-[140px] lg:col-start-1 lg:row-start-2 lg:min-h-0 lg:overflow-hidden">
-                  <PerformanceCandles
-                    trades={trades}
-                    startCapital={capital}
-                    currency={profile.currency}
-                    fill
-                  />
-                </div>
-                <div className="min-h-[160px] lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:min-h-0 lg:overflow-hidden">
+                <div className="min-h-[160px] lg:h-full lg:min-h-0 lg:overflow-hidden">
                   <MarketDistribution
                     trades={trades}
                     currency={profile.currency}

@@ -290,7 +290,7 @@ export function PerformanceCandles({
             {copy.dashboard.performanceEmpty}
           </p>
         ) : (
-          <div className={fill ? "min-h-[140px] flex-1 lg:min-h-0" : "h-52"}>
+          <div className={fill ? "min-h-[120px] flex-1" : "h-52"}>
             <ResponsiveContainer width="100%" height="100%">
               <CandlePlot
                 data={candles}
