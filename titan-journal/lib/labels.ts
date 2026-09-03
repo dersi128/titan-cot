@@ -81,6 +81,8 @@ export const copyEn = {
     description: "Daily profit and loss for the selected account.",
     previousMonth: "Previous month",
     nextMonth: "Next month",
+    openTrade: "Open trade",
+    openTrades: "Open trades",
     weekdays: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
   },
 
@@ -333,6 +335,8 @@ export const copyCs: Copy = {
     description: "Denní zisk a ztráta vybraného účtu.",
     previousMonth: "Předchozí měsíc",
     nextMonth: "Další měsíc",
+    openTrade: "Otevřít obchod",
+    openTrades: "Otevřít obchody",
     weekdays: ["Po", "Út", "St", "Čt", "Pá", "So", "Ne"],
   },
 

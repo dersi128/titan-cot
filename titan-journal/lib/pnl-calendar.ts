@@ -11,6 +11,12 @@ export type MonthCursor = {
   month: number
 }
 
+export type CalendarDayTrade = {
+  id: string
+  symbol: string
+  pnl: number
+}
+
 export type CalendarDay = {
   date: string
   day: number
@@ -18,6 +24,7 @@ export type CalendarDay = {
   pnl: number
   totalR: number
   trades: number
+  items: CalendarDayTrade[]
 }
 
 export type MonthCalendar = MonthCursor & {
@@ -31,7 +38,7 @@ export type MonthCalendar = MonthCursor & {
 type DayBucket = {
   pnl: number
   totalR: number
-  trades: number
+  items: CalendarDayTrade[]
 }
 
 export function monthKey(year: number, month: number): string {
@@ -86,8 +93,12 @@ function bucketsFor(trades: Trade[]): Map<string, DayBucket> {
     const parsed = parseIsoDate(trade.date)
     if (!parsed) continue
     const date = padDate(parsed.year, parsed.month, parsed.day)
-    const bucket = buckets.get(date) ?? { pnl: 0, totalR: 0, trades: 0 }
-    bucket.trades += 1
+    const bucket = buckets.get(date) ?? { pnl: 0, totalR: 0, items: [] }
+    bucket.items.push({
+      id: trade.id,
+      symbol: trade.symbol,
+      pnl: trade.pnl != null && Number.isFinite(trade.pnl) ? trade.pnl : 0,
+    })
     bucket.totalR += trade.resultR
     if (trade.pnl != null && Number.isFinite(trade.pnl)) {
       bucket.pnl += trade.pnl
@@ -143,13 +154,15 @@ export function buildMonthCalendar(
     const cellDay = cell.getUTCDate()
     const date = padDate(cellYear, cellMonth, cellDay)
     const bucket = buckets.get(date)
+    const items = bucket?.items ?? []
     days.push({
       date,
       day: cellDay,
       inMonth: cellYear === year && cellMonth === month,
       pnl: roundMoney(bucket?.pnl ?? 0),
       totalR: roundMoney(bucket?.totalR ?? 0),
-      trades: bucket?.trades ?? 0,
+      trades: items.length,
+      items,
     })
   }
 
@@ -172,4 +185,9 @@ export function buildMonthCalendar(
     totalR: roundMoney(totalR),
     tradeCount,
   }
+}
+
+export function calendarDayHref(day: Pick<CalendarDay, "items" | "inMonth">): string | null {
+  if (!day.inMonth || day.items.length !== 1) return null
+  return `/journal/${day.items[0].id}`
 }
