@@ -12,18 +12,33 @@ import { Button } from "@/components/ui/button"
 import {
   backupFilename,
   buildJournalBackup,
-  parseJournalBackup,
 } from "@/lib/journal-backup"
+import {
+  materializeImportedTrades,
+  parseImportText,
+  type ImportContext,
+} from "@/lib/trade-import"
 import { useLabels } from "@/lib/use-labels"
 import { ACCOUNTS } from "@/types/trade"
 import { THEMES, type Density, type JournalMode, type ThemeId } from "@/types/playbook"
 
 function BackupSection() {
-  const { copy } = useLabels()
+  const { copy, ACCOUNT_LABELS } = useLabels()
   const { trades, replaceAll } = useTrades()
   const { profile, preferences, playbooks, replaceWorkspace } = useWorkspace()
   const inputRef = useRef<HTMLInputElement>(null)
-  const [status, setStatus] = useState<"idle" | "ok" | "bad">("idle")
+  const [status, setStatus] = useState<"idle" | "ok" | "added" | "bad">("idle")
+  const [addedCount, setAddedCount] = useState(0)
+
+  const importContext: ImportContext = {
+    account: preferences.defaultAccount,
+    riskPercent: profile.riskPercent,
+    capital: profile.capital[preferences.defaultAccount] ?? 0,
+    playbookId: preferences.defaultPlaybookId,
+    playbookName:
+      playbooks.find((item) => item.id === preferences.defaultPlaybookId)?.name ??
+      "Swing",
+  }
 
   function exportJournal() {
     const backup = buildJournalBackup({
@@ -47,19 +62,32 @@ function BackupSection() {
   async function importJournal(file: File | undefined) {
     if (!file) return
     try {
-      const parsed = parseJournalBackup(JSON.parse(await file.text()))
-      if (!parsed) {
-        setStatus("bad")
+      const parsed = parseImportText(await file.text(), importContext)
+      if (parsed.kind === "backup") {
+        if (!window.confirm(copy.settings.importReplace)) return
+        replaceAll(parsed.backup.trades)
+        replaceWorkspace({
+          profile: parsed.backup.profile,
+          preferences: parsed.backup.preferences,
+          playbooks: parsed.backup.playbooks,
+        })
+        setStatus("ok")
         return
       }
-      if (!window.confirm(copy.settings.importReplace)) return
-      replaceAll(parsed.trades)
-      replaceWorkspace({
-        profile: parsed.profile,
-        preferences: parsed.preferences,
-        playbooks: parsed.playbooks,
-      })
-      setStatus("ok")
+      if (parsed.kind === "broker" && parsed.trades.length > 0) {
+        const accountLabel = ACCOUNT_LABELS[importContext.account]
+        const ok = window.confirm(
+          copy.settings.importBrokerConfirm
+            .replace("{n}", String(parsed.trades.length))
+            .replace("{account}", accountLabel)
+        )
+        if (!ok) return
+        replaceAll([...materializeImportedTrades(parsed.trades), ...trades])
+        setAddedCount(parsed.trades.length)
+        setStatus("added")
+        return
+      }
+      setStatus("bad")
     } catch {
       setStatus("bad")
     }
@@ -84,7 +112,7 @@ function BackupSection() {
         <input
           ref={inputRef}
           type="file"
-          accept="application/json,.json"
+          accept="application/json,.json,text/csv,.csv"
           className="hidden"
           onChange={(event) => {
             const file = event.target.files?.[0]
@@ -95,6 +123,11 @@ function BackupSection() {
       </div>
       {status === "ok" ? (
         <p className="text-[12px] text-bull">{copy.settings.importOk}</p>
+      ) : null}
+      {status === "added" ? (
+        <p className="text-[12px] text-bull">
+          {copy.settings.importAdded.replace("{n}", String(addedCount))}
+        </p>
       ) : null}
       {status === "bad" ? (
         <p className="text-[12px] text-bear">{copy.settings.importBad}</p>
