@@ -121,4 +121,23 @@ describe("strategy edge", () => {
     )
     expect(accountEdge(trades).edge).toBe("no")
   })
+
+  it("measures max drawdown in R from the equity peak", () => {
+    const stats = accountEdge([
+      trade({ id: "1", date: "2026-01-01", resultR: 1, pnl: 100 }),
+      trade({ id: "2", date: "2026-01-02", resultR: 1, pnl: 100 }),
+      trade({ id: "3", date: "2026-01-03", resultR: -3, pnl: -300 }),
+    ])
+    expect(stats.maxDrawdownR).toBe(-3)
+    expect(stats.averageR).toBeCloseTo(-0.33)
+  })
+
+  it("has no drawdown when every trade is a winner", () => {
+    expect(
+      accountEdge([
+        trade({ id: "1", date: "2026-01-01", resultR: 1, pnl: 100 }),
+        trade({ id: "2", date: "2026-01-02", resultR: 2, pnl: 200 }),
+      ]).maxDrawdownR
+    ).toBe(0)
+  })
 })

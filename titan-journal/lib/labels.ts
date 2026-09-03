@@ -235,6 +235,8 @@ export const copyEn = {
     payoff: "Payoff",
     avgWin: "Avg win",
     avgLoss: "Avg loss",
+    perTrade: "per trade",
+    profitFactor: "PF",
   },
 
   playbook: {
@@ -554,6 +556,8 @@ export const copyCs: Copy = {
     payoff: "Payoff",
     avgWin: "Průměrný zisk",
     avgLoss: "Průměrná ztráta",
+    perTrade: "na obchod",
+    profitFactor: "PF",
   },
 
   playbook: {
