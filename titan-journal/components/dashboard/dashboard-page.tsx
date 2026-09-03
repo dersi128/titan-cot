@@ -96,11 +96,7 @@ export function DashboardPage() {
               <MarketDistribution trades={trades} currency={profile.currency} />
             </div>
             <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
-              <PerformanceBars
-                trades={trades}
-                startCapital={capital}
-                currency={profile.currency}
-              />
+              <PerformanceBars trades={trades} currency={profile.currency} />
               <RecentTrades trades={trades} />
             </div>
             <SnapshotRow snapshots={snapshots} currency={profile.currency} />

@@ -24,11 +24,11 @@ describe("account scope", () => {
   it("applies a date range after the account filter", () => {
     const scoped = filterTradesByScope(
       MOCK_TRADES,
-      { account: "Personal", range: "7D" },
+      { account: "Personal", range: "30D" },
       new Date("2026-09-02T12:00:00")
     )
     expect(scoped.every((trade) => trade.account === "Personal")).toBe(true)
-    expect(scoped.every((trade) => trade.date >= "2026-08-26")).toBe(true)
+    expect(scoped.every((trade) => trade.date >= "2026-08-03")).toBe(true)
     expect(scoped.length).toBeLessThan(
       filterTradesByAccount(MOCK_TRADES, "Personal").length
     )

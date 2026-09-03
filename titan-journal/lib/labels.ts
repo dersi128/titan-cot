@@ -82,12 +82,12 @@ export const copyEn = {
     maxDrawdown: "Max Drawdown",
     hello: "Hi, {name}",
     overview: {
-      "7D": "Here is your overview for the last 7 days.",
       "30D": "Here is your overview for the last 30 days.",
       "3M": "Here is your overview for the last 3 months.",
-      "1Y": "Here is your overview for the last year.",
+      "6M": "Here is your overview for the last 6 months.",
       YTD: "Here is your overview for this year.",
       ALL: "Here is your overview for all time.",
+      CUSTOM: "Here is your overview for the selected dates.",
     },
     viewAllTrades: "View all trades",
     profitVsLoss: "Profit vs Loss",
@@ -104,7 +104,7 @@ export const copyEn = {
     marketDistribution: "Market Distribution",
     marketDistributionEmpty: "No trades to distribute yet.",
     byTrades: "By Trades",
-    byR: "By R",
+    byR: "R",
     byPnl: "By PnL",
     totalTradesLabel: "Total Trades",
     equity: "Equity",
@@ -120,18 +120,8 @@ export const copyEn = {
     result: "Result",
     r: "R",
     pnl: "PnL",
-    performance: "Performance by period",
-    performanceEmpty: "Not enough data to show performance by period.",
-    byWeek: "Week",
-    byMonth: "Month",
-    byWeekday: "Days of week",
-    byMonthWeek: "Weeks in month",
-    byYearMonth: "Months in year",
-    candleOpen: "Open",
-    candleHigh: "High",
-    candleLow: "Low",
-    candleClose: "Close",
-    change: "Change",
+    performance: "Performance over time",
+    performanceEmpty: "Not enough data to show performance over time.",
   },
 
   calendar: {
@@ -394,12 +384,12 @@ export const copyCs: Copy = {
     maxDrawdown: "Max Drawdown",
     hello: "Ahoj, {name}",
     overview: {
-      "7D": "Zde je tvůj přehled za posledních 7 dní.",
       "30D": "Zde je tvůj přehled za posledních 30 dní.",
       "3M": "Zde je tvůj přehled za poslední 3 měsíce.",
-      "1Y": "Zde je tvůj přehled za poslední rok.",
+      "6M": "Zde je tvůj přehled za posledních 6 měsíců.",
       YTD: "Zde je tvůj přehled od začátku roku.",
       ALL: "Zde je tvůj přehled za celé období.",
+      CUSTOM: "Zde je tvůj přehled za vybrané období.",
     },
     viewAllTrades: "Zobrazit všechny obchody",
     profitVsLoss: "Zisk vs. ztráta",
@@ -432,18 +422,8 @@ export const copyCs: Copy = {
     result: "Výsledek",
     r: "R",
     pnl: "PnL",
-    performance: "Výkon za období",
-    performanceEmpty: "Zatím není dostatek dat pro zobrazení výkonu za období.",
-    byWeek: "Týden",
-    byMonth: "Měsíc",
-    byWeekday: "Dny v týdnu",
-    byMonthWeek: "Týdny v měsíci",
-    byYearMonth: "Měsíce v roce",
-    candleOpen: "Open",
-    candleHigh: "High",
-    candleLow: "Low",
-    candleClose: "Close",
-    change: "Změna",
+    performance: "Výkon v čase",
+    performanceEmpty: "Zatím není dostatek dat pro zobrazení výkonu v čase.",
   },
 
   calendar: {
@@ -795,21 +775,21 @@ export const YES_NO_LABELS_CS = {
 }
 
 export const DATE_RANGE_LABELS_EN: Record<DateRange, string> = {
-  "7D": "7D",
   "30D": "30D",
   "3M": "3M",
-  "1Y": "1Y",
+  "6M": "6M",
   YTD: "YTD",
   ALL: "All",
+  CUSTOM: "Custom",
 }
 
 export const DATE_RANGE_LABELS_CS: Record<DateRange, string> = {
-  "7D": "7D",
   "30D": "30D",
   "3M": "3M",
-  "1Y": "1Y",
+  "6M": "6M",
   YTD: "YTD",
   ALL: "Vše",
+  CUSTOM: "Vlastní",
 }
 
 export type Labels = {
