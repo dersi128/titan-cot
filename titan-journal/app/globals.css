@@ -425,6 +425,10 @@ html[data-density="large"] {
     filter: drop-shadow(0 0 14px color-mix(in srgb, var(--primary) 32%, transparent));
   }
 
+  html[data-theme="light"] .titan-logo-lockup {
+    filter: drop-shadow(0 6px 14px color-mix(in srgb, var(--foreground) 14%, transparent));
+  }
+
   .titan-nav {
     display: flex;
     flex-direction: column;
