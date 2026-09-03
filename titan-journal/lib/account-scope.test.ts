@@ -5,6 +5,7 @@ import {
   dollarsPerR,
   filterTradesByAccount,
   filterTradesByScope,
+  realizedResultFromInputs,
   suggestedPnl,
 } from "@/lib/account-scope"
 import { MOCK_TRADES } from "@/lib/mock-data"
@@ -42,5 +43,19 @@ describe("account scope", () => {
     expect(
       capitalForAccount(DEFAULT_PROFILE.capital, "Backtesting")
     ).toBe(100_000)
+  })
+
+  it("closes a new trade when R is filled", () => {
+    expect(realizedResultFromInputs("", "", 10_000, 1)).toBeNull()
+    expect(realizedResultFromInputs("2", "", 10_000, 1)).toEqual({
+      status: "CLOSED",
+      resultR: 2,
+      pnl: 200,
+    })
+    expect(realizedResultFromInputs("-1", "-80", 10_000, 1)).toEqual({
+      status: "CLOSED",
+      resultR: -1,
+      pnl: -80,
+    })
   })
 })

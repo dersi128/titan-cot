@@ -33,6 +33,8 @@ describe("CZ/EN dictionaries", () => {
     expect(labelsFor("en").copy.sidebar.motto).toBe("Discipline creates freedom.")
     expect(labelsFor("cs").copy.sidebar.themes.gold).toBe("Modro-zlatý")
     expect(labelsFor("cs").copy.calendar.openTrade).toBe("Otevřít obchod")
+    expect(labelsFor("cs").copy.calendar.today).toBe("Dnes")
+    expect(labelsFor("en").copy.form.resultHint).toContain("closed")
     expect(labelsFor("cs").copy.dashboard.performance).toBe("Výkon v čase")
     expect(labelsFor("en").copy.dashboard.performance).toBe("Performance over time")
     expect(labelsFor("cs").copy.settings.exportJournal).toBe("Export")
