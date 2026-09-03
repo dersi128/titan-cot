@@ -1,13 +1,107 @@
 "use client"
 
+import { useRef, useState } from "react"
+
 import { Field, OptionPills } from "@/components/forms/field"
 import { LanguageSwitcher } from "@/components/layout/language-switcher"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
 import { useWorkspace } from "@/components/layout/workspace-provider"
 import { SelectField } from "@/components/forms/select-field"
+import { useTrades } from "@/components/trades/trades-provider"
+import { Button } from "@/components/ui/button"
+import {
+  backupFilename,
+  buildJournalBackup,
+  parseJournalBackup,
+} from "@/lib/journal-backup"
 import { useLabels } from "@/lib/use-labels"
 import { ACCOUNTS } from "@/types/trade"
 import { THEMES, type Density, type JournalMode, type ThemeId } from "@/types/playbook"
+
+function BackupSection() {
+  const { copy } = useLabels()
+  const { trades, replaceAll } = useTrades()
+  const { profile, preferences, playbooks, replaceWorkspace } = useWorkspace()
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [status, setStatus] = useState<"idle" | "ok" | "bad">("idle")
+
+  function exportJournal() {
+    const backup = buildJournalBackup({
+      trades,
+      profile,
+      preferences,
+      playbooks,
+    })
+    const blob = new Blob([JSON.stringify(backup, null, 2)], {
+      type: "application/json",
+    })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = url
+    link.download = backupFilename()
+    link.click()
+    URL.revokeObjectURL(url)
+    setStatus("idle")
+  }
+
+  async function importJournal(file: File | undefined) {
+    if (!file) return
+    try {
+      const parsed = parseJournalBackup(JSON.parse(await file.text()))
+      if (!parsed) {
+        setStatus("bad")
+        return
+      }
+      if (!window.confirm(copy.settings.importReplace)) return
+      replaceAll(parsed.trades)
+      replaceWorkspace({
+        profile: parsed.profile,
+        preferences: parsed.preferences,
+        playbooks: parsed.playbooks,
+      })
+      setStatus("ok")
+    } catch {
+      setStatus("bad")
+    }
+  }
+
+  return (
+    <section className="titan-glass rounded-[10px] p-4 space-y-3">
+      <h2 className="text-sm font-semibold">{copy.settings.backup}</h2>
+      <p className="text-[12px] text-muted-foreground">{copy.settings.backupHint}</p>
+      <div className="flex flex-wrap gap-2">
+        <Button type="button" variant="outline" size="sm" onClick={exportJournal}>
+          {copy.settings.exportJournal}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => inputRef.current?.click()}
+        >
+          {copy.settings.importJournal}
+        </Button>
+        <input
+          ref={inputRef}
+          type="file"
+          accept="application/json,.json"
+          className="hidden"
+          onChange={(event) => {
+            const file = event.target.files?.[0]
+            event.target.value = ""
+            void importJournal(file)
+          }}
+        />
+      </div>
+      {status === "ok" ? (
+        <p className="text-[12px] text-bull">{copy.settings.importOk}</p>
+      ) : null}
+      {status === "bad" ? (
+        <p className="text-[12px] text-bear">{copy.settings.importBad}</p>
+      ) : null}
+    </section>
+  )
+}
 
 export function SettingsPage() {
   const { preferences, updatePreferences, playbooks } = useWorkspace()
@@ -38,6 +132,8 @@ export function SettingsPage() {
             />
           </Field>
         </section>
+
+        <BackupSection />
 
         <section className="titan-glass rounded-[10px] p-4 space-y-3">
           <h2 className="text-sm font-semibold">{copy.settings.appearance}</h2>

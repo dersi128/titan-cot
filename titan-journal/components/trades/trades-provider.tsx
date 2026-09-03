@@ -15,6 +15,7 @@ type TradesContextValue = {
   saveTrade: (input: NewTradeInput) => Trade
   updateTrade: (trade: Trade) => Trade
   deleteTrade: (id: string) => void
+  replaceAll: (trades: Trade[]) => void
 }
 
 const TradesContext = createContext<TradesContextValue | null>(null)
@@ -49,6 +50,10 @@ export function TradesProvider({ children }: { children: React.ReactNode }) {
     tradeRepository.remove(id)
   }, [])
 
+  const replaceAll = useCallback((next: Trade[]) => {
+    tradeRepository.replaceAll(next)
+  }, [])
+
   const value = useMemo(
     () => ({
       trades,
@@ -57,8 +62,9 @@ export function TradesProvider({ children }: { children: React.ReactNode }) {
       saveTrade,
       updateTrade,
       deleteTrade,
+      replaceAll,
     }),
-    [trades, getById, saveTrade, updateTrade, deleteTrade]
+    [trades, getById, saveTrade, updateTrade, deleteTrade, replaceAll]
   )
 
   return <TradesContext.Provider value={value}>{children}</TradesContext.Provider>

@@ -284,6 +284,14 @@ export const copyEn = {
     defaultAccount: "Default Account",
     defaultPlaybook: "Default Playbook",
     riskOnProfile: "Risk % is set on Profile.",
+    backup: "Backup",
+    backupHint:
+      "The journal stays in this browser. Export a file, then import it on your phone or another computer.",
+    exportJournal: "Export",
+    importJournal: "Import",
+    importReplace: "Import replaces the journal on this device.",
+    importOk: "Journal imported.",
+    importBad: "This file is not a TITAN Journal backup.",
   },
 
   profile: {
@@ -586,6 +594,14 @@ export const copyCs: Copy = {
     defaultAccount: "Výchozí účet",
     defaultPlaybook: "Výchozí playbook",
     riskOnProfile: "Riziko % se nastavuje v Profilu.",
+    backup: "Záloha",
+    backupHint:
+      "Deník zůstává v tomto prohlížeči. Exportuj soubor a na telefonu nebo jiném počítači ho naimportuj.",
+    exportJournal: "Export",
+    importJournal: "Import",
+    importReplace: "Import nahradí deník na tomto zařízení.",
+    importOk: "Deník je naimportovaný.",
+    importBad: "Tento soubor není záloha TITAN Journal.",
   },
 
   profile: {
