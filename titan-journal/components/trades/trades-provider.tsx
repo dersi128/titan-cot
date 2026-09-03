@@ -2,11 +2,10 @@
 
 import { createContext, useCallback, useContext, useMemo, useSyncExternalStore } from "react"
 
-import { MOCK_TRADES, sortTrades } from "@/lib/mock-data"
 import { tradeRepository } from "@/lib/storage"
 import type { NewTradeInput, Trade } from "@/types/trade"
 
-const SERVER_SNAPSHOT = sortTrades(MOCK_TRADES)
+const SERVER_SNAPSHOT: Trade[] = []
 
 type TradesContextValue = {
   trades: Trade[]

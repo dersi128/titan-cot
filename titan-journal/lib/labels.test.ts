@@ -49,6 +49,8 @@ describe("CZ/EN dictionaries", () => {
     expect(labelsFor("en").copy.form.preview).toBe("Preview")
     expect(labelsFor("cs").copy.form.screenshotUrl).toBe("URL obrázku")
     expect(labelsFor("en").copy.form.screenshotHint).toContain("paste")
+    expect(labelsFor("cs").copy.emptyStart.title).toBe("Tvůj journal je připravený.")
+    expect(labelsFor("en").copy.emptyStart.sample).toBe("Show sample journal")
     expect(labelsFor("en").copy.calendar.weekdays).toHaveLength(7)
   })
 })

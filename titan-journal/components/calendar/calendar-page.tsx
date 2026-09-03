@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 
 import { PnlCalendar } from "@/components/calendar/pnl-calendar"
+import { EmptyJournal } from "@/components/layout/empty-journal"
 import { TableSkeleton } from "@/components/layout/loading-state"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
 import { useScopedTrades } from "@/components/layout/use-scoped-trades"
@@ -243,6 +244,8 @@ export function CalendarPage() {
         />
         {!isReady ? (
           <TableSkeleton rows={8} />
+        ) : accountTrades.length === 0 ? (
+          <EmptyJournal />
         ) : (
           <>
             <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1.4fr)_minmax(300px,0.9fr)]">

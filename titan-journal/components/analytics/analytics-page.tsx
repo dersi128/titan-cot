@@ -16,6 +16,7 @@ import {
 } from "lucide-react"
 
 import { EdgeBadge } from "@/components/analytics/edge-badge"
+import { EmptyJournal } from "@/components/layout/empty-journal"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
 import { useScopedTrades } from "@/components/layout/use-scoped-trades"
 import { useWorkspaceChrome } from "@/components/layout/workspace-chrome"
@@ -335,6 +336,9 @@ export function AnalyticsPage() {
         title={copy.analytics.title}
         description={copy.analytics.description}
       />
+      {accountTrades.length === 0 ? (
+        <EmptyJournal />
+      ) : (
       <div className="space-y-4 pb-4">
         <div className="grid grid-cols-2 gap-3 xl:grid-cols-5">
           <KpiCard
@@ -431,6 +435,7 @@ export function AnalyticsPage() {
           <MarketTable rows={marketRows} />
         </div>
       </div>
+      )}
     </PageFrame>
   )
 }

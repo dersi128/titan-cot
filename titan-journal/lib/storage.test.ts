@@ -31,24 +31,34 @@ describe("trade repository remove", () => {
     memory.clear()
   })
 
-  it("removes a trade and does not restore the seed list", () => {
+  it("starts empty on first visit", () => {
     installStorage()
     const repo = createLocalStorageRepository()
     repo.subscribe(() => {})
-    const first = repo.getAll()[0]
-    expect(first).toBeDefined()
-    repo.remove(first.id)
-    expect(repo.getById(first.id)).toBeUndefined()
-    expect(repo.getAll()).toHaveLength(MOCK_TRADES.length - 1)
+    expect(repo.getAll()).toEqual([])
+    expect(memory.get(TRADES_STORAGE_KEY)).toBe("[]")
+  })
+
+  it("does not restore mocks after deleting a logged trade", () => {
+    installStorage()
+    const repo = createLocalStorageRepository()
+    repo.subscribe(() => {})
+    repo.replaceAll([
+      { ...MOCK_TRADES[0], id: "real-1" },
+      { ...MOCK_TRADES[1], id: "real-2" },
+    ])
+    repo.remove("real-1")
+    expect(repo.getById("real-1")).toBeUndefined()
+    expect(repo.getAll()).toHaveLength(1)
+    expect(repo.getAll()[0]?.id).toBe("real-2")
   })
 
   it("keeps an empty journal empty after the last delete", () => {
     installStorage()
     const repo = createLocalStorageRepository()
     repo.subscribe(() => {})
-    for (const trade of repo.getAll()) {
-      repo.remove(trade.id)
-    }
+    repo.replaceAll([{ ...MOCK_TRADES[0], id: "real-1" }])
+    repo.remove("real-1")
     expect(repo.getAll()).toEqual([])
     expect(memory.get(TRADES_STORAGE_KEY)).toBe("[]")
   })

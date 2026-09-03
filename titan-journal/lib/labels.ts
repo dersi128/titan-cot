@@ -382,6 +382,18 @@ export const copyEn = {
   },
 
   comingSoon: "Not in this version.",
+  emptyStart: {
+    title: "Your journal is ready.",
+    body: "Nothing is pre-filled. The first trade you log becomes the record.",
+    cta: "Log first trade",
+    sample: "Show sample journal",
+    sampleBanner: "Sample data. Not your trading.",
+    sampleClear: "Clear sample",
+    step1: "Log the plan",
+    step2: "Close with R",
+    step3: "Write one note",
+    scoped: "No trades on this account yet.",
+  },
   saveState: {
     unsaved: "Unsaved changes",
     saved: "Saved",
@@ -763,6 +775,18 @@ export const copyCs: Copy = {
   },
 
   comingSoon: "V této verzi není.",
+  emptyStart: {
+    title: "Tvůj journal je připravený.",
+    body: "Nic se tu nepředvyplňuje. První zapsaný obchod je začátek záznamu.",
+    cta: "Zapsat první obchod",
+    sample: "Ukázat ukázkový journal",
+    sampleBanner: "Ukázková data. Nejsou to tvoje obchody.",
+    sampleClear: "Vymazat ukázku",
+    step1: "Zapiš plán",
+    step2: "Uzavři R",
+    step3: "Napiš jednu poznámku",
+    scoped: "Na tomto účtu zatím žádné obchody.",
+  },
   saveState: {
     unsaved: "Neuložené změny",
     saved: "Uloženo",

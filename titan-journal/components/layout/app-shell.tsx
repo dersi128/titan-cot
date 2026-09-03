@@ -4,6 +4,7 @@ import { Menu } from "lucide-react"
 import { useState, useSyncExternalStore } from "react"
 
 import { AppSidebar } from "@/components/layout/app-sidebar"
+import { SampleBanner } from "@/components/layout/empty-journal"
 import { SegmentedControl } from "@/components/layout/segmented-control"
 import {
   DATE_RANGES,
@@ -137,6 +138,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="titan-shell-offset flex min-h-screen min-w-0 flex-col">
         <TopBar onOpenNav={() => setOpen(true)} />
         <main className="titan-main min-w-0 flex-1">
+          <SampleBanner />
           {children}
         </main>
       </div>

@@ -8,6 +8,7 @@ import { useMemo } from "react"
 import { KpiCards } from "@/components/dashboard/kpi-cards"
 import { RecentTrades } from "@/components/dashboard/recent-trades"
 import { SnapshotRow } from "@/components/dashboard/snapshot-row"
+import { EmptyJournal } from "@/components/layout/empty-journal"
 import { KpiSkeleton, TableSkeleton } from "@/components/layout/loading-state"
 import { PageFrame } from "@/components/layout/page-header"
 import { useScopedTrades } from "@/components/layout/use-scoped-trades"
@@ -75,12 +76,14 @@ export function DashboardPage() {
               {copy.dashboard.overview[range]}
             </p>
           </div>
-          <Button asChild variant="outline" className="border-primary/60 text-primary">
-            <Link href="/new-trade">
-              <PlusCircle />
-              {copy.nav.newTrade}
-            </Link>
-          </Button>
+          {accountTrades.length > 0 ? (
+            <Button asChild variant="outline" className="border-primary/60 text-primary">
+              <Link href="/new-trade">
+                <PlusCircle />
+                {copy.nav.newTrade}
+              </Link>
+            </Button>
+          ) : null}
         </header>
 
         {!isReady ? (
@@ -88,6 +91,8 @@ export function DashboardPage() {
             <KpiSkeleton />
             <TableSkeleton rows={6} />
           </div>
+        ) : accountTrades.length === 0 ? (
+          <EmptyJournal />
         ) : (
           <>
             <KpiCards stats={stats} dense drawdown={drawdown} />

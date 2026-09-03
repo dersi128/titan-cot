@@ -22,6 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { EmptyJournal } from "@/components/layout/empty-journal"
 import { TableSkeleton } from "@/components/layout/loading-state"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
 import { useScopedTrades } from "@/components/layout/use-scoped-trades"
@@ -244,12 +245,20 @@ export function JournalPage() {
         title={copy.journal.title}
         description={copy.journal.description}
         actions={
-          <Button asChild>
-            <Link href="/new-trade">{copy.nav.newTrade}</Link>
-          </Button>
+          accountTrades.length > 0 ? (
+            <Button asChild>
+              <Link href="/new-trade">{copy.nav.newTrade}</Link>
+            </Button>
+          ) : null
         }
       />
 
+      {!isReady ? (
+        <TableSkeleton rows={10} />
+      ) : accountTrades.length === 0 ? (
+        <EmptyJournal />
+      ) : (
+        <>
       <div className="mb-4 grid grid-cols-2 gap-2 lg:grid-cols-6">
         <Stat
           label={copy.analytics.tradeCount}
@@ -376,10 +385,6 @@ export function JournalPage() {
 
       <div className={cn("flex min-h-0 gap-3", selectedTrade ? "items-start" : "")}>
         <div className={cn("min-w-0 flex-1", selectedTrade ? "lg:max-w-[calc(100%-360px)]" : "")}>
-          {!isReady ? (
-            <TableSkeleton rows={10} />
-          ) : (
-            <>
               <div className="titan-glass overflow-hidden rounded-[10px]">
                 <Table>
                   <TableHeader>
@@ -453,8 +458,6 @@ export function JournalPage() {
                 onPage={setPage}
                 onPageSize={setPageSize}
               />
-            </>
-          )}
         </div>
 
         {selectedTrade ? (
@@ -484,6 +487,8 @@ export function JournalPage() {
           </aside>
         ) : null}
       </div>
+        </>
+      )}
     </PageFrame>
   )
 }

@@ -356,6 +356,12 @@ function buildRest(): Seed[] {
 
 export const MOCK_TRADES: Trade[] = [...FEATURED, ...buildRest()].map(fromSeed)
 
+const MOCK_TRADE_IDS = new Set(MOCK_TRADES.map((trade) => trade.id))
+
+export function isSampleJournal(trades: Trade[]): boolean {
+  return trades.length > 0 && trades.every((trade) => MOCK_TRADE_IDS.has(trade.id))
+}
+
 export const STRATEGY_SNAPSHOT = {
   best: {
     name: "A+ Fresh Demand",
