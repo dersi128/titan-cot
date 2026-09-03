@@ -31,6 +31,11 @@ type WorkspaceValue = {
   updatePreferences: (patch: Partial<UserPreferences>) => void
   savePlaybook: (playbook: Playbook) => Playbook
   getPlaybook: (id: string) => Playbook | undefined
+  replaceWorkspace: (next: {
+    profile: UserProfile
+    preferences: UserPreferences
+    playbooks: Playbook[]
+  }) => void
 }
 
 const WorkspaceContext = createContext<WorkspaceValue | null>(null)
@@ -82,6 +87,20 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     [playbooks]
   )
 
+  const replaceWorkspace = useCallback(
+    (next: {
+      profile: UserProfile
+      preferences: UserPreferences
+      playbooks: Playbook[]
+    }) => {
+      profileStore.set(next.profile)
+      playbookStore.set(next.playbooks)
+      preferencesStore.set(next.preferences)
+      applyDocumentAppearance(next.preferences)
+    },
+    []
+  )
+
   const value = useMemo(
     () => ({
       profile,
@@ -92,6 +111,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       updatePreferences,
       savePlaybook,
       getPlaybook,
+      replaceWorkspace,
     }),
     [
       profile,
@@ -101,6 +121,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       updatePreferences,
       savePlaybook,
       getPlaybook,
+      replaceWorkspace,
     ]
   )
 
