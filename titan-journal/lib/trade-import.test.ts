@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { zipSync, zlibSync } from "fflate"
 
 import { parseJournalBackup } from "@/lib/journal-backup"
 import {
@@ -8,6 +9,122 @@ import {
   parseImportText,
   parseLocaleNumber,
 } from "@/lib/trade-import"
+
+const encoder = new TextEncoder()
+
+function xmlEscape(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+}
+
+function buildCTraderXlsx(): Uint8Array {
+  const strings = [
+    "Symbol",
+    "Opening Direction",
+    "Closing Time",
+    "Entry Price",
+    "Stop Loss",
+    "Take Profit",
+    "Net USD",
+    "EURUSD",
+    "Buy",
+    "2026-09-01 14:22:00",
+    "GBPUSD",
+    "Sell",
+    "03.09.2026 11:00",
+  ]
+  const shared = `<?xml version="1.0" encoding="UTF-8"?><sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">${strings
+    .map((value) => `<si><t>${xmlEscape(value)}</t></si>`)
+    .join("")}</sst>`
+  const sheet = `<?xml version="1.0" encoding="UTF-8"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>
+    <row r="1">${["A","B","C","D","E","F","G"].map((col, i) => `<c r="${col}1" t="s"><v>${i}</v></c>`).join("")}</row>
+    <row r="2">
+      <c r="A2" t="s"><v>7</v></c><c r="B2" t="s"><v>8</v></c><c r="C2" t="s"><v>9</v></c>
+      <c r="D2"><v>1.08420</v></c><c r="E2"><v>1.07920</v></c><c r="F2"><v>1.09420</v></c><c r="G2"><v>190</v></c>
+    </row>
+    <row r="3">
+      <c r="A3" t="s"><v>10</v></c><c r="B3" t="s"><v>11</v></c><c r="C3" t="s"><v>12</v></c>
+      <c r="D3"><v>1.27000</v></c><c r="E3"><v>1.27500</v></c><c r="F3"><v>1.26000</v></c><c r="G3"><v>1234.5</v></c>
+    </row>
+  </sheetData></worksheet>`
+  return zipSync({
+    "xl/sharedStrings.xml": encoder.encode(shared),
+    "xl/worksheets/sheet1.xml": encoder.encode(sheet),
+  })
+}
+
+function statementPdfContent(): string {
+  const header = [
+    "Ticket",
+    "Open Time",
+    "Type",
+    "Size",
+    "Item",
+    "Price",
+    "S / L",
+    "T / P",
+    "Close Time",
+    "Price",
+    "Commission",
+    "Taxes",
+    "Swap",
+    "Profit",
+  ]
+  const row = [
+    "11002",
+    "2026.09.01 10:15:00",
+    "buy",
+    "1.00",
+    "eurusd",
+    "1.08420",
+    "1.07920",
+    "1.09420",
+    "2026.09.01 14:22:00",
+    "1.08610",
+    "-10.00",
+    "0.00",
+    "0.00",
+    "190.00",
+  ]
+  const cells = (values: string[]) =>
+    values.map((value, index) => `${index === 0 ? "" : "40 0 Td "}(${value}) Tj`).join("\n")
+  const content = `BT
+/F1 10 Tf
+50 700 Td
+${cells(header)}
+0 -16 Td
+${cells(row)}
+ET
+`
+  return content
+}
+
+function buildStatementPdf(flate = false): Uint8Array {
+  const content = statementPdfContent()
+  if (!flate) {
+    const body = `%PDF-1.4
+1 0 obj << /Length ${content.length} >>
+stream
+${content}
+endstream
+endobj
+%%EOF
+`
+    return encoder.encode(body)
+  }
+  const compressed = zlibSync(encoder.encode(content))
+  const head = encoder.encode(
+    `%PDF-1.4\n1 0 obj << /Length ${compressed.length} /Filter /FlateDecode >>\nstream\n`
+  )
+  const tail = encoder.encode("\nendstream\nendobj\n%%EOF\n")
+  const out = new Uint8Array(head.length + compressed.length + tail.length)
+  out.set(head, 0)
+  out.set(compressed, head.length)
+  out.set(tail, head.length + compressed.length)
+  return out
+}
 
 const CTRADER_CSV = `Symbol,Opening Direction,Opening Time (UTC+2),Closing Time (UTC+2),Entry Price,Closing Price,Stop Loss,Take Profit,Net USD,Commission,Swap,Comment
 EURUSD,Buy,2026-09-01 10:15:00,2026-09-01 14:22:00,1.08420,1.08610,1.07920,1.09420,190.00,-10.00,0.00,breakout
@@ -31,10 +148,11 @@ describe("parseLocaleNumber", () => {
 })
 
 describe("parseBrokerDate", () => {
-  it("reads ISO, MT5 dots, and EU dates", () => {
+  it("reads ISO, MT5 dots, EU dates, and Excel serials", () => {
     expect(parseBrokerDate("2026-09-01 14:22:00")).toBe("2026-09-01")
     expect(parseBrokerDate("2026.09.01 14:22")).toBe("2026-09-01")
     expect(parseBrokerDate("03.09.2026 11:00")).toBe("2026-09-03")
+    expect(parseBrokerDate("45901")).toBe("2025-09-01")
   })
 })
 
@@ -167,16 +285,54 @@ describe("parseImportText", () => {
     })
   })
 
-  it("rejects Excel workbooks and asks for CSV/HTML", () => {
-    expect(parseImportText("PK\u0003\u0004workbook", DEFAULT_IMPORT_CONTEXT).kind).toBe(
-      "xlsx"
+  it("reads closed trades from an Excel workbook", () => {
+    const parsed = parseImportFile(buildCTraderXlsx(), DEFAULT_IMPORT_CONTEXT, "report.xlsx")
+    expect(parsed.kind).toBe("broker")
+    if (parsed.kind !== "broker") return
+    expect(parsed.trades).toHaveLength(2)
+    expect(parsed.trades[0]).toMatchObject({
+      symbol: "EURUSD",
+      direction: "LONG",
+      date: "2026-09-01",
+      pnl: 190,
+    })
+    expect(parsed.trades[1]).toMatchObject({
+      symbol: "GBPUSD",
+      direction: "SHORT",
+      date: "2026-09-03",
+    })
+  })
+
+  it("reads closed trades from a PDF statement", () => {
+    const parsed = parseImportFile(buildStatementPdf(), DEFAULT_IMPORT_CONTEXT, "statement.pdf")
+    expect(parsed.kind).toBe("broker")
+    if (parsed.kind !== "broker") return
+    expect(parsed.trades).toHaveLength(1)
+    expect(parsed.trades[0]).toMatchObject({
+      symbol: "EURUSD",
+      direction: "LONG",
+      date: "2026-09-01",
+      pnl: 180,
+    })
+  })
+
+  it("reads closed trades from a compressed PDF statement", () => {
+    const parsed = parseImportFile(
+      buildStatementPdf(true),
+      DEFAULT_IMPORT_CONTEXT,
+      "statement.pdf"
     )
-    expect(parseImportText("not excel", DEFAULT_IMPORT_CONTEXT, "report.xlsx").kind).toBe(
-      "xlsx"
-    )
-    const bytes = Uint8Array.from([0x50, 0x4b, 0x03, 0x04, 0x00, 0x00])
-    expect(parseImportFile(bytes, DEFAULT_IMPORT_CONTEXT, "icmarkets.xlsx").kind).toBe(
-      "xlsx"
-    )
+    expect(parsed.kind).toBe("broker")
+    if (parsed.kind !== "broker") return
+    expect(parsed.trades[0]).toMatchObject({
+      symbol: "EURUSD",
+      date: "2026-09-01",
+      pnl: 180,
+    })
+  })
+
+  it("asks to save old Excel .xls as xlsx", () => {
+    const bytes = Uint8Array.from([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1])
+    expect(parseImportFile(bytes, DEFAULT_IMPORT_CONTEXT, "report.xls").kind).toBe("xls")
   })
 })

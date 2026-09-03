@@ -1,8 +1,10 @@
 import { dollarsPerR } from "@/lib/account-scope"
 import { parseJournalBackup, type JournalBackup } from "@/lib/journal-backup"
 import { classifyMarket, cotFieldsForClassification } from "@/lib/market-classification"
+import { isPdfBytes, pdfToRows } from "@/lib/pdf-import"
 import { TITAN_SWING_PLAYBOOK_ID } from "@/lib/playbooks"
 import { calculatePlannedRRR } from "@/lib/trade-calculations"
+import { isXlsxZip, xlsxSheetsToRows } from "@/lib/xlsx-import"
 import {
   DEFAULT_STRATEGY,
   type Account,
@@ -22,11 +24,11 @@ export type ImportContext = {
 export type ParsedImport =
   | { kind: "backup"; backup: JournalBackup }
   | { kind: "broker"; trades: NewTradeInput[]; skipped: number }
-  | { kind: "xlsx" }
+  | { kind: "xls" }
   | { kind: "invalid" }
 
 export const IMPORT_FILE_ACCEPT =
-  ".json,.csv,.txt,.htm,.html,.xlsx,.xls,application/json,text/csv,text/html,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  ".json,.csv,.txt,.htm,.html,.xlsx,.xls,.pdf,application/json,text/csv,text/html,application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 
 const SKIP_TYPES = new Set([
   "balance",
@@ -131,6 +133,12 @@ export function parseBrokerDate(raw: string | undefined): string | null {
     return `${eu[3]}-${eu[2].padStart(2, "0")}-${eu[1].padStart(2, "0")}`
   }
 
+  const serial = Number(value.replace(",", "."))
+  if (Number.isFinite(serial) && serial >= 20000 && serial < 80000) {
+    const ms = Date.UTC(1899, 11, 30) + Math.floor(serial) * 86_400_000
+    return new Date(ms).toISOString().slice(0, 10)
+  }
+
   return null
 }
 
@@ -186,9 +194,9 @@ function headerLooksLikeTrades(headers: string[]): boolean {
   return hasSymbol && (hasSide || hasPnl)
 }
 
-export function isSpreadsheetBytes(bytes: Uint8Array, fileName = ""): boolean {
-  if (/\.xlsx?$/i.test(fileName)) return true
-  if (bytes.length >= 2 && bytes[0] === 0x50 && bytes[1] === 0x4b) return true
+export function isOleExcel(bytes: Uint8Array, fileName = ""): boolean {
+  if (/\.xlsx$/i.test(fileName)) return false
+  if (/\.xls$/i.test(fileName)) return true
   return (
     bytes.length >= 4 &&
     bytes[0] === 0xd0 &&
@@ -196,6 +204,10 @@ export function isSpreadsheetBytes(bytes: Uint8Array, fileName = ""): boolean {
     bytes[2] === 0x11 &&
     bytes[3] === 0xe0
   )
+}
+
+export function isSpreadsheetBytes(bytes: Uint8Array, fileName = ""): boolean {
+  return isXlsxZip(bytes) || isOleExcel(bytes, fileName) || /\.xlsx?$/i.test(fileName)
 }
 
 export function decodeImportBytes(bytes: Uint8Array): string {
@@ -499,16 +511,46 @@ function brokerResult(
   return { kind: "broker", trades, skipped }
 }
 
+function brokerResultFromRows(rows: string[][], context: ImportContext): ParsedImport {
+  const split = rows.map((cells) => {
+    if (cells.length !== 1) return cells
+    const value = cells[0] ?? ""
+    if (value.includes("\t")) return value.split("\t").map((cell) => cell.trim())
+    if (/\s{2,}/.test(value)) return value.split(/\s{2,}/).map((cell) => cell.trim())
+    return cells
+  })
+  const html = tableFromHtmlRows(split)
+  if (html) return brokerResult(html, context)
+  const csv = split
+    .map((cells) =>
+      cells.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(",")
+    )
+    .join("\n")
+  return brokerResult(parseCsvTables(csv), context)
+}
+
+function parseXlsxBytes(bytes: Uint8Array, context: ImportContext): ParsedImport {
+  try {
+    const sheets = xlsxSheetsToRows(bytes)
+    let best: Extract<ParsedImport, { kind: "broker" }> | null = null
+    for (const rows of sheets) {
+      const parsed = brokerResultFromRows(rows, context)
+      if (parsed.kind !== "broker") continue
+      if (!best || parsed.trades.length > best.trades.length) best = parsed
+    }
+    return best ?? { kind: "invalid" }
+  } catch {
+    return { kind: "invalid" }
+  }
+}
+
 export function parseImportText(
   text: string,
   context: ImportContext,
   fileName = ""
 ): ParsedImport {
-  if (/\.xlsx?$/i.test(fileName)) return { kind: "xlsx" }
-
   const raw = stripBom(text).trim()
   if (!raw) return { kind: "invalid" }
-  if (raw.charCodeAt(0) === 0x50 && raw.charCodeAt(1) === 0x4b) return { kind: "xlsx" }
 
   if (raw.startsWith("{") || raw.startsWith("[")) {
     try {
@@ -532,7 +574,13 @@ export function parseImportFile(
   context: ImportContext,
   fileName = ""
 ): ParsedImport {
-  if (isSpreadsheetBytes(bytes, fileName)) return { kind: "xlsx" }
+  if (isPdfBytes(bytes, fileName)) {
+    return brokerResultFromRows(pdfToRows(bytes), context)
+  }
+  if (isOleExcel(bytes, fileName)) return { kind: "xls" }
+  if (isXlsxZip(bytes) || /\.xlsx$/i.test(fileName)) {
+    return parseXlsxBytes(bytes, context)
+  }
   return parseImportText(decodeImportBytes(bytes), context, fileName)
 }
 
