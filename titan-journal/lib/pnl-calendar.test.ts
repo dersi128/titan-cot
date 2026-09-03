@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest"
 import { MOCK_TRADES } from "@/lib/mock-data"
 import {
   buildMonthCalendar,
+  calendarDayHref,
   formatMonthTitle,
   initialCalendarMonth,
   shiftMonth,
@@ -90,6 +91,11 @@ describe("buildMonthCalendar", () => {
 
     const tenth = calendar.days.find((day) => day.date === "2026-08-10")
     expect(tenth).toMatchObject({ pnl: 150, totalR: 1, trades: 2, inMonth: true })
+    expect(tenth?.items.map((item) => item.id)).toEqual(["t", "t2"])
+    expect(calendarDayHref(tenth!)).toBeNull()
+
+    const twentyEighth = calendar.days.find((day) => day.date === "2026-08-28")
+    expect(calendarDayHref(twentyEighth!)).toBe("/journal/t3")
     expect(calendar.netPnl).toBe(280)
     expect(calendar.totalR).toBe(2)
     expect(calendar.tradeCount).toBe(3)
