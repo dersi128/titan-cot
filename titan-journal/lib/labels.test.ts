@@ -38,6 +38,7 @@ describe("CZ/EN dictionaries", () => {
     expect(labelsFor("cs").copy.dashboard.performance).toBe("Výkon v čase")
     expect(labelsFor("en").copy.dashboard.performance).toBe("Performance over time")
     expect(labelsFor("cs").copy.settings.exportJournal).toBe("Export")
+    expect(labelsFor("cs").copy.settings.importAdded).toContain("{n}")
     expect(labelsFor("cs").copy.analytics.edgeYes).toBe("Má edge")
     expect(labelsFor("cs").copy.analytics.perTrade).toBe("na obchod")
     expect(labelsFor("cs").copy.analytics.bySetup).toBe("Výsledky podle setupů")

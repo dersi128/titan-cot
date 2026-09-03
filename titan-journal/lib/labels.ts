@@ -371,12 +371,14 @@ export const copyEn = {
     riskOnProfile: "Risk % is set on Profile.",
     backup: "Backup",
     backupHint:
-      "The journal stays in this browser. Export a file, then import it on your phone or another computer.",
+      "JSON backup replaces this browser's journal. A cTrader / MT5 / IC Markets CSV adds closed trades.",
     exportJournal: "Export",
     importJournal: "Import",
     importReplace: "Import replaces the journal on this device.",
+    importBrokerConfirm: "Add {n} trades to {account}? Existing trades stay.",
     importOk: "Journal imported.",
-    importBad: "This file is not a TITAN Journal backup.",
+    importAdded: "Added {n} trades.",
+    importBad: "This file cannot be imported.",
   },
 
   profile: {
@@ -778,12 +780,14 @@ export const copyCs: Copy = {
     riskOnProfile: "Riziko % se nastavuje v Profilu.",
     backup: "Záloha",
     backupHint:
-      "Deník zůstává v tomto prohlížeči. Exportuj soubor a na telefonu nebo jiném počítači ho naimportuj.",
+      "JSON záloha nahradí deník v tomto prohlížeči. CSV z cTrader / MT5 / IC Markets obchody přidá.",
     exportJournal: "Export",
     importJournal: "Import",
     importReplace: "Import nahradí deník na tomto zařízení.",
+    importBrokerConfirm: "Přidat {n} obchodů na účet {account}? Stávající deník zůstane.",
     importOk: "Deník je naimportovaný.",
-    importBad: "Tento soubor není záloha TITAN Journal.",
+    importAdded: "Přidané obchody: {n}.",
+    importBad: "Tento soubor nejde naimportovat.",
   },
 
   profile: {
