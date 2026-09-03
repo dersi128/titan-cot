@@ -45,6 +45,8 @@ describe("CZ/EN dictionaries", () => {
     expect(labelsFor("en").copy.playbook.cumulativeR).toBe("Cumulative R")
     expect(labelsFor("cs").copy.form.templates).toBe("Šablony obchodů")
     expect(labelsFor("en").copy.form.preview).toBe("Preview")
+    expect(labelsFor("cs").copy.form.screenshotUrl).toBe("URL obrázku")
+    expect(labelsFor("en").copy.form.screenshotHint).toContain("paste")
     expect(labelsFor("en").copy.calendar.weekdays).toHaveLength(7)
   })
 })

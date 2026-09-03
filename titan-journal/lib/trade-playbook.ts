@@ -1,5 +1,6 @@
 import { normalizeStrategyName, TITAN_SWING_PLAYBOOK_ID } from "@/lib/playbooks"
 import { fieldValuesFromLegacy } from "@/lib/playbook-legacy"
+import { hydrateScreenshot } from "@/lib/screenshot"
 import type { TradeFieldValue } from "@/types/playbook"
 import type { Trade } from "@/types/trade"
 import { DEFAULT_STRATEGY } from "@/types/trade"
@@ -14,8 +15,7 @@ export function hydrateTradePlaybookFields(row: Record<string, unknown>, trade: 
       ? row.strategy
       : DEFAULT_STRATEGY
   )
-  const screenshot =
-    typeof row.screenshot === "string" && row.screenshot ? row.screenshot : null
+  const screenshot = hydrateScreenshot(row.screenshot)
   const rawValues = row.fieldValues
   const hasStoredValues = Array.isArray(rawValues)
   const storedValues = hasStoredValues
