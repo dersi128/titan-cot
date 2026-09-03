@@ -71,8 +71,8 @@ export function MarketDistribution({
   }
 
   return (
-    <Card size="sm" className="h-full min-h-[300px] gap-0 py-0">
-      <CardHeader className="shrink-0 px-4 pt-3 pb-1">
+    <Card size="sm" className="h-full min-h-[260px] gap-0 py-0">
+      <CardHeader className="shrink-0 border-b border-border py-2">
         <div className="flex flex-wrap items-center justify-between gap-1.5">
           <CardTitle>{copy.dashboard.marketDistribution}</CardTitle>
           <SegmentedControl
@@ -85,14 +85,14 @@ export function MarketDistribution({
           />
         </div>
       </CardHeader>
-      <CardContent className="flex min-h-0 flex-1 flex-col px-4 pt-2 pb-3">
+      <CardContent className="flex min-h-0 flex-1 flex-col pt-2 pb-2">
         {distribution.slices.length === 0 ? (
           <p className="py-6 text-center text-[12px] text-muted-foreground">
             {copy.dashboard.marketDistributionEmpty}
           </p>
         ) : (
-          <div className="flex min-h-0 flex-1 flex-col items-stretch gap-3">
-            <div className="relative mx-auto aspect-square size-[132px] shrink-0">
+          <div className="flex min-h-0 flex-1 flex-col items-stretch gap-2">
+            <div className="relative mx-auto aspect-square size-[96px] shrink-0">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -101,9 +101,9 @@ export function MarketDistribution({
                     nameKey="label"
                     cx="50%"
                     cy="50%"
-                    innerRadius="66%"
-                    outerRadius="94%"
-                    paddingAngle={distribution.slices.length > 1 ? 3 : 0}
+                    innerRadius="68%"
+                    outerRadius="92%"
+                    paddingAngle={distribution.slices.length > 1 ? 2 : 0}
                     stroke="none"
                     isAnimationActive={false}
                   >
@@ -122,44 +122,36 @@ export function MarketDistribution({
                 <p className="text-[10px] font-medium tracking-wide text-muted-foreground">
                   {copy.dashboard.totalTradesLabel}
                 </p>
-                <p className="font-mono text-[18px] font-medium tabular-nums text-foreground">
+                <p className="font-mono text-[15px] font-medium tabular-nums text-foreground">
                   {formatNumber(distribution.totalTrades, 0)}
                 </p>
               </div>
             </div>
-            <ul className="min-w-0 flex-1 space-y-2">
+            <ul className="min-w-0 flex-1 space-y-1">
               {distribution.slices.map((slice) => (
-                <li key={slice.assetClass} className="space-y-1">
-                  <div className="grid grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-2 text-[11px]">
-                    <span
-                      className="size-2 shrink-0 rounded-full"
-                      style={{ background: slice.color }}
-                      aria-hidden
-                    />
-                    <span className="truncate text-foreground">{slice.label}</span>
-                    <span
-                      className={cn(
-                        "font-mono tabular-nums",
-                        metric === "trades"
-                          ? "text-muted-foreground"
-                          : signedClassName(slice.value)
-                      )}
-                    >
-                      {sliceLabel(slice, metric, currency)}
-                    </span>
-                    <span className="w-8 text-right font-mono tabular-nums text-muted-foreground">
-                      {Math.round(slice.share * 100)}%
-                    </span>
-                  </div>
-                  <div className="h-1 overflow-hidden rounded-full bg-muted">
-                    <div
-                      className="h-full rounded-full"
-                      style={{
-                        width: `${Math.max(3, Math.round(slice.share * 100))}%`,
-                        background: slice.color,
-                      }}
-                    />
-                  </div>
+                <li
+                  key={slice.assetClass}
+                  className="grid grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-2 text-[11px]"
+                >
+                  <span
+                    className="size-2 shrink-0 rounded-full"
+                    style={{ background: slice.color }}
+                    aria-hidden
+                  />
+                  <span className="truncate text-foreground">{slice.label}</span>
+                  <span
+                    className={cn(
+                      "font-mono tabular-nums",
+                      metric === "trades"
+                        ? "text-muted-foreground"
+                        : signedClassName(slice.value)
+                    )}
+                  >
+                    {sliceLabel(slice, metric, currency)}
+                  </span>
+                  <span className="w-8 text-right font-mono tabular-nums text-muted-foreground">
+                    {Math.round(slice.share * 100)}%
+                  </span>
                 </li>
               ))}
             </ul>

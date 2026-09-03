@@ -159,7 +159,7 @@ export function PerformanceBars({
 
   return (
     <Card size="sm" className="h-full gap-0 py-0">
-      <CardHeader className="shrink-0 px-4 pt-3 pb-1">
+      <CardHeader className="shrink-0 border-b border-border py-2">
         <div className="flex flex-col gap-2">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
@@ -230,8 +230,8 @@ export function PerformanceBars({
                 />
                 <Bar
                   dataKey="chartValue"
-                  maxBarSize={26}
-                  radius={[4, 4, 0, 0]}
+                  maxBarSize={28}
+                  radius={[3, 3, 0, 0]}
                   isAnimationActive
                   animationDuration={200}
                 >

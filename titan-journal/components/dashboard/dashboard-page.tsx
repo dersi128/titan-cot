@@ -23,7 +23,7 @@ const EquityCurve = dynamic(
     import("@/components/dashboard/equity-curve").then((mod) => mod.EquityCurve),
   {
     ssr: false,
-    loading: () => <Skeleton className="h-[300px] w-full rounded-[10px]" />,
+    loading: () => <Skeleton className="h-[260px] w-full rounded-[10px]" />,
   }
 )
 
@@ -34,7 +34,7 @@ const MarketDistribution = dynamic(
     ),
   {
     ssr: false,
-    loading: () => <Skeleton className="h-[300px] w-full rounded-[10px]" />,
+    loading: () => <Skeleton className="h-[260px] w-full rounded-[10px]" />,
   }
 )
 
@@ -63,7 +63,6 @@ export function DashboardPage() {
     () => dashboardSnapshots(accountTrades),
     [accountTrades]
   )
-  const rangeSnapshots = useMemo(() => dashboardSnapshots(trades), [trades])
 
   return (
     <PageFrame>
@@ -96,21 +95,19 @@ export function DashboardPage() {
           <EmptyJournal />
         ) : (
           <>
-            <KpiCards
-              stats={stats}
-              drawdown={drawdown}
-              snapshots={rangeSnapshots}
-              currency={profile.currency}
-            />
-            <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1.7fr)_minmax(240px,0.9fr)]">
+            <KpiCards stats={stats} dense drawdown={drawdown} />
+            <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1.85fr)_minmax(220px,0.72fr)]">
               <EquityCurve data={equity} />
               <MarketDistribution trades={trades} currency={profile.currency} />
             </div>
-            <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)]">
+            <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
               <PerformanceBars trades={trades} currency={profile.currency} />
               <RecentTrades trades={trades} />
             </div>
             <SnapshotRow snapshots={snapshots} currency={profile.currency} />
+            <p className="pt-1 text-center text-[11px] tracking-[0.16em] text-muted-foreground/80 uppercase">
+              {copy.dashboard.motto}
+            </p>
           </>
         )}
       </div>
