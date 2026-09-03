@@ -6,7 +6,6 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts"
 import { SegmentedControl } from "@/components/layout/segmented-control"
 import {
   Card,
-  CardAction,
   CardContent,
   CardHeader,
   CardTitle,
@@ -78,9 +77,9 @@ export function MarketDistribution({
       size="sm"
       className={fill ? "h-full min-h-0 gap-0 py-0 lg:min-h-0" : undefined}
     >
-      <CardHeader className="shrink-0 grid-cols-[1fr_auto] items-center border-b border-border py-2">
-        <CardTitle>{copy.dashboard.marketDistribution}</CardTitle>
-        <CardAction className="self-center">
+      <CardHeader className="shrink-0 border-b border-border py-2">
+        <div className="flex flex-wrap items-center justify-between gap-1.5">
+          <CardTitle>{copy.dashboard.marketDistribution}</CardTitle>
           <SegmentedControl
             size="sm"
             options={DISTRIBUTION_METRICS}
@@ -89,7 +88,7 @@ export function MarketDistribution({
             labels={METRIC_LABELS}
             aria-label={copy.dashboard.marketDistribution}
           />
-        </CardAction>
+        </div>
       </CardHeader>
       <CardContent
         className={
@@ -103,8 +102,8 @@ export function MarketDistribution({
             {copy.dashboard.marketDistributionEmpty}
           </p>
         ) : (
-          <div className="flex min-h-0 flex-1 flex-col items-stretch gap-3 sm:flex-row sm:items-center">
-            <div className="relative mx-auto aspect-square size-[128px] shrink-0 sm:mx-0">
+          <div className="flex min-h-0 flex-1 flex-col items-stretch gap-2">
+            <div className="relative mx-auto aspect-square size-[120px] shrink-0">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
