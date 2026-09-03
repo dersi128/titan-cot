@@ -4,6 +4,7 @@ import { MOCK_TRADES } from "@/lib/mock-data"
 import {
   buildMonthCalendar,
   calendarDayHref,
+  formatMonthShort,
   formatMonthTitle,
   initialCalendarMonth,
   shiftMonth,
@@ -153,5 +154,13 @@ describe("formatMonthTitle", () => {
   it("localizes the month name", () => {
     expect(formatMonthTitle({ year: 2026, month: 8 }, "en")).toBe("August 2026")
     expect(formatMonthTitle({ year: 2026, month: 8 }, "cs").toLowerCase()).toContain("srpen")
+  })
+})
+
+describe("formatMonthShort", () => {
+  it("uses short Czech and English month names", () => {
+    expect(formatMonthShort({ year: 2026, month: 8 }, "cs")).toBe("Srp")
+    expect(formatMonthShort({ year: 2026, month: 1 }, "cs")).toBe("Led")
+    expect(formatMonthShort({ year: 2026, month: 8 }, "en")).toBe("Aug")
   })
 })
