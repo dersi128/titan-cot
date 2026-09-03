@@ -464,7 +464,7 @@ html[data-density="large"] {
   .titan-logo-lockup {
     display: block;
     width: 100%;
-    height: 8.5rem;
+    height: 13rem;
     object-fit: contain;
     object-position: center;
     filter: drop-shadow(0 0 14px color-mix(in srgb, var(--sidebar-accent-color) 32%, transparent));
@@ -525,7 +525,7 @@ html[data-density="large"] {
     flex-direction: column;
     align-items: center;
     gap: 0.4rem;
-    padding: 0.15rem 0.35rem 0.85rem;
+    padding: 0.1rem 0.15rem 0.7rem;
   }
 
   .titan-sidebar-logo {
