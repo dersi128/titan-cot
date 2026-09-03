@@ -77,7 +77,7 @@ function TopBar({ onOpenNav }: { onOpenNav: () => void }) {
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
-  const fit = pathname === "/dashboard" || pathname === "/calendar"
+  const fit = pathname === "/calendar"
   const { copy } = useLabels()
   const { preferences } = useWorkspace()
   const isTablet = useIsTabletNav()

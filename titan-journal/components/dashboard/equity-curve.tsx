@@ -1,5 +1,6 @@
 "use client"
 
+import { useMemo, useState } from "react"
 import {
   Area,
   AreaChart,
@@ -10,10 +11,12 @@ import {
   YAxis,
 } from "recharts"
 
+import { SegmentedControl } from "@/components/layout/segmented-control"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   formatChartDate,
   formatDate,
+  formatSignedPercentPoints,
   formatSignedR,
   formatSignedUsd,
 } from "@/lib/format"
@@ -21,16 +24,29 @@ import { LOCALE } from "@/lib/locale"
 import { useLabels } from "@/lib/use-labels"
 import type { EquityPoint } from "@/lib/trade-calculations"
 
+const EQUITY_METRICS = ["pnl", "r", "pct"] as const
+type EquityMetric = (typeof EQUITY_METRICS)[number]
+
+type ChartPoint = EquityPoint & { pnl: number; pct: number }
+
 function EquityTooltip({
   active,
   payload,
+  metric,
 }: {
   active?: boolean
-  payload?: Array<{ payload: EquityPoint }>
+  payload?: Array<{ payload: ChartPoint }>
+  metric: EquityMetric
 }) {
   const { copy } = useLabels()
   if (!active || !payload?.[0]) return null
   const point = payload[0].payload
+  const value =
+    metric === "r"
+      ? formatSignedR(point.r)
+      : metric === "pct"
+        ? formatSignedPercentPoints(point.pct)
+        : formatSignedUsd(point.pnl)
 
   return (
     <div className="rounded-[10px] border border-border bg-popover px-3 py-2 text-[12px] shadow-lg">
@@ -38,35 +54,59 @@ function EquityTooltip({
         {point.date ? formatDate(point.date) : point.label}
       </p>
       <p className="mt-1 tabular-nums text-foreground">
-        {copy.dashboard.equity} {formatSignedUsd(point.equity)}
+        {metric === "r"
+          ? copy.dashboard.byR
+          : metric === "pct"
+            ? copy.dashboard.percent
+            : copy.dashboard.byPnl}{" "}
+        {value}
       </p>
       <p className="tabular-nums text-muted-foreground">
-        R {formatSignedR(point.r)}
+        {copy.dashboard.equity} {formatSignedUsd(point.equity)}
       </p>
     </div>
   )
 }
 
-export function EquityCurve({
-  data,
-  fill = false,
-}: {
-  data: EquityPoint[]
-  fill?: boolean
-}) {
+export function EquityCurve({ data }: { data: EquityPoint[] }) {
   const { copy } = useLabels()
+  const [metric, setMetric] = useState<EquityMetric>("pnl")
+  const start = data[0]?.equity ?? 0
+  const chart = useMemo<ChartPoint[]>(
+    () =>
+      data.map((point) => ({
+        ...point,
+        pnl: Math.round((point.equity - start) * 100) / 100,
+        pct: start === 0 ? 0 : Math.round(((point.equity - start) / start) * 1000) / 10,
+      })),
+    [data, start]
+  )
+  const labels: Record<EquityMetric, string> = {
+    pnl: copy.dashboard.byPnl,
+    r: copy.dashboard.byR,
+    pct: copy.dashboard.percent,
+  }
+  const dataKey: EquityMetric = metric
+
   return (
-    <Card
-      size="sm"
-      className={fill ? "h-full min-h-0 gap-0 py-0 lg:min-h-0" : undefined}
-    >
+    <Card size="sm" className="h-full min-h-[260px] gap-0 py-0">
       <CardHeader className="shrink-0 border-b border-border py-2">
-        <CardTitle>{copy.dashboard.equityCurve}</CardTitle>
+        <div className="flex flex-wrap items-center justify-between gap-1.5">
+          <CardTitle>{copy.dashboard.equityCurve}</CardTitle>
+          <SegmentedControl
+            size="sm"
+            options={EQUITY_METRICS}
+            value={metric}
+            onChange={setMetric}
+            labels={labels}
+            aria-label={copy.dashboard.equityCurve}
+          />
+        </div>
       </CardHeader>
-      <CardContent className={fill ? "flex min-h-0 flex-1 flex-col pt-2 pb-2" : "pt-3"}>
-        <div className={fill ? "min-h-[140px] flex-1 lg:min-h-0" : "h-52"}>
+      <CardContent className="flex min-h-0 flex-1 flex-col pt-2 pb-2">
+        <div className="min-h-[220px] flex-1">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
+            <AreaChart data={chart} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="equityFill" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.28} />
@@ -86,18 +126,20 @@ export function EquityCurve({
                 tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
                 tickLine={false}
                 axisLine={false}
-                width={76}
-                tickFormatter={(value: number) =>
-                  Math.round(value).toLocaleString(LOCALE)
-                }
+                width={64}
+                tickFormatter={(value: number) => {
+                  if (metric === "r") return `${Math.round(value)}R`
+                  if (metric === "pct") return `${Math.round(value)}%`
+                  return Math.round(value).toLocaleString(LOCALE)
+                }}
               />
               <Tooltip
                 cursor={{ stroke: "var(--chart-1)", strokeWidth: 1 }}
-                content={<EquityTooltip />}
+                content={<EquityTooltip metric={metric} />}
               />
               <Area
                 type="monotone"
-                dataKey="equity"
+                dataKey={dataKey}
                 stroke="var(--chart-1)"
                 fill="url(#equityFill)"
                 strokeWidth={1.75}
