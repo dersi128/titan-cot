@@ -1,4 +1,4 @@
-import { tradeInRange, type DateRange } from "@/lib/date-range"
+import { tradeInRange, type CustomRange, type DateRange } from "@/lib/date-range"
 import type { AccountCapital } from "@/types/playbook"
 import type { Account, Trade } from "@/types/trade"
 
@@ -8,11 +8,11 @@ export function filterTradesByAccount(trades: Trade[], account: Account): Trade[
 
 export function filterTradesByScope(
   trades: Trade[],
-  scope: { account: Account; range: DateRange },
+  scope: { account: Account; range: DateRange; custom?: CustomRange | null },
   now = new Date()
 ): Trade[] {
   return filterTradesByAccount(trades, scope.account).filter((trade) =>
-    tradeInRange(trade, scope.range, now)
+    tradeInRange(trade, scope.range, now, scope.custom)
   )
 }
 

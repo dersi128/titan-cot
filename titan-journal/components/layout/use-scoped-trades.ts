@@ -15,7 +15,7 @@ import { computeDashboardStats } from "@/lib/trade-calculations"
 
 export function useScopedTrades() {
   const { trades, isReady } = useTrades()
-  const { account, range } = useWorkspaceChrome()
+  const { account, range, custom } = useWorkspaceChrome()
   const { profile } = useWorkspace()
 
   const byAccount = useMemo(
@@ -23,8 +23,8 @@ export function useScopedTrades() {
     [trades, account]
   )
   const scoped = useMemo(
-    () => filterTradesByScope(trades, { account, range }),
-    [trades, account, range]
+    () => filterTradesByScope(trades, { account, range, custom }),
+    [trades, account, range, custom]
   )
   const stats = useMemo(() => computeDashboardStats(scoped), [scoped])
   const capital = capitalForAccount(profile.capital, account)
