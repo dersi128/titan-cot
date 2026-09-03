@@ -246,11 +246,14 @@ export function JournalPage() {
         title={copy.journal.title}
         description={copy.journal.description}
         actions={
-          accountTrades.length > 0 ? (
-            <Button asChild>
-              <Link href="/new-trade">{copy.nav.newTrade}</Link>
-            </Button>
-          ) : null
+          <div className="flex flex-wrap items-start justify-end gap-2">
+            {accountTrades.length > 0 ? (
+              <Button asChild>
+                <Link href="/new-trade">{copy.nav.newTrade}</Link>
+              </Button>
+            ) : null}
+            <ClearJournal />
+          </div>
         }
       />
 
@@ -490,7 +493,6 @@ export function JournalPage() {
       </div>
         </>
       )}
-      <ClearJournal />
     </PageFrame>
   )
 }
