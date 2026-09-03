@@ -2,7 +2,18 @@
 
 import dynamic from "next/dynamic"
 import { useMemo, type ReactNode } from "react"
-import { ArrowDown, ArrowUp, TrendingUp } from "lucide-react"
+import {
+  ArrowDown,
+  ArrowUp,
+  CircleCheck,
+  CircleX,
+  Hash,
+  Percent,
+  Scale,
+  Sigma,
+  TrendingDown,
+  TrendingUp,
+} from "lucide-react"
 
 import { EdgeBadge } from "@/components/analytics/edge-badge"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
@@ -106,22 +117,20 @@ function StatCard({
   hint,
   valueClassName,
   hintClassName,
-  dot,
+  icon,
 }: {
   label: string
   value: string
   hint?: string
   valueClassName?: string
   hintClassName?: string
-  dot?: string
+  icon?: ReactNode
 }) {
   return (
     <article className="titan-kpi rounded-[10px] px-4 py-3">
-      <div className="flex items-center gap-2">
-        {dot ? (
-          <span className="size-2 rounded-full" style={{ background: dot }} />
-        ) : null}
+      <div className="flex items-start justify-between gap-2">
         <p className="text-[11px] text-muted-foreground">{label}</p>
+        {icon}
       </div>
       <p
         className={cn(
@@ -334,7 +343,7 @@ export function AnalyticsPage() {
             hint={copy.analytics.expectedPerTrade}
             valueClassName={signedClassName(edge.averageR)}
             highlight
-            icon={<TrendingUp className="size-4 text-primary" />}
+            icon={<TrendingUp className="size-3.5 text-primary" />}
             badge={edge.trades > 0 ? <EdgeBadge edge={edge.edge} /> : null}
           />
           <KpiCard
@@ -345,23 +354,25 @@ export function AnalyticsPage() {
                 ? `${edge.wins} / ${edge.trades} ${copy.analytics.trades}`
                 : undefined
             }
+            icon={<Percent className="size-3.5 text-muted-foreground" />}
           />
           <KpiCard
             label={copy.dashboard.profitFactor}
             value={formatNumber(edge.profitFactor)}
             hint={copy.analytics.profitFactorHint}
+            icon={<Scale className="size-3.5 text-muted-foreground" />}
           />
           <KpiCard
             label={copy.analytics.avgWin}
             value={formatSignedR(edge.avgWinR)}
             valueClassName="text-bull"
-            icon={<ArrowUp className="size-4 text-bull" />}
+            icon={<ArrowUp className="size-3.5 text-bull" />}
           />
           <KpiCard
             label={copy.analytics.avgLoss}
             value={formatSignedR(edge.avgLossR)}
             valueClassName="text-bear"
-            icon={<ArrowDown className="size-4 text-bear" />}
+            icon={<ArrowDown className="size-3.5 text-bear" />}
           />
         </div>
 
@@ -384,12 +395,13 @@ export function AnalyticsPage() {
                 : `${formatSignedPercentPoints(tradeDelta)} ${copy.analytics.vsPrevious}`
             }
             hintClassName={tradeDelta == null ? undefined : signedClassName(tradeDelta)}
+            icon={<Hash className="size-3.5 text-muted-foreground" />}
           />
           <StatCard
             label={copy.analytics.winningTrades}
             value={`${edge.wins}`}
             hint={formatPercent(edge.winRate)}
-            dot="var(--bull)"
+            icon={<CircleCheck className="size-3.5 text-bull" />}
           />
           <StatCard
             label={copy.analytics.losingTrades}
@@ -399,17 +411,19 @@ export function AnalyticsPage() {
                 ? formatPercent(edge.losses / (edge.wins + edge.losses))
                 : "—"
             }
-            dot="var(--bear)"
+            icon={<CircleX className="size-3.5 text-bear" />}
           />
           <StatCard
             label={copy.dashboard.maxDrawdown}
             value={formatSignedR(edge.maxDrawdownR)}
             valueClassName={signedClassName(edge.maxDrawdownR)}
+            icon={<TrendingDown className="size-3.5 text-bear" />}
           />
           <StatCard
             label={`${copy.analytics.expectancy} (R)`}
             value={formatSignedR(edge.averageR)}
             valueClassName={signedClassName(edge.averageR)}
+            icon={<Sigma className="size-3.5 text-muted-foreground" />}
           />
         </div>
 
