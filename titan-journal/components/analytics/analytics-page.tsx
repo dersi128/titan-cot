@@ -3,14 +3,12 @@
 import dynamic from "next/dynamic"
 import { useMemo, type ReactNode } from "react"
 import { ArrowDown, ArrowUp, TrendingUp } from "lucide-react"
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts"
 
 import { EdgeBadge } from "@/components/analytics/edge-badge"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
 import { useScopedTrades } from "@/components/layout/use-scoped-trades"
 import { useWorkspaceChrome } from "@/components/layout/workspace-chrome"
 import { useWorkspace } from "@/components/layout/workspace-provider"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   accountEdge,
@@ -30,14 +28,6 @@ import { buildEquityCurve } from "@/lib/trade-calculations"
 import { useLabels } from "@/lib/use-labels"
 import { cn } from "@/lib/utils"
 import type { Trade } from "@/types/trade"
-
-const MIX_COLORS = [
-  "var(--chart-1)",
-  "var(--chart-2)",
-  "var(--chart-3)",
-  "var(--chart-4)",
-  "var(--chart-5)",
-]
 
 const EquityCurve = dynamic(
   () =>
@@ -286,122 +276,6 @@ function MarketTable({ rows }: { rows: GroupStats[] }) {
   )
 }
 
-type MixSlice = {
-  key: string
-  label: string
-  trades: number
-  share: number
-  color: string
-}
-
-function MixTooltip({
-  active,
-  payload,
-}: {
-  active?: boolean
-  payload?: Array<{ payload: MixSlice }>
-}) {
-  if (!active || !payload?.[0]) return null
-  const slice = payload[0].payload
-  return (
-    <div className="rounded-[10px] border border-border bg-popover px-3 py-2 text-[12px] shadow-lg">
-      <p className="font-medium">{slice.label}</p>
-      <p className="mt-0.5 font-mono tabular-nums">
-        {slice.trades}
-        <span className="ml-2 text-muted-foreground">
-          {Math.round(slice.share * 100)}%
-        </span>
-      </p>
-    </div>
-  )
-}
-
-function SetupMix({
-  rows,
-  names,
-  colors,
-}: {
-  rows: GroupStats[]
-  names: Record<string, string>
-  colors: Record<string, string>
-}) {
-  const { copy } = useLabels()
-  const total = rows.reduce((sum, row) => sum + row.trades, 0)
-  const slices = rows.map((row, index) => ({
-    key: row.key,
-    label: names[row.key] ?? row.key,
-    trades: row.trades,
-    share: total > 0 ? row.trades / total : 0,
-    color: colors[row.key] || MIX_COLORS[index % MIX_COLORS.length],
-  }))
-
-  return (
-    <Card size="sm" className="h-full gap-0 py-0">
-      <CardHeader className="border-b border-border py-2">
-        <CardTitle>{copy.analytics.tradeMix}</CardTitle>
-      </CardHeader>
-      <CardContent className="pt-3 pb-3">
-        {slices.length === 0 ? (
-          <p className="py-6 text-center text-[12px] text-muted-foreground">
-            {copy.analytics.empty}
-          </p>
-        ) : (
-          <div className="flex flex-col items-stretch gap-3">
-            <div className="relative mx-auto aspect-square size-[140px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={slices}
-                    dataKey="trades"
-                    nameKey="label"
-                    cx="50%"
-                    cy="50%"
-                    innerRadius="68%"
-                    outerRadius="92%"
-                    paddingAngle={slices.length > 1 ? 2 : 0}
-                    stroke="none"
-                    isAnimationActive={false}
-                  >
-                    {slices.map((slice) => (
-                      <Cell key={slice.key} fill={slice.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip content={<MixTooltip />} />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                <p className="text-[10px] text-muted-foreground">
-                  {copy.dashboard.totalTradesLabel}
-                </p>
-                <p className="font-mono text-[16px] font-medium tabular-nums">
-                  {total}
-                </p>
-              </div>
-            </div>
-            <ul className="space-y-1.5">
-              {slices.map((slice) => (
-                <li
-                  key={slice.key}
-                  className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 text-[11px]"
-                >
-                  <span
-                    className="size-2 rounded-full"
-                    style={{ background: slice.color }}
-                  />
-                  <span className="truncate">{slice.label}</span>
-                  <span className="font-mono tabular-nums text-muted-foreground">
-                    {Math.round(slice.share * 100)}%
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  )
-}
-
 export function AnalyticsPage() {
   const { copy } = useLabels()
   const { playbooks } = useWorkspace()
@@ -427,25 +301,12 @@ export function AnalyticsPage() {
     () => Object.fromEntries(playbooks.map((item) => [item.id, item.name])),
     [playbooks]
   )
-  const playbookColors = useMemo(
-    () =>
-      Object.fromEntries(
-        playbooks
-          .filter((item) => item.color)
-          .map((item) => [item.id, item.color as string])
-      ),
-    [playbooks]
-  )
-  const setupMix = useMemo(
-    () => cappedGroups(trades, playbookKey, 6, copy.analytics.others),
-    [copy.analytics.others, trades]
-  )
   const setupRows = useMemo(
     () =>
-      [...setupMix].sort(
+      [...cappedGroups(trades, playbookKey, 6, copy.analytics.others)].sort(
         (a, b) => (b.averageR ?? -999) - (a.averageR ?? -999)
       ),
-    [setupMix]
+    [copy.analytics.others, trades]
   )
   const marketRows = useMemo(
     () =>
@@ -552,14 +413,9 @@ export function AnalyticsPage() {
           />
         </div>
 
-        <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.95fr)_minmax(220px,0.75fr)]">
+        <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
           <SetupTable rows={setupRows} names={playbookNames} />
           <MarketTable rows={marketRows} />
-          <SetupMix
-            rows={setupMix}
-            names={playbookNames}
-            colors={playbookColors}
-          />
         </div>
       </div>
     </PageFrame>
