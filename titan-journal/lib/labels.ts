@@ -226,6 +226,10 @@ export const copy = {
   },
 
   comingSoon: "Not in this version.",
+  saveState: {
+    unsaved: "Unsaved changes",
+    saved: "Saved",
+  },
   notFound: {
     title: "Not found",
     description: "This page does not exist.",

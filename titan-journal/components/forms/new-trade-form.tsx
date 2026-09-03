@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 
 import { Field, OptionPills } from "@/components/forms/field"
@@ -10,12 +10,13 @@ import { useWorkspace } from "@/components/layout/workspace-provider"
 import { PlaybookFieldInput } from "@/components/playbooks/playbook-field-input"
 import { MarketBadges } from "@/components/trades/market-badges"
 import { useTrades } from "@/components/trades/trades-provider"
-import { Button } from "@/components/ui/button"
+import { SaveButton } from "@/components/forms/save-button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { classifyMarket } from "@/lib/market-classification"
 import { dollarsPerR } from "@/lib/account-scope"
 import { formatUsd } from "@/lib/format"
+import { isDirty } from "@/lib/dirty"
 import { ACCOUNT_LABELS, copy } from "@/lib/labels"
 import { todayIsoDate } from "@/lib/locale"
 import { applyTitanFieldValuesToLegacy } from "@/lib/playbook-legacy"
@@ -99,6 +100,25 @@ export function TradeForm({ trade }: { trade?: Trade }) {
   )
   const [pnl, setPnl] = useState(trade?.pnl == null ? "" : String(trade.pnl))
   const [error, setError] = useState<string | null>(null)
+
+  const draft = {
+    date,
+    symbol,
+    direction,
+    entry,
+    stopLoss,
+    takeProfit,
+    riskPercent,
+    account,
+    playbookId,
+    notes,
+    screenshot,
+    fieldValues,
+    resultR,
+    pnl,
+  }
+  const baseline = useRef(draft)
+  const dirty = isDirty(draft, baseline.current)
 
   const classification = useMemo(() => classifyMarket(symbol), [symbol])
   const playbook =
@@ -357,9 +377,9 @@ export function TradeForm({ trade }: { trade?: Trade }) {
         ) : null}
 
         {error ? <p className="text-sm text-destructive">{error}</p> : null}
-        <Button type="submit">
+        <SaveButton type="submit" dirty={dirty}>
           {editing ? copy.form.saveChanges : copy.form.save}
-        </Button>
+        </SaveButton>
       </form>
     </PageFrame>
   )

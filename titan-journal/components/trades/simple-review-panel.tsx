@@ -3,10 +3,11 @@
 import { useState } from "react"
 
 import { Field, OptionPills } from "@/components/forms/field"
-import { Button } from "@/components/ui/button"
+import { SaveButton } from "@/components/forms/save-button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 import { useTrades } from "@/components/trades/trades-provider"
+import { isDirty } from "@/lib/dirty"
 import { copy } from "@/lib/labels"
 import { isReviewAvailable } from "@/lib/review-calculations"
 import type { Trade } from "@/types/trade"
@@ -24,9 +25,17 @@ export function SimpleReviewPanel({ trade }: { trade: Trade }) {
   )
   const [note, setNote] = useState(existing?.learningNote ?? "")
   const [saved, setSaved] = useState(existing?.completed === true)
+  const [baseline, setBaseline] = useState({
+    followed,
+    again,
+    note: existing?.learningNote ?? "",
+  })
 
   if (!isReviewAvailable(trade) && trade.status !== "CLOSED") return null
   if (trade.status !== "CLOSED" && trade.status !== "REVIEWED") return null
+
+  const draft = { followed, again, note }
+  const dirty = isDirty(draft, baseline)
 
   function handleSave() {
     if (followed == null || again == null) return
@@ -48,6 +57,7 @@ export function SimpleReviewPanel({ trade }: { trade: Trade }) {
         reviewedAt: new Date().toISOString(),
       },
     })
+    setBaseline({ followed, again, note })
     setSaved(true)
   }
 
@@ -81,13 +91,14 @@ export function SimpleReviewPanel({ trade }: { trade: Trade }) {
             onChange={(event) => setNote(event.target.value)}
           />
         </Field>
-        <Button
+        <SaveButton
           type="button"
+          dirty={dirty}
           onClick={handleSave}
           disabled={followed == null || again == null}
         >
           {copy.detail.saveReview}
-        </Button>
+        </SaveButton>
       </CardContent>
     </Card>
   )
