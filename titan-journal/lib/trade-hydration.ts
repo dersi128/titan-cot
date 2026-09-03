@@ -196,6 +196,7 @@ export function hydrateTrade(raw: unknown): Trade | null {
     cotBias: cotEnabled ? asNullableBias(row.cotBias) ?? "Neutral" : null,
     cotScore: cotEnabled ? asNullableNumber(row.cotScore) ?? 0 : null,
     commercialsBias: cotEnabled ? asNullableBias(row.commercialsBias) : null,
+    cotReportDate: cotEnabled ? asString(row.cotReportDate).slice(0, 10) || null : null,
     seasonalityBias: asEnum(row.seasonalityBias, BIASES, "Neutral"),
     seasonalWindow: asBoolean(row.seasonalWindow, false),
     grade: asEnum(row.grade, GRADES, "B"),

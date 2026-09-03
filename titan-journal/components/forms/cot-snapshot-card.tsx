@@ -22,10 +22,14 @@ function biasClass(bias: Bias): string {
 export function CotSnapshotCard({
   symbol,
   direction,
+  date,
+  frozen,
   onSnapshot,
 }: {
   symbol: string
   direction: TradeDirection
+  date: string
+  frozen?: CotLiveSnapshot | null
   onSnapshot: (snapshot: CotLiveSnapshot | null) => void
 }) {
   const { copy, BIAS_LABELS } = useLabels()
@@ -36,7 +40,18 @@ export function CotSnapshotCard({
   )
   const [data, setData] = useState<CotLiveSnapshot | null>(null)
 
+  const frozenKey = frozen
+    ? `${frozen.symbol}|${frozen.reportDate}|${frozen.cotScore}|${frozen.pairBias}|${frozen.commercialsBias}`
+    : ""
+
   useEffect(() => {
+    if (frozen) {
+      setData(frozen)
+      setStatus("ready")
+      onSnapshotRef.current(frozen)
+      return
+    }
+
     onSnapshotRef.current(null)
     setData(null)
 
@@ -47,13 +62,14 @@ export function CotSnapshotCard({
 
     const controller = new AbortController()
     setStatus("loading")
+    const params = new URLSearchParams({ symbol })
+    if (date) params.set("date", date)
     const timer = window.setTimeout(() => {
       void (async () => {
         try {
-          const response = await fetch(
-            `/api/cot?symbol=${encodeURIComponent(symbol)}`,
-            { signal: controller.signal }
-          )
+          const response = await fetch(`/api/cot?${params.toString()}`, {
+            signal: controller.signal,
+          })
           const json: unknown = await response.json()
           if (
             !json ||
@@ -79,7 +95,7 @@ export function CotSnapshotCard({
       controller.abort()
       window.clearTimeout(timer)
     }
-  }, [symbol])
+  }, [symbol, date, frozen, frozenKey])
 
   if (!hasCotLink(symbol)) return null
 
@@ -156,6 +172,9 @@ export function CotSnapshotCard({
           >
             {alignLabel}
           </p>
+          {frozen ? (
+            <p className="text-[11px] text-muted-foreground">{copy.form.cotFrozen}</p>
+          ) : null}
           {data.invert ? (
             <p className="text-[11px] text-muted-foreground">
               {copy.form.cotInverse

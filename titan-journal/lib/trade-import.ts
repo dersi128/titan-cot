@@ -368,6 +368,7 @@ export function tradeFromBrokerFill(
     cotBias: cot.cotBias,
     cotScore: cot.cotScore,
     commercialsBias: cot.commercialsBias,
+    cotReportDate: null,
     seasonalityBias: "Neutral",
     seasonalWindow: false,
     grade: "B",

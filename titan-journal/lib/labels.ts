@@ -277,6 +277,7 @@ export const copyEn = {
     cotAgainst: "Against COT",
     cotNeutral: "Neutral COT",
     cotInverse: "{pair} is inverse of {market}",
+    cotFrozen: "Saved with this trade. New weekly reports do not change it.",
   },
 
   analytics: {
@@ -388,6 +389,7 @@ export const copyEn = {
     importBad: "This file cannot be imported. Use JSON backup, CSV, or HTML statement.",
     importNeedCsv:
       "Excel (.xlsx) is not supported. In the broker, save the report as CSV or HTML.",
+    importCot: "Reading COT for imported trades…",
   },
 
   profile: {
@@ -695,6 +697,7 @@ export const copyCs: Copy = {
     cotAgainst: "Proti COT",
     cotNeutral: "Neutrální COT",
     cotInverse: "{pair} je inverzní k {market}",
+    cotFrozen: "Uložené k tomuto obchodu. Nové týdenní reporty to nemění.",
   },
 
   analytics: {
@@ -806,6 +809,7 @@ export const copyCs: Copy = {
     importBad: "Tento soubor nejde naimportovat. Použij JSON zálohu, CSV nebo HTML výpis.",
     importNeedCsv:
       "Excel (.xlsx) deník neumí. V brokeru report ulož jako CSV nebo HTML.",
+    importCot: "Doplňuji COT k naimportovaným obchodům…",
   },
 
   profile: {

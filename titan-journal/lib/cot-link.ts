@@ -252,6 +252,104 @@ function asRecord(value: unknown): Record<string, unknown> | null {
   return value as Record<string, unknown>
 }
 
+function isoDay(value: string): string {
+  return value.slice(0, 10)
+}
+
+function historyPoints(row: Record<string, unknown>): {
+  reportDate: string
+  commercialNet: number
+}[] {
+  if (!Array.isArray(row.history)) return []
+  return row.history
+    .map((point) => {
+      const item = asRecord(point)
+      if (!item) return null
+      const reportDate =
+        typeof item.reportDate === "string" ? isoDay(item.reportDate) : ""
+      const commercialNet =
+        typeof item.commercialNet === "number" && Number.isFinite(item.commercialNet)
+          ? item.commercialNet
+          : null
+      if (!reportDate || commercialNet == null) return null
+      return { reportDate, commercialNet }
+    })
+    .filter((point): point is { reportDate: string; commercialNet: number } => point != null)
+    .sort((a, b) => a.reportDate.localeCompare(b.reportDate))
+}
+
+function cotIndexAgainstPrior(series: number[], lookback: number): number {
+  if (series.length < lookback + 1) return 50
+  const current = series[series.length - 1]!
+  const prior = series.slice(-(lookback + 1), -1)
+  const min = Math.min(...prior)
+  const max = Math.max(...prior)
+  if (max === min) return 50
+  return Math.round(((current - min) / (max - min)) * 10000) / 100
+}
+
+export function applyCotAsOf(payload: unknown, asOf: string): unknown {
+  const row = asRecord(payload)
+  const want = isoDay(asOf)
+  if (!row || !/^\d{4}-\d{2}-\d{2}$/.test(want)) return payload
+
+  const latest = typeof row.reportDate === "string" ? isoDay(row.reportDate) : ""
+  const points = historyPoints(row)
+  if (points.length === 0) return payload
+
+  const sliced = points.filter((point) => point.reportDate <= want)
+  if (sliced.length === 0) return payload
+  const picked = sliced[sliced.length - 1]!
+  if (picked.reportDate === latest) return payload
+
+  const index26w = cotIndexAgainstPrior(
+    sliced.map((point) => point.commercialNet),
+    26
+  )
+  const bias =
+    index26w > 80 ? "bullish" : index26w < 20 ? "bearish" : "neutral"
+  const prevCommercials = asRecord(row.commercials) ?? {}
+
+  return {
+    ...row,
+    reportDate: picked.reportDate,
+    commercials: { ...prevCommercials, bias, index26w },
+    cotScore: clampCotScore((index26w - 50) * 2),
+  }
+}
+
+export function snapshotFromTrade(
+  trade: {
+    symbol: string
+    cotEnabled: boolean
+    cotBias?: Bias | null
+    commercialsBias?: Bias | null
+    cotScore?: number | null
+    cotReportDate?: string | null
+  }
+): CotLiveSnapshot | null {
+  if (!trade.cotEnabled) return null
+  const link = resolveCotLink(trade.symbol)
+  if (!link) return null
+  const pairBias = trade.cotBias ?? "Neutral"
+  const commercialsBias = trade.commercialsBias ?? pairBias
+  const cotScore = trade.cotScore ?? 0
+  return {
+    ok: true,
+    symbol: key(trade.symbol),
+    slug: link.slug,
+    futuresSymbol: link.futuresSymbol,
+    market: link.label,
+    reportDate: trade.cotReportDate ?? "",
+    invert: link.invert,
+    commercialsBias,
+    pairBias,
+    cotScore,
+    futuresScore: link.invert ? clampCotScore(-cotScore) : clampCotScore(cotScore),
+    verdict: "",
+  }
+}
+
 export function compactCotFromApi(
   symbol: string,
   link: CotLink,
@@ -299,20 +397,33 @@ export function resolveSavedCot(input: {
   cotEnabled: boolean
   editing: boolean
   override?: { cotBias?: Bias; commercialsBias?: Bias }
-  live: Pick<CotLiveSnapshot, "pairBias" | "commercialsBias" | "cotScore"> | null
+  live: Pick<
+    CotLiveSnapshot,
+    "pairBias" | "commercialsBias" | "cotScore" | "reportDate"
+  > | null
   stored?: {
     cotBias?: Bias | null
     commercialsBias?: Bias | null
     cotScore?: number | null
+    cotReportDate?: string | null
   }
 }): {
   cotBias: Bias | null
   commercialsBias: Bias | null
   cotScore: number | null
+  cotReportDate: string | null
 } {
   if (!input.cotEnabled) {
-    return { cotBias: null, commercialsBias: null, cotScore: null }
+    return {
+      cotBias: null,
+      commercialsBias: null,
+      cotScore: null,
+      cotReportDate: null,
+    }
   }
+
+  const reportDate = (value: string | null | undefined) =>
+    value && /^\d{4}-\d{2}-\d{2}/.test(value) ? value.slice(0, 10) : null
 
   const overrideBias = input.override?.cotBias
   if (overrideBias) {
@@ -320,6 +431,9 @@ export function resolveSavedCot(input: {
       cotBias: overrideBias,
       commercialsBias: input.override?.commercialsBias ?? overrideBias,
       cotScore: input.live?.cotScore ?? input.stored?.cotScore ?? 0,
+      cotReportDate:
+        reportDate(input.live?.reportDate) ??
+        reportDate(input.stored?.cotReportDate),
     }
   }
 
@@ -328,6 +442,7 @@ export function resolveSavedCot(input: {
       cotBias: input.live.pairBias,
       commercialsBias: input.live.commercialsBias,
       cotScore: input.live.cotScore,
+      cotReportDate: reportDate(input.live.reportDate),
     }
   }
 
@@ -336,6 +451,8 @@ export function resolveSavedCot(input: {
     commercialsBias:
       input.stored?.commercialsBias ?? input.live?.commercialsBias ?? "Neutral",
     cotScore: input.stored?.cotScore ?? input.live?.cotScore ?? 0,
+    cotReportDate:
+      reportDate(input.stored?.cotReportDate) ?? reportDate(input.live?.reportDate),
   }
 }
 

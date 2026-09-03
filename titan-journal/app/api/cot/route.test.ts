@@ -1,9 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest"
 
-import { GET } from "@/app/api/cot/route"
+import { GET, resetCotCache } from "@/app/api/cot/route"
 
 describe("GET /api/cot", () => {
   afterEach(() => {
+    resetCotCache()
     vi.unstubAllGlobals()
     vi.restoreAllMocks()
   })
@@ -46,6 +47,36 @@ describe("GET /api/cot", () => {
       commercialsBias: "Bullish",
       pairBias: "Bearish",
       cotScore: -40,
+      reportDate: "2026-08-25",
+    })
+  })
+
+  it("returns the report week on or before the trade date", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          market: "EURO FX",
+          reportDate: "2026-08-25",
+          commercials: { bias: "bullish" },
+          cotScore: 55,
+          history: [
+            { reportDate: "2026-08-11", commercialNet: -80_000 },
+            { reportDate: "2026-08-18", commercialNet: -70_000 },
+            { reportDate: "2026-08-25", commercialNet: 10_000 },
+          ],
+        }),
+      })
+    )
+
+    const response = await GET(
+      new Request("http://journal.test/api/cot?symbol=EURUSD&date=2026-08-20")
+    )
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toMatchObject({
+      ok: true,
+      reportDate: "2026-08-18",
     })
   })
 

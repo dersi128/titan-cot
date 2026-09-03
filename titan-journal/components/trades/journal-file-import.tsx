@@ -6,14 +6,76 @@ import { Button } from "@/components/ui/button"
 import { useWorkspace } from "@/components/layout/workspace-provider"
 import { useTrades } from "@/components/trades/trades-provider"
 import {
+  hasCotLink,
+  type CotLiveSnapshot,
+} from "@/lib/cot-link"
+import {
   IMPORT_FILE_ACCEPT,
   materializeImportedTrades,
   parseImportFile,
   type ImportContext,
 } from "@/lib/trade-import"
 import { useLabels } from "@/lib/use-labels"
+import type { NewTradeInput } from "@/types/trade"
 
-type ImportStatus = "idle" | "ok" | "added" | "bad" | "xlsx"
+type ImportStatus = "idle" | "working" | "ok" | "added" | "bad" | "xlsx"
+
+async function fillImportedCot(inputs: NewTradeInput[]): Promise<NewTradeInput[]> {
+  const needed: Array<{ symbol: string; date: string }> = []
+  const seen = new Set<string>()
+  for (const input of inputs) {
+    if (!input.cotEnabled || !input.date || !hasCotLink(input.symbol)) continue
+    const key = `${input.symbol}|${input.date}`
+    if (seen.has(key)) continue
+    seen.add(key)
+    needed.push({ symbol: input.symbol, date: input.date })
+  }
+  if (needed.length === 0) return inputs
+
+  const snapshots = new Map<string, CotLiveSnapshot>()
+  const bySymbol = new Map<string, string[]>()
+  for (const item of needed) {
+    const dates = bySymbol.get(item.symbol) ?? []
+    dates.push(item.date)
+    bySymbol.set(item.symbol, dates)
+  }
+
+  for (const [symbol, dates] of bySymbol) {
+    await fetch(`/api/cot?symbol=${encodeURIComponent(symbol)}`).catch(() => null)
+    await Promise.all(
+      dates.map(async (date) => {
+        try {
+          const response = await fetch(
+            `/api/cot?symbol=${encodeURIComponent(symbol)}&date=${encodeURIComponent(date)}`
+          )
+          const json: unknown = await response.json()
+          if (
+            json &&
+            typeof json === "object" &&
+            "ok" in json &&
+            (json as { ok?: boolean }).ok === true
+          ) {
+            snapshots.set(`${symbol}|${date}`, json as CotLiveSnapshot)
+          }
+        } catch {
+          return
+        }
+      })
+    )
+  }
+
+  return inputs.map((input) => {
+    const snapshot = snapshots.get(`${input.symbol}|${input.date}`)
+    if (!snapshot) return input
+    return {
+      ...input,
+      cotBias: snapshot.pairBias,
+      commercialsBias: snapshot.commercialsBias,
+      cotScore: snapshot.cotScore,
+      cotReportDate: snapshot.reportDate || input.date,
+    }
+  })
+}
 
 export function useJournalImport() {
   const { copy, ACCOUNT_LABELS } = useLabels()
@@ -70,7 +132,9 @@ export function useJournalImport() {
           )
           if (!ok) return
         }
-        replaceAll([...materializeImportedTrades(parsed.trades), ...trades])
+        setStatus("working")
+        const withCot = await fillImportedCot(parsed.trades)
+        replaceAll([...materializeImportedTrades(withCot), ...trades])
         setAddedCount(parsed.trades.length)
         setStatus("added")
         return
@@ -96,7 +160,9 @@ export function useJournalImport() {
   )
 
   const message =
-    status === "ok" ? (
+    status === "working" ? (
+      <p className="text-[12px] text-muted-foreground">{copy.settings.importCot}</p>
+    ) : status === "ok" ? (
       <p className="text-[12px] text-bull">{copy.settings.importOk}</p>
     ) : status === "added" ? (
       <p className="text-[12px] text-bull">
@@ -111,21 +177,23 @@ export function useJournalImport() {
   return { pick, fileInput, message }
 }
 
-export function JournalImportCard() {
+export function JournalImportButton() {
   const { copy } = useLabels()
   const { pick, fileInput, message } = useJournalImport()
 
   return (
-    <section className="titan-glass rounded-[10px] p-5">
-      <h2 className="text-sm font-semibold">{copy.journal.importReport}</h2>
-      <p className="mt-1 text-[12px] text-muted-foreground">{copy.journal.importHint}</p>
-      <div className="mt-3">
-        <Button type="button" variant="outline" size="sm" onClick={pick}>
-          {copy.journal.importReport}
-        </Button>
-        {fileInput}
-      </div>
-      {message ? <div className="mt-2">{message}</div> : null}
-    </section>
+    <div className="flex flex-col items-end gap-1">
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="h-8 text-[12px]"
+        onClick={pick}
+      >
+        {copy.journal.importReport}
+      </Button>
+      {fileInput}
+      {message}
+    </div>
   )
 }

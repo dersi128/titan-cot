@@ -89,6 +89,7 @@ function fromSeed(seed: Seed): Trade {
         ? "Bearish"
         : "Bullish"
       : null,
+    cotReportDate: classification.cotEnabled ? seed.date : null,
     seasonalityBias: "Neutral",
     seasonalWindow: false,
     grade: seed.grade,

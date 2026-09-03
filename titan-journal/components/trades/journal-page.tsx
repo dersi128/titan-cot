@@ -28,7 +28,7 @@ import { PageFrame, PageHeader } from "@/components/layout/page-header"
 import { useScopedTrades } from "@/components/layout/use-scoped-trades"
 import { useWorkspace } from "@/components/layout/workspace-provider"
 import { ClearJournal } from "@/components/trades/clear-journal"
-import { JournalImportCard } from "@/components/trades/journal-file-import"
+import { JournalImportButton } from "@/components/trades/journal-file-import"
 import { ResultR } from "@/components/trades/result-r"
 import { TradePanel } from "@/components/trades/trade-panel"
 import {
@@ -247,11 +247,14 @@ export function JournalPage() {
         title={copy.journal.title}
         description={copy.journal.description}
         actions={
-          accountTrades.length > 0 ? (
-            <Button asChild>
-              <Link href="/new-trade">{copy.nav.newTrade}</Link>
-            </Button>
-          ) : null
+          <div className="flex flex-wrap items-start justify-end gap-2">
+            <JournalImportButton />
+            {accountTrades.length > 0 ? (
+              <Button asChild>
+                <Link href="/new-trade">{copy.nav.newTrade}</Link>
+              </Button>
+            ) : null}
+          </div>
         }
       />
 
@@ -489,8 +492,7 @@ export function JournalPage() {
           </aside>
         ) : null}
       </div>
-      <div className="mt-8 space-y-4">
-        <JournalImportCard />
+      <div className="mt-8">
         <ClearJournal />
       </div>
         </>
