@@ -65,6 +65,7 @@ export const ASSET_CLASSES = [
   "Forex",
   "Stock",
   "Commodity",
+  "Metal",
   "Index",
   "Crypto",
   "Unknown",

@@ -78,7 +78,7 @@ describe("workspace hydration", () => {
     expect(hydrateProfile({ avatar: "https://evil.example/x.png" }).avatar).toBeNull()
   })
 
-  it("fills capital, risk, and markets on an old profile", () => {
+  it("fills capital, risk, markets, and currency on an old profile", () => {
     const profile = hydrateProfile({ displayName: "Maya" })
     expect(profile.capital).toEqual({
       Personal: 10_000,
@@ -87,6 +87,7 @@ describe("workspace hydration", () => {
     })
     expect(profile.riskPercent).toBe(1)
     expect(profile.markets).toEqual(["Forex"])
+    expect(profile.currency).toBe("USD")
   })
 
   it("inherits settings risk when the profile has none", () => {
@@ -105,5 +106,7 @@ describe("workspace hydration", () => {
     expect(
       hydrateProfile({ markets: [] }).markets
     ).toEqual([])
+    expect(hydrateProfile({ currency: "eur" }).currency).toBe("EUR")
+    expect(hydrateProfile({ currency: "nope" }).currency).toBe("USD")
   })
 })

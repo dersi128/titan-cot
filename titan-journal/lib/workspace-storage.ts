@@ -1,3 +1,4 @@
+import { DEFAULT_CURRENCY, resolveCurrency } from "@/lib/currency"
 import {
   createTitanSwingPlaybook,
   normalizePlaybookName,
@@ -33,6 +34,7 @@ export const DEFAULT_PROFILE: UserProfile = {
   },
   riskPercent: 1,
   markets: ["Forex"],
+  currency: DEFAULT_CURRENCY,
 }
 
 export const DEFAULT_PREFERENCES: UserPreferences = {
@@ -173,6 +175,9 @@ export function hydrateProfile(
     capital: hydrateCapital(row.capital),
     riskPercent,
     markets: hydrateMarkets(row.markets),
+    currency: resolveCurrency(
+      typeof row.currency === "string" ? row.currency : DEFAULT_PROFILE.currency
+    ),
   }
 }
 

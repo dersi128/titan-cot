@@ -1,3 +1,7 @@
+import {
+  assetClassFromAlias,
+  assetClassFromCryptoPattern,
+} from "@/lib/market-aliases"
 import type {
   AssetClass,
   Bias,
@@ -36,6 +40,15 @@ export function normalizeSymbol(input: string): string {
   return input.toUpperCase().replaceAll(" ", "").replaceAll("/", "")
 }
 
+function classified(
+  symbol: string,
+  assetClass: AssetClass,
+  marketType: MarketType = "Unknown",
+  cotEnabled = false
+): MarketClassification {
+  return { symbol, assetClass, marketType, cotEnabled }
+}
+
 function isForexCurrency(code: string): boolean {
   return FOREX_CURRENCIES.has(code)
 }
@@ -49,20 +62,10 @@ function classifyForexPair(symbol: string): MarketClassification | null {
   if (!isForexCurrency(base) || !isForexCurrency(quote)) return null
 
   if (FOREX_MAJORS.has(symbol)) {
-    return {
-      symbol,
-      assetClass: "Forex",
-      marketType: "Major",
-      cotEnabled: true,
-    }
+    return classified(symbol, "Forex", "Major", true)
   }
 
-  return {
-    symbol,
-    assetClass: "Forex",
-    marketType: "Cross",
-    cotEnabled: false,
-  }
+  return classified(symbol, "Forex", "Cross", false)
 }
 
 export function classifyMarket(rawSymbol: string): MarketClassification {
@@ -70,6 +73,17 @@ export function classifyMarket(rawSymbol: string): MarketClassification {
   if (!symbol) {
     return { symbol: "", ...UNKNOWN }
   }
+
+  const aliased = assetClassFromAlias(symbol)
+  if (aliased) {
+    if (aliased === "Forex") {
+      return classifyForexPair(symbol) ?? classified(symbol, "Forex")
+    }
+    return classified(symbol, aliased)
+  }
+
+  const crypto = assetClassFromCryptoPattern(symbol)
+  if (crypto) return classified(symbol, crypto)
 
   return classifyForexPair(symbol) ?? { symbol, ...UNKNOWN }
 }
@@ -81,6 +95,10 @@ export function formatMarketLabel(classification: {
 }): string {
   if (classification.assetClass === "Unknown" || !classification.symbol) {
     return classification.symbol ? "Unknown" : ""
+  }
+
+  if (classification.marketType === "Unknown") {
+    return classification.assetClass
   }
 
   return `${classification.assetClass} · ${classification.marketType}`

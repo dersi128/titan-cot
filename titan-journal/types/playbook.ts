@@ -47,6 +47,7 @@ export const TRADING_MARKETS = [
   "Forex",
   "Index",
   "Commodity",
+  "Metal",
   "Crypto",
   "Stock",
 ] as const
@@ -66,6 +67,7 @@ export type UserProfile = {
   capital: AccountCapital
   riskPercent: number
   markets: TradingMarket[]
+  currency: string
 }
 
 export type UserPreferences = {
