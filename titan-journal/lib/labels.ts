@@ -74,6 +74,15 @@ export const copyEn = {
     result: "Result",
     r: "R",
     pnl: "PnL",
+    performance: "Performance by period",
+    performanceEmpty: "Not enough data to show performance by period.",
+    byWeek: "Week",
+    byMonth: "Month",
+    candleOpen: "Open",
+    candleHigh: "High",
+    candleLow: "Low",
+    candleClose: "Close",
+    change: "Change",
   },
 
   calendar: {
@@ -328,6 +337,15 @@ export const copyCs: Copy = {
     result: "Výsledek",
     r: "R",
     pnl: "PnL",
+    performance: "Výkon za období",
+    performanceEmpty: "Zatím není dostatek dat pro zobrazení výkonu za období.",
+    byWeek: "Týden",
+    byMonth: "Měsíc",
+    candleOpen: "Open",
+    candleHigh: "High",
+    candleLow: "Low",
+    candleClose: "Close",
+    change: "Změna",
   },
 
   calendar: {

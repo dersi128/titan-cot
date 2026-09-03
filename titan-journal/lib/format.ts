@@ -76,6 +76,19 @@ export function formatPercent(value: number | null | undefined): string {
   return `${Math.round(value * 100)} %`
 }
 
+export function formatSignedPercentPoints(
+  value: number | null | undefined
+): string {
+  if (value == null || !Number.isFinite(value)) return "—"
+  const body = Math.abs(value).toLocaleString(LOCALE, {
+    maximumFractionDigits: 1,
+    minimumFractionDigits: 0,
+  })
+  if (value > 0) return `+${body} %`
+  if (value < 0) return `-${body} %`
+  return `0 %`
+}
+
 export function formatNumber(value: number | null | undefined, digits = 2): string {
   if (value == null || !Number.isFinite(value)) return "—"
   return value.toLocaleString(LOCALE, {
