@@ -17,6 +17,16 @@ function addCalendarMonths(date: Date, months: number): Date {
   return new Date(date.getFullYear(), date.getMonth() + months, date.getDate())
 }
 
+export function defaultCustomRange(now = new Date()): CustomRange {
+  return {
+    start:
+      isoDateLocal(
+        new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30)
+      ),
+    end: isoDateLocal(now),
+  }
+}
+
 export function rangeBounds(
   range: DateRange,
   now = new Date(),
@@ -24,10 +34,10 @@ export function rangeBounds(
 ): { start: string | null; end: string } {
   const today = isoDateLocal(now)
   if (range === "CUSTOM") {
-    const start = custom?.start ?? null
-    const end = custom?.end ?? today
-    if (start && start > end) return { start: end, end: start }
-    return { start, end }
+    if (!custom?.start) return rangeBounds("30D", now)
+    const end = custom.end || today
+    if (custom.start > end) return { start: end, end: custom.start }
+    return { start: custom.start, end }
   }
   if (range === "ALL") return { start: null, end: today }
   if (range === "YTD") return { start: `${now.getFullYear()}-01-01`, end: today }

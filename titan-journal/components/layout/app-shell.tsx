@@ -12,6 +12,7 @@ import {
 } from "@/components/layout/workspace-chrome"
 import { useWorkspace } from "@/components/layout/workspace-provider"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import {
   Sheet,
   SheetContent,
@@ -39,11 +40,12 @@ function useIsTabletNav() {
 }
 
 function TopBar({ onOpenNav }: { onOpenNav: () => void }) {
-  const { account, setAccount, range, setRange } = useWorkspaceChrome()
+  const { account, setAccount, range, setRange, custom, setCustom } =
+    useWorkspaceChrome()
   const { copy, ACCOUNT_LABELS, DATE_RANGE_LABELS } = useLabels()
 
   return (
-    <header className="titan-topbar flex h-16 shrink-0 items-center gap-3 px-4 lg:px-6">
+    <header className="titan-topbar flex min-h-16 shrink-0 items-center gap-3 px-4 lg:px-6">
       <Button
         variant="ghost"
         size="icon-sm"
@@ -54,9 +56,10 @@ function TopBar({ onOpenNav }: { onOpenNav: () => void }) {
         <Menu />
       </Button>
 
-      <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto">
+      <div className="ml-auto flex min-w-0 flex-wrap items-center justify-end gap-2">
         <SegmentedControl
           aria-label={copy.shell.account}
+          tone="strong"
           options={ACCOUNTS}
           labels={ACCOUNT_LABELS}
           value={account}
@@ -64,11 +67,40 @@ function TopBar({ onOpenNav }: { onOpenNav: () => void }) {
         />
         <SegmentedControl
           aria-label={copy.shell.range}
+          tone="strong"
           options={DATE_RANGES}
           labels={DATE_RANGE_LABELS}
           value={range}
           onChange={setRange}
         />
+        {range === "CUSTOM" ? (
+          <div className="flex items-center gap-1.5">
+            <Input
+              type="date"
+              value={custom?.start ?? ""}
+              onChange={(event) =>
+                setCustom({
+                  start: event.target.value,
+                  end: custom?.end ?? event.target.value,
+                })
+              }
+              aria-label={copy.journal.dateFrom}
+              className="h-8 w-[9.5rem] px-2 text-[12px]"
+            />
+            <Input
+              type="date"
+              value={custom?.end ?? ""}
+              onChange={(event) =>
+                setCustom({
+                  start: custom?.start ?? event.target.value,
+                  end: event.target.value,
+                })
+              }
+              aria-label={copy.journal.dateTo}
+              className="h-8 w-[9.5rem] px-2 text-[12px]"
+            />
+          </div>
+        ) : null}
       </div>
     </header>
   )
