@@ -38,6 +38,7 @@ describe("CZ/EN dictionaries", () => {
     expect(labelsFor("cs").copy.settings.exportJournal).toBe("Export")
     expect(labelsFor("cs").copy.analytics.edgeYes).toBe("Má edge")
     expect(labelsFor("cs").copy.analytics.perTrade).toBe("na obchod")
+    expect(labelsFor("cs").copy.analytics.bySetup).toBe("Výsledky podle setupů")
     expect(labelsFor("en").copy.calendar.weekdays).toHaveLength(7)
   })
 })

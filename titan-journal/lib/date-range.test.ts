@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { rangeBounds, rangeStartIso, tradeInRange } from "@/lib/date-range"
+import { rangeBounds, previousRangeBounds, rangeStartIso, tradeInRange } from "@/lib/date-range"
 
 describe("rangeStartIso", () => {
   const now = new Date(2026, 8, 3)
@@ -29,5 +29,20 @@ describe("rangeStartIso", () => {
         end: "2026-07-15",
       })
     ).toBe(false)
+  })
+})
+
+describe("previousRangeBounds", () => {
+  const now = new Date(2026, 8, 3)
+
+  it("shifts a 30D window back by the same span", () => {
+    expect(previousRangeBounds("30D", now)).toEqual({
+      start: "2026-07-04",
+      end: "2026-08-03",
+    })
+  })
+
+  it("has no previous window for all-time", () => {
+    expect(previousRangeBounds("ALL", now)).toBeNull()
   })
 })

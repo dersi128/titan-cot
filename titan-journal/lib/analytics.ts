@@ -17,6 +17,8 @@ export type GroupStats = {
   avgLossR: number | null
   payoff: number | null
   maxDrawdownR: number | null
+  wins: number
+  losses: number
   edge: EdgeVerdict
 }
 
@@ -64,6 +66,8 @@ function statsFor(key: string, list: Trade[]): GroupStats {
     avgLossR: avgLossR == null ? null : round2(avgLossR),
     payoff: payoff == null ? null : round2(payoff),
     maxDrawdownR: rDrawdown(list),
+    wins: winners.length,
+    losses: losers.length,
     edge: edgeVerdict(list.length, expectancyR),
   }
 }
@@ -124,6 +128,30 @@ export function statsByDirection(trades: Trade[]): GroupStats[] {
 
 export function statsBySymbol(trades: Trade[]): GroupStats[] {
   return groupStats(trades, (trade) => trade.symbol)
+}
+
+export function cappedGroups(
+  trades: Trade[],
+  keyOf: (trade: Trade) => string,
+  limit: number,
+  othersLabel: string
+): GroupStats[] {
+  const groups = groupStats(trades, keyOf).sort(
+    (a, b) => b.trades - a.trades || b.totalR - a.totalR
+  )
+  if (groups.length <= limit) return groups
+  const head = groups.slice(0, limit - 1)
+  const keep = new Set(head.map((row) => row.key))
+  const rest = realized(trades).filter(
+    (trade) => !keep.has(keyOf(trade) || "—")
+  )
+  if (rest.length === 0) return head
+  return [...head, statsFor(othersLabel, rest)]
+}
+
+export function changePct(current: number, previous: number): number | null {
+  if (previous === 0) return current === 0 ? 0 : null
+  return Math.round(((current - previous) / Math.abs(previous)) * 1000) / 10
 }
 
 export function bestAndWorstPlaybook(trades: Trade[]): {

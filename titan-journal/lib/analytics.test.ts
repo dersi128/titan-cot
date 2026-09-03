@@ -4,6 +4,8 @@ import {
   EDGE_MIN_TRADES,
   accountEdge,
   bestAndWorstPlaybook,
+  cappedGroups,
+  changePct,
   edgeVerdict,
   statsByPlaybook,
 } from "@/lib/analytics"
@@ -79,6 +81,28 @@ describe("playbook analytics", () => {
     expect(groups).toHaveLength(1)
     expect(groups[0]?.key).toBe("Breakout")
   })
+
+  it("folds extra playbooks into others", () => {
+    const trades = ["A", "B", "C"].flatMap((name, group) =>
+      Array.from({ length: 3 - group }, (_, index) =>
+        trade({
+          id: `${name}${index}`,
+          playbookId: "",
+          strategy: name,
+          resultR: 1,
+          pnl: 100,
+        })
+      )
+    )
+    const groups = cappedGroups(
+      trades,
+      (item) => item.strategy,
+      2,
+      "Ostatní"
+    )
+    expect(groups.map((row) => row.key)).toEqual(["A", "Ostatní"])
+    expect(groups[1]?.trades).toBe(3)
+  })
 })
 
 describe("strategy edge", () => {
@@ -122,6 +146,16 @@ describe("strategy edge", () => {
     expect(accountEdge(trades).edge).toBe("no")
   })
 
+  it("counts wins and losses", () => {
+    const stats = accountEdge([
+      trade({ id: "w", resultR: 1, pnl: 100 }),
+      trade({ id: "l", resultR: -1, pnl: -100 }),
+      trade({ id: "l2", resultR: -2, pnl: -200 }),
+    ])
+    expect(stats.wins).toBe(1)
+    expect(stats.losses).toBe(2)
+  })
+
   it("measures max drawdown in R from the equity peak", () => {
     const stats = accountEdge([
       trade({ id: "1", date: "2026-01-01", resultR: 1, pnl: 100 }),
@@ -139,5 +173,10 @@ describe("strategy edge", () => {
         trade({ id: "2", date: "2026-01-02", resultR: 2, pnl: 200 }),
       ]).maxDrawdownR
     ).toBe(0)
+  })
+
+  it("compares sample size to the previous window", () => {
+    expect(changePct(200, 178)).toBe(12.4)
+    expect(changePct(10, 0)).toBeNull()
   })
 })
