@@ -43,6 +43,7 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
   theme: "dark",
   density: "comfortable",
   language: "en",
+  sidebarCollapsed: false,
   defaultAccount: "Personal",
   defaultRisk: 1,
   defaultPlaybookId: TITAN_SWING_PLAYBOOK_ID,
@@ -126,6 +127,7 @@ export function hydratePreferences(raw: unknown): UserPreferences {
     theme,
     density,
     language: asLanguage(row.language),
+    sidebarCollapsed: row.sidebarCollapsed === true,
     defaultAccount: asAccount(row.defaultAccount),
     defaultRisk,
     defaultPlaybookId:
