@@ -42,7 +42,7 @@ export function SettingsPage() {
         <section className="titan-glass rounded-[10px] p-4 space-y-3">
           <h2 className="text-sm font-semibold">{copy.settings.appearance}</h2>
           <Field label={copy.settings.language}>
-            <LanguageSwitcher size="md" />
+            <LanguageSwitcher />
           </Field>
           <Field label={copy.settings.theme}>
             <OptionPills

@@ -1,27 +1,19 @@
 "use client"
 
-import { SegmentedControl } from "@/components/layout/segmented-control"
+import { OptionPills } from "@/components/forms/field"
 import { useWorkspace } from "@/components/layout/workspace-provider"
 import { LANGUAGE_SHORT } from "@/lib/labels"
-import { useLabels } from "@/lib/use-labels"
 import { LANGUAGES, type Language } from "@/types/playbook"
 
-export function LanguageSwitcher({
-  size = "sm",
-}: {
-  size?: "sm" | "md"
-}) {
+export function LanguageSwitcher() {
   const { preferences, updatePreferences } = useWorkspace()
-  const { copy } = useLabels()
 
   return (
-    <SegmentedControl
-      size={size}
-      options={LANGUAGES}
+    <OptionPills
       value={preferences.language}
-      onChange={(language: Language) => updatePreferences({ language })}
+      options={LANGUAGES}
       labels={LANGUAGE_SHORT}
-      aria-label={copy.settings.language}
+      onChange={(language: Language) => updatePreferences({ language })}
     />
   )
 }
