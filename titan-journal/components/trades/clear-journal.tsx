@@ -28,57 +28,54 @@ export function ClearJournal() {
     reset()
   }
 
-  if (!open) {
-    return (
-      <div className="mt-6">
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="h-7 text-[12px] text-muted-foreground"
-          onClick={() => setOpen(true)}
-        >
-          {copy.journal.clearAll}
-        </Button>
-      </div>
-    )
-  }
-
   return (
-    <div className="titan-glass mt-6 max-w-md space-y-3 rounded-[10px] p-4">
-      <p className="text-[12px] text-muted-foreground">{copy.journal.clearAllHint}</p>
-      <Input
-        value={typed}
-        onChange={(event) => setTyped(event.target.value)}
-        placeholder={JOURNAL_WIPE_CONFIRM}
-        autoFocus
-        className="h-8 text-[12px]"
-        onKeyDown={(event) => {
-          if (event.key === "Enter") wipe()
-          if (event.key === "Escape") reset()
-        }}
-      />
-      <div className="flex flex-wrap items-center gap-2">
-        <Button
-          type="button"
-          variant="destructive"
-          size="sm"
-          className="h-7 text-[12px]"
-          disabled={!ready}
-          onClick={wipe}
-        >
-          {copy.journal.clearAllConfirm}
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="h-7 text-[12px]"
-          onClick={reset}
-        >
-          {copy.detail.cancel}
-        </Button>
-      </div>
+    <div className="flex flex-col items-end gap-2">
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="h-8 border-destructive/40 text-[12px] text-destructive hover:bg-destructive/10"
+        onClick={() => setOpen((current) => !current)}
+      >
+        {copy.journal.clearAll}
+      </Button>
+      {open ? (
+        <div className="titan-glass w-[min(100vw-2rem,22rem)] space-y-3 rounded-[10px] p-4">
+          <p className="text-[12px] text-muted-foreground">{copy.journal.clearAllHint}</p>
+          <Input
+            value={typed}
+            onChange={(event) => setTyped(event.target.value)}
+            placeholder={JOURNAL_WIPE_CONFIRM}
+            autoFocus
+            className="h-8 text-[12px]"
+            onKeyDown={(event) => {
+              if (event.key === "Enter") wipe()
+              if (event.key === "Escape") reset()
+            }}
+          />
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              className="h-7 text-[12px]"
+              disabled={!ready}
+              onClick={wipe}
+            >
+              {copy.journal.clearAllConfirm}
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 text-[12px]"
+              onClick={reset}
+            >
+              {copy.detail.cancel}
+            </Button>
+          </div>
+        </div>
+      ) : null}
     </div>
   )
 }
