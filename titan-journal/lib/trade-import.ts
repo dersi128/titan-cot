@@ -22,7 +22,11 @@ export type ImportContext = {
 export type ParsedImport =
   | { kind: "backup"; backup: JournalBackup }
   | { kind: "broker"; trades: NewTradeInput[]; skipped: number }
+  | { kind: "xlsx" }
   | { kind: "invalid" }
+
+export const IMPORT_FILE_ACCEPT =
+  ".json,.csv,.txt,.htm,.html,.xlsx,.xls,application/json,text/csv,text/html,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 
 const SKIP_TYPES = new Set([
   "balance",
@@ -180,6 +184,105 @@ function headerLooksLikeTrades(headers: string[]): boolean {
     ["profit", "net", "net usd", "net profit", "pnl", "p l", "gross"].includes(h)
   )
   return hasSymbol && (hasSide || hasPnl)
+}
+
+export function isSpreadsheetBytes(bytes: Uint8Array, fileName = ""): boolean {
+  if (/\.xlsx?$/i.test(fileName)) return true
+  if (bytes.length >= 2 && bytes[0] === 0x50 && bytes[1] === 0x4b) return true
+  return (
+    bytes.length >= 4 &&
+    bytes[0] === 0xd0 &&
+    bytes[1] === 0xcf &&
+    bytes[2] === 0x11 &&
+    bytes[3] === 0xe0
+  )
+}
+
+export function decodeImportBytes(bytes: Uint8Array): string {
+  if (bytes.length >= 2 && bytes[0] === 0xff && bytes[1] === 0xfe) {
+    return new TextDecoder("utf-16le").decode(bytes)
+  }
+  if (bytes.length >= 2 && bytes[0] === 0xfe && bytes[1] === 0xff) {
+    return new TextDecoder("utf-16be").decode(bytes)
+  }
+  return new TextDecoder("utf-8").decode(bytes)
+}
+
+function looksLikeHtml(raw: string): boolean {
+  const head = raw.slice(0, 4000).toLowerCase()
+  return (
+    head.includes("<!doctype html") ||
+    head.includes("<html") ||
+    /<table[\s>]/i.test(head) ||
+    /<tr[\s>]/i.test(head)
+  )
+}
+
+function decodeHtmlEntities(text: string): string {
+  return text
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/&#x([0-9a-f]+);/gi, (_, hex) =>
+      String.fromCharCode(Number.parseInt(hex, 16))
+    )
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
+}
+
+function cellText(html: string): string {
+  return decodeHtmlEntities(
+    html
+      .replace(/<br\s*\/?>/gi, " ")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+  )
+}
+
+function extractHtmlRows(html: string): string[][] {
+  const rows: string[][] = []
+  const rowRe = /<tr\b[^>]*>([\s\S]*?)<\/tr>/gi
+  let match: RegExpExecArray | null
+  while ((match = rowRe.exec(html))) {
+    const inner = match[1]
+    if (/<tr\b/i.test(inner)) continue
+    const cells = [...inner.matchAll(/<t[dh]\b[^>]*>([\s\S]*?)<\/t[dh]>/gi)].map(
+      (cell) => cellText(cell[1])
+    )
+    if (cells.some((cell) => cell.length > 0)) rows.push(cells)
+  }
+  return rows
+}
+
+function isHtmlSectionBreak(cells: string[]): boolean {
+  const filled = cells.filter(Boolean)
+  if (filled.length > 3) return false
+  const joined = filled.join(" ").toLowerCase()
+  return /open trades|working orders|pending orders|summary|deposit\/withdrawal|closed transactions/.test(
+    joined
+  )
+}
+
+function tableFromHtmlRows(
+  rows: string[][]
+): { headers: string[]; rows: string[][] } | null {
+  let best: { headers: string[]; rows: string[][]; score: number } | null = null
+  for (let i = 0; i < rows.length; i += 1) {
+    const headers = rows[i].map(normalizeHeader)
+    if (!headerLooksLikeTrades(headers)) continue
+    const body: string[][] = []
+    for (const cells of rows.slice(i + 1)) {
+      if (isHtmlSectionBreak(cells)) break
+      if (headerLooksLikeTrades(cells.map(normalizeHeader))) break
+      body.push(cells)
+    }
+    const score = headers.length + body.length
+    if (!best || score > best.score) best = { headers, rows: body, score }
+  }
+  return best ? { headers: best.headers, rows: best.rows } : null
 }
 
 function parseCsvTables(text: string): { headers: string[]; rows: string[][] } | null {
@@ -342,7 +445,8 @@ function parseBrokerRows(
     )
     const commission = parseLocaleNumber(pick(row, ["commission"])) ?? 0
     const swap = parseLocaleNumber(pick(row, ["swap"])) ?? 0
-    const pnl = net ?? (profit != null ? profit + commission + swap : null)
+    const taxes = parseLocaleNumber(pick(row, ["taxes", "tax"])) ?? 0
+    const pnl = net ?? (profit != null ? profit + commission + swap + taxes : null)
     const resultR = parseLocaleNumber(pick(row, ["result r", "r", "rr"]))
     const ticket = pick(row, [
       "deal",
@@ -384,9 +488,26 @@ function parseBrokerRows(
   return { trades, skipped }
 }
 
-export function parseImportText(text: string, context: ImportContext): ParsedImport {
+function brokerResult(
+  table: { headers: string[]; rows: string[][] } | null,
+  context: ImportContext
+): ParsedImport {
+  if (!table) return { kind: "invalid" }
+  const { trades, skipped } = parseBrokerRows(table.headers, table.rows, context)
+  if (trades.length === 0 && skipped === 0) return { kind: "invalid" }
+  return { kind: "broker", trades, skipped }
+}
+
+export function parseImportText(
+  text: string,
+  context: ImportContext,
+  fileName = ""
+): ParsedImport {
+  if (/\.xlsx?$/i.test(fileName)) return { kind: "xlsx" }
+
   const raw = stripBom(text).trim()
   if (!raw) return { kind: "invalid" }
+  if (raw.charCodeAt(0) === 0x50 && raw.charCodeAt(1) === 0x4b) return { kind: "xlsx" }
 
   if (raw.startsWith("{") || raw.startsWith("[")) {
     try {
@@ -398,11 +519,20 @@ export function parseImportText(text: string, context: ImportContext): ParsedImp
     return { kind: "invalid" }
   }
 
-  const table = parseCsvTables(raw)
-  if (!table) return { kind: "invalid" }
-  const { trades, skipped } = parseBrokerRows(table.headers, table.rows, context)
-  if (trades.length === 0 && skipped === 0) return { kind: "invalid" }
-  return { kind: "broker", trades, skipped }
+  if (looksLikeHtml(raw) || /\.html?$/i.test(fileName)) {
+    return brokerResult(tableFromHtmlRows(extractHtmlRows(raw)), context)
+  }
+
+  return brokerResult(parseCsvTables(raw), context)
+}
+
+export function parseImportFile(
+  bytes: Uint8Array,
+  context: ImportContext,
+  fileName = ""
+): ParsedImport {
+  if (isSpreadsheetBytes(bytes, fileName)) return { kind: "xlsx" }
+  return parseImportText(decodeImportBytes(bytes), context, fileName)
 }
 
 export const DEFAULT_IMPORT_CONTEXT: ImportContext = {

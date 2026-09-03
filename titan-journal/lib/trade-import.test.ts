@@ -4,6 +4,7 @@ import { parseJournalBackup } from "@/lib/journal-backup"
 import {
   DEFAULT_IMPORT_CONTEXT,
   parseBrokerDate,
+  parseImportFile,
   parseImportText,
   parseLocaleNumber,
 } from "@/lib/trade-import"
@@ -116,5 +117,66 @@ describe("parseImportText", () => {
   it("rejects junk", () => {
     expect(parseImportText("hello", DEFAULT_IMPORT_CONTEXT).kind).toBe("invalid")
     expect(parseImportText("{", DEFAULT_IMPORT_CONTEXT).kind).toBe("invalid")
+  })
+
+  it("reads closed trades from an MT4/IC Markets HTML statement", () => {
+    const html = `<!DOCTYPE html><html><body>
+      <table><tr><td>Account</td><td>12345</td></tr></table>
+      <table>
+        <tr><td colspan="14">Closed Transactions:</td></tr>
+        <tr>
+          <th>Ticket</th><th>Open Time</th><th>Type</th><th>Size</th><th>Item</th>
+          <th>Price</th><th>S / L</th><th>T / P</th><th>Close Time</th><th>Price</th>
+          <th>Commission</th><th>Taxes</th><th>Swap</th><th>Profit</th>
+        </tr>
+        <tr>
+          <td>11002</td><td>2026.09.01 10:15:00</td><td>buy</td><td>1.00</td><td>eurusd</td>
+          <td>1.08420</td><td>1.07920</td><td>1.09420</td><td>2026.09.01 14:22:00</td><td>1.08610</td>
+          <td>-10.00</td><td>0.00</td><td>0.00</td><td>190.00</td>
+        </tr>
+        <tr>
+          <td>11003</td><td>2026.09.03 09:00:00</td><td>sell</td><td>0.50</td><td>gbpusd</td>
+          <td>1.27000</td><td>1.27500</td><td>1.26000</td><td>2026.09.03 11:00:00</td><td>1.26500</td>
+          <td>0.00</td><td>0.00</td><td>0.00</td><td>1.234,50</td>
+        </tr>
+        <tr><td colspan="14">Open Trades:</td></tr>
+        <tr>
+          <td>999</td><td>2026.09.03 12:00:00</td><td>buy</td><td>1.00</td><td>usdchf</td>
+          <td>0.80000</td><td>0.79000</td><td>0.82000</td><td></td><td></td>
+          <td>0</td><td>0</td><td>0</td><td>0</td>
+        </tr>
+      </table>
+    </body></html>`
+
+    const parsed = parseImportText(html, DEFAULT_IMPORT_CONTEXT, "statement.htm")
+    expect(parsed.kind).toBe("broker")
+    if (parsed.kind !== "broker") return
+    expect(parsed.trades).toHaveLength(2)
+    expect(parsed.trades[0]).toMatchObject({
+      symbol: "EURUSD",
+      direction: "LONG",
+      date: "2026-09-01",
+      pnl: 180,
+      status: "CLOSED",
+    })
+    expect(parsed.trades[1]).toMatchObject({
+      symbol: "GBPUSD",
+      direction: "SHORT",
+      date: "2026-09-03",
+      pnl: 1234.5,
+    })
+  })
+
+  it("rejects Excel workbooks and asks for CSV/HTML", () => {
+    expect(parseImportText("PK\u0003\u0004workbook", DEFAULT_IMPORT_CONTEXT).kind).toBe(
+      "xlsx"
+    )
+    expect(parseImportText("not excel", DEFAULT_IMPORT_CONTEXT, "report.xlsx").kind).toBe(
+      "xlsx"
+    )
+    const bytes = Uint8Array.from([0x50, 0x4b, 0x03, 0x04, 0x00, 0x00])
+    expect(parseImportFile(bytes, DEFAULT_IMPORT_CONTEXT, "icmarkets.xlsx").kind).toBe(
+      "xlsx"
+    )
   })
 })

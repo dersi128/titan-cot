@@ -1,44 +1,26 @@
 "use client"
 
-import { useRef, useState } from "react"
-
 import { Field, OptionPills } from "@/components/forms/field"
 import { LanguageSwitcher } from "@/components/layout/language-switcher"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
 import { useWorkspace } from "@/components/layout/workspace-provider"
 import { SelectField } from "@/components/forms/select-field"
 import { useTrades } from "@/components/trades/trades-provider"
+import { useJournalImport } from "@/components/trades/journal-file-import"
 import { Button } from "@/components/ui/button"
 import {
   backupFilename,
   buildJournalBackup,
 } from "@/lib/journal-backup"
-import {
-  materializeImportedTrades,
-  parseImportText,
-  type ImportContext,
-} from "@/lib/trade-import"
 import { useLabels } from "@/lib/use-labels"
 import { ACCOUNTS } from "@/types/trade"
 import { THEMES, type Density, type JournalMode, type ThemeId } from "@/types/playbook"
 
 function BackupSection() {
-  const { copy, ACCOUNT_LABELS } = useLabels()
-  const { trades, replaceAll } = useTrades()
-  const { profile, preferences, playbooks, replaceWorkspace } = useWorkspace()
-  const inputRef = useRef<HTMLInputElement>(null)
-  const [status, setStatus] = useState<"idle" | "ok" | "added" | "bad">("idle")
-  const [addedCount, setAddedCount] = useState(0)
-
-  const importContext: ImportContext = {
-    account: preferences.defaultAccount,
-    riskPercent: profile.riskPercent,
-    capital: profile.capital[preferences.defaultAccount] ?? 0,
-    playbookId: preferences.defaultPlaybookId,
-    playbookName:
-      playbooks.find((item) => item.id === preferences.defaultPlaybookId)?.name ??
-      "Swing",
-  }
+  const { copy } = useLabels()
+  const { trades } = useTrades()
+  const { profile, preferences, playbooks } = useWorkspace()
+  const importer = useJournalImport()
 
   function exportJournal() {
     const backup = buildJournalBackup({
@@ -56,41 +38,6 @@ function BackupSection() {
     link.download = backupFilename()
     link.click()
     URL.revokeObjectURL(url)
-    setStatus("idle")
-  }
-
-  async function importJournal(file: File | undefined) {
-    if (!file) return
-    try {
-      const parsed = parseImportText(await file.text(), importContext)
-      if (parsed.kind === "backup") {
-        if (!window.confirm(copy.settings.importReplace)) return
-        replaceAll(parsed.backup.trades)
-        replaceWorkspace({
-          profile: parsed.backup.profile,
-          preferences: parsed.backup.preferences,
-          playbooks: parsed.backup.playbooks,
-        })
-        setStatus("ok")
-        return
-      }
-      if (parsed.kind === "broker" && parsed.trades.length > 0) {
-        const accountLabel = ACCOUNT_LABELS[importContext.account]
-        const ok = window.confirm(
-          copy.settings.importBrokerConfirm
-            .replace("{n}", String(parsed.trades.length))
-            .replace("{account}", accountLabel)
-        )
-        if (!ok) return
-        replaceAll([...materializeImportedTrades(parsed.trades), ...trades])
-        setAddedCount(parsed.trades.length)
-        setStatus("added")
-        return
-      }
-      setStatus("bad")
-    } catch {
-      setStatus("bad")
-    }
   }
 
   return (
@@ -101,37 +48,12 @@ function BackupSection() {
         <Button type="button" variant="outline" size="sm" onClick={exportJournal}>
           {copy.settings.exportJournal}
         </Button>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => inputRef.current?.click()}
-        >
+        <Button type="button" variant="outline" size="sm" onClick={importer.pick}>
           {copy.settings.importJournal}
         </Button>
-        <input
-          ref={inputRef}
-          type="file"
-          accept="application/json,.json,text/csv,.csv"
-          className="hidden"
-          onChange={(event) => {
-            const file = event.target.files?.[0]
-            event.target.value = ""
-            void importJournal(file)
-          }}
-        />
+        {importer.fileInput}
       </div>
-      {status === "ok" ? (
-        <p className="text-[12px] text-bull">{copy.settings.importOk}</p>
-      ) : null}
-      {status === "added" ? (
-        <p className="text-[12px] text-bull">
-          {copy.settings.importAdded.replace("{n}", String(addedCount))}
-        </p>
-      ) : null}
-      {status === "bad" ? (
-        <p className="text-[12px] text-bear">{copy.settings.importBad}</p>
-      ) : null}
+      {importer.message}
     </section>
   )
 }

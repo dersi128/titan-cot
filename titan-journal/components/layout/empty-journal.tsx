@@ -3,6 +3,7 @@
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
+import { useJournalImport } from "@/components/trades/journal-file-import"
 import { useTrades } from "@/components/trades/trades-provider"
 import { isSampleJournal, MOCK_TRADES, sortTrades } from "@/lib/mock-data"
 import { useLabels } from "@/lib/use-labels"
@@ -10,6 +11,7 @@ import { useLabels } from "@/lib/use-labels"
 export function EmptyJournal() {
   const { copy } = useLabels()
   const { trades, replaceAll } = useTrades()
+  const importer = useJournalImport()
   const scoped = trades.length > 0
 
   return (
@@ -43,6 +45,10 @@ export function EmptyJournal() {
         <Button asChild>
           <Link href="/new-trade">{copy.emptyStart.cta}</Link>
         </Button>
+        <Button type="button" variant="outline" onClick={importer.pick}>
+          {copy.journal.importReport}
+        </Button>
+        {importer.fileInput}
         {!scoped ? (
           <Button
             type="button"
@@ -53,6 +59,7 @@ export function EmptyJournal() {
           </Button>
         ) : null}
       </div>
+      {importer.message ? <div className="mt-3">{importer.message}</div> : null}
     </div>
   )
 }

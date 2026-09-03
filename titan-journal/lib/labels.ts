@@ -180,6 +180,10 @@ export const copyEn = {
     clearAll: "Clear journal",
     clearAllHint: "This deletes every trade in this browser. Type DELETE to confirm.",
     clearAllConfirm: "Delete all trades",
+    dangerZone: "Danger zone",
+    importReport: "Import report",
+    importHint:
+      "JSON backup, CSV, or HTML statement from cTrader / MT5 / IC Markets.",
   },
 
   detail: {
@@ -374,14 +378,16 @@ export const copyEn = {
     riskOnProfile: "Risk % is set on Profile.",
     backup: "Backup",
     backupHint:
-      "JSON backup replaces this browser's journal. A cTrader / MT5 / IC Markets CSV adds closed trades.",
+      "JSON backup replaces this browser's journal. A cTrader / MT5 / IC Markets CSV or HTML statement adds closed trades. Excel must be saved as CSV or HTML first.",
     exportJournal: "Export",
     importJournal: "Import",
     importReplace: "Import replaces the journal on this device.",
     importBrokerConfirm: "Add {n} trades to {account}? Existing trades stay.",
     importOk: "Journal imported.",
     importAdded: "Added {n} trades.",
-    importBad: "This file cannot be imported.",
+    importBad: "This file cannot be imported. Use JSON backup, CSV, or HTML statement.",
+    importNeedCsv:
+      "Excel (.xlsx) is not supported. In the broker, save the report as CSV or HTML.",
   },
 
   profile: {
@@ -592,6 +598,10 @@ export const copyCs: Copy = {
     clearAll: "Smazat deník",
     clearAllHint: "Smaže všechny obchody v tomto prohlížeči. Pro potvrzení napiš DELETE.",
     clearAllConfirm: "Smazat všechny obchody",
+    dangerZone: "Nebezpečná zóna",
+    importReport: "Nahrát report",
+    importHint:
+      "JSON záloha, CSV nebo HTML výpis z cTrader / MT5 / IC Markets.",
   },
 
   detail: {
@@ -786,14 +796,16 @@ export const copyCs: Copy = {
     riskOnProfile: "Riziko % se nastavuje v Profilu.",
     backup: "Záloha",
     backupHint:
-      "JSON záloha nahradí deník v tomto prohlížeči. CSV z cTrader / MT5 / IC Markets obchody přidá.",
+      "JSON záloha nahradí deník v tomto prohlížeči. CSV nebo HTML výpis z cTrader / MT5 / IC Markets obchody přidá. Excel nejdřív ulož jako CSV nebo HTML.",
     exportJournal: "Export",
     importJournal: "Import",
     importReplace: "Import nahradí deník na tomto zařízení.",
     importBrokerConfirm: "Přidat {n} obchodů na účet {account}? Stávající deník zůstane.",
     importOk: "Deník je naimportovaný.",
     importAdded: "Přidané obchody: {n}.",
-    importBad: "Tento soubor nejde naimportovat.",
+    importBad: "Tento soubor nejde naimportovat. Použij JSON zálohu, CSV nebo HTML výpis.",
+    importNeedCsv:
+      "Excel (.xlsx) deník neumí. V brokeru report ulož jako CSV nebo HTML.",
   },
 
   profile: {
