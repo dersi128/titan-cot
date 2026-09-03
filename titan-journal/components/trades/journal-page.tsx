@@ -2,7 +2,7 @@
 
 import { useMemo, useState, type ReactNode } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { X } from "lucide-react"
 import { Hash, Percent, Scale, Sigma, Trash2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -27,12 +27,12 @@ import { PageFrame, PageHeader } from "@/components/layout/page-header"
 import { useScopedTrades } from "@/components/layout/use-scoped-trades"
 import { useWorkspace } from "@/components/layout/workspace-provider"
 import { ResultR } from "@/components/trades/result-r"
+import { TradePanel } from "@/components/trades/trade-panel"
 import {
   DirectionBadge,
   OutcomeBadge,
   StatusBadge,
 } from "@/components/trades/trade-badges"
-import { tradeRowProps } from "@/components/trades/trade-row"
 import { accountEdge } from "@/lib/analytics"
 import {
   formatDate,
@@ -52,6 +52,8 @@ import {
   type TradeFilters,
 } from "@/lib/trade-filters"
 import { TRADE_DIRECTIONS, type Trade } from "@/types/trade"
+
+const PAGE_SIZE_OPTIONS = [15, 25, 50, 100]
 
 function avgPlannedRrr(trades: Trade[]): number | null {
   const values = trades
@@ -101,12 +103,116 @@ function Stat({
   )
 }
 
+function Pagination({
+  total,
+  page,
+  pageSize,
+  onPage,
+  onPageSize,
+}: {
+  total: number
+  page: number
+  pageSize: number
+  onPage: (page: number) => void
+  onPageSize: (size: number) => void
+}) {
+  const { copy } = useLabels()
+  const totalPages = Math.max(1, Math.ceil(total / pageSize))
+  const from = total === 0 ? 0 : (page - 1) * pageSize + 1
+  const to = Math.min(page * pageSize, total)
+
+  const pages = useMemo(() => {
+    const set: number[] = []
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) set.push(i)
+    } else {
+      set.push(1)
+      if (page > 3) set.push(-1)
+      for (let i = Math.max(2, page - 1); i <= Math.min(totalPages - 1, page + 1); i++) set.push(i)
+      if (page < totalPages - 2) set.push(-2)
+      set.push(totalPages)
+    }
+    return set
+  }, [page, totalPages])
+
+  return (
+    <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-[12px]">
+      <div className="flex items-center gap-2 text-muted-foreground">
+        <span>{copy.journal.showing}</span>
+        <Select
+          value={String(pageSize)}
+          onValueChange={(value) => {
+            onPageSize(Number(value))
+            onPage(1)
+          }}
+        >
+          <SelectTrigger className="h-7 w-16 px-2 text-[12px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent position="popper">
+            {PAGE_SIZE_OPTIONS.map((size) => (
+              <SelectItem key={size} value={String(size)}>
+                {size}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <span>{copy.journal.perPage}</span>
+        <span className="mx-1 text-border">·</span>
+        <span>
+          {from}–{to} {copy.journal.of} {total}
+        </span>
+      </div>
+      <div className="flex items-center gap-1">
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-7 px-2 text-[12px]"
+          disabled={page === 1}
+          onClick={() => onPage(page - 1)}
+        >
+          ‹
+        </Button>
+        {pages.map((p, i) =>
+          p < 0 ? (
+            <span key={p + i} className="px-1 text-muted-foreground">
+              …
+            </span>
+          ) : (
+            <Button
+              key={p}
+              variant={p === page ? "default" : "outline"}
+              size="sm"
+              className="h-7 w-7 p-0 text-[12px]"
+              onClick={() => onPage(p)}
+            >
+              {p}
+            </Button>
+          )
+        )}
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-7 px-2 text-[12px]"
+          disabled={page === totalPages}
+          onClick={() => onPage(page + 1)}
+        >
+          ›
+        </Button>
+      </div>
+    </div>
+  )
+}
+
 export function JournalPage() {
   const { copy } = useLabels()
-  const router = useRouter()
   const { accountTrades, isReady } = useScopedTrades()
   const { playbooks } = useWorkspace()
   const [filters, setFilters] = useState<TradeFilters>(EMPTY_TRADE_FILTERS)
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(15)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+
   const visible = useMemo(
     () => filterTrades(accountTrades, filters),
     [accountTrades, filters]
@@ -117,6 +223,20 @@ export function JournalPage() {
     () => Object.fromEntries(playbooks.map((item) => [item.id, item.name])),
     [playbooks]
   )
+
+  const totalPages = Math.max(1, Math.ceil(visible.length / pageSize))
+  const safePage = Math.min(page, totalPages)
+  const paginated = visible.slice((safePage - 1) * pageSize, safePage * pageSize)
+
+  const selectedTrade = selectedId
+    ? accountTrades.find((trade) => trade.id === selectedId) ?? null
+    : null
+
+  function handleFilter(update: Partial<TradeFilters>) {
+    setFilters((current) => ({ ...current, ...update }))
+    setPage(1)
+    setSelectedId(null)
+  }
 
   return (
     <PageFrame width="wide">
@@ -165,40 +285,34 @@ export function JournalPage() {
         />
       </div>
 
-      <div className="mb-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-7">
+      <div className="mb-4 flex flex-wrap items-center gap-2">
         <Input
           type="date"
           value={filters.dateFrom}
-          onChange={(event) =>
-            setFilters((current) => ({ ...current, dateFrom: event.target.value }))
-          }
+          onChange={(event) => handleFilter({ dateFrom: event.target.value })}
           aria-label={copy.journal.dateFrom}
+          className="h-8 w-36 text-[12px]"
         />
         <Input
           type="date"
           value={filters.dateTo}
-          onChange={(event) =>
-            setFilters((current) => ({ ...current, dateTo: event.target.value }))
-          }
+          onChange={(event) => handleFilter({ dateTo: event.target.value })}
           aria-label={copy.journal.dateTo}
+          className="h-8 w-36 text-[12px]"
         />
         <Input
           placeholder={copy.journal.searchSymbol}
           value={filters.query}
-          onChange={(event) =>
-            setFilters((current) => ({ ...current, query: event.target.value }))
-          }
+          onChange={(event) => handleFilter({ query: event.target.value })}
+          className="h-8 min-w-[140px] text-[12px]"
         />
         <Select
           value={filters.direction}
           onValueChange={(value) =>
-            setFilters((current) => ({
-              ...current,
-              direction: value as TradeFilters["direction"],
-            }))
+            handleFilter({ direction: value as TradeFilters["direction"] })
           }
         >
-          <SelectTrigger className="w-full">
+          <SelectTrigger className="h-8 w-32 text-[12px]">
             <SelectValue placeholder={copy.journal.direction} />
           </SelectTrigger>
           <SelectContent position="popper">
@@ -212,11 +326,9 @@ export function JournalPage() {
         </Select>
         <Select
           value={filters.playbookId}
-          onValueChange={(value) =>
-            setFilters((current) => ({ ...current, playbookId: value }))
-          }
+          onValueChange={(value) => handleFilter({ playbookId: value })}
         >
-          <SelectTrigger className="w-full">
+          <SelectTrigger className="h-8 w-36 text-[12px]">
             <SelectValue placeholder={copy.journal.playbook} />
           </SelectTrigger>
           <SelectContent position="popper">
@@ -231,13 +343,10 @@ export function JournalPage() {
         <Select
           value={filters.result}
           onValueChange={(value) =>
-            setFilters((current) => ({
-              ...current,
-              result: value as ResultFilter,
-            }))
+            handleFilter({ result: value as ResultFilter })
           }
         >
-          <SelectTrigger className="w-full">
+          <SelectTrigger className="h-8 w-28 text-[12px]">
             <SelectValue placeholder={copy.journal.result} />
           </SelectTrigger>
           <SelectContent position="popper">
@@ -251,75 +360,130 @@ export function JournalPage() {
           <Button
             type="button"
             variant="ghost"
-            onClick={() => setFilters(EMPTY_TRADE_FILTERS)}
+            size="sm"
+            className="h-8 text-[12px]"
+            onClick={() => {
+              setFilters(EMPTY_TRADE_FILTERS)
+              setPage(1)
+              setSelectedId(null)
+            }}
           >
             <Trash2 className="size-3.5" />
             {copy.journal.clearFilters}
           </Button>
-        ) : (
-          <div className="hidden lg:block" />
-        )}
+        ) : null}
       </div>
 
-      {!isReady ? (
-        <TableSkeleton rows={10} />
-      ) : (
-        <div className="titan-glass overflow-hidden rounded-[10px]">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{copy.journal.date}</TableHead>
-                <TableHead>{copy.journal.symbol}</TableHead>
-                <TableHead>{copy.journal.direction}</TableHead>
-                <TableHead>{copy.journal.playbook}</TableHead>
-                <TableHead>{copy.journal.result}</TableHead>
-                <TableHead>{copy.journal.r}</TableHead>
-                <TableHead>{copy.journal.pnl}</TableHead>
-                <TableHead>{copy.journal.status}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {visible.length === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={8}
-                    className="h-24 text-center text-muted-foreground"
-                  >
-                    {copy.journal.empty}
-                  </TableCell>
-                </TableRow>
-              ) : (
-                visible.map((trade) => (
-                  <TableRow key={trade.id} {...tradeRowProps(trade.id, router.push)}>
-                    <TableCell className="text-muted-foreground">
-                      {formatDate(trade.date)}
-                    </TableCell>
-                    <TableCell className="font-medium">{trade.symbol}</TableCell>
-                    <TableCell>
-                      <DirectionBadge direction={trade.direction} />
-                    </TableCell>
-                    <TableCell>
-                      {playbookNames[trade.playbookId] ?? trade.strategy}
-                    </TableCell>
-                    <TableCell>
-                      <OutcomeBadge resultR={trade.resultR} />
-                    </TableCell>
-                    <TableCell>
-                      <ResultR value={trade.resultR} />
-                    </TableCell>
-                    <TableCell className={signedClassName(trade.pnl)}>
-                      {formatSignedUsd(trade.pnl)}
-                    </TableCell>
-                    <TableCell>
-                      <StatusBadge status={trade.status} />
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+      <div className={cn("flex min-h-0 gap-3", selectedTrade ? "items-start" : "")}>
+        <div className={cn("min-w-0 flex-1", selectedTrade ? "lg:max-w-[calc(100%-360px)]" : "")}>
+          {!isReady ? (
+            <TableSkeleton rows={10} />
+          ) : (
+            <>
+              <div className="titan-glass overflow-hidden rounded-[10px]">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{copy.journal.date}</TableHead>
+                      <TableHead>{copy.journal.symbol}</TableHead>
+                      <TableHead>{copy.journal.direction}</TableHead>
+                      <TableHead>{copy.journal.playbook}</TableHead>
+                      <TableHead>{copy.journal.result}</TableHead>
+                      <TableHead>{copy.journal.r}</TableHead>
+                      <TableHead>{copy.journal.pnl}</TableHead>
+                      <TableHead>{copy.journal.status}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {paginated.length === 0 ? (
+                      <TableRow>
+                        <TableCell
+                          colSpan={8}
+                          className="h-24 text-center text-muted-foreground"
+                        >
+                          {copy.journal.empty}
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      paginated.map((trade) => (
+                        <TableRow
+                          key={trade.id}
+                          onClick={() =>
+                            setSelectedId((current) =>
+                              current === trade.id ? null : trade.id
+                            )
+                          }
+                          className={cn(
+                            "cursor-pointer select-none",
+                            selectedId === trade.id && "bg-primary/8"
+                          )}
+                        >
+                          <TableCell className="text-muted-foreground">
+                            {formatDate(trade.date)}
+                          </TableCell>
+                          <TableCell className="font-medium">{trade.symbol}</TableCell>
+                          <TableCell>
+                            <DirectionBadge direction={trade.direction} />
+                          </TableCell>
+                          <TableCell>
+                            {playbookNames[trade.playbookId] ?? trade.strategy}
+                          </TableCell>
+                          <TableCell>
+                            <OutcomeBadge resultR={trade.resultR} />
+                          </TableCell>
+                          <TableCell>
+                            <ResultR value={trade.resultR} />
+                          </TableCell>
+                          <TableCell className={signedClassName(trade.pnl)}>
+                            {formatSignedUsd(trade.pnl)}
+                          </TableCell>
+                          <TableCell>
+                            <StatusBadge status={trade.status} />
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+              <Pagination
+                total={visible.length}
+                page={safePage}
+                pageSize={pageSize}
+                onPage={setPage}
+                onPageSize={setPageSize}
+              />
+            </>
+          )}
         </div>
-      )}
+
+        {selectedTrade ? (
+          <aside className="hidden w-[340px] shrink-0 lg:block">
+            <div className="titan-glass sticky top-4 rounded-[10px] p-4">
+              <div className="mb-3 flex items-center justify-between">
+                <div>
+                  <p className="text-[11px] text-muted-foreground">
+                    {selectedTrade.symbol}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {selectedTrade.date}
+                    {" · "}ID: #{selectedTrade.id.slice(0, 12)}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedId(null)}
+                  className="text-muted-foreground hover:text-foreground"
+                  aria-label="Zavřít"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
+              <TradePanel trade={selectedTrade} playbookNames={playbookNames} />
+            </div>
+          </aside>
+        ) : null}
+      </div>
     </PageFrame>
   )
 }
