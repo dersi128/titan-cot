@@ -20,7 +20,7 @@ const EquityCurve = dynamic(
     import("@/components/dashboard/equity-curve").then((mod) => mod.EquityCurve),
   {
     ssr: false,
-    loading: () => <Skeleton className="h-52 w-full rounded-[10px]" />,
+    loading: () => <Skeleton className="h-full min-h-[140px] w-full rounded-[10px]" />,
   }
 )
 
@@ -42,35 +42,42 @@ export function DashboardPage() {
   )
 
   return (
-    <PageFrame>
-      <PageHeader
-        title={copy.dashboard.title}
-        description={copy.dashboard.description}
-      />
+    <PageFrame fill>
+      <div className="flex min-h-0 flex-1 flex-col gap-2">
+        <PageHeader
+          title={copy.dashboard.title}
+          description={copy.dashboard.description}
+          compact
+        />
 
-      {!isReady ? (
-        <div className="space-y-4">
-          <KpiSkeleton />
-          <TableSkeleton rows={8} />
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <AccountStrip
-            account={account}
-            capital={capital}
-            equity={accountEquity(capital, stats.netPnl)}
-            riskUsd={riskUsd}
-            riskPercent={riskPercent}
-            markets={markets}
-          />
-          <KpiCards stats={stats} />
-          <EquityCurve data={equity} />
-          <div className="grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(280px,0.8fr)]">
-            <RecentTrades trades={trades} />
-            <StrategySnapshot trades={trades} />
+        {!isReady ? (
+          <div className="space-y-3">
+            <KpiSkeleton />
+            <TableSkeleton rows={6} />
           </div>
-        </div>
-      )}
+        ) : (
+          <>
+            <AccountStrip
+              account={account}
+              capital={capital}
+              equity={accountEquity(capital, stats.netPnl)}
+              riskUsd={riskUsd}
+              riskPercent={riskPercent}
+              markets={markets}
+            />
+            <KpiCards stats={stats} dense />
+            <div className="grid min-h-0 flex-1 grid-cols-1 gap-2 lg:grid-cols-[minmax(0,1.65fr)_minmax(260px,0.9fr)] lg:grid-rows-[minmax(0,1fr)] lg:overflow-hidden">
+              <div className="min-h-[200px] lg:h-full lg:min-h-0">
+                <EquityCurve data={equity} fill />
+              </div>
+              <div className="grid min-h-0 gap-2 lg:h-full lg:grid-rows-[minmax(0,1fr)_auto] lg:overflow-hidden">
+                <RecentTrades trades={trades} fill />
+                <StrategySnapshot trades={trades} compact />
+              </div>
+            </div>
+          </>
+        )}
+      </div>
     </PageFrame>
   )
 }

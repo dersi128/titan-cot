@@ -18,16 +18,22 @@ import { tradeRowProps } from "@/components/trades/trade-row"
 import { copy } from "@/lib/labels"
 import { signedClassName } from "@/lib/format"
 
-export function RecentTrades({ trades }: { trades: Trade[] }) {
+export function RecentTrades({
+  trades,
+  fill = false,
+}: {
+  trades: Trade[]
+  fill?: boolean
+}) {
   const router = useRouter()
-  const recent = trades.slice(0, 5)
+  const recent = trades.slice(0, fill ? 6 : 5)
 
   return (
-    <Card>
-      <CardHeader className="border-b border-border py-3">
+    <Card size="sm" className={fill ? "flex h-full min-h-0 flex-col gap-0 py-0" : undefined}>
+      <CardHeader className="shrink-0 border-b border-border py-2">
         <CardTitle>{copy.dashboard.recentTrades}</CardTitle>
       </CardHeader>
-      <CardContent className="px-0">
+      <CardContent className={fill ? "min-h-0 flex-1 overflow-auto px-0 lg:min-h-0" : "px-0"}>
         <Table>
           <TableHeader>
             <TableRow>

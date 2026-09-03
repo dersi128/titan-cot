@@ -160,9 +160,16 @@ function TopBar({ onOpenNav }: { onOpenNav: () => void }) {
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false)
+  const pathname = usePathname()
+  const dashboard = pathname === "/dashboard"
 
   return (
-    <div className="titan-app flex min-h-screen">
+    <div
+      className={cn(
+        "titan-app flex min-h-screen",
+        dashboard && "lg:h-svh lg:max-h-svh lg:min-h-0 lg:overflow-hidden"
+      )}
+    >
       <aside className="hidden w-[232px] shrink-0 border-r border-sidebar-border bg-sidebar/90 lg:flex lg:flex-col">
         <SidebarBody />
       </aside>
@@ -181,9 +188,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         ) : null}
       </Sheet>
 
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div
+        className={cn(
+          "flex min-h-0 min-w-0 flex-1 flex-col",
+          dashboard && "lg:h-full lg:overflow-hidden"
+        )}
+      >
         <TopBar onOpenNav={() => setOpen(true)} />
-        <main className="titan-main min-w-0 flex-1">
+        <main
+          className={cn(
+            "titan-main min-w-0 flex-1",
+            dashboard && "titan-main--fit flex min-h-0 flex-col lg:overflow-hidden"
+          )}
+        >
           {children}
         </main>
       </div>

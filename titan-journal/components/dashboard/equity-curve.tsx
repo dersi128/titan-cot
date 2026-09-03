@@ -46,14 +46,23 @@ function EquityTooltip({
   )
 }
 
-export function EquityCurve({ data }: { data: EquityPoint[] }) {
+export function EquityCurve({
+  data,
+  fill = false,
+}: {
+  data: EquityPoint[]
+  fill?: boolean
+}) {
   return (
-    <Card>
-      <CardHeader className="border-b border-border py-3">
+    <Card
+      size="sm"
+      className={fill ? "h-full min-h-0 gap-0 py-0 lg:min-h-0" : undefined}
+    >
+      <CardHeader className="shrink-0 border-b border-border py-2">
         <CardTitle>{copy.dashboard.equityCurve}</CardTitle>
       </CardHeader>
-      <CardContent className="pt-3">
-        <div className="h-52">
+      <CardContent className={fill ? "flex min-h-0 flex-1 flex-col pt-2 pb-2" : "pt-3"}>
+        <div className={fill ? "min-h-[140px] flex-1 lg:min-h-0" : "h-52"}>
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
               <defs>
