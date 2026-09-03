@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { classifyMarket } from "@/lib/market-classification"
-import { dollarsPerR } from "@/lib/account-scope"
+import { dollarsPerR, realizedResultFromInputs, suggestedPnl } from "@/lib/account-scope"
 import { formatMoney } from "@/lib/format"
 import { isDirty } from "@/lib/dirty"
 import { useLabels } from "@/lib/use-labels"
@@ -168,11 +168,20 @@ export function TradeForm({ trade }: { trade?: Trade }) {
   const advanced = preferences.journalMode === "advanced"
   const values = fieldValueMap(fieldValues)
   const showResult =
-    editing && (trade.status === "CLOSED" || trade.status === "REVIEWED")
+    !editing || trade.status === "CLOSED" || trade.status === "REVIEWED"
   const riskUsd = dollarsPerR(
     profile.capital[account],
     parseOptionalNumber(riskPercent) ?? profile.riskPercent
   )
+  const typedR = parseOptionalNumber(resultR)
+  const suggestedClosePnl =
+    typedR != null && riskUsd > 0
+      ? suggestedPnl(
+          typedR,
+          profile.capital[account],
+          parseOptionalNumber(riskPercent) ?? profile.riskPercent
+        )
+      : null
   const potentialUsd =
     riskUsd > 0 && plannedRRR != null ? Math.round(riskUsd * plannedRRR * 100) / 100 : 0
   const previewSymbol = classification.symbol || symbol.trim().toUpperCase()
@@ -310,9 +319,15 @@ export function TradeForm({ trade }: { trade?: Trade }) {
       return
     }
 
+    const closed = realizedResultFromInputs(
+      resultR,
+      pnl,
+      profile.capital[account],
+      parseOptionalNumber(riskPercent) ?? profile.riskPercent
+    )
     const created = saveTrade({
       ...patch,
-      status: "PLANNED",
+      status: closed?.status ?? "PLANNED",
       zoneTimeframe: "Daily",
       original: true,
       fresh: true,
@@ -323,8 +338,8 @@ export function TradeForm({ trade }: { trade?: Trade }) {
       cotScore: classification.cotEnabled ? 0 : null,
       seasonalityBias: "Neutral",
       seasonalWindow: false,
-      resultR: null,
-      pnl: null,
+      resultR: closed?.resultR ?? null,
+      pnl: closed?.pnl ?? null,
       review: null,
     })
     router.push(`/journal/${created.id}`)
@@ -480,17 +495,28 @@ export function TradeForm({ trade }: { trade?: Trade }) {
             {showResult ? (
               <div className="titan-glass space-y-3 rounded-[10px] p-4">
                 <p className="text-sm font-medium">{copy.detail.result}</p>
+                {!editing ? (
+                  <p className="text-[12px] text-muted-foreground">
+                    {copy.form.resultHint}
+                  </p>
+                ) : null}
                 <div className="grid gap-3 sm:grid-cols-2">
                   <Field label={copy.detail.resultR}>
                     <Input
                       value={resultR}
                       onChange={(event) => setResultR(event.target.value)}
+                      placeholder="-1"
                     />
                   </Field>
                   <Field label={copy.detail.pnl}>
                     <Input
                       value={pnl}
                       onChange={(event) => setPnl(event.target.value)}
+                      placeholder={
+                        suggestedClosePnl != null
+                          ? String(suggestedClosePnl)
+                          : copy.detail.optional
+                      }
                     />
                   </Field>
                 </div>

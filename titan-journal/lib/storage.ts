@@ -1,4 +1,4 @@
-import { MOCK_TRADES, sortTrades } from "@/lib/mock-data"
+import { sortTrades } from "@/lib/mock-data"
 import { hydrateTrades, isLegacyTradeShape } from "@/lib/trade-hydration"
 import type { Trade } from "@/types/trade"
 
@@ -16,8 +16,6 @@ export interface TradeRepository {
 }
 
 export const TRADES_STORAGE_KEY = "titan-journal.trades.v2"
-
-const SORTED_MOCK = sortTrades(MOCK_TRADES)
 
 function canUseLocalStorage(): boolean {
   return typeof window !== "undefined" && typeof window.localStorage !== "undefined"
@@ -63,11 +61,11 @@ function writeLocal(trades: Trade[]): void {
 export function createLocalStorageRepository(): TradeRepository {
   const listeners = new Set<() => void>()
   let cachedRaw: string | null | undefined
-  let cachedTrades: Trade[] = SORTED_MOCK
+  let cachedTrades: Trade[] = []
 
   function storedList(): Trade[] {
     const raw = readRaw()
-    if (raw == null) return SORTED_MOCK.slice()
+    if (raw == null) return []
     return parseTrades(raw)
   }
 
@@ -77,7 +75,7 @@ export function createLocalStorageRepository(): TradeRepository {
 
     if (raw == null) {
       cachedRaw = raw
-      cachedTrades = SORTED_MOCK
+      cachedTrades = []
       return cachedTrades
     }
 
@@ -100,7 +98,7 @@ export function createLocalStorageRepository(): TradeRepository {
   function seedIfEmpty() {
     if (!canUseLocalStorage()) return
     if (readRaw() == null) {
-      writeLocal(SORTED_MOCK)
+      writeLocal([])
     }
   }
 

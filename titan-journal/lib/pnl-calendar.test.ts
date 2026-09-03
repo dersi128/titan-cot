@@ -4,6 +4,9 @@ import { MOCK_TRADES } from "@/lib/mock-data"
 import {
   buildMonthCalendar,
   calendarDayHref,
+  calendarInsights,
+  defaultSelectedDate,
+  formatCalendarDayTitle,
   formatMonthShort,
   formatMonthTitle,
   initialCalendarMonth,
@@ -162,5 +165,29 @@ describe("formatMonthShort", () => {
     expect(formatMonthShort({ year: 2026, month: 8 }, "cs")).toBe("Srp")
     expect(formatMonthShort({ year: 2026, month: 1 }, "cs")).toBe("Led")
     expect(formatMonthShort({ year: 2026, month: 8 }, "en")).toBe("Aug")
+  })
+})
+
+describe("calendarInsights", () => {
+  it("picks best and worst days and groups weeks", () => {
+    const calendar = buildMonthCalendar(
+      [
+        trade({ date: "2026-08-10", pnl: 200, resultR: 2 }),
+        trade({ id: "t2", date: "2026-08-10", pnl: -50, resultR: -1 }),
+        trade({ id: "t3", date: "2026-08-28", pnl: -130, resultR: -1 }),
+      ],
+      { year: 2026, month: 8 }
+    )
+    const insights = calendarInsights(calendar)
+    expect(insights.bestDay?.date).toBe("2026-08-10")
+    expect(insights.worstDay?.date).toBe("2026-08-28")
+    expect(insights.tradingDays).toBe(2)
+    expect(insights.weeks.some((week) => week.totalR === 1)).toBe(true)
+    expect(insights.weeks.some((week) => week.totalR === -1)).toBe(true)
+    expect(insights.progress.at(-1)?.cumulativeR).toBe(0)
+    expect(defaultSelectedDate(calendar, "2026-09-03")).toBe("2026-08-28")
+    expect(defaultSelectedDate(calendar, "2026-08-10")).toBe("2026-08-10")
+    expect(formatCalendarDayTitle("2026-08-15", "cs")).toBe("15. srp 2026")
+    expect(formatCalendarDayTitle("2026-08-15", "en")).toBe("15 Aug 2026")
   })
 })

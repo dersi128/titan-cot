@@ -1,6 +1,7 @@
 import { tradeInRange, type CustomRange, type DateRange } from "@/lib/date-range"
+import { parseOptionalNumber } from "@/lib/trade-calculations"
 import type { AccountCapital } from "@/types/playbook"
-import type { Account, Trade } from "@/types/trade"
+import type { Account, Trade, TradeStatus } from "@/types/trade"
 
 export function filterTradesByAccount(trades: Trade[], account: Account): Trade[] {
   return trades.filter((trade) => trade.account === account)
@@ -40,4 +41,19 @@ export function capitalForAccount(
   account: Account
 ): number {
   return capital[account] ?? 0
+}
+
+export function realizedResultFromInputs(
+  resultR: string,
+  pnl: string,
+  capital: number,
+  riskPercent: number
+): { status: Extract<TradeStatus, "CLOSED">; resultR: number; pnl: number } | null {
+  const r = parseOptionalNumber(resultR)
+  if (r == null) return null
+  return {
+    status: "CLOSED",
+    resultR: r,
+    pnl: parseOptionalNumber(pnl) ?? suggestedPnl(r, capital, riskPercent),
+  }
 }

@@ -21,7 +21,7 @@ export function MarketBadges({
     <div className="flex flex-wrap items-center gap-1.5">
       <Badge
         variant="outline"
-        className="h-5 rounded-md border-white/15 bg-white/[0.03] px-1.5 text-[10px] font-medium tracking-wide text-muted-foreground"
+        className="h-5 rounded-md border-border bg-muted/50 px-1.5 text-[10px] font-medium tracking-wide text-muted-foreground"
       >
         {ASSET_CLASS_LABELS[classification.assetClass]}
       </Badge>
@@ -32,7 +32,7 @@ export function MarketBadges({
             "h-5 rounded-md px-1.5 text-[10px] font-medium tracking-wide",
             major
               ? "border-primary/40 bg-primary/12 text-primary"
-              : "border-white/15 bg-white/[0.03] text-muted-foreground"
+              : "border-border bg-muted/50 text-muted-foreground"
           )}
         >
           {MARKET_TYPE_LABELS[classification.marketType]}

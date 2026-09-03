@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { MOCK_TRADES } from "@/lib/mock-data"
+import { MOCK_TRADES, isSampleJournal } from "@/lib/mock-data"
 import { filterTrades } from "@/lib/trade-filters"
 
 describe("mock journal seed", () => {
@@ -42,6 +42,18 @@ describe("mock journal seed", () => {
     expect(classes.has("Metal")).toBe(true)
     expect(classes.has("Commodity")).toBe(true)
     expect(classes.has("Crypto")).toBe(true)
+  })
+
+  it("marks only a full mock id set as sample journal", () => {
+    expect(isSampleJournal([])).toBe(false)
+    expect(isSampleJournal(MOCK_TRADES)).toBe(true)
+    expect(isSampleJournal(MOCK_TRADES.slice(0, 3))).toBe(true)
+    expect(
+      isSampleJournal([{ ...MOCK_TRADES[0], id: "real-1" }])
+    ).toBe(false)
+    expect(
+      isSampleJournal([...MOCK_TRADES, { ...MOCK_TRADES[0], id: "real-1" }])
+    ).toBe(false)
   })
 })
 
