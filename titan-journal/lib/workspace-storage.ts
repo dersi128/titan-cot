@@ -40,7 +40,7 @@ export const DEFAULT_PROFILE: UserProfile = {
 
 export const DEFAULT_PREFERENCES: UserPreferences = {
   journalMode: "simple",
-  theme: "slate",
+  theme: "dark",
   density: "comfortable",
   language: "en",
   defaultAccount: "Personal",
@@ -89,6 +89,7 @@ function asAccount(value: unknown): Account {
 }
 
 function asTheme(value: unknown): ThemeId {
+  if (value === "slate") return "dark"
   return typeof value === "string" && (THEMES as readonly string[]).includes(value)
     ? (value as ThemeId)
     : DEFAULT_PREFERENCES.theme
@@ -334,4 +335,4 @@ export function applyDocumentAppearance(preferences: UserPreferences) {
   root.classList.toggle("dark", dark)
 }
 
-export const THEME_BOOT_SCRIPT = `try{var p=JSON.parse(localStorage.getItem("${PREFERENCES_STORAGE_KEY}")||"{}");var ok=["light","slate","dark","gold","cyberpunk"];var t=ok.indexOf(p.theme)>=0?p.theme:"slate";var d=p.density==="compact"||p.density==="large"||p.density==="comfortable"?p.density:"comfortable";var lang=p.language==="cs"?"cs":"en";var r=document.documentElement;r.setAttribute("data-theme",t);r.setAttribute("data-density",d);r.setAttribute("lang",lang);var dark=t!=="light";r.style.colorScheme=dark?"dark":"light";r.classList.toggle("dark",dark);}catch(e){}`
+export const THEME_BOOT_SCRIPT = `try{var p=JSON.parse(localStorage.getItem("${PREFERENCES_STORAGE_KEY}")||"{}");var ok=["light","dark","gold","cyberpunk"];var t=p.theme==="slate"?"dark":ok.indexOf(p.theme)>=0?p.theme:"dark";var d=p.density==="compact"||p.density==="large"||p.density==="comfortable"?p.density:"comfortable";var lang=p.language==="cs"?"cs":"en";var r=document.documentElement;r.setAttribute("data-theme",t);r.setAttribute("data-density",d);r.setAttribute("lang",lang);var dark=t!=="light";r.style.colorScheme=dark?"dark":"light";r.classList.toggle("dark",dark);}catch(e){}`

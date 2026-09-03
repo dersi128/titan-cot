@@ -179,7 +179,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         dashboard && "lg:h-svh lg:max-h-svh lg:min-h-0 lg:overflow-hidden"
       )}
     >
-      <aside className="hidden w-[232px] shrink-0 border-r border-sidebar-border bg-sidebar/90 lg:flex lg:flex-col">
+      <aside className="titan-sidebar hidden w-[232px] shrink-0 border-r border-sidebar-border lg:flex lg:flex-col">
         <SidebarBody />
       </aside>
 
@@ -187,7 +187,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         {open ? (
           <SheetContent
             side="left"
-            className="w-[240px] border-r border-sidebar-border bg-sidebar p-0"
+            className="titan-sidebar w-[240px] border-r border-sidebar-border p-0"
           >
             <SheetHeader className="sr-only">
               <SheetTitle>{copy.brand}</SheetTitle>

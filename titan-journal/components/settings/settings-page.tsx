@@ -50,7 +50,6 @@ export function SettingsPage() {
               options={THEMES}
               labels={{
                 light: copy.settings.light,
-                slate: copy.settings.slate,
                 dark: copy.settings.dark,
                 gold: copy.settings.gold,
                 cyberpunk: copy.settings.cyberpunk,
