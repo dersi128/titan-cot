@@ -9,6 +9,7 @@ import { useWorkspaceChrome } from "@/components/layout/workspace-chrome"
 import { useWorkspace } from "@/components/layout/workspace-provider"
 import { PlaybookFieldInput } from "@/components/playbooks/playbook-field-input"
 import { MarketBadges } from "@/components/trades/market-badges"
+import { DirectionBadge } from "@/components/trades/trade-badges"
 import { useTrades } from "@/components/trades/trades-provider"
 import { SaveButton } from "@/components/forms/save-button"
 import { Button } from "@/components/ui/button"
@@ -16,7 +17,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { classifyMarket } from "@/lib/market-classification"
 import { dollarsPerR } from "@/lib/account-scope"
-import { formatUsd } from "@/lib/format"
+import { formatMoney } from "@/lib/format"
 import { isDirty } from "@/lib/dirty"
 import { useLabels } from "@/lib/use-labels"
 import { todayIsoDate } from "@/lib/locale"
@@ -29,10 +30,15 @@ import {
   upsertFieldValue,
 } from "@/lib/playbooks"
 import {
+  recentTradeTemplates,
+  type TradeTemplate,
+} from "@/lib/recent-trade-templates"
+import {
   calculatePlannedRRR,
   formatRRR,
   parseOptionalNumber,
 } from "@/lib/trade-calculations"
+import { cn } from "@/lib/utils"
 import type { TradeFieldValue } from "@/types/playbook"
 import {
   ACCOUNTS,
@@ -56,6 +62,25 @@ function readScreenshot(file: File): Promise<string | null> {
   })
 }
 
+function PreviewRow({
+  label,
+  value,
+  className,
+}: {
+  label: string
+  value: string
+  className?: string
+}) {
+  return (
+    <p className="flex items-baseline justify-between gap-3 text-[12px]">
+      <span className="text-muted-foreground">{label}</span>
+      <span className={cn("font-mono tabular-nums text-foreground", className)}>
+        {value}
+      </span>
+    </p>
+  )
+}
+
 export function NewTradeForm() {
   return <TradeForm />
 }
@@ -63,7 +88,7 @@ export function NewTradeForm() {
 export function TradeForm({ trade }: { trade?: Trade }) {
   const { copy, ACCOUNT_LABELS } = useLabels()
   const router = useRouter()
-  const { saveTrade, updateTrade } = useTrades()
+  const { saveTrade, updateTrade, trades } = useTrades()
   const { preferences, playbooks, profile } = useWorkspace()
   const { account: chromeAccount } = useWorkspaceChrome()
   const editing = trade != null
@@ -78,6 +103,19 @@ export function TradeForm({ trade }: { trade?: Trade }) {
   const defaultPlaybook =
     playbookOptions.find((item) => item.id === (trade?.playbookId ?? preferences.defaultPlaybookId)) ??
     playbookOptions[0]
+  const playbookNames = useMemo(
+    () => Object.fromEntries(playbooks.map((item) => [item.id, item.name])),
+    [playbooks]
+  )
+  const activePlaybookIds = useMemo(
+    () => new Set(available.map((item) => item.id)),
+    [available]
+  )
+  const templates = useMemo(
+    () =>
+      editing ? [] : recentTradeTemplates(trades, 6, activePlaybookIds),
+    [editing, trades, activePlaybookIds]
+  )
 
   const [date, setDate] = useState(trade?.date ?? todayIsoDate())
   const [symbol, setSymbol] = useState(trade?.symbol ?? "")
@@ -143,6 +181,8 @@ export function TradeForm({ trade }: { trade?: Trade }) {
   )
   const potentialUsd =
     riskUsd > 0 && plannedRRR != null ? Math.round(riskUsd * plannedRRR * 100) / 100 : 0
+  const previewSymbol = classification.symbol || symbol.trim().toUpperCase()
+  const money = (value: number) => formatMoney(value, profile.currency)
 
   function resetForm() {
     setDate(todayIsoDate())
@@ -159,6 +199,15 @@ export function TradeForm({ trade }: { trade?: Trade }) {
     setFieldValues([])
     setResultR("")
     setPnl("")
+    setError(null)
+  }
+
+  function applyTemplate(template: TradeTemplate) {
+    setSymbol(template.symbol)
+    setDirection(template.direction)
+    setPlaybookId(template.playbookId)
+    setAccount(template.account)
+    setRiskPercent(String(template.riskPercent))
     setError(null)
   }
 
@@ -253,7 +302,7 @@ export function TradeForm({ trade }: { trade?: Trade }) {
   }
 
   return (
-    <PageFrame width="narrow">
+    <PageFrame>
       <PageHeader
         title={editing ? copy.form.editTitle : copy.form.title}
         description={
@@ -268,187 +317,257 @@ export function TradeForm({ trade }: { trade?: Trade }) {
         }
       />
       <form onSubmit={handleSubmit} className="space-y-4 pb-16">
-        <div className="titan-glass space-y-3 rounded-[10px] p-4">
-          <p className="text-sm font-medium">{copy.form.basics}</p>
-          {editing ? (
-            <Field label={copy.form.date}>
-              <Input
-                type="date"
-                value={date}
-                onChange={(event) => setDate(event.target.value)}
-              />
-            </Field>
-          ) : null}
-          <Field label={copy.form.account}>
-            <OptionPills
-              value={account}
-              options={ACCOUNTS}
-              labels={ACCOUNT_LABELS}
-              onChange={setAccount}
-            />
-          </Field>
-          <Field label={copy.form.symbol}>
-            <Input
-              autoFocus={!editing}
-              value={symbol}
-              onChange={(event) => setSymbol(event.target.value)}
-              placeholder="AUDUSD"
-            />
-            <MarketBadges classification={classification} />
-          </Field>
-          <Field label={copy.form.direction}>
-            <OptionPills
-              value={direction}
-              options={TRADE_DIRECTIONS}
-              accents={{ LONG: "bull", SHORT: "bear" }}
-              onChange={setDirection}
-            />
-          </Field>
-          <Field label={copy.form.playbook}>
-            <OptionPills
-              value={playbookId}
-              options={playbookOptions.map((item) => item.id)}
-              labels={Object.fromEntries(
-                playbookOptions.map((item) => [item.id, item.name])
-              )}
-              onChange={setPlaybookId}
-            />
-          </Field>
-        </div>
-
-        <div className="titan-glass space-y-3 rounded-[10px] p-4">
-          <p className="text-sm font-medium">{copy.form.plan}</p>
-          <div className="grid gap-3 sm:grid-cols-3">
-            <Field label={copy.form.entry}>
-              <Input value={entry} onChange={(event) => setEntry(event.target.value)} />
-            </Field>
-            <Field label={copy.form.stopLoss}>
-              <Input
-                value={stopLoss}
-                onChange={(event) => setStopLoss(event.target.value)}
-              />
-            </Field>
-            <Field label={copy.form.takeProfit}>
-              <Input
-                value={takeProfit}
-                onChange={(event) => setTakeProfit(event.target.value)}
-              />
-            </Field>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <Field
-              label={copy.form.risk}
-              hint={
-                riskUsd > 0
-                  ? `${formatUsd(riskUsd)} ${copy.form.riskHint}`
-                  : undefined
-              }
-            >
-              <Input
-                value={riskPercent}
-                onChange={(event) => setRiskPercent(event.target.value)}
-              />
-            </Field>
-            <Field
-              label={copy.form.plannedRrr}
-              hint={
-                potentialUsd > 0
-                  ? `${copy.form.potential}: ${formatUsd(potentialUsd)}`
-                  : undefined
-              }
-            >
-              <p className="flex h-8 items-center font-mono text-sm">
-                {formatRRR(plannedRRR)}
-              </p>
-            </Field>
-          </div>
-        </div>
-
-        {showResult ? (
-          <div className="titan-glass space-y-3 rounded-[10px] p-4">
-            <p className="text-sm font-medium">{copy.detail.result}</p>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Field label={copy.detail.resultR}>
-                <Input
-                  value={resultR}
-                  onChange={(event) => setResultR(event.target.value)}
-                />
-              </Field>
-              <Field label={copy.detail.pnl}>
-                <Input
-                  value={pnl}
-                  onChange={(event) => setPnl(event.target.value)}
-                />
-              </Field>
+        {templates.length > 0 ? (
+          <div>
+            <p className="mb-2 text-[11px] font-medium tracking-wide text-muted-foreground">
+              {copy.form.templates}
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {templates.map((template) => (
+                <button
+                  key={template.key}
+                  type="button"
+                  onClick={() => applyTemplate(template)}
+                  className="titan-glass rounded-[8px] border border-transparent px-2.5 py-1.5 text-left transition-colors hover:border-primary/30"
+                >
+                  <span className="text-[12px] font-semibold">{template.symbol}</span>
+                  <span
+                    className={cn(
+                      "ml-1.5 text-[10px] font-semibold uppercase",
+                      template.direction === "LONG" ? "text-bull" : "text-bear"
+                    )}
+                  >
+                    {template.direction}
+                  </span>
+                  {playbookNames[template.playbookId] ? (
+                    <span className="ml-1.5 text-[11px] text-muted-foreground">
+                      {playbookNames[template.playbookId]}
+                    </span>
+                  ) : null}
+                </button>
+              ))}
             </div>
           </div>
         ) : null}
 
-        <div className="titan-glass space-y-3 rounded-[10px] p-4">
-          <Field
-            label={copy.form.note}
-            hint={copy.form.noteLimit.replace("{n}", String(notes.length))}
-          >
-            <Textarea
-              rows={3}
-              value={notes}
-              maxLength={NOTES_MAX}
-              onChange={(event) => setNotes(event.target.value.slice(0, NOTES_MAX))}
-            />
-          </Field>
-        </div>
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(240px,300px)] lg:items-start">
+          <div className="space-y-4">
+            <div className="titan-glass space-y-3 rounded-[10px] p-4">
+              <p className="text-sm font-medium">{copy.form.basics}</p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Field label={copy.form.date}>
+                  <Input
+                    type="date"
+                    value={date}
+                    onChange={(event) => setDate(event.target.value)}
+                  />
+                </Field>
+                <Field label={copy.form.symbol}>
+                  <Input
+                    autoFocus={!editing}
+                    value={symbol}
+                    onChange={(event) => setSymbol(event.target.value)}
+                    placeholder="AUDUSD"
+                  />
+                  <MarketBadges classification={classification} />
+                </Field>
+              </div>
+              <Field label={copy.form.account}>
+                <OptionPills
+                  value={account}
+                  options={ACCOUNTS}
+                  labels={ACCOUNT_LABELS}
+                  onChange={setAccount}
+                />
+              </Field>
+              <Field label={copy.form.direction}>
+                <OptionPills
+                  value={direction}
+                  options={TRADE_DIRECTIONS}
+                  accents={{ LONG: "bull", SHORT: "bear" }}
+                  onChange={setDirection}
+                />
+              </Field>
+              <Field label={copy.form.playbook}>
+                <OptionPills
+                  value={playbookId}
+                  options={playbookOptions.map((item) => item.id)}
+                  labels={Object.fromEntries(
+                    playbookOptions.map((item) => [item.id, item.name])
+                  )}
+                  onChange={setPlaybookId}
+                />
+              </Field>
+            </div>
 
-        <div className="titan-glass space-y-3 rounded-[10px] p-4">
-          <Field label={copy.form.screenshot} hint={copy.form.screenshotHint}>
-            <label
-              className="flex cursor-pointer flex-col items-center justify-center rounded-[10px] border border-dashed border-border px-3 py-6 text-center text-[12px] text-muted-foreground"
-              onDragOver={(event) => event.preventDefault()}
-              onDrop={(event) => {
-                event.preventDefault()
-                void handleScreenshot(event.dataTransfer.files?.[0])
-              }}
-            >
-              <Input
-                type="file"
-                accept="image/*"
-                className="sr-only"
-                onChange={(event) => handleScreenshot(event.target.files?.[0])}
-              />
-              {copy.form.screenshotHint}
-            </label>
-            {screenshot ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={screenshot}
-                alt=""
-                className="mt-2 max-h-40 rounded-md border border-border object-contain"
-              />
+            <div className="titan-glass space-y-3 rounded-[10px] p-4">
+              <p className="text-sm font-medium">{copy.form.plan}</p>
+              <div className="grid gap-3 sm:grid-cols-3">
+                <Field label={copy.form.entry}>
+                  <Input value={entry} onChange={(event) => setEntry(event.target.value)} />
+                </Field>
+                <Field label={copy.form.stopLoss}>
+                  <Input
+                    value={stopLoss}
+                    onChange={(event) => setStopLoss(event.target.value)}
+                  />
+                </Field>
+                <Field label={copy.form.takeProfit}>
+                  <Input
+                    value={takeProfit}
+                    onChange={(event) => setTakeProfit(event.target.value)}
+                  />
+                </Field>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Field
+                  label={copy.form.risk}
+                  hint={
+                    riskUsd > 0
+                      ? `${money(riskUsd)} ${copy.form.riskHint}`
+                      : undefined
+                  }
+                >
+                  <Input
+                    value={riskPercent}
+                    onChange={(event) => setRiskPercent(event.target.value)}
+                  />
+                </Field>
+                <Field
+                  label={copy.form.plannedRrr}
+                  hint={
+                    potentialUsd > 0
+                      ? `${copy.form.potential}: ${money(potentialUsd)}`
+                      : undefined
+                  }
+                >
+                  <p className="flex h-8 items-center font-mono text-sm">
+                    {formatRRR(plannedRRR)}
+                  </p>
+                </Field>
+              </div>
+            </div>
+
+            {showResult ? (
+              <div className="titan-glass space-y-3 rounded-[10px] p-4">
+                <p className="text-sm font-medium">{copy.detail.result}</p>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <Field label={copy.detail.resultR}>
+                    <Input
+                      value={resultR}
+                      onChange={(event) => setResultR(event.target.value)}
+                    />
+                  </Field>
+                  <Field label={copy.detail.pnl}>
+                    <Input
+                      value={pnl}
+                      onChange={(event) => setPnl(event.target.value)}
+                    />
+                  </Field>
+                </div>
+              </div>
             ) : null}
-          </Field>
-        </div>
 
-        {advanced && playbook && sortedFields(playbook).length > 0 ? (
-          <div className="titan-glass space-y-3 rounded-[10px] p-4">
-            <p className="text-sm font-medium">{copy.form.advancedFields}</p>
-            {sortedFields(playbook).map((field) => (
-              <PlaybookFieldInput
-                key={field.id}
-                field={field}
-                value={values[field.id] ?? null}
-                onChange={(value) =>
-                  setFieldValues((current) =>
-                    upsertFieldValue(current, field.id, value)
-                  )
-                }
-              />
-            ))}
+            <div className="titan-glass space-y-3 rounded-[10px] p-4">
+              <Field
+                label={copy.form.note}
+                hint={copy.form.noteLimit.replace("{n}", String(notes.length))}
+              >
+                <Textarea
+                  rows={3}
+                  value={notes}
+                  maxLength={NOTES_MAX}
+                  onChange={(event) => setNotes(event.target.value.slice(0, NOTES_MAX))}
+                />
+              </Field>
+              <Field label={copy.form.screenshot}>
+                <label
+                  className="flex cursor-pointer flex-col items-center justify-center rounded-[10px] border border-dashed border-border px-3 py-6 text-center text-[12px] text-muted-foreground"
+                  onDragOver={(event) => event.preventDefault()}
+                  onDrop={(event) => {
+                    event.preventDefault()
+                    void handleScreenshot(event.dataTransfer.files?.[0])
+                  }}
+                >
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    className="sr-only"
+                    onChange={(event) => handleScreenshot(event.target.files?.[0])}
+                  />
+                  {copy.form.screenshotHint}
+                </label>
+                {screenshot ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={screenshot}
+                    alt=""
+                    className="mt-2 max-h-40 rounded-md border border-border object-contain"
+                  />
+                ) : null}
+              </Field>
+            </div>
+
+            {advanced && playbook && sortedFields(playbook).length > 0 ? (
+              <div className="titan-glass space-y-3 rounded-[10px] p-4">
+                <p className="text-sm font-medium">{copy.form.advancedFields}</p>
+                {sortedFields(playbook).map((field) => (
+                  <PlaybookFieldInput
+                    key={field.id}
+                    field={field}
+                    value={values[field.id] ?? null}
+                    onChange={(value) =>
+                      setFieldValues((current) =>
+                        upsertFieldValue(current, field.id, value)
+                      )
+                    }
+                  />
+                ))}
+              </div>
+            ) : null}
           </div>
-        ) : null}
 
-        {error ? <p className="text-sm text-destructive">{error}</p> : null}
-        <SaveButton type="submit" dirty={dirty}>
-          {editing ? copy.form.saveChanges : copy.form.save}
-        </SaveButton>
+          <aside className="titan-glass space-y-3 rounded-[10px] p-4 lg:sticky lg:top-4">
+            <p className="text-sm font-medium">{copy.form.preview}</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-base font-semibold tracking-tight">
+                {previewSymbol || "—"}
+              </p>
+              <DirectionBadge direction={direction} />
+            </div>
+            <MarketBadges classification={classification} />
+            <div className="space-y-1.5 border-t border-border pt-3">
+              <PreviewRow
+                label={copy.form.account}
+                value={ACCOUNT_LABELS[account]}
+                className="font-sans"
+              />
+              <PreviewRow
+                label={copy.form.playbook}
+                value={playbook?.name ?? "—"}
+                className="font-sans"
+              />
+              <PreviewRow label={copy.form.entry} value={entry || "—"} />
+              <PreviewRow label={copy.form.stopLoss} value={stopLoss || "—"} />
+              <PreviewRow label={copy.form.takeProfit} value={takeProfit || "—"} />
+              <PreviewRow
+                label={copy.form.risk}
+                value={riskUsd > 0 ? `${riskPercent}% · ${money(riskUsd)}` : `${riskPercent}%`}
+              />
+              <PreviewRow label={copy.form.plannedRrr} value={formatRRR(plannedRRR)} />
+              {potentialUsd > 0 ? (
+                <PreviewRow
+                  label={copy.form.potential}
+                  value={money(potentialUsd)}
+                />
+              ) : null}
+            </div>
+            {error ? <p className="text-sm text-destructive">{error}</p> : null}
+            <SaveButton type="submit" dirty={dirty} className="w-full">
+              {editing ? copy.form.saveChanges : copy.form.save}
+            </SaveButton>
+          </aside>
+        </div>
       </form>
     </PageFrame>
   )
