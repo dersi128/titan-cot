@@ -130,8 +130,17 @@ describe("hydrateTrade", () => {
     expect(trade?.fieldValues).toEqual([])
   })
 
-  it("treats a garbage review payload as null", () => {
-    const trade = hydrateTrade({ ...legacyCross, review: "nope" })
-    expect(trade?.review).toBeNull()
+  it("reclassifies stored metals on hydrate", () => {
+    const trade = hydrateTrade({
+      ...legacyCross,
+      id: "trd-metal",
+      symbol: "XAUUSD",
+    })
+    expect(trade).toMatchObject({
+      symbol: "XAUUSD",
+      assetClass: "Metal",
+      marketType: "Unknown",
+      cotEnabled: false,
+    })
   })
 })

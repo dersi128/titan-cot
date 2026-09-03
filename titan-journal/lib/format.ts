@@ -1,26 +1,46 @@
+import { DEFAULT_CURRENCY, resolveCurrency } from "@/lib/currency"
 import { LOCALE } from "@/lib/locale"
 import { STATUS_LABELS, YES_NO_LABELS } from "@/lib/labels"
 import type { TradeStatus } from "@/types/trade"
 
-export function formatUsd(value: number | null | undefined): string {
+export function formatMoney(
+  value: number | null | undefined,
+  currency: string = DEFAULT_CURRENCY
+): string {
   if (value == null || !Number.isFinite(value)) return "—"
-  return value.toLocaleString(LOCALE, {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  })
+  const code = resolveCurrency(currency)
+  try {
+    return value.toLocaleString(LOCALE, {
+      style: "currency",
+      currency: code,
+      maximumFractionDigits: 0,
+    })
+  } catch {
+    return value.toLocaleString(LOCALE, {
+      style: "currency",
+      currency: DEFAULT_CURRENCY,
+      maximumFractionDigits: 0,
+    })
+  }
 }
 
-export function formatSignedUsd(value: number | null | undefined): string {
+export function formatSignedMoney(
+  value: number | null | undefined,
+  currency: string = DEFAULT_CURRENCY
+): string {
   if (value == null || !Number.isFinite(value)) return "—"
-  const abs = Math.abs(value).toLocaleString(LOCALE, {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  })
+  const abs = formatMoney(Math.abs(value), currency)
   if (value > 0) return `+${abs}`
   if (value < 0) return `-${abs}`
   return abs
+}
+
+export function formatUsd(value: number | null | undefined): string {
+  return formatMoney(value, DEFAULT_CURRENCY)
+}
+
+export function formatSignedUsd(value: number | null | undefined): string {
+  return formatSignedMoney(value, DEFAULT_CURRENCY)
 }
 
 export function formatSignedR(value: number | null | undefined): string {

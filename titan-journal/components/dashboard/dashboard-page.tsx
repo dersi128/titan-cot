@@ -24,6 +24,17 @@ const EquityCurve = dynamic(
   }
 )
 
+const MarketDistribution = dynamic(
+  () =>
+    import("@/components/dashboard/market-distribution").then(
+      (mod) => mod.MarketDistribution
+    ),
+  {
+    ssr: false,
+    loading: () => <Skeleton className="h-full min-h-[140px] w-full rounded-[10px]" />,
+  }
+)
+
 export function DashboardPage() {
   const {
     trades,
@@ -34,6 +45,7 @@ export function DashboardPage() {
     riskUsd,
     markets,
     stats,
+    profile,
   } = useScopedTrades()
 
   const equity = useMemo(
@@ -67,8 +79,13 @@ export function DashboardPage() {
             />
             <KpiCards stats={stats} dense />
             <div className="grid min-h-0 flex-1 grid-cols-1 gap-2 lg:grid-cols-[minmax(0,1.65fr)_minmax(260px,0.9fr)] lg:grid-rows-[minmax(0,1fr)] lg:overflow-hidden">
-              <div className="min-h-[200px] lg:h-full lg:min-h-0">
+              <div className="grid min-h-[200px] gap-2 lg:h-full lg:min-h-0 lg:grid-rows-[minmax(0,1fr)_minmax(188px,0.72fr)]">
                 <EquityCurve data={equity} fill />
+                <MarketDistribution
+                  trades={trades}
+                  currency={profile.currency}
+                  fill
+                />
               </div>
               <div className="grid min-h-0 gap-2 lg:h-full lg:grid-rows-[minmax(0,1fr)_auto] lg:overflow-hidden">
                 <RecentTrades trades={trades} fill />

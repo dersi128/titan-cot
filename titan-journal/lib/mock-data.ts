@@ -166,18 +166,32 @@ const FEATURED: Seed[] = [
 
 const SYMBOLS = [
   "EURUSD",
+  "AAPL",
+  "US30",
+  "XAUUSD",
+  "COFFEE",
+  "BTCUSD",
   "GBPUSD",
-  "USDJPY",
+  "NVDA",
+  "NAS100",
+  "XAGUSD",
+  "CORN",
+  "ETHUSD",
   "AUDUSD",
-  "USDCAD",
-  "NZDUSD",
-  "USDCHF",
-  "EURAUD",
-  "GBPNZD",
-  "AUDNZD",
-  "EURGBP",
-  "GBPCAD",
+  "TSLA",
+  "SPX500",
+  "GOLD",
+  "WHEAT",
+  "BTCUSDT",
 ] as const
+
+const CLASS_COVERAGE: Array<{ symbol: (typeof SYMBOLS)[number]; account: Account }> = [
+  { symbol: "AAPL", account: "Personal" },
+  { symbol: "US30", account: "Personal" },
+  { symbol: "XAUUSD", account: "Personal" },
+  { symbol: "COFFEE", account: "Personal" },
+  { symbol: "BTCUSD", account: "Personal" },
+]
 
 const GRADES: Grade[] = ["A+", "A", "B+", "B"]
 const TRENDS_UP: Trend[] = ["Strong Uptrend", "Uptrend"]
@@ -200,7 +214,8 @@ function buildRest(): Seed[] {
   const rest: Seed[] = []
 
   CLOSED_R.forEach((resultR, index) => {
-    const symbol = SYMBOLS[index % SYMBOLS.length]
+    const coverage = CLASS_COVERAGE[index]
+    const symbol = coverage?.symbol ?? SYMBOLS[index % SYMBOLS.length]
     const direction: TradeDirection = index % 3 === 0 ? "SHORT" : "LONG"
     const down = direction === "SHORT"
     const grade = GRADES[index % GRADES.length]
@@ -221,7 +236,7 @@ function buildRest(): Seed[] {
       zoneType: down ? "Supply" : "Demand",
       fresh: fresh && !tested,
       touchCount: tested ? "2+" : fresh ? "0" : "1",
-      account: ACCOUNTS[index % ACCOUNTS.length],
+      account: coverage?.account ?? ACCOUNTS[index % ACCOUNTS.length],
     })
   })
 

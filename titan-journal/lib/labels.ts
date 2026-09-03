@@ -46,6 +46,12 @@ export const copy = {
     averageR: "Average R",
     totalTrades: "Trades",
     equityCurve: "Equity Curve",
+    marketDistribution: "Market Distribution",
+    marketDistributionEmpty: "No trades to distribute yet.",
+    byTrades: "By Trades",
+    byR: "By R",
+    byPnl: "By PnL",
+    totalTradesLabel: "Total Trades",
     equity: "Equity",
     recentTrades: "Recent Trades",
     strategySnapshot: "Playbooks",
@@ -305,9 +311,10 @@ export const BIAS_LABELS: Record<Bias, string> = {
 
 export const ASSET_CLASS_LABELS: Record<AssetClass, string> = {
   Forex: "Forex",
-  Stock: "Stock",
-  Commodity: "Commodity",
-  Index: "Index",
+  Stock: "Stocks",
+  Commodity: "Commodities",
+  Metal: "Metals",
+  Index: "Indices",
   Crypto: "Crypto",
   Unknown: "Unknown",
 }

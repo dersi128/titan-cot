@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { formatDate, formatPercent, formatYesNo } from "@/lib/format"
+import { formatDate, formatMoney, formatPercent, formatSignedMoney, formatYesNo } from "@/lib/format"
 import { LOCALE, TIMEZONE } from "@/lib/locale"
 
 describe("cs-CZ locale", () => {
@@ -20,5 +20,12 @@ describe("cs-CZ locale", () => {
   it("formats yes/no as Yes/No", () => {
     expect(formatYesNo(true)).toBe("Yes")
     expect(formatYesNo(false)).toBe("No")
+  })
+
+  it("formats money with the given currency, not a hardcoded USD symbol", () => {
+    const eur = formatMoney(1240, "EUR")
+    expect(eur).toContain("1")
+    expect(eur).toMatch(/EUR|€/)
+    expect(formatSignedMoney(-180, "EUR")).toMatch(/^-/)
   })
 })

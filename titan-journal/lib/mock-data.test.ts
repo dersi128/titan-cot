@@ -32,6 +32,17 @@ describe("mock journal seed", () => {
       playbookId: "pb-titan-swing",
     })
   })
+
+  it("seeds mixed asset classes onto Personal trades", () => {
+    const personal = MOCK_TRADES.filter((item) => item.account === "Personal")
+    const classes = new Set(personal.map((item) => item.assetClass))
+    expect(classes.has("Forex")).toBe(true)
+    expect(classes.has("Stock")).toBe(true)
+    expect(classes.has("Index")).toBe(true)
+    expect(classes.has("Metal")).toBe(true)
+    expect(classes.has("Commodity")).toBe(true)
+    expect(classes.has("Crypto")).toBe(true)
+  })
 })
 
 describe("filterTrades", () => {

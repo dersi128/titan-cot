@@ -136,6 +136,13 @@
   --sidebar-ring: #5ba8ff;
   --bull: #2f9e6a;
   --bear: #e85d6c;
+  --asset-forex: #5ba8ff;
+  --asset-stock: #7d9ec4;
+  --asset-commodity: #3f8f6e;
+  --asset-metal: #c4a46c;
+  --asset-index: #8b7ec8;
+  --asset-crypto: #4eb8c7;
+  --asset-unknown: #9aa3b0;
   --bg-glow: rgba(91, 168, 255, 0.1);
   --nav-hover: rgba(91, 168, 255, 0.08);
   --nav-active: rgba(91, 168, 255, 0.16);

@@ -38,7 +38,8 @@ describe("classifyMarket", () => {
       marketType: "Major",
       cotEnabled: true,
     })
-    expect(formatMarketLabel(classifyMarket("GBPUSD"))).toBe("Forex · Major")
+    expect(formatMarketLabel(classifyMarket("XAUUSD"))).toBe("Metal")
+    expect(formatMarketLabel(classifyMarket("AAPL"))).toBe("Stock")
   })
 
   it.each([
@@ -57,18 +58,48 @@ describe("classifyMarket", () => {
   })
 
   it("does not guess unsupported markets", () => {
-    expect(classifyMarket("TESLA")).toMatchObject({
-      symbol: "TESLA",
+    expect(classifyMarket("FOOBAR")).toMatchObject({
+      symbol: "FOOBAR",
       assetClass: "Unknown",
       marketType: "Unknown",
       cotEnabled: false,
     })
-    expect(classifyMarket("BTCUSD")).toMatchObject({
+    expect(classifyMarket("XYZUSD")).toMatchObject({
       assetClass: "Unknown",
       cotEnabled: false,
     })
-    expect(classifyMarket("XAUUSD")).toMatchObject({
-      assetClass: "Unknown",
+  })
+
+  it.each([
+    ["AAPL", "Stock"],
+    ["NVDA", "Stock"],
+    ["GOOGL", "Stock"],
+    ["TSLA", "Stock"],
+    ["XAUUSD", "Metal"],
+    ["XAGUSD", "Metal"],
+    ["GOLD", "Metal"],
+    ["SILVER", "Metal"],
+    ["US30", "Index"],
+    ["NAS100", "Index"],
+    ["SPX500", "Index"],
+    ["GER40", "Index"],
+    ["UK100", "Index"],
+    ["USTEC", "Index"],
+    ["NASDAQ", "Index"],
+    ["BTCUSD", "Crypto"],
+    ["BTCUSDT", "Crypto"],
+    ["ETHUSD", "Crypto"],
+    ["ETHUSDT", "Crypto"],
+    ["COTTON", "Commodity"],
+    ["COFFEE", "Commodity"],
+    ["CORN", "Commodity"],
+    ["WHEAT", "Commodity"],
+    ["SOYBEAN", "Commodity"],
+  ] as const)("classifies %s as %s", (symbol, assetClass) => {
+    expect(classifyMarket(symbol)).toMatchObject({
+      symbol,
+      assetClass,
+      marketType: "Unknown",
       cotEnabled: false,
     })
   })
