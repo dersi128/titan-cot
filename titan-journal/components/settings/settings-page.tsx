@@ -1,15 +1,17 @@
 "use client"
 
 import { Field, OptionPills } from "@/components/forms/field"
+import { LanguageSwitcher } from "@/components/layout/language-switcher"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
 import { useWorkspace } from "@/components/layout/workspace-provider"
 import { SelectField } from "@/components/forms/select-field"
-import { ACCOUNT_LABELS, copy } from "@/lib/labels"
+import { useLabels } from "@/lib/use-labels"
 import { ACCOUNTS } from "@/types/trade"
 import { THEMES, type Density, type JournalMode, type ThemeId } from "@/types/playbook"
 
 export function SettingsPage() {
   const { preferences, updatePreferences, playbooks } = useWorkspace()
+  const { copy, ACCOUNT_LABELS } = useLabels()
   const playbookOptions = playbooks
 
   return (
@@ -39,6 +41,9 @@ export function SettingsPage() {
 
         <section className="titan-glass rounded-[10px] p-4 space-y-3">
           <h2 className="text-sm font-semibold">{copy.settings.appearance}</h2>
+          <Field label={copy.settings.language}>
+            <LanguageSwitcher size="md" />
+          </Field>
           <Field label={copy.settings.theme}>
             <OptionPills
               value={preferences.theme}

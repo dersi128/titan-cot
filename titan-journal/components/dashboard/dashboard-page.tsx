@@ -12,7 +12,7 @@ import { PageFrame, PageHeader } from "@/components/layout/page-header"
 import { useScopedTrades } from "@/components/layout/use-scoped-trades"
 import { Skeleton } from "@/components/ui/skeleton"
 import { accountEquity } from "@/lib/account-scope"
-import { copy } from "@/lib/labels"
+import { useLabels } from "@/lib/use-labels"
 import { buildEquityCurve } from "@/lib/trade-calculations"
 
 const EquityCurve = dynamic(
@@ -36,6 +36,7 @@ const MarketDistribution = dynamic(
 )
 
 export function DashboardPage() {
+  const { copy } = useLabels()
   const {
     trades,
     isReady,

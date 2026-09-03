@@ -1,4 +1,5 @@
-import { copy } from "@/lib/labels"
+"use client"
+
 import {
   formatNumber,
   formatSignedR,
@@ -6,6 +7,7 @@ import {
   signedClassName,
 } from "@/lib/format"
 import type { DashboardStats } from "@/lib/trade-calculations"
+import { useLabels } from "@/lib/use-labels"
 import { cn } from "@/lib/utils"
 
 function compactPercent(value: number | null | undefined): string {
@@ -88,6 +90,7 @@ export function KpiCards({
   stats: DashboardStats
   dense?: boolean
 }) {
+  const { copy } = useLabels()
   if (dense) {
     return (
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">

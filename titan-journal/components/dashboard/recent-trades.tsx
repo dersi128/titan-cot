@@ -15,8 +15,8 @@ import { DirectionBadge } from "@/components/trades/trade-badges"
 import { ResultR } from "@/components/trades/result-r"
 import type { Trade } from "@/types/trade"
 import { tradeRowProps } from "@/components/trades/trade-row"
-import { copy } from "@/lib/labels"
 import { signedClassName } from "@/lib/format"
+import { useLabels } from "@/lib/use-labels"
 
 export function RecentTrades({
   trades,
@@ -25,6 +25,7 @@ export function RecentTrades({
   trades: Trade[]
   fill?: boolean
 }) {
+  const { copy } = useLabels()
   const router = useRouter()
   const recent = trades.slice(0, fill ? 6 : 5)
 

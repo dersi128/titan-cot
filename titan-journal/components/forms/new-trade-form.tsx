@@ -17,7 +17,7 @@ import { classifyMarket } from "@/lib/market-classification"
 import { dollarsPerR } from "@/lib/account-scope"
 import { formatUsd } from "@/lib/format"
 import { isDirty } from "@/lib/dirty"
-import { ACCOUNT_LABELS, copy } from "@/lib/labels"
+import { useLabels } from "@/lib/use-labels"
 import { todayIsoDate } from "@/lib/locale"
 import { applyTitanFieldValuesToLegacy } from "@/lib/playbook-legacy"
 import {
@@ -58,6 +58,7 @@ export function NewTradeForm() {
 }
 
 export function TradeForm({ trade }: { trade?: Trade }) {
+  const { copy, ACCOUNT_LABELS } = useLabels()
   const router = useRouter()
   const { saveTrade, updateTrade } = useTrades()
   const { preferences, playbooks, profile } = useWorkspace()

@@ -1,5 +1,7 @@
+"use client"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { copy } from "@/lib/labels"
+import { useLabels } from "@/lib/use-labels"
 
 export function ComingSoon({
   title,
@@ -8,6 +10,7 @@ export function ComingSoon({
   title: string
   body: string
 }) {
+  const { copy } = useLabels()
   return (
     <Card>
       <CardHeader>

@@ -88,20 +88,31 @@ export function classifyMarket(rawSymbol: string): MarketClassification {
   return classifyForexPair(symbol) ?? { symbol, ...UNKNOWN }
 }
 
-export function formatMarketLabel(classification: {
-  assetClass: AssetClass
-  marketType: MarketType
-  symbol?: string
-}): string {
+export function formatMarketLabel(
+  classification: {
+    assetClass: AssetClass
+    marketType: MarketType
+    symbol?: string
+  },
+  maps?: {
+    assetClass: Record<AssetClass, string>
+    marketType: Record<MarketType, string>
+  }
+): string {
+  const asset =
+    maps?.assetClass[classification.assetClass] ?? classification.assetClass
+  const type =
+    maps?.marketType[classification.marketType] ?? classification.marketType
+
   if (classification.assetClass === "Unknown" || !classification.symbol) {
-    return classification.symbol ? "Unknown" : ""
+    return classification.symbol ? asset : ""
   }
 
   if (classification.marketType === "Unknown") {
-    return classification.assetClass
+    return asset
   }
 
-  return `${classification.assetClass} · ${classification.marketType}`
+  return `${asset} · ${type}`
 }
 
 export function shouldDisplayCot(

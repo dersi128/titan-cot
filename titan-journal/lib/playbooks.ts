@@ -160,10 +160,13 @@ export function upsertFieldValue(
 
 export function formatFieldValue(
   field: PlaybookField,
-  value: TradeFieldValue["value"]
+  value: TradeFieldValue["value"],
+  yesNo: { YES: string; NO: string } = { YES: "Yes", NO: "No" }
 ): string {
   if (value == null || value === "") return ""
-  if (field.type === "yes_no") return value === true || value === "Yes" ? "Yes" : "No"
+  if (field.type === "yes_no") {
+    return value === true || value === "Yes" ? yesNo.YES : yesNo.NO
+  }
   if (Array.isArray(value)) return value.join(", ")
   return String(value)
 }

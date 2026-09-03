@@ -1,9 +1,12 @@
+"use client"
+
 import { Badge } from "@/components/ui/badge"
-import { STATUS_LABELS } from "@/lib/labels"
+import { useLabels } from "@/lib/use-labels"
 import { cn } from "@/lib/utils"
 import type { Grade, TradeDirection, TradeStatus } from "@/types/trade"
 
 export function StatusBadge({ status }: { status: TradeStatus }) {
+  const { STATUS_LABELS } = useLabels()
   const styles: Record<TradeStatus, string> = {
     IDEA: "border-white/10 bg-white/[0.03] text-stone-400",
     PLANNED: "border-primary/35 bg-primary/10 text-primary",

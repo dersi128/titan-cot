@@ -43,6 +43,9 @@ export type ThemeId = (typeof THEMES)[number]
 export const DENSITIES = ["compact", "comfortable", "large"] as const
 export type Density = (typeof DENSITIES)[number]
 
+export const LANGUAGES = ["cs", "en"] as const
+export type Language = (typeof LANGUAGES)[number]
+
 export const TRADING_MARKETS = [
   "Forex",
   "Index",
@@ -74,6 +77,7 @@ export type UserPreferences = {
   journalMode: JournalMode
   theme: ThemeId
   density: Density
+  language: Language
   defaultAccount: "Personal" | "Challenge" | "Funded"
   defaultRisk: number
   defaultPlaybookId: string

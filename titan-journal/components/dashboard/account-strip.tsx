@@ -1,5 +1,7 @@
-import { ACCOUNT_LABELS, copy } from "@/lib/labels"
+"use client"
+
 import { formatUsd } from "@/lib/format"
+import { useLabels } from "@/lib/use-labels"
 import type { Account } from "@/types/trade"
 import type { TradingMarket } from "@/types/playbook"
 
@@ -31,6 +33,12 @@ export function AccountStrip({
   riskPercent: number
   markets: TradingMarket[]
 }) {
+  const { copy, ACCOUNT_LABELS, ASSET_CLASS_LABELS } = useLabels()
+  const marketValue =
+    markets.length > 0
+      ? markets.map((market) => ASSET_CLASS_LABELS[market]).join(" · ")
+      : "—"
+
   return (
     <section className="titan-glass grid shrink-0 gap-2 rounded-[10px] px-3 py-2 sm:grid-cols-2 lg:grid-cols-5">
       <Cell label={copy.shell.account} value={ACCOUNT_LABELS[account]} />
@@ -42,7 +50,7 @@ export function AccountStrip({
       />
       <Cell
         label={copy.dashboard.markets}
-        value={markets.length > 0 ? markets.join(" · ") : "—"}
+        value={marketValue}
       />
     </section>
   )

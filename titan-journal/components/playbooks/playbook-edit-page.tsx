@@ -3,9 +3,10 @@
 import { PlaybookEditor } from "@/components/playbooks/playbook-editor"
 import { useWorkspace } from "@/components/layout/workspace-provider"
 import { PageFrame } from "@/components/layout/page-header"
-import { copy } from "@/lib/labels"
+import { useLabels } from "@/lib/use-labels"
 
 export function PlaybookEditPage({ id }: { id: string }) {
+  const { copy } = useLabels()
   const { getPlaybook } = useWorkspace()
   const playbook = getPlaybook(id)
 

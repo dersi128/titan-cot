@@ -29,7 +29,8 @@ import { ResultR } from "@/components/trades/result-r"
 import { DirectionBadge } from "@/components/trades/trade-badges"
 import { tradeRowProps } from "@/components/trades/trade-row"
 import { formatDate, formatSignedUsd, signedClassName } from "@/lib/format"
-import { copy } from "@/lib/labels"
+import { useLabels } from "@/lib/use-labels"
+import type { Copy } from "@/lib/labels"
 import {
   EMPTY_TRADE_FILTERS,
   filterTrades,
@@ -38,7 +39,7 @@ import {
 } from "@/lib/trade-filters"
 import { TRADE_DIRECTIONS } from "@/types/trade"
 
-function outcomeLabel(resultR: number | null) {
+function outcomeLabel(resultR: number | null, copy: Copy) {
   if (resultR == null) return "—"
   if (resultR > 0) return copy.outcome.win
   if (resultR < 0) return copy.outcome.loss
@@ -46,6 +47,7 @@ function outcomeLabel(resultR: number | null) {
 }
 
 export function JournalPage() {
+  const { copy } = useLabels()
   const router = useRouter()
   const { accountTrades, isReady } = useScopedTrades()
   const { playbooks } = useWorkspace()
@@ -188,7 +190,7 @@ export function JournalPage() {
                       <DirectionBadge direction={trade.direction} />
                     </TableCell>
                     <TableCell>{trade.strategy}</TableCell>
-                    <TableCell>{outcomeLabel(trade.resultR)}</TableCell>
+                    <TableCell>{outcomeLabel(trade.resultR, copy)}</TableCell>
                     <TableCell>
                       <ResultR value={trade.resultR} />
                     </TableCell>

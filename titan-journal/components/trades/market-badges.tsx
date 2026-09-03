@@ -1,6 +1,8 @@
+"use client"
+
 import { Badge } from "@/components/ui/badge"
-import { ASSET_CLASS_LABELS } from "@/lib/labels"
 import { formatMarketLabel } from "@/lib/market-classification"
+import { useLabels } from "@/lib/use-labels"
 import { cn } from "@/lib/utils"
 import type { MarketClassification } from "@/types/trade"
 
@@ -9,6 +11,7 @@ export function MarketBadges({
 }: {
   classification: MarketClassification
 }) {
+  const { ASSET_CLASS_LABELS, MARKET_TYPE_LABELS } = useLabels()
   if (!classification.symbol) return null
 
   const major = classification.marketType === "Major"
@@ -32,7 +35,7 @@ export function MarketBadges({
               : "border-white/15 bg-white/[0.03] text-muted-foreground"
           )}
         >
-          {classification.marketType}
+          {MARKET_TYPE_LABELS[classification.marketType]}
         </Badge>
       ) : null}
     </div>
@@ -44,7 +47,11 @@ export function MarketCaption({
 }: {
   classification: Pick<MarketClassification, "assetClass" | "marketType" | "symbol">
 }) {
-  const label = formatMarketLabel(classification)
+  const { ASSET_CLASS_LABELS, MARKET_TYPE_LABELS } = useLabels()
+  const label = formatMarketLabel(classification, {
+    assetClass: ASSET_CLASS_LABELS,
+    marketType: MARKET_TYPE_LABELS,
+  })
   if (!label) return null
   return <p className="text-[11px] text-muted-foreground">{label}</p>
 }

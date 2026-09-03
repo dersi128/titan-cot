@@ -11,21 +11,15 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { formatNumber, formatSignedMoney, formatSignedR, signedClassName } from "@/lib/format"
-import { copy } from "@/lib/labels"
 import {
   DISTRIBUTION_METRICS,
   marketDistribution,
   type AssetClassSlice,
   type DistributionMetric,
 } from "@/lib/market-distribution"
+import { useLabels } from "@/lib/use-labels"
 import { cn } from "@/lib/utils"
 import type { Trade } from "@/types/trade"
-
-const METRIC_LABELS: Record<DistributionMetric, string> = {
-  trades: copy.dashboard.byTrades,
-  r: copy.dashboard.byR,
-  pnl: copy.dashboard.byPnl,
-}
 
 function sliceLabel(slice: AssetClassSlice, metric: DistributionMetric, currency: string) {
   if (metric === "trades") return formatNumber(slice.trades, 0)
@@ -66,11 +60,17 @@ export function MarketDistribution({
   currency: string
   fill?: boolean
 }) {
+  const { copy, ASSET_CLASS_LABELS } = useLabels()
   const [metric, setMetric] = useState<DistributionMetric>("trades")
   const distribution = useMemo(
-    () => marketDistribution(trades, metric),
-    [trades, metric]
+    () => marketDistribution(trades, metric, ASSET_CLASS_LABELS),
+    [trades, metric, ASSET_CLASS_LABELS]
   )
+  const metricLabels: Record<DistributionMetric, string> = {
+    trades: copy.dashboard.byTrades,
+    r: copy.dashboard.byR,
+    pnl: copy.dashboard.byPnl,
+  }
 
   return (
     <Card
@@ -85,7 +85,7 @@ export function MarketDistribution({
             options={DISTRIBUTION_METRICS}
             value={metric}
             onChange={setMetric}
-            labels={METRIC_LABELS}
+            labels={metricLabels}
             aria-label={copy.dashboard.marketDistribution}
           />
         </div>

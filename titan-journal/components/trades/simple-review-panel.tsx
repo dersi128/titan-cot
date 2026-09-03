@@ -8,11 +8,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 import { useTrades } from "@/components/trades/trades-provider"
 import { isDirty } from "@/lib/dirty"
-import { copy } from "@/lib/labels"
+import { useLabels } from "@/lib/use-labels"
 import { isReviewAvailable } from "@/lib/review-calculations"
 import type { Trade } from "@/types/trade"
 
 export function SimpleReviewPanel({ trade }: { trade: Trade }) {
+  const { copy } = useLabels()
   const { updateTrade } = useTrades()
   const existing = trade.review
   const [followed, setFollowed] = useState<"Yes" | "No" | null>(
@@ -74,6 +75,7 @@ export function SimpleReviewPanel({ trade }: { trade: Trade }) {
           <OptionPills
             value={followed}
             options={["Yes", "No"] as const}
+            labels={{ Yes: copy.detail.yes, No: copy.detail.no }}
             onChange={setFollowed}
           />
         </Field>
@@ -81,6 +83,7 @@ export function SimpleReviewPanel({ trade }: { trade: Trade }) {
           <OptionPills
             value={again == null ? null : again ? "Yes" : "No"}
             options={["Yes", "No"] as const}
+            labels={{ Yes: copy.detail.yes, No: copy.detail.no }}
             onChange={(value) => setAgain(value === "Yes")}
           />
         </Field>

@@ -8,6 +8,7 @@ import type {
   AccountCapital,
   Density,
   JournalMode,
+  Language,
   Playbook,
   PlaybookField,
   ThemeId,
@@ -15,7 +16,7 @@ import type {
   UserPreferences,
   UserProfile,
 } from "@/types/playbook"
-import { THEMES, TRADING_MARKETS } from "@/types/playbook"
+import { LANGUAGES, THEMES, TRADING_MARKETS } from "@/types/playbook"
 import { ACCOUNTS, type Account } from "@/types/trade"
 
 export const PREFERENCES_STORAGE_KEY = "titan-journal.preferences.v1"
@@ -41,6 +42,7 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
   journalMode: "simple",
   theme: "slate",
   density: "comfortable",
+  language: "en",
   defaultAccount: "Personal",
   defaultRisk: 1,
   defaultPlaybookId: TITAN_SWING_PLAYBOOK_ID,
@@ -92,6 +94,12 @@ function asTheme(value: unknown): ThemeId {
     : DEFAULT_PREFERENCES.theme
 }
 
+function asLanguage(value: unknown): Language {
+  return typeof value === "string" && (LANGUAGES as readonly string[]).includes(value)
+    ? (value as Language)
+    : DEFAULT_PREFERENCES.language
+}
+
 export function isDarkTheme(theme: ThemeId): boolean {
   return theme !== "light"
 }
@@ -116,6 +124,7 @@ export function hydratePreferences(raw: unknown): UserPreferences {
     journalMode,
     theme,
     density,
+    language: asLanguage(row.language),
     defaultAccount: asAccount(row.defaultAccount),
     defaultRisk,
     defaultPlaybookId:
@@ -319,9 +328,10 @@ export function applyDocumentAppearance(preferences: UserPreferences) {
   const root = document.documentElement
   root.dataset.theme = preferences.theme
   root.dataset.density = preferences.density
+  root.lang = preferences.language === "cs" ? "cs" : "en"
   const dark = isDarkTheme(preferences.theme)
   root.style.colorScheme = dark ? "dark" : "light"
   root.classList.toggle("dark", dark)
 }
 
-export const THEME_BOOT_SCRIPT = `try{var p=JSON.parse(localStorage.getItem("${PREFERENCES_STORAGE_KEY}")||"{}");var ok=["light","slate","dark","gold","cyberpunk"];var t=ok.indexOf(p.theme)>=0?p.theme:"slate";var d=p.density==="compact"||p.density==="large"||p.density==="comfortable"?p.density:"comfortable";var r=document.documentElement;r.setAttribute("data-theme",t);r.setAttribute("data-density",d);var dark=t!=="light";r.style.colorScheme=dark?"dark":"light";r.classList.toggle("dark",dark);}catch(e){}`
+export const THEME_BOOT_SCRIPT = `try{var p=JSON.parse(localStorage.getItem("${PREFERENCES_STORAGE_KEY}")||"{}");var ok=["light","slate","dark","gold","cyberpunk"];var t=ok.indexOf(p.theme)>=0?p.theme:"slate";var d=p.density==="compact"||p.density==="large"||p.density==="comfortable"?p.density:"comfortable";var lang=p.language==="cs"?"cs":"en";var r=document.documentElement;r.setAttribute("data-theme",t);r.setAttribute("data-density",d);r.setAttribute("lang",lang);var dark=t!=="light";r.style.colorScheme=dark?"dark":"light";r.classList.toggle("dark",dark);}catch(e){}`
