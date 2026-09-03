@@ -390,23 +390,13 @@ html[data-density="large"] {
     box-shadow: inset 0 1px 0 color-mix(in srgb, var(--foreground) 4%, transparent);
   }
 
-  .titan-logo-mark {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.75rem;
-    height: 1.75rem;
-  }
-
-  .titan-logo-mark img {
+  .titan-logo-lockup {
     display: block;
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    height: 8.5rem;
+    object-fit: contain;
     object-position: center;
-    -webkit-mask-image: radial-gradient(circle closest-side, #000 79%, transparent 80.5%);
-    mask-image: radial-gradient(circle closest-side, #000 79%, transparent 80.5%);
-    filter: drop-shadow(0 0 8px color-mix(in srgb, var(--primary) 35%, transparent));
+    filter: drop-shadow(0 0 14px color-mix(in srgb, var(--primary) 32%, transparent));
   }
 
   .titan-nav {

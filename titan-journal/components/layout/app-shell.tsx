@@ -28,6 +28,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import { AvatarBubble } from "@/components/profile/avatar-bubble"
+import { THEME_LOGOS } from "@/lib/brand"
 import { ACCOUNT_LABELS, copy } from "@/lib/labels"
 import { cn } from "@/lib/utils"
 import { ACCOUNTS } from "@/types/trade"
@@ -51,20 +52,13 @@ function isActive(pathname: string, href: string) {
 }
 
 function BrandMark() {
+  const { preferences } = useWorkspace()
+  const src = THEME_LOGOS[preferences.theme]
+
   return (
-    <Link href="/dashboard" className="flex items-center gap-2.5 px-1">
-      <div className="titan-logo-mark shrink-0">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/brand/titan-logo.png" alt="" width={28} height={28} />
-      </div>
-      <div className="min-w-0 leading-tight">
-        <p className="text-[11px] font-medium tracking-[0.16em] text-muted-foreground">
-          TITAN
-        </p>
-        <p className="text-[13px] font-semibold tracking-tight text-foreground">
-          JOURNAL
-        </p>
-      </div>
+    <Link href="/dashboard" className="block px-1">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={src} alt={copy.brand} className="titan-logo-lockup" />
     </Link>
   )
 }
@@ -105,7 +99,7 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex h-16 items-center px-4">
+      <div className="border-b border-sidebar-border px-3 py-3">
         <BrandMark />
       </div>
       <div className="flex-1 px-3 py-2">
