@@ -26,18 +26,14 @@ import {
   formatSignedR,
   signedClassName,
 } from "@/lib/format"
+import {
+  marketDistribution,
+  type AssetClassSlice,
+} from "@/lib/market-distribution"
 import { buildEquityCurve } from "@/lib/trade-calculations"
 import { useLabels } from "@/lib/use-labels"
 import { cn } from "@/lib/utils"
 import type { Trade } from "@/types/trade"
-
-const MIX_COLORS = [
-  "var(--chart-1)",
-  "var(--chart-2)",
-  "var(--chart-3)",
-  "var(--chart-4)",
-  "var(--chart-5)",
-]
 
 const EquityCurve = dynamic(
   () =>
@@ -286,20 +282,12 @@ function MarketTable({ rows }: { rows: GroupStats[] }) {
   )
 }
 
-type MixSlice = {
-  key: string
-  label: string
-  trades: number
-  share: number
-  color: string
-}
-
 function MixTooltip({
   active,
   payload,
 }: {
   active?: boolean
-  payload?: Array<{ payload: MixSlice }>
+  payload?: Array<{ payload: AssetClassSlice }>
 }) {
   if (!active || !payload?.[0]) return null
   const slice = payload[0].payload
@@ -316,24 +304,13 @@ function MixTooltip({
   )
 }
 
-function SetupMix({
-  rows,
-  names,
-  colors,
-}: {
-  rows: GroupStats[]
-  names: Record<string, string>
-  colors: Record<string, string>
-}) {
-  const { copy } = useLabels()
-  const total = rows.reduce((sum, row) => sum + row.trades, 0)
-  const slices = rows.map((row, index) => ({
-    key: row.key,
-    label: names[row.key] ?? row.key,
-    trades: row.trades,
-    share: total > 0 ? row.trades / total : 0,
-    color: colors[row.key] || MIX_COLORS[index % MIX_COLORS.length],
-  }))
+function MarketMix({ trades }: { trades: Trade[] }) {
+  const { copy, ASSET_CLASS_LABELS } = useLabels()
+  const distribution = useMemo(
+    () => marketDistribution(trades, "trades", ASSET_CLASS_LABELS),
+    [ASSET_CLASS_LABELS, trades]
+  )
+  const slices = distribution.slices
 
   return (
     <Card size="sm" className="h-full gap-0 py-0">
@@ -363,7 +340,7 @@ function SetupMix({
                     isAnimationActive={false}
                   >
                     {slices.map((slice) => (
-                      <Cell key={slice.key} fill={slice.color} />
+                      <Cell key={slice.assetClass} fill={slice.color} />
                     ))}
                   </Pie>
                   <Tooltip content={<MixTooltip />} />
@@ -374,14 +351,14 @@ function SetupMix({
                   {copy.dashboard.totalTradesLabel}
                 </p>
                 <p className="font-mono text-[16px] font-medium tabular-nums">
-                  {total}
+                  {distribution.totalTrades}
                 </p>
               </div>
             </div>
             <ul className="space-y-1.5">
               {slices.map((slice) => (
                 <li
-                  key={slice.key}
+                  key={slice.assetClass}
                   className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 text-[11px]"
                 >
                   <span
@@ -427,25 +404,12 @@ export function AnalyticsPage() {
     () => Object.fromEntries(playbooks.map((item) => [item.id, item.name])),
     [playbooks]
   )
-  const playbookColors = useMemo(
-    () =>
-      Object.fromEntries(
-        playbooks
-          .filter((item) => item.color)
-          .map((item) => [item.id, item.color as string])
-      ),
-    [playbooks]
-  )
-  const setupMix = useMemo(
-    () => cappedGroups(trades, playbookKey, 6, copy.analytics.others),
-    [copy.analytics.others, trades]
-  )
   const setupRows = useMemo(
     () =>
-      [...setupMix].sort(
+      [...cappedGroups(trades, playbookKey, 6, copy.analytics.others)].sort(
         (a, b) => (b.averageR ?? -999) - (a.averageR ?? -999)
       ),
-    [setupMix]
+    [copy.analytics.others, trades]
   )
   const marketRows = useMemo(
     () =>
@@ -555,11 +519,7 @@ export function AnalyticsPage() {
         <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.95fr)_minmax(220px,0.75fr)]">
           <SetupTable rows={setupRows} names={playbookNames} />
           <MarketTable rows={marketRows} />
-          <SetupMix
-            rows={setupMix}
-            names={playbookNames}
-            colors={playbookColors}
-          />
+          <MarketMix trades={trades} />
         </div>
       </div>
     </PageFrame>
