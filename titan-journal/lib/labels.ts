@@ -154,6 +154,11 @@ export const copyEn = {
     clearFilters: "Clear filters",
     status: "Status",
     averageRrr: "Avg RRR",
+    perPage: "per page",
+    showing: "Showing",
+    of: "of",
+    page: "Page",
+    export: "Export",
   },
 
   detail: {
@@ -191,6 +196,10 @@ export const copyEn = {
     deleteConfirm: "Delete this trade? This cannot be undone.",
     closeTrade: "Close trade",
     optional: "optional",
+    duration: "Duration",
+    setup: "Setup",
+    id: "ID",
+    tags: "Tags",
   },
 
   form: {
@@ -500,6 +509,11 @@ export const copyCs: Copy = {
     clearFilters: "Vymazat filtry",
     status: "Stav",
     averageRrr: "Průměrné RRR",
+    perPage: "na stránku",
+    showing: "Zobrazit",
+    of: "z",
+    page: "Strana",
+    export: "Export",
   },
 
   detail: {
@@ -537,6 +551,10 @@ export const copyCs: Copy = {
     deleteConfirm: "Smazat tento obchod? Tuto akci nelze vrátit.",
     closeTrade: "Uzavřít obchod",
     optional: "volitelné",
+    duration: "Trvání",
+    setup: "Setup",
+    id: "ID",
+    tags: "Tagy",
   },
 
   form: {
