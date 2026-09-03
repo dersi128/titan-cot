@@ -1,7 +1,6 @@
 "use client"
 
 import { Menu } from "lucide-react"
-import { usePathname } from "next/navigation"
 import { useState, useSyncExternalStore } from "react"
 
 import { AppSidebar } from "@/components/layout/app-sidebar"
@@ -20,7 +19,6 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import { useLabels } from "@/lib/use-labels"
-import { cn } from "@/lib/utils"
 import { ACCOUNTS } from "@/types/trade"
 
 const TABLET_QUERY = "(min-width: 768px) and (max-width: 1023px)"
@@ -108,8 +106,6 @@ function TopBar({ onOpenNav }: { onOpenNav: () => void }) {
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false)
-  const pathname = usePathname()
-  const fit = pathname === "/calendar"
   const { copy } = useLabels()
   const { preferences } = useWorkspace()
   const isTablet = useIsTabletNav()
@@ -117,10 +113,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div
-      className={cn(
-        "titan-app min-h-screen",
-        fit && "lg:h-svh lg:max-h-svh lg:min-h-0 lg:overflow-hidden"
-      )}
+      className="titan-app min-h-screen"
       data-sidebar-collapsed={collapsed ? "true" : "false"}
     >
       <aside className="titan-sidebar titan-sidebar--dock hidden md:flex md:flex-col">
@@ -141,19 +134,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         ) : null}
       </Sheet>
 
-      <div
-        className={cn(
-          "titan-shell-offset flex min-h-0 min-w-0 flex-col",
-          fit ? "lg:h-full lg:overflow-hidden" : "min-h-screen"
-        )}
-      >
+      <div className="titan-shell-offset flex min-h-screen min-w-0 flex-col">
         <TopBar onOpenNav={() => setOpen(true)} />
-        <main
-          className={cn(
-            "titan-main min-w-0 flex-1",
-            fit && "titan-main--fit flex min-h-0 flex-col lg:overflow-hidden"
-          )}
-        >
+        <main className="titan-main min-w-0 flex-1">
           {children}
         </main>
       </div>
