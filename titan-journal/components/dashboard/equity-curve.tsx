@@ -68,9 +68,15 @@ function EquityTooltip({
   )
 }
 
-export function EquityCurve({ data }: { data: EquityPoint[] }) {
+export function EquityCurve({
+  data,
+  defaultMetric = "pnl",
+}: {
+  data: EquityPoint[]
+  defaultMetric?: EquityMetric
+}) {
   const { copy } = useLabels()
-  const [metric, setMetric] = useState<EquityMetric>("pnl")
+  const [metric, setMetric] = useState<EquityMetric>(defaultMetric)
   const start = data[0]?.equity ?? 0
   const chart = useMemo<ChartPoint[]>(
     () =>

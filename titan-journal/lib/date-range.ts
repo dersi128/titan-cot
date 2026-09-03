@@ -63,3 +63,34 @@ export function tradeInRange(
   if (start && trade.date < start) return false
   return trade.date <= end
 }
+
+function fromIso(iso: string): Date {
+  const [year, month, day] = iso.split("-").map(Number)
+  return new Date(year ?? 0, (month ?? 1) - 1, day ?? 1)
+}
+
+export function previousRangeBounds(
+  range: DateRange,
+  now = new Date(),
+  custom?: CustomRange | null
+): CustomRange | null {
+  const { start, end } = rangeBounds(range, now, custom)
+  if (!start) return null
+  const startDate = fromIso(start)
+  const endDate = fromIso(end)
+  const days = Math.max(
+    0,
+    Math.round((endDate.getTime() - startDate.getTime()) / 86_400_000)
+  )
+  const prevEnd = new Date(
+    startDate.getFullYear(),
+    startDate.getMonth(),
+    startDate.getDate() - 1
+  )
+  const prevStart = new Date(
+    prevEnd.getFullYear(),
+    prevEnd.getMonth(),
+    prevEnd.getDate() - days
+  )
+  return { start: isoDateLocal(prevStart), end: isoDateLocal(prevEnd) }
+}

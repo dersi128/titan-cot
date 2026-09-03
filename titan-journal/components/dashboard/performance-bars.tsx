@@ -123,9 +123,11 @@ function BarTooltip({
 export function PerformanceBars({
   trades,
   currency,
+  showRange = true,
 }: {
   trades: Trade[]
   currency: string
+  showRange?: boolean
 }) {
   const { copy, language, DATE_RANGE_LABELS } = useLabels()
   const { range, setRange, custom, setCustom } = useWorkspaceChrome()
@@ -183,6 +185,8 @@ export function PerformanceBars({
               aria-label={copy.dashboard.performance}
             />
           </div>
+          {showRange ? (
+            <>
           <div className="max-w-full overflow-x-auto">
             <SegmentedControl
               size="sm"
@@ -212,6 +216,8 @@ export function PerformanceBars({
                 className="h-7 px-2 text-[11px]"
               />
             </div>
+          ) : null}
+            </>
           ) : null}
         </div>
       </CardHeader>

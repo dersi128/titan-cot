@@ -218,7 +218,7 @@ export const copyEn = {
 
   analytics: {
     title: "Analytics",
-    description: "Whether the strategy has edge — and the numbers behind it.",
+    description: "A detailed look at your trading performance.",
     byPlaybook: "By Playbook",
     byDirection: "By Direction",
     bySymbol: "By Symbol",
@@ -237,6 +237,18 @@ export const copyEn = {
     avgLoss: "Avg loss",
     perTrade: "per trade",
     profitFactor: "PF",
+    expectedPerTrade: "Expected profit per trade",
+    profitFactorHint: "Gross profit / loss",
+    tradeCount: "Trade count",
+    winningTrades: "Winning trades",
+    losingTrades: "Losing trades",
+    bySetup: "Results by setup",
+    byMarket: "Results by market",
+    tradeMix: "Trade distribution",
+    others: "Other",
+    vsPrevious: "vs previous period",
+    setup: "Setup",
+    market: "Market",
   },
 
   playbook: {
@@ -539,7 +551,7 @@ export const copyCs: Copy = {
 
   analytics: {
     title: "Analýzy",
-    description: "Jestli má strategie edge — a čísla k tomu.",
+    description: "Detailní pohled na tvůj trading výkon.",
     byPlaybook: "Podle playbooku",
     byDirection: "Podle směru",
     bySymbol: "Podle symbolu",
@@ -558,6 +570,18 @@ export const copyCs: Copy = {
     avgLoss: "Průměrná ztráta",
     perTrade: "na obchod",
     profitFactor: "PF",
+    expectedPerTrade: "Očekávaný zisk na obchod",
+    profitFactorHint: "Celkový zisk / ztráta",
+    tradeCount: "Počet obchodů",
+    winningTrades: "Ziskové obchody",
+    losingTrades: "Ztrátové obchody",
+    bySetup: "Výsledky podle setupů",
+    byMarket: "Výsledky podle trhů",
+    tradeMix: "Rozložení obchodů",
+    others: "Ostatní",
+    vsPrevious: "vs. předchozí období",
+    setup: "Setup",
+    market: "Trh",
   },
 
   playbook: {
