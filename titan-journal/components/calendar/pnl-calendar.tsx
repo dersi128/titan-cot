@@ -61,22 +61,19 @@ export function PnlCalendar({
               type="button"
               variant="ghost"
               size="icon-xs"
-              aria-label={copy.dashboard.previousMonth}
+              aria-label={copy.calendar.previousMonth}
               onClick={() => setCursor((current) => shiftMonth(current, -1))}
             >
               <ChevronLeft />
             </Button>
             <CardTitle className="min-w-0 capitalize">
-              {copy.dashboard.calendar}
-              <span className="ml-2 font-medium text-muted-foreground">
-                {formatMonthTitle(cursor, language)}
-              </span>
+              {formatMonthTitle(cursor, language)}
             </CardTitle>
             <Button
               type="button"
               variant="ghost"
               size="icon-xs"
-              aria-label={copy.dashboard.nextMonth}
+              aria-label={copy.calendar.nextMonth}
               onClick={() => setCursor((current) => shiftMonth(current, 1))}
             >
               <ChevronRight />
@@ -84,7 +81,7 @@ export function PnlCalendar({
           </div>
           <p
             className={cn(
-              "font-mono text-[13px] font-medium tabular-nums",
+              "font-mono text-[16px] font-medium tabular-nums",
               signedClassName(calendar.netPnl)
             )}
           >
@@ -103,10 +100,10 @@ export function PnlCalendar({
         }
       >
         <div className="grid grid-cols-7 gap-px">
-          {copy.dashboard.weekdays.map((label) => (
+          {copy.calendar.weekdays.map((label) => (
             <p
               key={label}
-              className="text-center text-[10px] font-medium tracking-wide text-muted-foreground"
+              className="text-center text-[11px] font-medium tracking-wide text-muted-foreground"
             >
               {label}
             </p>
@@ -115,8 +112,8 @@ export function PnlCalendar({
         <div
           className={
             fill
-              ? "grid min-h-0 flex-1 grid-cols-7 grid-rows-6 gap-px"
-              : "grid min-h-[240px] grid-cols-7 grid-rows-6 gap-px"
+              ? "grid min-h-0 flex-1 grid-cols-7 grid-rows-6 gap-1"
+              : "grid min-h-[480px] grid-cols-7 grid-rows-6 gap-1"
           }
         >
           {calendar.days.map((day) => {
@@ -125,14 +122,14 @@ export function PnlCalendar({
               <div
                 key={day.date}
                 className={cn(
-                  "flex min-h-0 flex-col items-center justify-center rounded-[6px] px-0.5",
+                  "flex min-h-0 flex-col items-center justify-center rounded-[8px] px-1 py-1",
                   dayTone(day),
                   isToday && "ring-1 ring-primary/55"
                 )}
               >
-                <span className="text-[10px] leading-none">{day.day}</span>
+                <span className="text-[12px] leading-none">{day.day}</span>
                 {day.inMonth && day.trades > 0 ? (
-                  <span className="mt-0.5 max-w-full truncate font-mono text-[10px] leading-none tabular-nums">
+                  <span className="mt-1 max-w-full truncate font-mono text-[12px] leading-none tabular-nums">
                     {formatCompactSigned(day.pnl)}
                   </span>
                 ) : null}
