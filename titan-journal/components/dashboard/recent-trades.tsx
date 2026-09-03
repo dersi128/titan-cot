@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -15,26 +16,28 @@ import { DirectionBadge } from "@/components/trades/trade-badges"
 import { ResultR } from "@/components/trades/result-r"
 import type { Trade } from "@/types/trade"
 import { tradeRowProps } from "@/components/trades/trade-row"
-import { signedClassName } from "@/lib/format"
+import { formatDate, formatSignedUsd, signedClassName } from "@/lib/format"
 import { useLabels } from "@/lib/use-labels"
 
-export function RecentTrades({
-  trades,
-  fill = false,
-}: {
-  trades: Trade[]
-  fill?: boolean
-}) {
+export function RecentTrades({ trades }: { trades: Trade[] }) {
   const { copy } = useLabels()
   const router = useRouter()
-  const recent = trades.slice(0, fill ? 6 : 5)
+  const recent = trades.slice(0, 6)
 
   return (
-    <Card size="sm" className={fill ? "flex h-full min-h-0 flex-col gap-0 py-0" : undefined}>
+    <Card size="sm" className="flex h-full min-h-[240px] flex-col gap-0 py-0">
       <CardHeader className="shrink-0 border-b border-border py-2">
-        <CardTitle>{copy.dashboard.recentTrades}</CardTitle>
+        <div className="flex items-center justify-between gap-2">
+          <CardTitle>{copy.dashboard.recentTrades}</CardTitle>
+          <Link
+            href="/journal"
+            className="text-[11px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            {copy.dashboard.viewAllTrades}
+          </Link>
+        </div>
       </CardHeader>
-      <CardContent className={fill ? "min-h-0 flex-1 overflow-auto px-0 lg:min-h-0" : "px-0"}>
+      <CardContent className="min-h-0 flex-1 overflow-auto px-0">
         <Table>
           <TableHeader>
             <TableRow>
@@ -50,8 +53,11 @@ export function RecentTrades({
               <TableHead className="text-[11px] font-medium text-muted-foreground">
                 {copy.dashboard.result}
               </TableHead>
-              <TableHead className="px-4 text-[11px] font-medium text-muted-foreground">
+              <TableHead className="text-[11px] font-medium text-muted-foreground">
                 {copy.dashboard.r}
+              </TableHead>
+              <TableHead className="px-4 text-[11px] font-medium text-muted-foreground">
+                {copy.journal.date}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -63,17 +69,14 @@ export function RecentTrades({
                   <DirectionBadge direction={trade.direction} />
                 </TableCell>
                 <TableCell>{trade.strategy}</TableCell>
-                <TableCell className={signedClassName(trade.resultR)}>
-                  {trade.resultR == null
-                    ? "—"
-                    : trade.resultR > 0
-                      ? copy.outcome.win
-                      : trade.resultR < 0
-                        ? copy.outcome.loss
-                        : copy.outcome.be}
+                <TableCell className={signedClassName(trade.pnl)}>
+                  {formatSignedUsd(trade.pnl)}
                 </TableCell>
-                <TableCell className="px-4">
+                <TableCell>
                   <ResultR value={trade.resultR} />
+                </TableCell>
+                <TableCell className="px-4 text-muted-foreground">
+                  {formatDate(trade.date)}
                 </TableCell>
               </TableRow>
             ))}

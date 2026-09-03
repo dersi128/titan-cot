@@ -54,11 +54,9 @@ function DistributionTooltip({
 export function MarketDistribution({
   trades,
   currency,
-  fill = false,
 }: {
   trades: Trade[]
   currency: string
-  fill?: boolean
 }) {
   const { copy, ASSET_CLASS_LABELS } = useLabels()
   const [metric, setMetric] = useState<DistributionMetric>("trades")
@@ -73,10 +71,7 @@ export function MarketDistribution({
   }
 
   return (
-    <Card
-      size="sm"
-      className={fill ? "h-full min-h-0 gap-0 py-0 lg:min-h-0" : undefined}
-    >
+    <Card size="sm" className="h-full min-h-[260px] gap-0 py-0">
       <CardHeader className="shrink-0 border-b border-border py-2">
         <div className="flex flex-wrap items-center justify-between gap-1.5">
           <CardTitle>{copy.dashboard.marketDistribution}</CardTitle>
@@ -90,20 +85,14 @@ export function MarketDistribution({
           />
         </div>
       </CardHeader>
-      <CardContent
-        className={
-          fill
-            ? "flex min-h-0 flex-1 flex-col pt-2 pb-2"
-            : "pt-3"
-        }
-      >
+      <CardContent className="flex min-h-0 flex-1 flex-col pt-2 pb-2">
         {distribution.slices.length === 0 ? (
           <p className="py-6 text-center text-[12px] text-muted-foreground">
             {copy.dashboard.marketDistributionEmpty}
           </p>
         ) : (
           <div className="flex min-h-0 flex-1 flex-col items-stretch gap-2">
-            <div className="relative mx-auto aspect-square size-[120px] shrink-0">
+            <div className="relative mx-auto aspect-square size-[96px] shrink-0">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -133,7 +122,7 @@ export function MarketDistribution({
                 <p className="text-[10px] font-medium tracking-wide text-muted-foreground">
                   {copy.dashboard.totalTradesLabel}
                 </p>
-                <p className="font-mono text-[18px] font-medium tabular-nums text-foreground">
+                <p className="font-mono text-[15px] font-medium tabular-nums text-foreground">
                   {formatNumber(distribution.totalTrades, 0)}
                 </p>
               </div>
@@ -142,7 +131,7 @@ export function MarketDistribution({
               {distribution.slices.map((slice) => (
                 <li
                   key={slice.assetClass}
-                  className="grid grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-2 text-[12px]"
+                  className="grid grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-2 text-[11px]"
                 >
                   <span
                     className="size-2 shrink-0 rounded-full"

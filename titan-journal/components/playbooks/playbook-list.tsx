@@ -2,7 +2,9 @@
 
 import Link from "next/link"
 
+import { StrategySnapshot } from "@/components/dashboard/strategy-snapshot"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
+import { useScopedTrades } from "@/components/layout/use-scoped-trades"
 import { useWorkspace } from "@/components/layout/workspace-provider"
 import { Button } from "@/components/ui/button"
 import { useLabels } from "@/lib/use-labels"
@@ -10,6 +12,7 @@ import { useLabels } from "@/lib/use-labels"
 export function PlaybookListPage() {
   const { copy } = useLabels()
   const { playbooks, savePlaybook } = useWorkspace()
+  const { accountTrades } = useScopedTrades()
 
   return (
     <PageFrame>
@@ -22,6 +25,10 @@ export function PlaybookListPage() {
           </Button>
         }
       />
+
+      <div className="mb-4">
+        <StrategySnapshot trades={accountTrades} />
+      </div>
 
       {playbooks.length === 0 ? (
         <p className="text-sm text-muted-foreground">{copy.playbook.empty}</p>
