@@ -2,7 +2,6 @@ import { classifyMarket } from "@/lib/market-classification"
 import { buildTradeReview } from "@/lib/review-calculations"
 import { hydrateTradePlaybookFields } from "@/lib/trade-playbook"
 import {
-  ACCOUNTS,
   BIASES,
   DEFAULT_STRATEGY,
   EMOTIONAL_STATES,
@@ -18,6 +17,7 @@ import {
   TRENDS,
   ZONE_TIMEFRAMES,
   ZONE_TYPES,
+  normalizeAccount,
   type Bias,
   type EmotionalState,
   type ExecutionQuality,
@@ -180,7 +180,7 @@ export function hydrateTrade(raw: unknown): Trade | null {
     direction: asEnum(row.direction, TRADE_DIRECTIONS, "LONG"),
     strategy: asString(row.strategy, DEFAULT_STRATEGY),
     playbookId: "",
-    account: asEnum(row.account, ACCOUNTS, "Personal"),
+    account: normalizeAccount(row.account),
     status: asEnum(row.status, TRADE_STATUSES, "PLANNED"),
     htfTrend: asEnum(row.htfTrend, TRENDS, "Uptrend"),
     tradeTrend: asEnum(row.tradeTrend, TRENDS, "Uptrend"),

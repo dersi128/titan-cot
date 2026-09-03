@@ -124,6 +124,9 @@ export const copyEn = {
     performanceEmpty: "Not enough data to show performance by period.",
     byWeek: "Week",
     byMonth: "Month",
+    byWeekday: "Days of week",
+    byMonthWeek: "Weeks in month",
+    byYearMonth: "Months in year",
     candleOpen: "Open",
     candleHigh: "High",
     candleLow: "Low",
@@ -433,6 +436,9 @@ export const copyCs: Copy = {
     performanceEmpty: "Zatím není dostatek dat pro zobrazení výkonu za období.",
     byWeek: "Týden",
     byMonth: "Měsíc",
+    byWeekday: "Dny v týdnu",
+    byMonthWeek: "Týdny v měsíci",
+    byYearMonth: "Měsíce v roce",
     candleOpen: "Open",
     candleHigh: "High",
     candleLow: "Low",
@@ -667,14 +673,14 @@ export const STATUS_LABELS_CS: Record<TradeStatus, string> = {
 
 export const ACCOUNT_LABELS_EN: Record<Account, string> = {
   Personal: "Own capital",
-  Challenge: "Prop challenge",
   Funded: "Funded",
+  Backtesting: "Backtesting",
 }
 
 export const ACCOUNT_LABELS_CS: Record<Account, string> = {
   Personal: "Vlastní kapitál",
-  Challenge: "Prop challenge",
   Funded: "Funded",
+  Backtesting: "Backtesting",
 }
 
 export const TREND_LABELS_EN: Record<Trend, string> = {

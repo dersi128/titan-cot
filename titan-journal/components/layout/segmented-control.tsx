@@ -22,8 +22,13 @@ export function SegmentedControl<T extends string>({
       role="group"
       aria-label={ariaLabel}
       className={cn(
+<<<<<<< HEAD
+        "inline-flex w-fit max-w-full flex-wrap items-center rounded-[8px] border border-border bg-muted/50 p-0.5",
+        size === "sm" ? "min-h-7" : "min-h-8"
+=======
         "inline-flex w-fit items-center rounded-[8px] border border-border bg-muted/50 p-0.5",
         size === "sm" ? "h-7" : "h-8"
+>>>>>>> origin/main
       )}
     >
       {options.map((option) => {

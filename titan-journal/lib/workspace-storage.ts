@@ -17,7 +17,7 @@ import type {
   UserProfile,
 } from "@/types/playbook"
 import { LANGUAGES, THEMES, TRADING_MARKETS } from "@/types/playbook"
-import { ACCOUNTS, type Account } from "@/types/trade"
+import { normalizeAccount, type Account } from "@/types/trade"
 
 export const PREFERENCES_STORAGE_KEY = "titan-journal.preferences.v1"
 export const PROFILE_STORAGE_KEY = "titan-journal.profile.v1"
@@ -30,8 +30,8 @@ export const DEFAULT_PROFILE: UserProfile = {
   avatar: null,
   capital: {
     Personal: 10_000,
-    Challenge: 100_000,
     Funded: 0,
+    Backtesting: 100_000,
   },
   riskPercent: 1,
   markets: ["Forex"],
@@ -84,9 +84,7 @@ function writeJson(key: string, value: unknown) {
 }
 
 function asAccount(value: unknown): Account {
-  return typeof value === "string" && (ACCOUNTS as readonly string[]).includes(value)
-    ? (value as Account)
-    : DEFAULT_PREFERENCES.defaultAccount
+  return normalizeAccount(value)
 }
 
 function asTheme(value: unknown): ThemeId {
@@ -157,8 +155,11 @@ function hydrateCapital(raw: unknown): AccountCapital {
   const row = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {}
   return {
     Personal: asMoney(row.Personal, DEFAULT_PROFILE.capital.Personal),
-    Challenge: asMoney(row.Challenge, DEFAULT_PROFILE.capital.Challenge),
     Funded: asMoney(row.Funded, DEFAULT_PROFILE.capital.Funded),
+    Backtesting: asMoney(
+      row.Backtesting,
+      asMoney(row.Challenge, DEFAULT_PROFILE.capital.Backtesting)
+    ),
   }
 }
 

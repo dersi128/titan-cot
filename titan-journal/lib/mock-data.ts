@@ -196,7 +196,7 @@ const CLASS_COVERAGE: Array<{ symbol: (typeof SYMBOLS)[number]; account: Account
 const GRADES: Grade[] = ["A+", "A", "B+", "B"]
 const TRENDS_UP: Trend[] = ["Strong Uptrend", "Uptrend"]
 const TRENDS_DOWN: Trend[] = ["Strong Downtrend", "Downtrend"]
-const ACCOUNTS: Account[] = ["Personal", "Challenge", "Funded"]
+const ACCOUNTS: Account[] = ["Personal", "Funded", "Backtesting"]
 
 // Remaining closed R results chosen so dashboard stats sit near the Phase 1 examples.
 const CLOSED_R = [

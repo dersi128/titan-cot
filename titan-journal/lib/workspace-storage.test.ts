@@ -27,6 +27,9 @@ describe("workspace hydration", () => {
     expect(hydratePreferences({ theme: "gold" }).theme).toBe("gold")
     expect(hydratePreferences({ language: "cs" }).language).toBe("cs")
     expect(hydratePreferences({ language: "nope" }).language).toBe("en")
+    expect(hydratePreferences({ defaultAccount: "Challenge" }).defaultAccount).toBe(
+      "Backtesting"
+    )
   })
 
   it("hydrates a stored playbook that predates icon", () => {
@@ -88,8 +91,8 @@ describe("workspace hydration", () => {
     const profile = hydrateProfile({ displayName: "Maya" })
     expect(profile.capital).toEqual({
       Personal: 10_000,
-      Challenge: 100_000,
       Funded: 0,
+      Backtesting: 100_000,
     })
     expect(profile.riskPercent).toBe(1)
     expect(profile.markets).toEqual(["Forex"])
@@ -103,7 +106,7 @@ describe("workspace hydration", () => {
 
   it("keeps saved capital and an empty market list", () => {
     const profile = hydrateProfile({
-      capital: { Personal: 25000, Challenge: 50_000, Funded: 200_000 },
+      capital: { Personal: 25000, Backtesting: 50_000, Funded: 200_000 },
       riskPercent: 0.75,
       markets: ["Index", "Forex", "Unknown"],
     })
@@ -114,5 +117,8 @@ describe("workspace hydration", () => {
     ).toEqual([])
     expect(hydrateProfile({ currency: "eur" }).currency).toBe("EUR")
     expect(hydrateProfile({ currency: "nope" }).currency).toBe("USD")
+    expect(
+      hydrateProfile({ capital: { Challenge: 50_000 } }).capital.Backtesting
+    ).toBe(50_000)
   })
 })

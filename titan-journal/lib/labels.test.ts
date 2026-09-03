@@ -23,6 +23,8 @@ describe("CZ/EN dictionaries", () => {
     expect(labelsFor("cs").copy.nav.dashboard).toBe("Přehled")
     expect(labelsFor("en").ACCOUNT_LABELS.Personal).toBe("Own capital")
     expect(labelsFor("cs").ACCOUNT_LABELS.Personal).toBe("Vlastní kapitál")
+    expect(labelsFor("cs").ACCOUNT_LABELS.Backtesting).toBe("Backtesting")
+    expect(labelsFor("cs").copy.dashboard.byWeekday).toBe("Dny v týdnu")
     expect(labelsFor("cs").YES_NO_LABELS.YES).toBe("Ano")
     expect(labelsFor("cs").ASSET_CLASS_LABELS.Stock).toBe("Akcie")
     expect(labelsFor("cs").DATE_RANGE_LABELS.ALL).toBe("Vše")
