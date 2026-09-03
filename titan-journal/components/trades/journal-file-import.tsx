@@ -18,7 +18,7 @@ import {
 import { useLabels } from "@/lib/use-labels"
 import type { NewTradeInput } from "@/types/trade"
 
-type ImportStatus = "idle" | "working" | "ok" | "added" | "bad" | "xlsx"
+type ImportStatus = "idle" | "working" | "ok" | "added" | "bad" | "xls"
 
 async function fillImportedCot(inputs: NewTradeInput[]): Promise<NewTradeInput[]> {
   const needed: Array<{ symbol: string; date: string }> = []
@@ -107,8 +107,8 @@ export function useJournalImport() {
         importContext,
         file.name
       )
-      if (parsed.kind === "xlsx") {
-        setStatus("xlsx")
+      if (parsed.kind === "xls") {
+        setStatus("xls")
         return
       }
       if (parsed.kind === "backup") {
@@ -168,7 +168,7 @@ export function useJournalImport() {
       <p className="text-[12px] text-bull">
         {copy.settings.importAdded.replace("{n}", String(addedCount))}
       </p>
-    ) : status === "xlsx" ? (
+    ) : status === "xls" ? (
       <p className="text-[12px] text-bear">{copy.settings.importNeedCsv}</p>
     ) : status === "bad" ? (
       <p className="text-[12px] text-bear">{copy.settings.importBad}</p>
