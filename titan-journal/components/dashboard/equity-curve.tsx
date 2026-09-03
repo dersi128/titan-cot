@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useId, useMemo, useState } from "react"
 import {
   Area,
   AreaChart,
@@ -76,6 +76,7 @@ export function EquityCurve({
   defaultMetric?: EquityMetric
 }) {
   const { copy } = useLabels()
+  const fillId = `equityFill-${useId().replace(/:/g, "")}`
   const [metric, setMetric] = useState<EquityMetric>(defaultMetric)
   const start = data[0]?.equity ?? 0
   const chart = useMemo<ChartPoint[]>(
@@ -93,10 +94,13 @@ export function EquityCurve({
     pct: copy.dashboard.percent,
   }
   const dataKey: EquityMetric = metric
+  const last = chart[chart.length - 1]?.[metric] ?? 0
+  const stroke =
+    last > 0 ? "var(--bull)" : last < 0 ? "var(--bear)" : "var(--chart-1)"
 
   return (
-    <Card size="sm" className="h-full min-h-[260px] gap-0 py-0">
-      <CardHeader className="shrink-0 border-b border-border py-2">
+    <Card size="sm" className="h-full min-h-[300px] gap-0 py-0">
+      <CardHeader className="shrink-0 px-4 pt-3 pb-1">
         <div className="flex flex-wrap items-center justify-between gap-1.5">
           <CardTitle>{copy.dashboard.equityCurve}</CardTitle>
           <SegmentedControl
@@ -109,14 +113,14 @@ export function EquityCurve({
           />
         </div>
       </CardHeader>
-      <CardContent className="flex min-h-0 flex-1 flex-col pt-2 pb-2">
-        <div className="min-h-[220px] flex-1">
+      <CardContent className="flex min-h-0 flex-1 flex-col pt-1 pb-2">
+        <div className="min-h-[240px] flex-1">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={chart} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
+            <AreaChart data={chart} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
               <defs>
-                <linearGradient id="equityFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.28} />
-                  <stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0} />
+                <linearGradient id={fillId} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={stroke} stopOpacity={0.28} />
+                  <stop offset="100%" stopColor={stroke} stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid stroke="var(--border)" vertical={false} />
@@ -140,17 +144,17 @@ export function EquityCurve({
                 }}
               />
               <Tooltip
-                cursor={{ stroke: "var(--chart-1)", strokeWidth: 1 }}
+                cursor={{ stroke, strokeWidth: 1 }}
                 content={<EquityTooltip metric={metric} />}
               />
               <Area
                 type="monotone"
                 dataKey={dataKey}
-                stroke="var(--chart-1)"
-                fill="url(#equityFill)"
-                strokeWidth={1.75}
+                stroke={stroke}
+                fill={`url(#${fillId})`}
+                strokeWidth={2}
                 dot={false}
-                activeDot={{ r: 3, fill: "var(--chart-1)", strokeWidth: 0 }}
+                activeDot={{ r: 3.5, fill: stroke, strokeWidth: 0 }}
               />
             </AreaChart>
           </ResponsiveContainer>

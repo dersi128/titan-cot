@@ -2,11 +2,12 @@
 
 import {
   formatNumber,
+  formatSignedMoney,
   formatSignedPercentPoints,
   formatSignedR,
-  formatSignedUsd,
   signedClassName,
 } from "@/lib/format"
+import type { DashboardSnapshots } from "@/lib/dashboard-snapshots"
 import type { DashboardStats } from "@/lib/trade-calculations"
 import { useLabels } from "@/lib/use-labels"
 import { cn } from "@/lib/utils"
@@ -16,128 +17,124 @@ function compactPercent(value: number | null | undefined): string {
   return `${Math.round(value * 100)}%`
 }
 
-function Metric({
+function SideMetric({
   label,
   value,
   className,
-  dense = false,
+  split = false,
 }: {
   label: string
   value: string
   className?: string
-  dense?: boolean
+  split?: boolean
 }) {
   return (
-    <article
-      className={cn("titan-kpi rounded-[10px]", dense ? "px-3 py-2.5" : "px-4 py-3")}
-    >
+    <div className={cn("min-w-0 px-4 py-3", split && "border-r border-border")}>
       <p className="text-[11px] font-medium tracking-wide text-muted-foreground">
         {label}
       </p>
       <p
         className={cn(
-          "font-mono font-medium tracking-tight tabular-nums",
-          dense ? "mt-1 text-[18px]" : "mt-1.5 text-[18px]",
+          "mt-1 font-mono text-[18px] font-medium tracking-tight tabular-nums",
           className
         )}
       >
         {value}
       </p>
-    </article>
+    </div>
   )
 }
 
 export function KpiCards({
   stats,
-  dense = false,
   drawdown,
+  snapshots,
+  currency,
 }: {
   stats: DashboardStats
-  dense?: boolean
   drawdown?: number | null
+  snapshots?: Pick<DashboardSnapshots, "winShare" | "lossShare" | "wins" | "losses">
+  currency: string
 }) {
   const { copy } = useLabels()
-  const sixth =
-    drawdown !== undefined ? (
-      <Metric
-        label={copy.dashboard.maxDrawdown}
-        value={drawdown == null ? "—" : formatSignedPercentPoints(drawdown * 100)}
-        className={signedClassName(drawdown)}
-        dense={dense}
-      />
-    ) : (
-      <Metric
-        label={copy.dashboard.totalTrades}
-        value={String(stats.totalTrades)}
-        dense={dense}
-      />
-    )
-
-  if (dense) {
-    return (
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
-        <Metric
-          label={copy.dashboard.netPnl}
-          value={formatSignedUsd(stats.netPnl)}
-          className={signedClassName(stats.netPnl)}
-          dense
-        />
-        <Metric
-          label={copy.dashboard.totalR}
-          value={formatSignedR(stats.totalR)}
-          className={signedClassName(stats.totalR)}
-          dense
-        />
-        <Metric label={copy.dashboard.winRate} value={compactPercent(stats.winRate)} dense />
-        <Metric
-          label={copy.dashboard.profitFactor}
-          value={formatNumber(stats.profitFactor)}
-          className={signedClassName(
-            stats.profitFactor == null ? null : stats.profitFactor - 1
-          )}
-          dense
-        />
-        <Metric
-          label={copy.dashboard.averageR}
-          value={formatSignedR(stats.averageR)}
-          className={signedClassName(stats.averageR)}
-          dense
-        />
-        {sixth}
-      </div>
-    )
-  }
+  const decided = snapshots ? snapshots.wins + snapshots.losses : 0
+  const winPct = snapshots ? Math.round(snapshots.winShare * 100) : 0
+  const lossPct = snapshots ? Math.round(snapshots.lossShare * 100) : 0
 
   return (
-    <div className="space-y-3">
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Metric
-          label={copy.dashboard.netPnl}
-          value={formatSignedUsd(stats.netPnl)}
-          className={signedClassName(stats.netPnl)}
-        />
-        <Metric
-          label={copy.dashboard.totalR}
-          value={formatSignedR(stats.totalR)}
-          className={signedClassName(stats.totalR)}
-        />
+    <section className="titan-glass relative overflow-hidden rounded-[10px]">
+      <span
+        aria-hidden
+        className={cn(
+          "absolute inset-y-0 left-0 w-[3px]",
+          stats.netPnl > 0 ? "bg-bull" : stats.netPnl < 0 ? "bg-bear" : "bg-border"
+        )}
+      />
+      <div className="grid lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
+        <div className="px-5 py-5 sm:px-6">
+          <p className="text-[11px] font-medium tracking-wide text-muted-foreground">
+            {copy.dashboard.netPnl}
+          </p>
+          <p
+            className={cn(
+              "mt-1 font-mono text-[34px] leading-none font-semibold tracking-tight tabular-nums sm:text-[40px]",
+              signedClassName(stats.netPnl)
+            )}
+          >
+            {formatSignedMoney(stats.netPnl, currency)}
+          </p>
+          <p className="mt-2 text-[13px] text-muted-foreground">
+            <span className={cn("font-mono tabular-nums", signedClassName(stats.totalR))}>
+              {formatSignedR(stats.totalR)}
+            </span>
+            <span className="mx-1.5 text-border">·</span>
+            {stats.totalTrades} {copy.dashboard.totalTrades.toLowerCase()}
+          </p>
+          {snapshots && decided > 0 ? (
+            <div className="mt-4 max-w-sm">
+              <div className="flex h-1.5 overflow-hidden rounded-full bg-muted">
+                <span className="h-full bg-bull" style={{ width: `${winPct}%` }} />
+                <span className="h-full bg-bear" style={{ width: `${lossPct}%` }} />
+              </div>
+              <p className="mt-1.5 text-[11px] text-muted-foreground">
+                <span className="text-bull">{winPct}%</span> {copy.dashboard.wins}
+                <span className="mx-1.5 text-border">·</span>
+                <span className="text-bear">{lossPct}%</span> {copy.dashboard.losses}
+              </p>
+            </div>
+          ) : null}
+        </div>
+
+        <div className="grid grid-cols-2 border-t border-border lg:border-t-0 lg:border-l">
+          <SideMetric
+            label={copy.dashboard.winRate}
+            value={compactPercent(stats.winRate)}
+            split
+          />
+          <SideMetric
+            label={copy.dashboard.profitFactor}
+            value={formatNumber(stats.profitFactor)}
+            className={signedClassName(
+              stats.profitFactor == null ? null : stats.profitFactor - 1
+            )}
+          />
+          <div className="col-span-2 grid grid-cols-2 border-t border-border">
+            <SideMetric
+              label={copy.dashboard.averageR}
+              value={formatSignedR(stats.averageR)}
+              className={signedClassName(stats.averageR)}
+              split
+            />
+            <SideMetric
+              label={copy.dashboard.maxDrawdown}
+              value={
+                drawdown == null ? "—" : formatSignedPercentPoints(drawdown * 100)
+              }
+              className={signedClassName(drawdown)}
+            />
+          </div>
+        </div>
       </div>
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Metric label={copy.dashboard.winRate} value={compactPercent(stats.winRate)} />
-        <Metric
-          label={copy.dashboard.profitFactor}
-          value={formatNumber(stats.profitFactor)}
-          className={signedClassName(
-            stats.profitFactor == null ? null : stats.profitFactor - 1
-          )}
-        />
-        <Metric
-          label={copy.dashboard.averageR}
-          value={formatSignedR(stats.averageR)}
-          className={signedClassName(stats.averageR)}
-        />
-        <Metric label={copy.dashboard.totalTrades} value={String(stats.totalTrades)} />
-      </div>
-    </div>
+    </section>
   )
 }
