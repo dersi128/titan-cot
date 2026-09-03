@@ -68,6 +68,7 @@ describe("hydrateTrade", () => {
       pairClass: "Major",
       cotBias: "Bullish",
       cotScore: 41,
+      cotReportDate: "2026-08-22",
     })
     expect(trade).toMatchObject({
       assetClass: "Forex",
@@ -75,6 +76,7 @@ describe("hydrateTrade", () => {
       cotEnabled: true,
       cotBias: "Bullish",
       cotScore: 41,
+      cotReportDate: "2026-08-22",
     })
   })
 

@@ -204,6 +204,8 @@ export type Trade = {
   cotBias: Bias | null
   cotScore: number | null
   commercialsBias: Bias | null
+  /** CFTC report week stored with the trade. Does not follow later releases. */
+  cotReportDate?: string | null
 
   seasonalityBias: Bias
   seasonalWindow: boolean

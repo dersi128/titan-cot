@@ -4,6 +4,7 @@ import {
   cotAlignment,
   formatCotScore,
 } from "@/lib/cot-link"
+import { formatDate } from "@/lib/format"
 import { useLabels } from "@/lib/use-labels"
 import { cn } from "@/lib/utils"
 import type { Bias, Trade } from "@/types/trade"
@@ -57,6 +58,12 @@ export function TradeCotSummary({
           <span className={cn("font-medium", biasClass(commercials))}>
             {BIAS_LABELS[commercials]}
           </span>
+        </p>
+      ) : null}
+      {trade.cotReportDate ? (
+        <p className="flex items-baseline justify-between gap-2 text-[12px]">
+          <span className="text-muted-foreground">{copy.form.cotReport}</span>
+          <span className="font-medium">{formatDate(trade.cotReportDate)}</span>
         </p>
       ) : null}
       <p

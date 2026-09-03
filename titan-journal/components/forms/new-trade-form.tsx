@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { classifyMarket } from "@/lib/market-classification"
-import { resolveSavedCot, type CotLiveSnapshot } from "@/lib/cot-link"
+import { resolveSavedCot, snapshotFromTrade, type CotLiveSnapshot } from "@/lib/cot-link"
 import { dollarsPerR, realizedResultFromInputs, suggestedPnl } from "@/lib/account-scope"
 import { formatMoney } from "@/lib/format"
 import { isDirty } from "@/lib/dirty"
@@ -163,6 +163,14 @@ export function TradeForm({ trade }: { trade?: Trade }) {
   const dirty = isDirty(draft, baseline.current)
 
   const classification = useMemo(() => classifyMarket(symbol), [symbol])
+  const frozenCot = useMemo(() => {
+    if (!trade) return null
+    if (trade.date !== date) return null
+    if ((classifyMarket(trade.symbol).symbol || trade.symbol) !== classification.symbol) {
+      return null
+    }
+    return snapshotFromTrade(trade)
+  }, [trade, date, classification.symbol])
   const playbook =
     playbookOptions.find((item) => item.id === playbookId) ?? defaultPlaybook
   const plannedRRR = calculatePlannedRRR({
@@ -280,7 +288,7 @@ export function TradeForm({ trade }: { trade?: Trade }) {
     const legacy = applyTitanFieldValuesToLegacy(nextFieldValues)
     const cot = resolveSavedCot({
       cotEnabled: classification.cotEnabled,
-      editing,
+      editing: frozenCot != null,
       override: legacy.cotBias
         ? {
             cotBias: legacy.cotBias,
@@ -293,6 +301,7 @@ export function TradeForm({ trade }: { trade?: Trade }) {
             cotBias: trade.cotBias,
             commercialsBias: trade.commercialsBias,
             cotScore: trade.cotScore,
+            cotReportDate: trade.cotReportDate,
           }
         : undefined,
     })
@@ -312,6 +321,7 @@ export function TradeForm({ trade }: { trade?: Trade }) {
       zoneType: legacy.zoneType ?? trade?.zoneType ?? "Demand",
       cotBias: cot.cotBias,
       commercialsBias: cot.commercialsBias,
+      cotReportDate: cot.cotReportDate,
       grade: legacy.grade ?? trade?.grade ?? "B",
       entry: entryN,
       stopLoss: sl,
@@ -468,6 +478,8 @@ export function TradeForm({ trade }: { trade?: Trade }) {
             <CotSnapshotCard
               symbol={classification.symbol}
               direction={direction}
+              date={date}
+              frozen={frozenCot}
               onSnapshot={handleCotSnapshot}
             />
 

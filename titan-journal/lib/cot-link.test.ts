@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import {
+  applyCotAsOf,
   compactCotFromApi,
   cotAlignment,
   formatCotScore,
@@ -112,6 +113,7 @@ describe("resolveSavedCot", () => {
     pairBias: "Bullish" as const,
     commercialsBias: "Bullish" as const,
     cotScore: 55,
+    reportDate: "2026-08-25",
   }
 
   it("nulls COT when the market has no link", () => {
@@ -121,7 +123,12 @@ describe("resolveSavedCot", () => {
         editing: false,
         live,
       })
-    ).toEqual({ cotBias: null, commercialsBias: null, cotScore: null })
+    ).toEqual({
+      cotBias: null,
+      commercialsBias: null,
+      cotScore: null,
+      cotReportDate: null,
+    })
   })
 
   it("fills a new trade from the live snapshot", () => {
@@ -135,6 +142,7 @@ describe("resolveSavedCot", () => {
       cotBias: "Bullish",
       commercialsBias: "Bullish",
       cotScore: 55,
+      cotReportDate: "2026-08-25",
     })
   })
 
@@ -148,12 +156,14 @@ describe("resolveSavedCot", () => {
           cotBias: "Bearish",
           commercialsBias: "Bullish",
           cotScore: -12,
+          cotReportDate: "2026-07-14",
         },
       })
     ).toEqual({
       cotBias: "Bearish",
       commercialsBias: "Bullish",
       cotScore: -12,
+      cotReportDate: "2026-07-14",
     })
   })
 
@@ -169,6 +179,7 @@ describe("resolveSavedCot", () => {
       cotBias: "Neutral",
       commercialsBias: "Neutral",
       cotScore: 55,
+      cotReportDate: "2026-08-25",
     })
   })
 
@@ -183,6 +194,35 @@ describe("resolveSavedCot", () => {
       cotBias: "Neutral",
       commercialsBias: "Neutral",
       cotScore: 0,
+      cotReportDate: null,
     })
+  })
+})
+
+describe("applyCotAsOf", () => {
+  const payload = {
+    market: "EURO FX",
+    reportDate: "2026-08-25",
+    commercials: { bias: "bullish" },
+    cotScore: 55,
+    history: [
+      { reportDate: "2026-08-11", commercialNet: -10000 },
+      { reportDate: "2026-08-18", commercialNet: 80000 },
+      { reportDate: "2026-08-25", commercialNet: 90000 },
+    ],
+  }
+
+  it("keeps the latest week when the trade date is on or after it", () => {
+    expect(applyCotAsOf(payload, "2026-08-26")).toBe(payload)
+    expect(applyCotAsOf(payload, "2026-08-25")).toBe(payload)
+  })
+
+  it("binds an older trade date to the last report on or before it", () => {
+    const asOf = applyCotAsOf(payload, "2026-08-20") as {
+      reportDate: string
+      commercials: { bias: string }
+    }
+    expect(asOf.reportDate).toBe("2026-08-18")
+    expect(asOf.commercials.bias).toBe("neutral")
   })
 })

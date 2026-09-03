@@ -29,19 +29,26 @@ export function ClearJournal() {
   }
 
   return (
-    <div className="flex flex-col items-end gap-2">
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        className="h-8 border-destructive/40 text-[12px] text-destructive hover:bg-destructive/10"
-        onClick={() => setOpen((current) => !current)}
-      >
-        {copy.journal.clearAll}
-      </Button>
-      {open ? (
-        <div className="titan-glass w-[min(100vw-2rem,22rem)] space-y-3 rounded-[10px] p-4">
-          <p className="text-[12px] text-muted-foreground">{copy.journal.clearAllHint}</p>
+    <section className="rounded-[10px] border border-destructive/35 bg-destructive/[0.06] p-5">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-destructive">
+        {copy.journal.dangerZone}
+      </p>
+      <h2 className="mt-1 text-sm font-semibold">{copy.journal.clearAll}</h2>
+      <p className="mt-1 max-w-xl text-[12px] text-muted-foreground">
+        {copy.journal.clearAllHint}
+      </p>
+      {!open ? (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="mt-3 border-destructive/40 text-destructive hover:bg-destructive/10"
+          onClick={() => setOpen(true)}
+        >
+          {copy.journal.clearAll}
+        </Button>
+      ) : (
+        <div className="mt-3 max-w-sm space-y-3">
           <Input
             value={typed}
             onChange={(event) => setTyped(event.target.value)}
@@ -75,7 +82,7 @@ export function ClearJournal() {
             </Button>
           </div>
         </div>
-      ) : null}
-    </div>
+      )}
+    </section>
   )
 }
