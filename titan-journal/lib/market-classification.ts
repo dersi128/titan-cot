@@ -1,3 +1,4 @@
+import { hasCotLink } from "@/lib/cot-link"
 import {
   assetClassFromAlias,
   assetClassFromCryptoPattern,
@@ -72,10 +73,18 @@ function classifyForexPair(symbol: string): MarketClassification | null {
   if (!isForexCurrency(base) || !isForexCurrency(quote)) return null
 
   if (FOREX_MAJORS.has(symbol)) {
-    return classified(symbol, "Forex", "Major", true)
+    return classified(symbol, "Forex", "Major")
   }
 
-  return classified(symbol, "Forex", "Cross", false)
+  return classified(symbol, "Forex", "Cross")
+}
+
+function withCot(classification: MarketClassification): MarketClassification {
+  if (!classification.symbol) return classification
+  return {
+    ...classification,
+    cotEnabled: hasCotLink(classification.symbol),
+  }
 }
 
 export function classifyMarket(rawSymbol: string): MarketClassification {
@@ -87,22 +96,22 @@ export function classifyMarket(rawSymbol: string): MarketClassification {
   const aliased = assetClassFromAlias(symbol)
   if (aliased) {
     if (aliased === "Forex") {
-      return classifyForexPair(symbol) ?? classified(symbol, "Forex")
+      return withCot(classifyForexPair(symbol) ?? classified(symbol, "Forex"))
     }
-    return classified(symbol, aliased)
+    return withCot(classified(symbol, aliased))
   }
 
   const crypto = assetClassFromCryptoPattern(symbol)
-  if (crypto) return classified(symbol, crypto)
+  if (crypto) return withCot(classified(symbol, crypto))
 
   const forex = classifyForexPair(symbol)
-  if (forex) return forex
+  if (forex) return withCot(forex)
 
   // Share tickers are too many to alias. Anything that still looks like a
   // market symbol and is not a known FX / metal / index / crypto / commodity
   // is Stock.
   if (/[A-Z]/.test(symbol)) {
-    return classified(symbol, "Stock")
+    return withCot(classified(symbol, "Stock"))
   }
 
   return { symbol, ...UNKNOWN }

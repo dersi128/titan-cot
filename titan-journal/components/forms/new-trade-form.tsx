@@ -1,9 +1,10 @@
 "use client"
 
-import { useMemo, useRef, useState } from "react"
+import { useCallback, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 
 import { Field, OptionPills } from "@/components/forms/field"
+import { CotSnapshotCard } from "@/components/forms/cot-snapshot-card"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
 import { useWorkspaceChrome } from "@/components/layout/workspace-chrome"
 import { useWorkspace } from "@/components/layout/workspace-provider"
@@ -16,6 +17,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { classifyMarket } from "@/lib/market-classification"
+import { resolveSavedCot, type CotLiveSnapshot } from "@/lib/cot-link"
 import { dollarsPerR, realizedResultFromInputs, suggestedPnl } from "@/lib/account-scope"
 import { formatMoney } from "@/lib/format"
 import { isDirty } from "@/lib/dirty"
@@ -136,6 +138,10 @@ export function TradeForm({ trade }: { trade?: Trade }) {
   )
   const [pnl, setPnl] = useState(trade?.pnl == null ? "" : String(trade.pnl))
   const [error, setError] = useState<string | null>(null)
+  const cotLiveRef = useRef<CotLiveSnapshot | null>(null)
+  const handleCotSnapshot = useCallback((snapshot: CotLiveSnapshot | null) => {
+    cotLiveRef.current = snapshot
+  }, [])
 
   const draft = {
     date,
@@ -205,6 +211,7 @@ export function TradeForm({ trade }: { trade?: Trade }) {
     setResultR("")
     setPnl("")
     setError(null)
+    cotLiveRef.current = null
   }
 
   function applyTemplate(template: TradeTemplate) {
@@ -271,6 +278,24 @@ export function TradeForm({ trade }: { trade?: Trade }) {
       ? fieldValues
       : (trade?.fieldValues ?? [])
     const legacy = applyTitanFieldValuesToLegacy(nextFieldValues)
+    const cot = resolveSavedCot({
+      cotEnabled: classification.cotEnabled,
+      editing,
+      override: legacy.cotBias
+        ? {
+            cotBias: legacy.cotBias,
+            commercialsBias: legacy.commercialsBias ?? legacy.cotBias,
+          }
+        : undefined,
+      live: cotLiveRef.current,
+      stored: trade
+        ? {
+            cotBias: trade.cotBias,
+            commercialsBias: trade.commercialsBias,
+            cotScore: trade.cotScore,
+          }
+        : undefined,
+    })
     const patch = {
       date: date || todayIsoDate(),
       symbol: nextSymbol,
@@ -285,12 +310,8 @@ export function TradeForm({ trade }: { trade?: Trade }) {
       tradeTrend: legacy.tradeTrend ?? trade?.tradeTrend ?? "Uptrend",
       location: legacy.location ?? trade?.location ?? "Discount",
       zoneType: legacy.zoneType ?? trade?.zoneType ?? "Demand",
-      cotBias: classification.cotEnabled
-        ? (legacy.cotBias ?? trade?.cotBias ?? "Neutral")
-        : null,
-      commercialsBias: classification.cotEnabled
-        ? (legacy.commercialsBias ?? trade?.commercialsBias ?? "Neutral")
-        : null,
+      cotBias: cot.cotBias,
+      commercialsBias: cot.commercialsBias,
       grade: legacy.grade ?? trade?.grade ?? "B",
       entry: entryN,
       stopLoss: sl,
@@ -311,7 +332,7 @@ export function TradeForm({ trade }: { trade?: Trade }) {
       updateTrade({
         ...trade,
         ...patch,
-        cotScore: classification.cotEnabled ? (trade.cotScore ?? 0) : null,
+        cotScore: cot.cotScore,
         resultR: nextR,
         pnl: nextPnl,
       })
@@ -335,7 +356,7 @@ export function TradeForm({ trade }: { trade?: Trade }) {
       hq: false,
       impulse: "Normal",
       mitigation: 0,
-      cotScore: classification.cotEnabled ? 0 : null,
+      cotScore: cot.cotScore,
       seasonalityBias: "Neutral",
       seasonalWindow: false,
       resultR: closed?.resultR ?? null,
@@ -443,6 +464,12 @@ export function TradeForm({ trade }: { trade?: Trade }) {
                 />
               </Field>
             </div>
+
+            <CotSnapshotCard
+              symbol={classification.symbol}
+              direction={direction}
+              onSnapshot={handleCotSnapshot}
+            />
 
             <div className="titan-glass space-y-3 rounded-[10px] p-4">
               <p className="text-sm font-medium">{copy.form.plan}</p>

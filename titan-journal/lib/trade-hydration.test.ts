@@ -140,7 +140,7 @@ describe("hydrateTrade", () => {
       symbol: "XAUUSD",
       assetClass: "Metal",
       marketType: "Unknown",
-      cotEnabled: false,
+      cotEnabled: true,
     })
   })
 

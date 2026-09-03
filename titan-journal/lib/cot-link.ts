@@ -1,0 +1,347 @@
+import type { Bias, TradeDirection } from "@/types/trade"
+
+export type CotLink = {
+  slug: string
+  futuresSymbol: string
+  label: string
+  invert: boolean
+}
+
+export type CotLiveSnapshot = {
+  ok: true
+  symbol: string
+  slug: string
+  futuresSymbol: string
+  market: string
+  reportDate: string
+  invert: boolean
+  commercialsBias: Bias
+  pairBias: Bias
+  cotScore: number
+  futuresScore: number
+  verdict: string
+}
+
+export type CotLiveResponse =
+  | CotLiveSnapshot
+  | { ok: false; error: "unsupported" | "unavailable" }
+
+export type CotAlignment = "aligned" | "against" | "neutral"
+
+const LINKS: Record<string, CotLink> = {
+  EURUSD: {
+    slug: "euro-fx",
+    futuresSymbol: "6E1!",
+    label: "Euro FX",
+    invert: false,
+  },
+  GBPUSD: {
+    slug: "british-pound",
+    futuresSymbol: "6B1!",
+    label: "British Pound",
+    invert: false,
+  },
+  AUDUSD: {
+    slug: "australian-dollar",
+    futuresSymbol: "6A1!",
+    label: "Australian Dollar",
+    invert: false,
+  },
+  NZDUSD: {
+    slug: "new-zealand-dollar",
+    futuresSymbol: "6N1!",
+    label: "New Zealand Dollar",
+    invert: false,
+  },
+  USDJPY: {
+    slug: "japanese-yen",
+    futuresSymbol: "6J1!",
+    label: "Japanese Yen",
+    invert: true,
+  },
+  USDCAD: {
+    slug: "canadian-dollar",
+    futuresSymbol: "6C1!",
+    label: "Canadian Dollar",
+    invert: true,
+  },
+  USDCHF: {
+    slug: "swiss-franc",
+    futuresSymbol: "6S1!",
+    label: "Swiss Franc",
+    invert: true,
+  },
+  XAUUSD: { slug: "gold", futuresSymbol: "GC1!", label: "Gold", invert: false },
+  XAGUSD: {
+    slug: "silver",
+    futuresSymbol: "SI1!",
+    label: "Silver",
+    invert: false,
+  },
+  XPTUSD: {
+    slug: "platinum",
+    futuresSymbol: "PL1!",
+    label: "Platinum",
+    invert: false,
+  },
+  XPDUSD: {
+    slug: "palladium",
+    futuresSymbol: "PA1!",
+    label: "Palladium",
+    invert: false,
+  },
+  COPPER: {
+    slug: "copper",
+    futuresSymbol: "HG1!",
+    label: "Copper",
+    invert: false,
+  },
+  NAS100: {
+    slug: "nasdaq",
+    futuresSymbol: "NQ1!",
+    label: "Nasdaq-100",
+    invert: false,
+  },
+  US500: {
+    slug: "sp500",
+    futuresSymbol: "ES1!",
+    label: "S&P 500",
+    invert: false,
+  },
+  US30: {
+    slug: "e-mini-dow",
+    futuresSymbol: "YM1!",
+    label: "Dow",
+    invert: false,
+  },
+  US2000: {
+    slug: "russell-2000",
+    futuresSymbol: "RTY1!",
+    label: "Russell 2000",
+    invert: false,
+  },
+  USOIL: {
+    slug: "crude-oil",
+    futuresSymbol: "CL1!",
+    label: "Crude Oil",
+    invert: false,
+  },
+  NATGAS: {
+    slug: "natural-gas",
+    futuresSymbol: "NG1!",
+    label: "Natural Gas",
+    invert: false,
+  },
+  WHEAT: {
+    slug: "wheat-srw",
+    futuresSymbol: "ZW1!",
+    label: "Wheat",
+    invert: false,
+  },
+  CORN: { slug: "corn", futuresSymbol: "ZC1!", label: "Corn", invert: false },
+  SOYBEANS: {
+    slug: "soybeans",
+    futuresSymbol: "ZS1!",
+    label: "Soybeans",
+    invert: false,
+  },
+  COCOA: { slug: "cocoa", futuresSymbol: "CC1!", label: "Cocoa", invert: false },
+  SUGAR: { slug: "sugar", futuresSymbol: "SB1!", label: "Sugar", invert: false },
+  COFFEE: {
+    slug: "coffee",
+    futuresSymbol: "KC1!",
+    label: "Coffee",
+    invert: false,
+  },
+  COTTON: {
+    slug: "cotton",
+    futuresSymbol: "CT1!",
+    label: "Cotton",
+    invert: false,
+  },
+}
+
+const ALIASES: Record<string, string> = {
+  GOLD: "XAUUSD",
+  XAU: "XAUUSD",
+  SILVER: "XAGUSD",
+  XAG: "XAGUSD",
+  PLATINUM: "XPTUSD",
+  XPT: "XPTUSD",
+  PALLADIUM: "XPDUSD",
+  XPD: "XPDUSD",
+  XCUUSD: "COPPER",
+  COPPERUSD: "COPPER",
+  US100: "NAS100",
+  USTEC: "NAS100",
+  NDX: "NAS100",
+  NASDAQ: "NAS100",
+  SPX500: "US500",
+  SPX: "US500",
+  DOW: "US30",
+  DJI: "US30",
+  WS30: "US30",
+  WTI: "USOIL",
+  WTIUSD: "USOIL",
+  OIL: "USOIL",
+  NGAS: "NATGAS",
+  NATGASUSD: "NATGAS",
+  SOYBEAN: "SOYBEANS",
+}
+
+function key(input: string): string {
+  return input.toUpperCase().replaceAll(" ", "").replaceAll("/", "")
+}
+
+export function resolveCotLink(rawSymbol: string): CotLink | null {
+  const symbol = key(rawSymbol)
+  if (!symbol) return null
+  const canonical = ALIASES[symbol] ?? symbol
+  return LINKS[canonical] ?? null
+}
+
+export function hasCotLink(rawSymbol: string): boolean {
+  return resolveCotLink(rawSymbol) != null
+}
+
+export function invertBias(bias: Bias): Bias {
+  if (bias === "Bullish") return "Bearish"
+  if (bias === "Bearish") return "Bullish"
+  return "Neutral"
+}
+
+export function clampCotScore(value: number): number {
+  if (!Number.isFinite(value)) return 0
+  return Math.min(100, Math.max(-100, Math.round(value)))
+}
+
+export function pairOrientedScore(futuresScore: number, invert: boolean): number {
+  return clampCotScore(invert ? -futuresScore : futuresScore)
+}
+
+export function journalBiasFromApi(value: unknown): Bias {
+  if (value === "bullish" || value === "Bullish") return "Bullish"
+  if (value === "bearish" || value === "Bearish") return "Bearish"
+  return "Neutral"
+}
+
+export function biasFromScore(score: number): Bias {
+  if (score > 0) return "Bullish"
+  if (score < 0) return "Bearish"
+  return "Neutral"
+}
+
+export function cotAlignment(
+  direction: TradeDirection,
+  pairBias: Bias | null | undefined
+): CotAlignment {
+  if (pairBias == null || pairBias === "Neutral") return "neutral"
+  if (direction === "LONG") return pairBias === "Bullish" ? "aligned" : "against"
+  return pairBias === "Bearish" ? "aligned" : "against"
+}
+
+export function formatCotScore(score: number | null | undefined): string {
+  if (score == null || !Number.isFinite(score)) return "—"
+  const rounded = Math.round(score)
+  if (rounded > 0) return `+${rounded}`
+  return String(rounded)
+}
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null
+  return value as Record<string, unknown>
+}
+
+export function compactCotFromApi(
+  symbol: string,
+  link: CotLink,
+  data: unknown
+): CotLiveSnapshot | null {
+  const row = asRecord(data)
+  if (!row) return null
+
+  const commercials = asRecord(row.commercials)
+  const futuresScore =
+    typeof row.cotScore === "number" && Number.isFinite(row.cotScore)
+      ? row.cotScore
+      : null
+  if (futuresScore == null) return null
+
+  const commercialsBias = commercials
+    ? journalBiasFromApi(commercials.bias)
+    : biasFromScore(futuresScore)
+  const cotScore = pairOrientedScore(futuresScore, link.invert)
+  const pairBias = link.invert ? invertBias(commercialsBias) : commercialsBias
+  const reportDate = typeof row.reportDate === "string" ? row.reportDate : ""
+  const verdict = typeof row.cotVerdict === "string" ? row.cotVerdict : ""
+  const market =
+    typeof row.market === "string" && row.market.trim()
+      ? row.market
+      : link.label
+
+  return {
+    ok: true,
+    symbol: key(symbol) || symbol,
+    slug: link.slug,
+    futuresSymbol: link.futuresSymbol,
+    market,
+    reportDate,
+    invert: link.invert,
+    commercialsBias,
+    pairBias,
+    cotScore,
+    futuresScore: clampCotScore(futuresScore),
+    verdict,
+  }
+}
+
+export function resolveSavedCot(input: {
+  cotEnabled: boolean
+  editing: boolean
+  override?: { cotBias?: Bias; commercialsBias?: Bias }
+  live: Pick<CotLiveSnapshot, "pairBias" | "commercialsBias" | "cotScore"> | null
+  stored?: {
+    cotBias?: Bias | null
+    commercialsBias?: Bias | null
+    cotScore?: number | null
+  }
+}): {
+  cotBias: Bias | null
+  commercialsBias: Bias | null
+  cotScore: number | null
+} {
+  if (!input.cotEnabled) {
+    return { cotBias: null, commercialsBias: null, cotScore: null }
+  }
+
+  const overrideBias = input.override?.cotBias
+  if (overrideBias) {
+    return {
+      cotBias: overrideBias,
+      commercialsBias: input.override?.commercialsBias ?? overrideBias,
+      cotScore: input.live?.cotScore ?? input.stored?.cotScore ?? 0,
+    }
+  }
+
+  if (!input.editing && input.live) {
+    return {
+      cotBias: input.live.pairBias,
+      commercialsBias: input.live.commercialsBias,
+      cotScore: input.live.cotScore,
+    }
+  }
+
+  return {
+    cotBias: input.stored?.cotBias ?? input.live?.pairBias ?? "Neutral",
+    commercialsBias:
+      input.stored?.commercialsBias ?? input.live?.commercialsBias ?? "Neutral",
+    cotScore: input.stored?.cotScore ?? input.live?.cotScore ?? 0,
+  }
+}
+
+export const DEFAULT_COT_API_URL = "https://titan-cot.onrender.com"
+
+export function cotApiBaseUrl(): string {
+  const raw = process.env.COT_API_URL?.trim() || DEFAULT_COT_API_URL
+  return raw.replace(/\/$/, "")
+}
