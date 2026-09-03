@@ -36,23 +36,32 @@ export function OptionPills<T extends string>({
   value,
   options,
   labels,
+  accents,
   onChange,
 }: {
   value: T | null
   options: readonly T[]
   labels?: Partial<Record<T, string>>
+  accents?: Partial<Record<T, "bull" | "bear">>
   onChange: (value: T) => void
 }) {
   return (
     <div className="flex flex-wrap gap-1.5">
       {options.map((option) => {
         const selected = option === value
+        const accent = accents?.[option]
         return (
           <button
             key={option}
             type="button"
             onClick={() => onChange(option)}
-            className={pillClass(selected)}
+            className={cn(
+              pillClass(selected),
+              selected && accent === "bull" &&
+                "border-bull/40 bg-bull/10 text-bull shadow-[0_0_12px_color-mix(in_srgb,var(--bull)_22%,transparent)]",
+              selected && accent === "bear" &&
+                "border-bear/40 bg-bear/10 text-bear shadow-[0_0_12px_color-mix(in_srgb,var(--bear)_22%,transparent)]"
+            )}
           >
             {labels?.[option] ?? option}
           </button>

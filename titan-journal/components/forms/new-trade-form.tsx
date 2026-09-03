@@ -11,6 +11,7 @@ import { PlaybookFieldInput } from "@/components/playbooks/playbook-field-input"
 import { MarketBadges } from "@/components/trades/market-badges"
 import { useTrades } from "@/components/trades/trades-provider"
 import { SaveButton } from "@/components/forms/save-button"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { classifyMarket } from "@/lib/market-classification"
@@ -41,6 +42,8 @@ import {
   type Trade,
   type TradeDirection,
 } from "@/types/trade"
+
+const NOTES_MAX = 1000
 
 function readScreenshot(file: File): Promise<string | null> {
   if (file.size > 450_000) return Promise.resolve(null)
@@ -138,6 +141,26 @@ export function TradeForm({ trade }: { trade?: Trade }) {
     profile.capital[account],
     parseOptionalNumber(riskPercent) ?? profile.riskPercent
   )
+  const potentialUsd =
+    riskUsd > 0 && plannedRRR != null ? Math.round(riskUsd * plannedRRR * 100) / 100 : 0
+
+  function resetForm() {
+    setDate(todayIsoDate())
+    setSymbol("")
+    setDirection("LONG")
+    setEntry("")
+    setStopLoss("")
+    setTakeProfit("")
+    setRiskPercent(String(profile.riskPercent ?? preferences.defaultRisk))
+    setAccount(chromeAccount)
+    setPlaybookId(defaultPlaybook?.id ?? TITAN_SWING_PLAYBOOK_ID)
+    setNotes("")
+    setScreenshot(null)
+    setFieldValues([])
+    setResultR("")
+    setPnl("")
+    setError(null)
+  }
 
   async function handleScreenshot(file: File | undefined) {
     if (!file) return
@@ -236,9 +259,17 @@ export function TradeForm({ trade }: { trade?: Trade }) {
         description={
           editing ? copy.form.editDescription : copy.form.description
         }
+        actions={
+          editing ? undefined : (
+            <Button type="button" variant="ghost" onClick={resetForm}>
+              {copy.form.clear}
+            </Button>
+          )
+        }
       />
       <form onSubmit={handleSubmit} className="space-y-4 pb-16">
         <div className="titan-glass space-y-3 rounded-[10px] p-4">
+          <p className="text-sm font-medium">{copy.form.basics}</p>
           {editing ? (
             <Field label={copy.form.date}>
               <Input
@@ -269,9 +300,24 @@ export function TradeForm({ trade }: { trade?: Trade }) {
             <OptionPills
               value={direction}
               options={TRADE_DIRECTIONS}
+              accents={{ LONG: "bull", SHORT: "bear" }}
               onChange={setDirection}
             />
           </Field>
+          <Field label={copy.form.playbook}>
+            <OptionPills
+              value={playbookId}
+              options={playbookOptions.map((item) => item.id)}
+              labels={Object.fromEntries(
+                playbookOptions.map((item) => [item.id, item.name])
+              )}
+              onChange={setPlaybookId}
+            />
+          </Field>
+        </div>
+
+        <div className="titan-glass space-y-3 rounded-[10px] p-4">
+          <p className="text-sm font-medium">{copy.form.plan}</p>
           <div className="grid gap-3 sm:grid-cols-3">
             <Field label={copy.form.entry}>
               <Input value={entry} onChange={(event) => setEntry(event.target.value)} />
@@ -303,45 +349,24 @@ export function TradeForm({ trade }: { trade?: Trade }) {
                 onChange={(event) => setRiskPercent(event.target.value)}
               />
             </Field>
-            <Field label={copy.form.plannedRrr}>
+            <Field
+              label={copy.form.plannedRrr}
+              hint={
+                potentialUsd > 0
+                  ? `${copy.form.potential}: ${formatUsd(potentialUsd)}`
+                  : undefined
+              }
+            >
               <p className="flex h-8 items-center font-mono text-sm">
                 {formatRRR(plannedRRR)}
               </p>
             </Field>
           </div>
-          <Field label={copy.form.playbook}>
-            <OptionPills
-              value={playbookId}
-              options={playbookOptions.map((item) => item.id)}
-              labels={Object.fromEntries(
-                playbookOptions.map((item) => [item.id, item.name])
-              )}
-              onChange={setPlaybookId}
-            />
-          </Field>
-          <Field label={copy.form.screenshot}>
-            <Input
-              type="file"
-              accept="image/*"
-              onChange={(event) => handleScreenshot(event.target.files?.[0])}
-            />
-            {screenshot ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={screenshot}
-                alt=""
-                className="mt-2 max-h-40 rounded-md border border-border object-contain"
-              />
-            ) : null}
-          </Field>
-          <Field label={copy.form.note}>
-            <Textarea
-              rows={3}
-              value={notes}
-              onChange={(event) => setNotes(event.target.value)}
-            />
-          </Field>
-          {showResult ? (
+        </div>
+
+        {showResult ? (
+          <div className="titan-glass space-y-3 rounded-[10px] p-4">
+            <p className="text-sm font-medium">{copy.detail.result}</p>
             <div className="grid gap-3 sm:grid-cols-2">
               <Field label={copy.detail.resultR}>
                 <Input
@@ -356,7 +381,50 @@ export function TradeForm({ trade }: { trade?: Trade }) {
                 />
               </Field>
             </div>
-          ) : null}
+          </div>
+        ) : null}
+
+        <div className="titan-glass space-y-3 rounded-[10px] p-4">
+          <Field
+            label={copy.form.note}
+            hint={copy.form.noteLimit.replace("{n}", String(notes.length))}
+          >
+            <Textarea
+              rows={3}
+              value={notes}
+              maxLength={NOTES_MAX}
+              onChange={(event) => setNotes(event.target.value.slice(0, NOTES_MAX))}
+            />
+          </Field>
+        </div>
+
+        <div className="titan-glass space-y-3 rounded-[10px] p-4">
+          <Field label={copy.form.screenshot} hint={copy.form.screenshotHint}>
+            <label
+              className="flex cursor-pointer flex-col items-center justify-center rounded-[10px] border border-dashed border-border px-3 py-6 text-center text-[12px] text-muted-foreground"
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={(event) => {
+                event.preventDefault()
+                void handleScreenshot(event.dataTransfer.files?.[0])
+              }}
+            >
+              <Input
+                type="file"
+                accept="image/*"
+                className="sr-only"
+                onChange={(event) => handleScreenshot(event.target.files?.[0])}
+              />
+              {copy.form.screenshotHint}
+            </label>
+            {screenshot ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={screenshot}
+                alt=""
+                className="mt-2 max-h-40 rounded-md border border-border object-contain"
+              />
+            ) : null}
+          </Field>
         </div>
 
         {advanced && playbook && sortedFields(playbook).length > 0 ? (

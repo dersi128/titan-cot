@@ -11,7 +11,7 @@ export function StatusBadge({ status }: { status: TradeStatus }) {
     IDEA: "border-white/10 bg-white/[0.03] text-stone-400",
     PLANNED: "border-primary/35 bg-primary/10 text-primary",
     ACTIVE: "border-amber-500/35 bg-amber-500/10 text-amber-200",
-    CLOSED: "border-white/10 bg-titan-elevated/70 text-stone-200",
+    CLOSED: "border-bull/25 bg-bull/10 text-bull",
     REVIEWED: "border-primary/25 bg-primary/[0.08] text-stone-200",
     CANCELLED: "border-white/10 text-stone-500",
   }
@@ -41,6 +41,30 @@ export function DirectionBadge({ direction }: { direction: TradeDirection }) {
       )}
     >
       {direction}
+    </Badge>
+  )
+}
+
+export function OutcomeBadge({ resultR }: { resultR: number | null }) {
+  const { copy } = useLabels()
+  if (resultR == null) {
+    return <span className="text-muted-foreground">—</span>
+  }
+  const win = resultR > 0
+  const loss = resultR < 0
+  return (
+    <Badge
+      variant="outline"
+      className={cn(
+        "rounded-md px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider",
+        win
+          ? "border-bull/30 bg-bull/10 text-bull"
+          : loss
+            ? "border-bear/30 bg-bear/10 text-bear"
+            : "border-border text-muted-foreground"
+      )}
+    >
+      {win ? copy.outcome.win : loss ? copy.outcome.loss : copy.outcome.be}
     </Badge>
   )
 }

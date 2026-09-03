@@ -31,7 +31,11 @@ export function filterTrades(trades: Trade[], filters: TradeFilters): Trade[] {
   const query = filters.query.trim().toUpperCase()
 
   return trades.filter((trade) => {
-    if (query && !trade.symbol.includes(query)) return false
+    if (query) {
+      const inSymbol = trade.symbol.toUpperCase().includes(query)
+      const inNotes = trade.notes.toUpperCase().includes(query)
+      if (!inSymbol && !inNotes) return false
+    }
     if (filters.playbookId !== "ALL" && trade.playbookId !== filters.playbookId) {
       return false
     }
