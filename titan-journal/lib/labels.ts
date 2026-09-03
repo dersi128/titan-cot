@@ -177,6 +177,9 @@ export const copyEn = {
     of: "of",
     page: "Page",
     export: "Export",
+    clearAll: "Clear journal",
+    clearAllHint: "This deletes every trade in this browser. Type DELETE to confirm.",
+    clearAllConfirm: "Delete all trades",
   },
 
   detail: {
@@ -586,6 +589,9 @@ export const copyCs: Copy = {
     of: "z",
     page: "Strana",
     export: "Export",
+    clearAll: "Smazat deník",
+    clearAllHint: "Smaže všechny obchody v tomto prohlížeči. Pro potvrzení napiš DELETE.",
+    clearAllConfirm: "Smazat všechny obchody",
   },
 
   detail: {

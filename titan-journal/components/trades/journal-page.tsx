@@ -27,6 +27,7 @@ import { TableSkeleton } from "@/components/layout/loading-state"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
 import { useScopedTrades } from "@/components/layout/use-scoped-trades"
 import { useWorkspace } from "@/components/layout/workspace-provider"
+import { ClearJournal } from "@/components/trades/clear-journal"
 import { ResultR } from "@/components/trades/result-r"
 import { TradePanel } from "@/components/trades/trade-panel"
 import {
@@ -489,6 +490,7 @@ export function JournalPage() {
       </div>
         </>
       )}
+      <ClearJournal />
     </PageFrame>
   )
 }
