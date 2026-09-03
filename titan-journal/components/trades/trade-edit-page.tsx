@@ -7,9 +7,10 @@ import { PageFrame } from "@/components/layout/page-header"
 import { TableSkeleton } from "@/components/layout/loading-state"
 import { Button } from "@/components/ui/button"
 import { useTrades } from "@/components/trades/trades-provider"
-import { copy } from "@/lib/labels"
+import { useLabels } from "@/lib/use-labels"
 
 export function TradeEditPage({ id }: { id: string }) {
+  const { copy } = useLabels()
   const { getById, isReady } = useTrades()
   const trade = getById(id)
 

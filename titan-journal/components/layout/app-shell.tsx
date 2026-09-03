@@ -12,8 +12,9 @@ import {
   Settings,
   User,
 } from "lucide-react"
-import { useState } from "react"
+import { useState, type ComponentType } from "react"
 
+import { LanguageSwitcher } from "@/components/layout/language-switcher"
 import { SegmentedControl } from "@/components/layout/segmented-control"
 import {
   DATE_RANGES,
@@ -29,22 +30,15 @@ import {
 } from "@/components/ui/sheet"
 import { AvatarBubble } from "@/components/profile/avatar-bubble"
 import { THEME_LOGOS } from "@/lib/brand"
-import { ACCOUNT_LABELS, copy } from "@/lib/labels"
+import { useLabels } from "@/lib/use-labels"
 import { cn } from "@/lib/utils"
 import { ACCOUNTS } from "@/types/trade"
 
-const MAIN_NAV = [
-  { href: "/dashboard", label: copy.nav.dashboard, icon: LayoutDashboard },
-  { href: "/journal", label: copy.nav.journal, icon: BookOpen },
-  { href: "/new-trade", label: copy.nav.newTrade, icon: PlusCircle },
-  { href: "/analytics", label: copy.nav.analytics, icon: BarChart3 },
-  { href: "/playbook", label: copy.nav.playbook, icon: NotebookPen },
-] as const
-
-const BOTTOM_NAV = [
-  { href: "/profile", label: copy.nav.profile, icon: User },
-  { href: "/settings", label: copy.nav.settings, icon: Settings },
-] as const
+type NavItem = {
+  href: string
+  label: string
+  icon: ComponentType<{ className?: string }>
+}
 
 function isActive(pathname: string, href: string) {
   if (href === "/dashboard") return pathname === "/dashboard"
@@ -53,6 +47,7 @@ function isActive(pathname: string, href: string) {
 
 function BrandMark() {
   const { preferences } = useWorkspace()
+  const { copy } = useLabels()
   const src = THEME_LOGOS[preferences.theme]
 
   return (
@@ -65,15 +60,17 @@ function BrandMark() {
 
 function NavGroup({
   items,
+  label,
   onNavigate,
 }: {
-  items: typeof MAIN_NAV | typeof BOTTOM_NAV
+  items: readonly NavItem[]
+  label: string
   onNavigate?: () => void
 }) {
   const pathname = usePathname()
 
   return (
-    <nav className="titan-nav" aria-label="Main">
+    <nav className="titan-nav" aria-label={label}>
       {items.map((item) => {
         const active = isActive(pathname, item.href)
         const Icon = item.icon
@@ -96,6 +93,18 @@ function NavGroup({
 
 function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
   const { profile } = useWorkspace()
+  const { copy } = useLabels()
+  const mainNav: NavItem[] = [
+    { href: "/dashboard", label: copy.nav.dashboard, icon: LayoutDashboard },
+    { href: "/journal", label: copy.nav.journal, icon: BookOpen },
+    { href: "/new-trade", label: copy.nav.newTrade, icon: PlusCircle },
+    { href: "/analytics", label: copy.nav.analytics, icon: BarChart3 },
+    { href: "/playbook", label: copy.nav.playbook, icon: NotebookPen },
+  ]
+  const bottomNav: NavItem[] = [
+    { href: "/profile", label: copy.nav.profile, icon: User },
+    { href: "/settings", label: copy.nav.settings, icon: Settings },
+  ]
 
   return (
     <div className="flex h-full flex-col">
@@ -103,10 +112,13 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
         <BrandMark />
       </div>
       <div className="flex-1 px-3 py-2">
-        <NavGroup items={MAIN_NAV} onNavigate={onNavigate} />
+        <NavGroup items={mainNav} label={copy.nav.main} onNavigate={onNavigate} />
       </div>
       <div className="border-t border-sidebar-border px-3 py-3">
-        <NavGroup items={BOTTOM_NAV} onNavigate={onNavigate} />
+        <NavGroup items={bottomNav} label={copy.nav.settings} onNavigate={onNavigate} />
+        <div className="mt-3 px-2">
+          <LanguageSwitcher />
+        </div>
         <div className="mt-3 flex items-center gap-2 px-2">
           <AvatarBubble name={profile.displayName} src={profile.avatar} size="sm" />
           <p className="truncate text-[11px] text-muted-foreground">
@@ -120,6 +132,7 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
 
 function TopBar({ onOpenNav }: { onOpenNav: () => void }) {
   const { account, setAccount, range, setRange } = useWorkspaceChrome()
+  const { copy, ACCOUNT_LABELS, DATE_RANGE_LABELS } = useLabels()
 
   return (
     <header className="titan-topbar flex h-16 shrink-0 items-center gap-3 px-4 lg:px-6">
@@ -144,6 +157,7 @@ function TopBar({ onOpenNav }: { onOpenNav: () => void }) {
         <SegmentedControl
           aria-label={copy.shell.range}
           options={DATE_RANGES}
+          labels={DATE_RANGE_LABELS}
           value={range}
           onChange={setRange}
         />
@@ -156,6 +170,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
   const dashboard = pathname === "/dashboard"
+  const { copy } = useLabels()
 
   return (
     <div
@@ -175,7 +190,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             className="w-[240px] border-r border-sidebar-border bg-sidebar p-0"
           >
             <SheetHeader className="sr-only">
-              <SheetTitle>TITAN Journal</SheetTitle>
+              <SheetTitle>{copy.brand}</SheetTitle>
             </SheetHeader>
             <SidebarBody onNavigate={() => setOpen(false)} />
           </SheetContent>

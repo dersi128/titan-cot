@@ -17,8 +17,8 @@ import {
   formatSignedR,
   formatSignedUsd,
 } from "@/lib/format"
-import { copy } from "@/lib/labels"
 import { LOCALE } from "@/lib/locale"
+import { useLabels } from "@/lib/use-labels"
 import type { EquityPoint } from "@/lib/trade-calculations"
 
 function EquityTooltip({
@@ -28,6 +28,7 @@ function EquityTooltip({
   active?: boolean
   payload?: Array<{ payload: EquityPoint }>
 }) {
+  const { copy } = useLabels()
   if (!active || !payload?.[0]) return null
   const point = payload[0].payload
 
@@ -53,6 +54,7 @@ export function EquityCurve({
   data: EquityPoint[]
   fill?: boolean
 }) {
+  const { copy } = useLabels()
   return (
     <Card
       size="sm"

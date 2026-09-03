@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type ComponentProps } from "react"
 
 import { Button } from "@/components/ui/button"
-import { copy } from "@/lib/labels"
+import { useLabels } from "@/lib/use-labels"
 import { cn } from "@/lib/utils"
 
 export function SaveButton({
@@ -12,6 +12,7 @@ export function SaveButton({
   children,
   ...props
 }: ComponentProps<typeof Button> & { dirty: boolean }) {
+  const { copy } = useLabels()
   const [flash, setFlash] = useState(false)
   const wasDirty = useRef(dirty)
 

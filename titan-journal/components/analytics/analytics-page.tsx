@@ -5,7 +5,6 @@ import { useMemo } from "react"
 import { KpiCards } from "@/components/dashboard/kpi-cards"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
 import { useScopedTrades } from "@/components/layout/use-scoped-trades"
-import { copy } from "@/lib/labels"
 import {
   bestAndWorstPlaybook,
   statsByDirection,
@@ -14,8 +13,10 @@ import {
   type GroupStats,
 } from "@/lib/analytics"
 import { formatPercent, formatSignedR, formatSignedUsd, signedClassName } from "@/lib/format"
+import { useLabels } from "@/lib/use-labels"
 
 function GroupTable({ title, rows }: { title: string; rows: GroupStats[] }) {
+  const { copy } = useLabels()
   return (
     <section className="titan-glass rounded-[10px] p-4">
       <h2 className="text-sm font-semibold">{title}</h2>
@@ -67,6 +68,7 @@ function Highlight({
 }
 
 export function AnalyticsPage() {
+  const { copy } = useLabels()
   const { trades, stats } = useScopedTrades()
   const playbooks = useMemo(() => statsByPlaybook(trades), [trades])
   const directions = useMemo(() => statsByDirection(trades), [trades])

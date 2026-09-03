@@ -17,9 +17,10 @@ describe("cs-CZ locale", () => {
     expect(formatPercent(0.48)).toBe("48 %")
   })
 
-  it("formats yes/no as Yes/No", () => {
+  it("formats yes/no as Yes/No by default and Ano/Ne in Czech", () => {
     expect(formatYesNo(true)).toBe("Yes")
     expect(formatYesNo(false)).toBe("No")
+    expect(formatYesNo(true, { YES: "Ano", NO: "Ne" })).toBe("Ano")
   })
 
   it("formats money with the given currency, not a hardcoded USD symbol", () => {

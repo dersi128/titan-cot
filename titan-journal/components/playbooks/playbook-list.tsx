@@ -5,9 +5,10 @@ import Link from "next/link"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
 import { useWorkspace } from "@/components/layout/workspace-provider"
 import { Button } from "@/components/ui/button"
-import { copy } from "@/lib/labels"
+import { useLabels } from "@/lib/use-labels"
 
 export function PlaybookListPage() {
+  const { copy } = useLabels()
   const { playbooks, savePlaybook } = useWorkspace()
 
   return (
@@ -56,7 +57,7 @@ export function PlaybookListPage() {
                     </p>
                   ) : null}
                   <p className="mt-2 text-[11px] text-muted-foreground">
-                    {playbook.fields.length} fields
+                    {playbook.fields.length} {copy.playbook.fieldCount}
                     {playbook.status === "archived"
                       ? ` · ${copy.playbook.archived}`
                       : ""}
@@ -66,7 +67,7 @@ export function PlaybookListPage() {
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
                 <Button size="sm" variant="outline" asChild>
-                  <Link href={`/playbook/${playbook.id}`}>Edit</Link>
+                  <Link href={`/playbook/${playbook.id}`}>{copy.playbook.edit}</Link>
                 </Button>
                 <Button
                   size="sm"

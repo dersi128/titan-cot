@@ -7,9 +7,10 @@ import { PageFrame } from "@/components/layout/page-header"
 import { TableSkeleton } from "@/components/layout/loading-state"
 import { TradeDetail } from "@/components/trades/trade-detail"
 import { useTrades } from "@/components/trades/trades-provider"
-import { copy } from "@/lib/labels"
+import { useLabels } from "@/lib/use-labels"
 
 export function TradeDetailPage({ id }: { id: string }) {
+  const { copy } = useLabels()
   const { getById, isReady } = useTrades()
   const trade = getById(id)
 

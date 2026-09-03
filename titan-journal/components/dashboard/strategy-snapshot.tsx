@@ -2,8 +2,8 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { formatSignedR, signedClassName } from "@/lib/format"
-import { copy } from "@/lib/labels"
 import { bestAndWorstPlaybook } from "@/lib/analytics"
+import { useLabels } from "@/lib/use-labels"
 import { cn } from "@/lib/utils"
 import type { Trade } from "@/types/trade"
 
@@ -14,6 +14,7 @@ export function StrategySnapshot({
   trades: Trade[]
   compact?: boolean
 }) {
+  const { copy } = useLabels()
   const { best, worst } = bestAndWorstPlaybook(trades)
 
   return (

@@ -12,11 +12,12 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { readAvatarFile } from "@/lib/avatar"
 import { isDirty } from "@/lib/dirty"
-import { ACCOUNT_LABELS, copy } from "@/lib/labels"
+import { useLabels } from "@/lib/use-labels"
 import { ACCOUNTS } from "@/types/trade"
 import { TRADING_MARKETS, type UserProfile } from "@/types/playbook"
 
 export function ProfilePage() {
+  const { copy, ACCOUNT_LABELS, ASSET_CLASS_LABELS } = useLabels()
   const { profile, preferences, updateProfile, updatePreferences } = useWorkspace()
   const [draft, setDraft] = useState<UserProfile>(profile)
 
@@ -155,6 +156,7 @@ export function ProfilePage() {
             <MultiPills
               value={draft.markets}
               options={TRADING_MARKETS}
+              labels={ASSET_CLASS_LABELS}
               onChange={(markets) =>
                 setDraft((current) => ({ ...current, markets }))
               }

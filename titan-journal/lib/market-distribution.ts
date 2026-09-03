@@ -1,6 +1,8 @@
 import { ASSET_CLASS_LABELS } from "@/lib/labels"
 import type { AssetClass, Trade } from "@/types/trade"
 
+type AssetClassLabels = Record<AssetClass, string>
+
 export const DISTRIBUTION_METRICS = ["trades", "r", "pnl"] as const
 export type DistributionMetric = (typeof DISTRIBUTION_METRICS)[number]
 
@@ -43,7 +45,8 @@ function metricValue(
 
 export function marketDistribution(
   trades: Trade[],
-  metric: DistributionMetric
+  metric: DistributionMetric,
+  assetClassLabels: AssetClassLabels = ASSET_CLASS_LABELS
 ): MarketDistribution {
   const buckets = new Map<
     AssetClass,
@@ -68,7 +71,7 @@ export function marketDistribution(
     const value = metricValue(bucket, metric)
     return {
       assetClass,
-      label: ASSET_CLASS_LABELS[assetClass],
+      label: assetClassLabels[assetClass],
       color: ASSET_CLASS_COLOR_VARS[assetClass],
       trades: bucket.trades,
       totalR: bucket.totalR,

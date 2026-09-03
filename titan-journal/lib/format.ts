@@ -3,6 +3,8 @@ import { LOCALE } from "@/lib/locale"
 import { STATUS_LABELS, YES_NO_LABELS } from "@/lib/labels"
 import type { TradeStatus } from "@/types/trade"
 
+type YesNoLabels = { YES: string; NO: string }
+
 export function formatMoney(
   value: number | null | undefined,
   currency: string = DEFAULT_CURRENCY
@@ -68,12 +70,18 @@ export function formatNumber(value: number | null | undefined, digits = 2): stri
   })
 }
 
-export function formatYesNo(value: boolean): string {
-  return value ? YES_NO_LABELS.YES : YES_NO_LABELS.NO
+export function formatYesNo(
+  value: boolean,
+  labels: YesNoLabels = YES_NO_LABELS
+): string {
+  return value ? labels.YES : labels.NO
 }
 
-export function formatStatusLabel(status: TradeStatus): string {
-  return STATUS_LABELS[status]
+export function formatStatusLabel(
+  status: TradeStatus,
+  labels: Record<TradeStatus, string> = STATUS_LABELS
+): string {
+  return labels[status]
 }
 
 export function formatDate(value: string): string {

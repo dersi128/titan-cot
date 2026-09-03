@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { isDirty } from "@/lib/dirty"
-import { copy } from "@/lib/labels"
+import { useLabels } from "@/lib/use-labels"
 import {
   emptyField,
   emptyPlaybook,
@@ -23,6 +23,7 @@ import {
 import { PLAYBOOK_FIELD_TYPES, type Playbook, type PlaybookFieldType } from "@/types/playbook"
 
 export function PlaybookEditor({ playbook }: { playbook?: Playbook }) {
+  const { copy } = useLabels()
   const router = useRouter()
   const { savePlaybook } = useWorkspace()
   const [draft, setDraft] = useState<Playbook>(

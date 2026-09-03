@@ -20,7 +20,7 @@ import { dollarsPerR, suggestedPnl } from "@/lib/account-scope"
 import { formatMarketLabel, classifyMarket } from "@/lib/market-classification"
 import { formatRRR } from "@/lib/trade-calculations"
 import { formatSignedUsd } from "@/lib/format"
-import { ACCOUNT_LABELS, copy } from "@/lib/labels"
+import { useLabels } from "@/lib/use-labels"
 import {
   fieldValueMap,
   formatFieldValue,
@@ -61,6 +61,7 @@ function Section({
 }
 
 function CloseTradePanel({ trade }: { trade: Trade }) {
+  const { copy } = useLabels()
   const { updateTrade } = useTrades()
   const { profile } = useWorkspace()
   const [resultR, setResultR] = useState(
@@ -107,12 +108,12 @@ function CloseTradePanel({ trade }: { trade: Trade }) {
             <Input
               value={pnl}
               onChange={(event) => setPnl(event.target.value)}
-              placeholder={riskUsd > 0 ? String(Math.round(riskUsd)) : "optional"}
+              placeholder={riskUsd > 0 ? String(Math.round(riskUsd)) : copy.detail.optional}
             />
           </Field>
         </div>
         <Button type="button" onClick={handleClose} disabled={parseOptionalNumber(resultR) == null}>
-          Close trade
+          {copy.detail.closeTrade}
         </Button>
       </CardContent>
     </Card>
@@ -120,6 +121,8 @@ function CloseTradePanel({ trade }: { trade: Trade }) {
 }
 
 export function TradeDetail({ trade }: { trade: Trade }) {
+  const { copy, ACCOUNT_LABELS, ASSET_CLASS_LABELS, MARKET_TYPE_LABELS, YES_NO_LABELS } =
+    useLabels()
   const router = useRouter()
   const { deleteTrade } = useTrades()
   const classification = classifyMarket(trade.symbol)
@@ -140,7 +143,10 @@ export function TradeDetail({ trade }: { trade: Trade }) {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-xs text-muted-foreground">
-            {formatMarketLabel(classification)}
+            {formatMarketLabel(classification, {
+              assetClass: ASSET_CLASS_LABELS,
+              marketType: MARKET_TYPE_LABELS,
+            })}
           </p>
           <h1 className="mt-1 font-semibold tracking-tight">{trade.symbol}</h1>
           <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -194,7 +200,7 @@ export function TradeDetail({ trade }: { trade: Trade }) {
         <FieldRow label={copy.journal.date} value={trade.date} />
         <FieldRow label={copy.detail.account} value={ACCOUNT_LABELS[trade.account]} />
         <FieldRow label={copy.journal.playbook} value={trade.strategy} />
-        <FieldRow label={copy.detail.market} value={classification.assetClass} />
+        <FieldRow label={copy.detail.market} value={ASSET_CLASS_LABELS[classification.assetClass]} />
       </Section>
 
       <Section title={copy.detail.plan}>
@@ -222,7 +228,7 @@ export function TradeDetail({ trade }: { trade: Trade }) {
       {showStrategy && playbook ? (
         <Section title={copy.detail.strategyContext}>
           {sortedFields(playbook).map((field) => {
-            const label = formatFieldValue(field, values[field.id] ?? null)
+            const label = formatFieldValue(field, values[field.id] ?? null, YES_NO_LABELS)
             if (!label) return null
             return <FieldRow key={field.id} label={field.name} value={label} />
           })}

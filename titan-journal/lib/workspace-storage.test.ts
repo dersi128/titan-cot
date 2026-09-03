@@ -14,6 +14,7 @@ describe("workspace hydration", () => {
       journalMode: "simple",
       theme: "slate",
       density: "comfortable",
+      language: "en",
     })
     expect(hydratePreferences({ journalMode: "advanced", theme: "light" })).toMatchObject({
       journalMode: "advanced",
@@ -21,6 +22,8 @@ describe("workspace hydration", () => {
     })
     expect(hydratePreferences({ theme: "cyberpunk" }).theme).toBe("cyberpunk")
     expect(hydratePreferences({ theme: "gold" }).theme).toBe("gold")
+    expect(hydratePreferences({ language: "cs" }).language).toBe("cs")
+    expect(hydratePreferences({ language: "nope" }).language).toBe("en")
   })
 
   it("hydrates a stored playbook that predates icon", () => {

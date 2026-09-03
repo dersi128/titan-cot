@@ -3,6 +3,7 @@
 import { Field, OptionPills } from "@/components/forms/field"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { useLabels } from "@/lib/use-labels"
 import type { PlaybookField, TradeFieldValue } from "@/types/playbook"
 
 function asString(value: TradeFieldValue["value"]): string {
@@ -34,6 +35,7 @@ export function PlaybookFieldInput({
   value: TradeFieldValue["value"]
   onChange: (value: TradeFieldValue["value"]) => void
 }) {
+  const { YES_NO_LABELS } = useLabels()
   if (field.type === "yes_no") {
     const selected = asBool(value)
     return (
@@ -41,7 +43,7 @@ export function PlaybookFieldInput({
         <OptionPills
           value={selected == null ? null : selected ? "YES" : "NO"}
           options={["YES", "NO"] as const}
-          labels={{ YES: "Yes", NO: "No" }}
+          labels={YES_NO_LABELS}
           onChange={(next) => onChange(next === "YES")}
         />
       </Field>
