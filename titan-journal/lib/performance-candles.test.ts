@@ -6,6 +6,7 @@ import {
   isoWeekPeriod,
   monthWeekPeriod,
   parsePerformancePeriod,
+  performanceTickLabel,
   weekdayPeriod,
 } from "@/lib/performance-candles"
 import type { Trade } from "@/types/trade"
@@ -74,7 +75,7 @@ describe("buildPerformanceCandles", () => {
     ).toEqual([])
   })
 
-  it("builds OHLC from running equity inside a week", () => {
+  it("sums PnL inside a week", () => {
     const candles = buildPerformanceCandles(
       [
         trade({ id: "a", date: "2026-08-24", pnl: 200, resultR: 2 }),
@@ -100,17 +101,17 @@ describe("buildPerformanceCandles", () => {
     expect(candles).toHaveLength(1)
     expect(candles[0]).toEqual({
       period: "2026-W35",
-      open: 10_000,
-      high: 10_280,
-      low: 10_000,
-      close: 10_280,
+      open: 0,
+      high: 280,
+      low: 0,
+      close: 280,
       pnl: 280,
       pnlPercent: 2.8,
       resultR: 2.4,
     })
   })
 
-  it("opens the next period at the previous close", () => {
+  it("keeps each week as its own PnL column", () => {
     const candles = buildPerformanceCandles(
       [
         trade({ id: "a", date: "2026-08-28", pnl: 200, resultR: 2 }),
@@ -131,10 +132,10 @@ describe("buildPerformanceCandles", () => {
       "2026-W36",
     ])
     expect(candles[1]).toMatchObject({
-      open: 10_200,
-      close: 10_150,
-      high: 10_200,
-      low: 10_150,
+      open: 0,
+      close: -50,
+      high: 0,
+      low: -50,
       pnl: -50,
     })
   })
@@ -160,7 +161,7 @@ describe("buildPerformanceCandles", () => {
       year: 2026,
       month: 8,
     })
-    expect(candles[1]).toMatchObject({ open: 5_100, close: 5_150 })
+    expect(candles[1]).toMatchObject({ open: 0, close: 50, pnl: 50 })
   })
 
   it("builds candles from the mock journal", () => {
@@ -207,8 +208,15 @@ describe("buildPerformanceCandles", () => {
       10_000,
       "monthWeek"
     )
-    expect(monthWeeks).toHaveLength(1)
-    expect(parsePerformancePeriod(monthWeeks[0]!.period)).toEqual({
+    expect(monthWeeks.map((candle) => candle.period)).toEqual([
+      "2026-08-w1",
+      "2026-08-w2",
+      "2026-08-w3",
+      "2026-08-w4",
+      "2026-08-w5",
+    ])
+    expect(monthWeeks[3]).toMatchObject({ pnl: 100, resultR: 1 })
+    expect(parsePerformancePeriod(monthWeeks[3]!.period)).toEqual({
       kind: "monthWeek",
       year: 2026,
       month: 8,
@@ -220,8 +228,35 @@ describe("buildPerformanceCandles", () => {
       10_000,
       "yearMonth"
     )
-    expect(yearMonths).toHaveLength(12)
+    expect(yearMonths).toHaveLength(8)
+    expect(yearMonths.map((candle) => candle.period)).toEqual([
+      "2026-01",
+      "2026-02",
+      "2026-03",
+      "2026-04",
+      "2026-05",
+      "2026-06",
+      "2026-07",
+      "2026-08",
+    ])
     expect(yearMonths[7]).toMatchObject({ period: "2026-08", pnl: 100 })
     expect(yearMonths[0]?.pnl).toBe(0)
+  })
+})
+
+describe("performanceTickLabel", () => {
+  const weekdays = ["Po", "Út", "St", "Čt", "Pá", "So", "Ne"]
+
+  it("uses readable Czech axis labels", () => {
+    expect(performanceTickLabel("2026-08", "cs", weekdays)).toBe("Srp")
+    expect(performanceTickLabel("2026-W35", "cs", weekdays)).toBe("T35")
+    expect(performanceTickLabel("WD-1", "cs", weekdays)).toBe("Po")
+    expect(performanceTickLabel("2026-08-w4", "cs", weekdays)).toBe("T4")
+    expect(performanceTickLabel("2026-08-w4", "cs", weekdays, true)).toBe("Srp T4")
+  })
+
+  it("uses readable English axis labels", () => {
+    expect(performanceTickLabel("2026-08", "en", weekdays)).toBe("Aug")
+    expect(performanceTickLabel("2026-W35", "en", weekdays)).toBe("W35")
   })
 })

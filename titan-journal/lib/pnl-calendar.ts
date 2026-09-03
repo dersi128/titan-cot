@@ -62,6 +62,36 @@ export function shiftMonth(cursor: MonthCursor, delta: number): MonthCursor {
   return { year: date.getUTCFullYear(), month: date.getUTCMonth() + 1 }
 }
 
+const MONTH_SHORT_CS = [
+  "Led",
+  "Úno",
+  "Bře",
+  "Dub",
+  "Kvě",
+  "Čvn",
+  "Čvc",
+  "Srp",
+  "Zář",
+  "Říj",
+  "Lis",
+  "Pro",
+] as const
+
+const MONTH_SHORT_EN = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+] as const
+
 export function formatMonthTitle(
   cursor: MonthCursor,
   language: Language
@@ -71,6 +101,14 @@ export function formatMonthTitle(
     locale,
     { month: "long", year: "numeric", timeZone: "UTC" }
   )
+}
+
+export function formatMonthShort(
+  cursor: MonthCursor,
+  language: Language
+): string {
+  const names = language === "cs" ? MONTH_SHORT_CS : MONTH_SHORT_EN
+  return names[cursor.month - 1] ?? String(cursor.month)
 }
 
 function isoWeekday(year: number, month: number, day: number): number {

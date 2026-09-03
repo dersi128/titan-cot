@@ -1,5 +1,6 @@
-import { parseIsoDate } from "@/lib/pnl-calendar"
+import { formatMonthShort, parseIsoDate } from "@/lib/pnl-calendar"
 import { isRealizedTradeStatus } from "@/lib/trade-calculations"
+import type { Language } from "@/types/playbook"
 import type { Trade } from "@/types/trade"
 
 export const PERFORMANCE_PERIODS = [
@@ -120,20 +121,25 @@ export function parsePerformancePeriod(
   return null
 }
 
-function closePeriod(candle: Omit<PerformanceCandle, "pnl" | "pnlPercent">): PerformanceCandle {
-  const pnl = round2(candle.close - candle.open)
-  const pnlPercent =
-    candle.open === 0 ? 0 : round1((pnl / candle.open) * 100)
-  return {
-    ...candle,
-    high: round2(candle.high),
-    low: round2(candle.low),
-    close: round2(candle.close),
-    open: round2(candle.open),
-    pnl,
-    pnlPercent,
-    resultR: round2(candle.resultR),
+export function performanceTickLabel(
+  period: string,
+  language: Language,
+  weekdays: readonly string[],
+  monthWeekShowMonth = false
+): string {
+  const parsed = parsePerformancePeriod(period)
+  if (!parsed) return period
+  const weekPrefix = language === "cs" ? "T" : "W"
+  if (parsed.kind === "weekday") {
+    return weekdays[parsed.weekday - 1] ?? period
   }
+  if (parsed.kind === "week") return `${weekPrefix}${parsed.week}`
+  if (parsed.kind === "monthWeek") {
+    const week = `${weekPrefix}${parsed.week}`
+    if (!monthWeekShowMonth) return week
+    return `${formatMonthShort({ year: parsed.year, month: parsed.month }, language)} ${week}`
+  }
+  return formatMonthShort({ year: parsed.year, month: parsed.month }, language)
 }
 
 function summedCandle(
@@ -156,47 +162,47 @@ function summedCandle(
   }
 }
 
-function buildEquityCandles(
-  closed: Trade[],
-  startCapital: number,
-  period: PerformancePeriod
-): PerformanceCandle[] {
-  let equity = round2(startCapital)
-  const candles: PerformanceCandle[] = []
-  let current: Omit<PerformanceCandle, "pnl" | "pnlPercent"> | null = null
-
+function monthKeysThroughLastTrade(closed: Trade[]): string[] {
+  const lastByYear = new Map<number, number>()
   for (const trade of closed) {
-    const key = periodKey(trade.date, period)
-    if (!key) continue
-    if (!current || current.period !== key) {
-      if (current) candles.push(closePeriod(current))
-      current = {
-        period: key,
-        open: equity,
-        high: equity,
-        low: equity,
-        close: equity,
-        resultR: 0,
-      }
-    }
-    equity = round2(equity + (trade.pnl ?? 0))
-    current.close = equity
-    current.high = Math.max(current.high, equity)
-    current.low = Math.min(current.low, equity)
-    current.resultR += trade.resultR ?? 0
+    const parsed = parseIsoDate(trade.date)
+    if (!parsed) continue
+    lastByYear.set(
+      parsed.year,
+      Math.max(lastByYear.get(parsed.year) ?? 1, parsed.month)
+    )
   }
-
-  if (current) candles.push(closePeriod(current))
-  return candles
+  return [...lastByYear.keys()]
+    .sort((a, b) => a - b)
+    .flatMap((year) => {
+      const lastMonth = lastByYear.get(year) ?? 1
+      return Array.from({ length: lastMonth }, (_, index) => {
+        const month = String(index + 1).padStart(2, "0")
+        return `${year}-${month}`
+      })
+    })
 }
 
-function buildSummedCandles(
-  closed: Trade[],
-  startCapital: number,
-  period: PerformancePeriod
-): PerformanceCandle[] {
-  const buckets = new Map<string, { pnl: number; resultR: number }>()
+function monthWeekKeys(closed: Trade[]): string[] {
+  const months = new Set<string>()
+  for (const trade of closed) {
+    const key = monthPeriod(trade.date)
+    if (key) months.add(key)
+  }
+  return [...months].sort().flatMap((month) =>
+    [1, 2, 3, 4, 5].map((week) => `${month}-w${week}`)
+  )
+}
 
+export function buildPerformanceCandles(
+  trades: Trade[],
+  startCapital = 0,
+  period: PerformancePeriod = "week"
+): PerformanceCandle[] {
+  const closed = realized(trades)
+  if (closed.length === 0) return []
+
+  const buckets = new Map<string, { pnl: number; resultR: number }>()
   for (const trade of closed) {
     const key = periodKey(trade.date, period)
     if (!key) continue
@@ -210,19 +216,9 @@ function buildSummedCandles(
   if (period === "weekday") {
     keys = ["WD-1", "WD-2", "WD-3", "WD-4", "WD-5", "WD-6", "WD-7"]
   } else if (period === "yearMonth") {
-    const years = new Set<number>()
-    for (const trade of closed) {
-      const parsed = parseIsoDate(trade.date)
-      if (parsed) years.add(parsed.year)
-    }
-    keys = [...years]
-      .sort((a, b) => a - b)
-      .flatMap((year) =>
-        Array.from({ length: 12 }, (_, index) => {
-          const month = String(index + 1).padStart(2, "0")
-          return `${year}-${month}`
-        })
-      )
+    keys = monthKeysThroughLastTrade(closed)
+  } else if (period === "monthWeek") {
+    keys = monthWeekKeys(closed)
   } else {
     keys = [...buckets.keys()].sort()
   }
@@ -231,17 +227,4 @@ function buildSummedCandles(
     const bucket = buckets.get(key) ?? { pnl: 0, resultR: 0 }
     return summedCandle(key, bucket.pnl, bucket.resultR, startCapital)
   })
-}
-
-export function buildPerformanceCandles(
-  trades: Trade[],
-  startCapital = 0,
-  period: PerformancePeriod = "week"
-): PerformanceCandle[] {
-  const closed = realized(trades)
-  if (closed.length === 0) return []
-  if (period === "weekday" || period === "monthWeek" || period === "yearMonth") {
-    return buildSummedCandles(closed, startCapital, period)
-  }
-  return buildEquityCandles(closed, startCapital, period)
 }

@@ -6,6 +6,7 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -31,6 +32,7 @@ import {
   buildPerformanceCandles,
   parsePerformancePeriod,
   PERFORMANCE_PERIODS,
+  performanceTickLabel,
   type PerformanceCandle,
   type PerformancePeriod,
 } from "@/lib/performance-candles"
@@ -59,18 +61,6 @@ function periodTitle(
     return `${weekWord} ${parsed.week} · ${month}`
   }
   return formatMonthTitle({ year: parsed.year, month: parsed.month }, language)
-}
-
-function tickLabel(
-  candle: PerformanceCandle,
-  weekdays: readonly string[]
-): string {
-  const parsed = parsePerformancePeriod(candle.period)
-  if (!parsed) return candle.period
-  if (parsed.kind === "weekday") return weekdays[parsed.weekday - 1] ?? candle.period
-  if (parsed.kind === "week") return `W${parsed.week}`
-  if (parsed.kind === "monthWeek") return `T${parsed.week}`
-  return String(parsed.month)
 }
 
 function BarTooltip({
@@ -123,6 +113,15 @@ export function PerformanceBars({
     [trades, startCapital, period]
   )
   const weekdays = copy.calendar.weekdays
+  const monthWeekShowMonth =
+    new Set(
+      candles
+        .map((candle) => parsePerformancePeriod(candle.period))
+        .filter((parsed) => parsed?.kind === "monthWeek")
+        .map((parsed) =>
+          parsed?.kind === "monthWeek" ? `${parsed.year}-${parsed.month}` : ""
+        )
+    ).size > 1
   const periodLabels: Record<PerformancePeriod, string> = {
     week: copy.dashboard.byWeek,
     month: copy.dashboard.byMonth,
@@ -132,29 +131,31 @@ export function PerformanceBars({
   }
 
   return (
-    <Card size="sm" className="h-full min-h-[240px] gap-0 py-0">
+    <Card size="sm" className="h-full gap-0 py-0">
       <CardHeader className="shrink-0 border-b border-border py-2">
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-2">
           <CardTitle>{copy.dashboard.performance}</CardTitle>
-          <SegmentedControl
-            size="sm"
-            options={PERFORMANCE_PERIODS}
-            value={period}
-            onChange={setPeriod}
-            labels={periodLabels}
-            aria-label={copy.dashboard.performance}
-          />
+          <div className="max-w-full overflow-x-auto">
+            <SegmentedControl
+              size="sm"
+              options={PERFORMANCE_PERIODS}
+              value={period}
+              onChange={setPeriod}
+              labels={periodLabels}
+              aria-label={copy.dashboard.performance}
+            />
+          </div>
         </div>
       </CardHeader>
-      <CardContent className="flex min-h-0 flex-1 flex-col pt-2 pb-2">
+      <CardContent className="pt-2 pb-2">
         {candles.length === 0 ? (
           <p className="py-6 text-center text-[12px] text-muted-foreground">
             {copy.dashboard.performanceEmpty}
           </p>
         ) : (
-          <div className="min-h-[200px] flex-1">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={candles} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+          <div className="h-[220px] w-full">
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={candles} margin={{ top: 8, right: 8, left: 0, bottom: 4 }}>
                 <CartesianGrid stroke="var(--border)" vertical={false} />
                 <XAxis
                   dataKey="period"
@@ -162,7 +163,14 @@ export function PerformanceBars({
                   tickLine={false}
                   axisLine={false}
                   interval={0}
-                  tickFormatter={(_, index) => tickLabel(candles[index]!, weekdays)}
+                  tickFormatter={(_, index) =>
+                    performanceTickLabel(
+                      candles[index]!.period,
+                      language,
+                      weekdays,
+                      monthWeekShowMonth
+                    )
+                  }
                 />
                 <YAxis
                   tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
@@ -171,6 +179,7 @@ export function PerformanceBars({
                   width={56}
                   tickFormatter={(value: number) => Math.round(value).toLocaleString(LOCALE)}
                 />
+                <ReferenceLine y={0} stroke="var(--border)" />
                 <Tooltip
                   cursor={{ fill: "color-mix(in srgb, var(--foreground) 6%, transparent)" }}
                   content={
@@ -182,7 +191,7 @@ export function PerformanceBars({
                     />
                   }
                 />
-                <Bar dataKey="pnl" radius={[4, 4, 0, 0]} maxBarSize={28}>
+                <Bar dataKey="pnl" radius={[3, 3, 0, 0]} maxBarSize={28}>
                   {candles.map((candle) => (
                     <Cell
                       key={candle.period}
