@@ -2,15 +2,24 @@
 
 import dynamic from "next/dynamic"
 import { useMemo, type ReactNode } from "react"
-import { ArrowDown, ArrowUp, TrendingUp } from "lucide-react"
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts"
+import {
+  ArrowDown,
+  ArrowUp,
+  CircleCheck,
+  CircleX,
+  Hash,
+  Percent,
+  Scale,
+  Sigma,
+  TrendingDown,
+  TrendingUp,
+} from "lucide-react"
 
 import { EdgeBadge } from "@/components/analytics/edge-badge"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
 import { useScopedTrades } from "@/components/layout/use-scoped-trades"
 import { useWorkspaceChrome } from "@/components/layout/workspace-chrome"
 import { useWorkspace } from "@/components/layout/workspace-provider"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   accountEdge,
@@ -30,14 +39,6 @@ import { buildEquityCurve } from "@/lib/trade-calculations"
 import { useLabels } from "@/lib/use-labels"
 import { cn } from "@/lib/utils"
 import type { Trade } from "@/types/trade"
-
-const MIX_COLORS = [
-  "var(--chart-1)",
-  "var(--chart-2)",
-  "var(--chart-3)",
-  "var(--chart-4)",
-  "var(--chart-5)",
-]
 
 const EquityCurve = dynamic(
   () =>
@@ -116,22 +117,20 @@ function StatCard({
   hint,
   valueClassName,
   hintClassName,
-  dot,
+  icon,
 }: {
   label: string
   value: string
   hint?: string
   valueClassName?: string
   hintClassName?: string
-  dot?: string
+  icon?: ReactNode
 }) {
   return (
     <article className="titan-kpi rounded-[10px] px-4 py-3">
-      <div className="flex items-center gap-2">
-        {dot ? (
-          <span className="size-2 rounded-full" style={{ background: dot }} />
-        ) : null}
+      <div className="flex items-start justify-between gap-2">
         <p className="text-[11px] text-muted-foreground">{label}</p>
+        {icon}
       </div>
       <p
         className={cn(
@@ -286,122 +285,6 @@ function MarketTable({ rows }: { rows: GroupStats[] }) {
   )
 }
 
-type MixSlice = {
-  key: string
-  label: string
-  trades: number
-  share: number
-  color: string
-}
-
-function MixTooltip({
-  active,
-  payload,
-}: {
-  active?: boolean
-  payload?: Array<{ payload: MixSlice }>
-}) {
-  if (!active || !payload?.[0]) return null
-  const slice = payload[0].payload
-  return (
-    <div className="rounded-[10px] border border-border bg-popover px-3 py-2 text-[12px] shadow-lg">
-      <p className="font-medium">{slice.label}</p>
-      <p className="mt-0.5 font-mono tabular-nums">
-        {slice.trades}
-        <span className="ml-2 text-muted-foreground">
-          {Math.round(slice.share * 100)}%
-        </span>
-      </p>
-    </div>
-  )
-}
-
-function SetupMix({
-  rows,
-  names,
-  colors,
-}: {
-  rows: GroupStats[]
-  names: Record<string, string>
-  colors: Record<string, string>
-}) {
-  const { copy } = useLabels()
-  const total = rows.reduce((sum, row) => sum + row.trades, 0)
-  const slices = rows.map((row, index) => ({
-    key: row.key,
-    label: names[row.key] ?? row.key,
-    trades: row.trades,
-    share: total > 0 ? row.trades / total : 0,
-    color: colors[row.key] || MIX_COLORS[index % MIX_COLORS.length],
-  }))
-
-  return (
-    <Card size="sm" className="h-full gap-0 py-0">
-      <CardHeader className="border-b border-border py-2">
-        <CardTitle>{copy.analytics.tradeMix}</CardTitle>
-      </CardHeader>
-      <CardContent className="pt-3 pb-3">
-        {slices.length === 0 ? (
-          <p className="py-6 text-center text-[12px] text-muted-foreground">
-            {copy.analytics.empty}
-          </p>
-        ) : (
-          <div className="flex flex-col items-stretch gap-3">
-            <div className="relative mx-auto aspect-square size-[140px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={slices}
-                    dataKey="trades"
-                    nameKey="label"
-                    cx="50%"
-                    cy="50%"
-                    innerRadius="68%"
-                    outerRadius="92%"
-                    paddingAngle={slices.length > 1 ? 2 : 0}
-                    stroke="none"
-                    isAnimationActive={false}
-                  >
-                    {slices.map((slice) => (
-                      <Cell key={slice.key} fill={slice.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip content={<MixTooltip />} />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                <p className="text-[10px] text-muted-foreground">
-                  {copy.dashboard.totalTradesLabel}
-                </p>
-                <p className="font-mono text-[16px] font-medium tabular-nums">
-                  {total}
-                </p>
-              </div>
-            </div>
-            <ul className="space-y-1.5">
-              {slices.map((slice) => (
-                <li
-                  key={slice.key}
-                  className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 text-[11px]"
-                >
-                  <span
-                    className="size-2 rounded-full"
-                    style={{ background: slice.color }}
-                  />
-                  <span className="truncate">{slice.label}</span>
-                  <span className="font-mono tabular-nums text-muted-foreground">
-                    {Math.round(slice.share * 100)}%
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  )
-}
-
 export function AnalyticsPage() {
   const { copy } = useLabels()
   const { playbooks } = useWorkspace()
@@ -427,25 +310,12 @@ export function AnalyticsPage() {
     () => Object.fromEntries(playbooks.map((item) => [item.id, item.name])),
     [playbooks]
   )
-  const playbookColors = useMemo(
-    () =>
-      Object.fromEntries(
-        playbooks
-          .filter((item) => item.color)
-          .map((item) => [item.id, item.color as string])
-      ),
-    [playbooks]
-  )
-  const setupMix = useMemo(
-    () => cappedGroups(trades, playbookKey, 6, copy.analytics.others),
-    [copy.analytics.others, trades]
-  )
   const setupRows = useMemo(
     () =>
-      [...setupMix].sort(
+      [...cappedGroups(trades, playbookKey, 6, copy.analytics.others)].sort(
         (a, b) => (b.averageR ?? -999) - (a.averageR ?? -999)
       ),
-    [setupMix]
+    [copy.analytics.others, trades]
   )
   const marketRows = useMemo(
     () =>
@@ -473,7 +343,7 @@ export function AnalyticsPage() {
             hint={copy.analytics.expectedPerTrade}
             valueClassName={signedClassName(edge.averageR)}
             highlight
-            icon={<TrendingUp className="size-4 text-primary" />}
+            icon={<TrendingUp className="size-3.5 text-primary" />}
             badge={edge.trades > 0 ? <EdgeBadge edge={edge.edge} /> : null}
           />
           <KpiCard
@@ -484,23 +354,25 @@ export function AnalyticsPage() {
                 ? `${edge.wins} / ${edge.trades} ${copy.analytics.trades}`
                 : undefined
             }
+            icon={<Percent className="size-3.5 text-muted-foreground" />}
           />
           <KpiCard
             label={copy.dashboard.profitFactor}
             value={formatNumber(edge.profitFactor)}
             hint={copy.analytics.profitFactorHint}
+            icon={<Scale className="size-3.5 text-muted-foreground" />}
           />
           <KpiCard
             label={copy.analytics.avgWin}
             value={formatSignedR(edge.avgWinR)}
             valueClassName="text-bull"
-            icon={<ArrowUp className="size-4 text-bull" />}
+            icon={<ArrowUp className="size-3.5 text-bull" />}
           />
           <KpiCard
             label={copy.analytics.avgLoss}
             value={formatSignedR(edge.avgLossR)}
             valueClassName="text-bear"
-            icon={<ArrowDown className="size-4 text-bear" />}
+            icon={<ArrowDown className="size-3.5 text-bear" />}
           />
         </div>
 
@@ -523,12 +395,13 @@ export function AnalyticsPage() {
                 : `${formatSignedPercentPoints(tradeDelta)} ${copy.analytics.vsPrevious}`
             }
             hintClassName={tradeDelta == null ? undefined : signedClassName(tradeDelta)}
+            icon={<Hash className="size-3.5 text-muted-foreground" />}
           />
           <StatCard
             label={copy.analytics.winningTrades}
             value={`${edge.wins}`}
             hint={formatPercent(edge.winRate)}
-            dot="var(--bull)"
+            icon={<CircleCheck className="size-3.5 text-bull" />}
           />
           <StatCard
             label={copy.analytics.losingTrades}
@@ -538,28 +411,25 @@ export function AnalyticsPage() {
                 ? formatPercent(edge.losses / (edge.wins + edge.losses))
                 : "—"
             }
-            dot="var(--bear)"
+            icon={<CircleX className="size-3.5 text-bear" />}
           />
           <StatCard
             label={copy.dashboard.maxDrawdown}
             value={formatSignedR(edge.maxDrawdownR)}
             valueClassName={signedClassName(edge.maxDrawdownR)}
+            icon={<TrendingDown className="size-3.5 text-bear" />}
           />
           <StatCard
             label={`${copy.analytics.expectancy} (R)`}
             value={formatSignedR(edge.averageR)}
             valueClassName={signedClassName(edge.averageR)}
+            icon={<Sigma className="size-3.5 text-muted-foreground" />}
           />
         </div>
 
-        <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.95fr)_minmax(220px,0.75fr)]">
+        <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
           <SetupTable rows={setupRows} names={playbookNames} />
           <MarketTable rows={marketRows} />
-          <SetupMix
-            rows={setupMix}
-            names={playbookNames}
-            colors={playbookColors}
-          />
         </div>
       </div>
     </PageFrame>
