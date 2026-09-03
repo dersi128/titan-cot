@@ -15,7 +15,9 @@ describe("workspace hydration", () => {
       theme: "dark",
       density: "comfortable",
       language: "en",
+      sidebarCollapsed: false,
     })
+    expect(hydratePreferences({ sidebarCollapsed: true }).sidebarCollapsed).toBe(true)
     expect(hydratePreferences({ theme: "slate" }).theme).toBe("dark")
     expect(hydratePreferences({ journalMode: "advanced", theme: "light" })).toMatchObject({
       journalMode: "advanced",

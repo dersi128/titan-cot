@@ -146,6 +146,14 @@
   --bg-glow: rgba(61, 180, 255, 0.16);
   --nav-hover: rgba(61, 180, 255, 0.08);
   --nav-active: rgba(61, 180, 255, 0.16);
+  --sidebar-bg: #030910;
+  --sidebar-surface: rgba(11, 26, 44, 0.55);
+  --sidebar-text: #e8f2fb;
+  --sidebar-muted: #8aa3b8;
+  --sidebar-accent-color: #3db4ff;
+  --sidebar-accent-alt: #3db4ff;
+  --sidebar-accent-soft: rgba(61, 180, 255, 0.14);
+  --sidebar-glow: rgba(61, 180, 255, 0.28);
   --bg-scene: url("/backgrounds/dark.webp");
 }
 
@@ -188,6 +196,14 @@
   --bg-glow: rgba(58, 110, 165, 0.08);
   --nav-hover: rgba(58, 110, 165, 0.1);
   --nav-active: rgba(58, 110, 165, 0.16);
+  --sidebar-bg: #f4f6f8;
+  --sidebar-surface: #eef1f5;
+  --sidebar-text: #2c3542;
+  --sidebar-muted: #6a7380;
+  --sidebar-accent-color: #3a6ea5;
+  --sidebar-accent-alt: #3a6ea5;
+  --sidebar-accent-soft: rgba(58, 110, 165, 0.12);
+  --sidebar-glow: transparent;
   --bg-scene: url("/backgrounds/light.webp");
 }
 
@@ -230,6 +246,14 @@
   --bg-glow: rgba(255, 47, 185, 0.18);
   --nav-hover: rgba(0, 232, 255, 0.08);
   --nav-active: rgba(255, 47, 185, 0.2);
+  --sidebar-bg: #05030a;
+  --sidebar-surface: rgba(27, 13, 42, 0.55);
+  --sidebar-text: #f3efff;
+  --sidebar-muted: #9a8fb8;
+  --sidebar-accent-color: #00e8ff;
+  --sidebar-accent-alt: #ff2fb9;
+  --sidebar-accent-soft: rgba(0, 232, 255, 0.1);
+  --sidebar-glow: rgba(0, 232, 255, 0.22);
   --bg-scene: url("/backgrounds/cyberpunk.webp");
 }
 
@@ -279,6 +303,14 @@
   --bg-glow: rgba(212, 175, 90, 0.18);
   --nav-hover: rgba(212, 175, 90, 0.1);
   --nav-active: rgba(212, 175, 90, 0.2);
+  --sidebar-bg: #040914;
+  --sidebar-surface: rgba(20, 32, 56, 0.55);
+  --sidebar-text: #f6edd8;
+  --sidebar-muted: #b5a17e;
+  --sidebar-accent-color: #d4af5a;
+  --sidebar-accent-alt: #d4af5a;
+  --sidebar-accent-soft: rgba(212, 175, 90, 0.14);
+  --sidebar-glow: rgba(212, 175, 90, 0.32);
   --bg-scene: url("/backgrounds/gold.webp");
 }
 
@@ -352,7 +384,31 @@ html[data-density="large"] {
 
 @layer components {
   .titan-app {
+    --sidebar-width: 16rem;
+    --sidebar-width-collapsed: 4.75rem;
+    --sidebar-current: var(--sidebar-width);
     background: transparent;
+  }
+
+  .titan-app[data-sidebar-collapsed="true"] {
+    --sidebar-current: var(--sidebar-width-collapsed);
+  }
+
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .titan-app {
+      --sidebar-current: var(--sidebar-width-collapsed);
+    }
+  }
+
+  .titan-shell-offset {
+    margin-left: 0;
+    transition: margin-left 180ms ease;
+  }
+
+  @media (min-width: 768px) {
+    .titan-shell-offset {
+      margin-left: var(--sidebar-current);
+    }
   }
 
   .titan-main {
@@ -380,8 +436,22 @@ html[data-density="large"] {
   }
 
   .titan-sidebar {
-    background: color-mix(in srgb, var(--sidebar) 72%, transparent);
+    background: color-mix(in srgb, var(--sidebar-bg) 94%, transparent);
+    color: var(--sidebar-text);
+    border-color: var(--sidebar-border);
     backdrop-filter: blur(20px);
+  }
+
+  .titan-sidebar--dock {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 40;
+    height: 100vh;
+    height: 100dvh;
+    width: var(--sidebar-current);
+    border-right-width: 1px;
+    transition: width 180ms ease;
   }
 
   .titan-glass {
@@ -394,44 +464,284 @@ html[data-density="large"] {
   .titan-logo-lockup {
     display: block;
     width: 100%;
-    height: 8.5rem;
+    height: 2.75rem;
     object-fit: contain;
     object-position: center;
-    filter: drop-shadow(0 0 14px color-mix(in srgb, var(--primary) 32%, transparent));
+    filter: drop-shadow(0 0 10px color-mix(in srgb, var(--sidebar-accent-color) 28%, transparent));
   }
 
   html[data-theme="light"] .titan-logo-lockup {
-    filter: drop-shadow(0 6px 14px color-mix(in srgb, var(--foreground) 14%, transparent));
+    filter: drop-shadow(0 4px 10px color-mix(in srgb, var(--foreground) 10%, transparent));
+  }
+
+  .titan-sidebar-inner {
+    position: relative;
+    display: flex;
+    height: 100%;
+    min-height: 0;
+    flex-direction: column;
+    padding: 0.85rem 0.7rem 0.75rem;
+  }
+
+  .titan-sidebar-toggle {
+    position: absolute;
+    top: 1.15rem;
+    right: 0;
+    z-index: 2;
+    display: flex;
+    width: 1.35rem;
+    height: 1.35rem;
+    translate: 50% 0;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--sidebar-border);
+    border-radius: 999px;
+    background: var(--sidebar-bg);
+    color: var(--sidebar-muted);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--sidebar-bg) 80%, transparent);
+    transition:
+      background-color 180ms ease,
+      border-color 180ms ease,
+      color 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+  .titan-sidebar-toggle:hover {
+    color: var(--sidebar-text);
+    border-color: color-mix(in srgb, var(--sidebar-accent-color) 45%, var(--sidebar-border));
+    box-shadow: 0 0 10px var(--sidebar-glow);
+  }
+
+  .titan-sidebar-toggle:focus-visible,
+  .titan-nav-item:focus-visible,
+  .titan-profile-card:focus-visible {
+    outline: 2px solid var(--sidebar-accent-color);
+    outline-offset: 2px;
+  }
+
+  .titan-sidebar-brand {
+    display: flex;
+    flex-shrink: 0;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.15rem 0.35rem 0.85rem;
+  }
+
+  .titan-sidebar-logo {
+    display: block;
+    width: 100%;
+    border-radius: 8px;
+  }
+
+  .titan-sidebar-motto {
+    max-width: 14rem;
+    margin: 0;
+    text-align: center;
+    font-size: 0.65rem;
+    font-style: italic;
+    line-height: 1.3;
+    letter-spacing: 0.02em;
+    color: var(--sidebar-muted);
+    opacity: 0.78;
   }
 
   .titan-nav {
     display: flex;
     flex-direction: column;
-    gap: 0.125rem;
+    gap: 0.15rem;
   }
 
-  .titan-nav-item {
+  .titan-nav--main {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 0.1rem;
+  }
+
+  .titan-nav-item,
+  .titan-profile-card {
+    position: relative;
     display: flex;
+    width: 100%;
     align-items: center;
-    gap: 0.625rem;
+    gap: 0.7rem;
+    overflow: visible;
     border-radius: 8px;
-    padding: calc(var(--ui-row) + 0.2rem) 0.625rem;
-    font-size: var(--ui-font);
-    font-weight: 500;
-    color: var(--muted-foreground);
+    border: 1px solid transparent;
+    background: transparent;
+    padding: 0.48rem 0.65rem;
+    text-align: left;
+    font: inherit;
+    color: var(--sidebar-muted);
+    cursor: pointer;
+    text-decoration: none;
     transition:
-      color 0.15s ease,
-      background 0.15s ease;
+      background-color 180ms ease,
+      border-color 180ms ease,
+      color 180ms ease,
+      transform 180ms ease,
+      box-shadow 180ms ease;
   }
 
-  .titan-nav-item:hover {
-    color: var(--foreground);
-    background: var(--nav-hover);
+  .titan-nav-item::before {
+    content: "";
+    position: absolute;
+    top: 22%;
+    bottom: 22%;
+    left: 0;
+    width: 2px;
+    border-radius: 999px;
+    background: var(--sidebar-accent-color);
+    opacity: 0;
+    box-shadow: 0 0 8px var(--sidebar-glow);
+    transition: opacity 180ms ease;
+  }
+
+  .titan-nav-icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    stroke-width: 1.7;
+    transition: transform 180ms ease, color 180ms ease;
+  }
+
+  .titan-nav-copy {
+    display: flex;
+    min-width: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 0.05rem;
+  }
+
+  .titan-nav-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.2;
+    color: inherit;
+  }
+
+  .titan-nav-hint {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.65rem;
+    font-weight: 400;
+    line-height: 1.25;
+    color: var(--sidebar-muted);
+    opacity: 0.82;
+  }
+
+  .titan-nav-item:hover,
+  .titan-profile-card:hover {
+    color: var(--sidebar-text);
+    background: var(--sidebar-accent-soft);
+    border-color: color-mix(in srgb, var(--sidebar-accent-color) 18%, transparent);
+  }
+
+  .titan-nav-item:hover .titan-nav-icon {
+    transform: translateX(2px);
   }
 
   .titan-nav-item--active {
-    color: var(--foreground);
-    background: var(--nav-active);
+    color: var(--sidebar-text);
+    background: var(--sidebar-accent-soft);
+    border-color: color-mix(in srgb, var(--sidebar-accent-color) 28%, transparent);
+    box-shadow: 0 0 14px var(--sidebar-glow);
+  }
+
+  .titan-nav-item--active::before {
+    opacity: 1;
+  }
+
+  .titan-nav-item--active .titan-nav-icon {
+    color: var(--sidebar-accent-color);
+  }
+
+  .titan-theme-trigger__name {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .titan-sidebar-foot {
+    display: flex;
+    flex-shrink: 0;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding-top: 0.35rem;
+  }
+
+  .titan-sidebar-rule {
+    height: 1px;
+    margin: 0.35rem 0.35rem 0.45rem;
+    background: var(--sidebar-border);
+  }
+
+  .titan-sidebar-kicker {
+    margin: 0 0.55rem 0.2rem;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--sidebar-muted);
+  }
+
+  .titan-profile-card {
+    margin-top: 0.45rem;
+    border-color: var(--sidebar-border);
+    background: var(--sidebar-surface);
+  }
+
+  .titan-sidebar-inner[data-collapsed="true"] .titan-sidebar-brand {
+    padding-inline: 0;
+  }
+
+  .titan-sidebar-inner[data-collapsed="true"] .titan-logo-lockup {
+    height: 1.85rem;
+  }
+
+  .titan-sidebar-inner[data-collapsed="true"] .titan-sidebar-motto,
+  .titan-sidebar-inner[data-collapsed="true"] .titan-nav-copy,
+  .titan-sidebar-inner[data-collapsed="true"] .titan-sidebar-kicker {
+    display: none;
+  }
+
+  .titan-sidebar-inner[data-collapsed="true"] .titan-nav-item,
+  .titan-sidebar-inner[data-collapsed="true"] .titan-profile-card {
+    justify-content: center;
+    gap: 0;
+    padding: 0.7rem 0.35rem;
+  }
+
+  .titan-sidebar-inner[data-collapsed="true"] .titan-profile-card {
+    padding-block: 0.45rem;
+  }
+
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .titan-sidebar--dock .titan-sidebar-toggle {
+      display: none;
+    }
+
+    .titan-sidebar--dock .titan-logo-lockup {
+      height: 1.85rem;
+    }
+
+    .titan-sidebar--dock .titan-sidebar-motto,
+    .titan-sidebar--dock .titan-nav-copy,
+    .titan-sidebar--dock .titan-sidebar-kicker {
+      display: none;
+    }
+
+    .titan-sidebar--dock .titan-nav-item,
+    .titan-sidebar--dock .titan-profile-card {
+      justify-content: center;
+      gap: 0;
+      padding: 0.7rem 0.35rem;
+    }
   }
 
   .titan-kpi {
@@ -468,14 +778,18 @@ html[data-density="large"] {
       inset 0 1px 0 rgba(160, 220, 255, 0.1);
   }
 
-  html[data-theme="dark"] .titan-topbar,
-  html[data-theme="dark"] .titan-sidebar {
+  html[data-theme="dark"] .titan-topbar {
     background: color-mix(in srgb, var(--sidebar) 64%, transparent);
     border-color: rgba(61, 180, 255, 0.16);
   }
 
-  html[data-theme="dark"] .titan-nav-item--active {
-    box-shadow: inset 2px 0 0 #3db4ff;
+  html[data-theme="dark"] .titan-sidebar {
+    background: color-mix(in srgb, var(--sidebar-bg) 88%, transparent);
+    border-color: rgba(61, 180, 255, 0.16);
+  }
+
+  html[data-theme="dark"] .titan-nav-item:hover {
+    box-shadow: 0 0 12px var(--sidebar-glow);
   }
 
   html[data-theme="gold"] .titan-glass,
@@ -488,18 +802,54 @@ html[data-density="large"] {
       inset 0 1px 0 rgba(255, 224, 160, 0.16);
   }
 
-  html[data-theme="gold"] .titan-topbar,
-  html[data-theme="gold"] .titan-sidebar {
-    background: color-mix(in srgb, var(--sidebar) 64%, transparent);
-    border-color: rgba(212, 175, 90, 0.22);
-  }
-
   html[data-theme="gold"] .titan-topbar {
+    background: color-mix(in srgb, var(--sidebar) 64%, transparent);
     border-bottom-color: rgba(212, 175, 90, 0.22);
   }
 
+  html[data-theme="gold"] .titan-sidebar {
+    background: color-mix(in srgb, var(--sidebar-bg) 90%, transparent);
+    border-color: rgba(212, 175, 90, 0.22);
+  }
+
   html[data-theme="gold"] .titan-nav-item--active {
-    box-shadow: inset 2px 0 0 #d4af5a;
+    box-shadow: 0 0 16px var(--sidebar-glow);
+  }
+
+  html[data-theme="gold"] .titan-nav-item--active .titan-nav-label {
+    color: var(--sidebar-text);
+  }
+
+  html[data-theme="cyberpunk"] .titan-nav-item--active::before {
+    background: linear-gradient(180deg, var(--sidebar-accent-color), var(--sidebar-accent-alt));
+  }
+
+  html[data-theme="cyberpunk"] .titan-nav-item:hover {
+    border-color: color-mix(in srgb, var(--sidebar-accent-alt) 28%, transparent);
+  }
+
+  html[data-theme="light"] .titan-sidebar {
+    background: var(--sidebar-bg);
+    box-shadow: 4px 0 18px rgba(24, 32, 44, 0.06);
+  }
+
+  html[data-theme="light"] .titan-nav-item--active {
+    box-shadow: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .titan-shell-offset,
+    .titan-sidebar--dock,
+    .titan-nav-item,
+    .titan-nav-icon,
+    .titan-profile-card,
+    .titan-sidebar-toggle {
+      transition: none;
+    }
+
+    .titan-nav-item:hover .titan-nav-icon {
+      transform: none;
+    }
   }
 
   .animate-fade-up {

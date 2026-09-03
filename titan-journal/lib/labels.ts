@@ -33,6 +33,31 @@ export const copyEn = {
     playbook: "Playbook",
     profile: "Profile",
     settings: "Settings",
+    hints: {
+      dashboard: "Quick performance overview",
+      calendar: "Trades in time",
+      journal: "All trades",
+      newTrade: "Add a trade",
+      analytics: "Detailed statistics",
+      playbook: "Strategies and setups",
+      profile: "User account",
+      settings: "Look and preferences",
+    },
+  },
+
+  sidebar: {
+    motto: "Discipline creates freedom.",
+    account: "Account",
+    appearance: "Appearance",
+    collapse: "Collapse sidebar",
+    expand: "Expand sidebar",
+    trader: "Trader",
+    themes: {
+      light: "Light",
+      dark: "Dark",
+      gold: "Navy Gold",
+      cyberpunk: "Cyberpunk",
+    },
   },
 
   shell: {
@@ -296,6 +321,31 @@ export const copyCs: Copy = {
     playbook: "Playbook",
     profile: "Profil",
     settings: "Nastavení",
+    hints: {
+      dashboard: "Rychlý přehled výkonu",
+      calendar: "Obchody v čase",
+      journal: "Všechny obchody",
+      newTrade: "Přidat obchod",
+      analytics: "Detailní statistiky",
+      playbook: "Strategie a setupy",
+      profile: "Uživatelský účet",
+      settings: "Vzhled a preference",
+    },
+  },
+
+  sidebar: {
+    motto: "Discipline creates freedom.",
+    account: "Účet",
+    appearance: "Vzhled",
+    collapse: "Sbalit menu",
+    expand: "Rozbalit menu",
+    trader: "Trader",
+    themes: {
+      light: "Světlý",
+      dark: "Tmavý",
+      gold: "Modro-zlatý",
+      cyberpunk: "Cyberpunk",
+    },
   },
 
   shell: {

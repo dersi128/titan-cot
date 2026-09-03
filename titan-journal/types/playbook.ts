@@ -78,6 +78,7 @@ export type UserPreferences = {
   theme: ThemeId
   density: Density
   language: Language
+  sidebarCollapsed: boolean
   defaultAccount: "Personal" | "Challenge" | "Funded"
   defaultRisk: number
   defaultPlaybookId: string
