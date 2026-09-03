@@ -1,5 +1,7 @@
 "use client"
 
+import { EdgeBadge } from "@/components/analytics/edge-badge"
+import { useWorkspace } from "@/components/layout/workspace-provider"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { formatSignedR, signedClassName } from "@/lib/format"
 import { bestAndWorstPlaybook } from "@/lib/analytics"
@@ -15,7 +17,9 @@ export function StrategySnapshot({
   compact?: boolean
 }) {
   const { copy } = useLabels()
+  const { playbooks } = useWorkspace()
   const { best, worst } = bestAndWorstPlaybook(trades)
+  const names = Object.fromEntries(playbooks.map((item) => [item.id, item.name]))
 
   return (
     <Card size="sm" className={compact ? "shrink-0 gap-0 py-0" : undefined}>
@@ -39,7 +43,7 @@ export function StrategySnapshot({
               {item.label}
             </p>
             <p className={compact ? "mt-0.5 truncate text-[13px] font-medium" : "mt-1 text-[13px] font-medium"}>
-              {item.row?.key ?? "—"}
+              {item.row ? names[item.row.key] ?? item.row.key : "—"}
             </p>
             <p
               className={cn(
@@ -50,6 +54,12 @@ export function StrategySnapshot({
               )}
             >
               {formatSignedR(item.row?.averageR ?? null)} {copy.dashboard.expectancy}
+              {item.row ? (
+                <>
+                  {" · "}
+                  <EdgeBadge edge={item.row.edge} />
+                </>
+              ) : null}
             </p>
           </div>
         ))}

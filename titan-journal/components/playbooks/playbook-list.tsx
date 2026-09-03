@@ -2,17 +2,23 @@
 
 import Link from "next/link"
 
+import { EdgeBadge } from "@/components/analytics/edge-badge"
 import { StrategySnapshot } from "@/components/dashboard/strategy-snapshot"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
 import { useScopedTrades } from "@/components/layout/use-scoped-trades"
 import { useWorkspace } from "@/components/layout/workspace-provider"
 import { Button } from "@/components/ui/button"
+import { statsByPlaybook } from "@/lib/analytics"
+import { formatSignedR, signedClassName } from "@/lib/format"
 import { useLabels } from "@/lib/use-labels"
 
 export function PlaybookListPage() {
   const { copy } = useLabels()
   const { playbooks, savePlaybook } = useWorkspace()
   const { accountTrades } = useScopedTrades()
+  const edgeByPlaybook = Object.fromEntries(
+    statsByPlaybook(accountTrades).map((row) => [row.key, row])
+  )
 
   return (
     <PageFrame>
@@ -34,7 +40,9 @@ export function PlaybookListPage() {
         <p className="text-sm text-muted-foreground">{copy.playbook.empty}</p>
       ) : (
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {playbooks.map((playbook) => (
+          {playbooks.map((playbook) => {
+            const edge = edgeByPlaybook[playbook.id] ?? edgeByPlaybook[playbook.name]
+            return (
             <article
               key={playbook.id}
               className="titan-glass rounded-[10px] p-4"
@@ -69,6 +77,15 @@ export function PlaybookListPage() {
                       ? ` · ${copy.playbook.archived}`
                       : ""}
                   </p>
+                  {edge ? (
+                    <p className="mt-1 font-mono text-[12px]">
+                      <span className={signedClassName(edge.averageR)}>
+                        {formatSignedR(edge.averageR)}
+                      </span>
+                      {" · "}
+                      <EdgeBadge edge={edge.edge} />
+                    </p>
+                  ) : null}
                 </div>
                 </div>
               </div>
@@ -94,7 +111,8 @@ export function PlaybookListPage() {
                 </Button>
               </div>
             </article>
-          ))}
+            )
+          })}
         </div>
       )}
     </PageFrame>

@@ -218,7 +218,7 @@ export const copyEn = {
 
   analytics: {
     title: "Analytics",
-    description: "The numbers that matter for the selected account.",
+    description: "Whether the strategy has edge — and the numbers behind it.",
     byPlaybook: "By Playbook",
     byDirection: "By Direction",
     bySymbol: "By Symbol",
@@ -226,6 +226,15 @@ export const copyEn = {
     worst: "Worst Playbook",
     trades: "Trades",
     empty: "Close a few trades to see analytics.",
+    edge: "Edge",
+    edgeYes: "Has edge",
+    edgeNo: "No edge",
+    edgeThin: "Not enough trades",
+    edgeHint: "Positive average R per trade. Needs at least {n} closed trades.",
+    expectancy: "Expectancy",
+    payoff: "Payoff",
+    avgWin: "Avg win",
+    avgLoss: "Avg loss",
   },
 
   playbook: {
@@ -528,7 +537,7 @@ export const copyCs: Copy = {
 
   analytics: {
     title: "Analýzy",
-    description: "Čísla, na kterých u vybraného účtu záleží.",
+    description: "Jestli má strategie edge — a čísla k tomu.",
     byPlaybook: "Podle playbooku",
     byDirection: "Podle směru",
     bySymbol: "Podle symbolu",
@@ -536,6 +545,15 @@ export const copyCs: Copy = {
     worst: "Nejhorší playbook",
     trades: "obchodů",
     empty: "Uzavři pár obchodů, aby se zobrazily analýzy.",
+    edge: "Edge",
+    edgeYes: "Má edge",
+    edgeNo: "Nemá edge",
+    edgeThin: "Málo obchodů",
+    edgeHint: "Kladné průměrné R na obchod. Potřeba aspoň {n} uzavřených obchodů.",
+    expectancy: "Expectancy",
+    payoff: "Payoff",
+    avgWin: "Průměrný zisk",
+    avgLoss: "Průměrná ztráta",
   },
 
   playbook: {
