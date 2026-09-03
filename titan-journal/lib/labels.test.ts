@@ -43,6 +43,7 @@ describe("CZ/EN dictionaries", () => {
     expect(labelsFor("cs").copy.analytics.perTrade).toBe("na obchod")
     expect(labelsFor("cs").copy.analytics.bySetup).toBe("Výsledky podle setupů")
     expect(labelsFor("cs").copy.journal.clearFilters).toBe("Vymazat filtry")
+    expect(labelsFor("en").copy.journal.clearAllHint).toContain("DELETE")
     expect(labelsFor("cs").copy.playbook.active).toBe("Aktivní")
     expect(labelsFor("cs").copy.playbook.updated).toBe("Aktualizováno")
     expect(labelsFor("en").copy.playbook.cumulativeR).toBe("Cumulative R")
