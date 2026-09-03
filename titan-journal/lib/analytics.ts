@@ -16,6 +16,7 @@ export type GroupStats = {
   avgWinR: number | null
   avgLossR: number | null
   payoff: number | null
+  maxDrawdownR: number | null
   edge: EdgeVerdict
 }
 
@@ -62,8 +63,27 @@ function statsFor(key: string, list: Trade[]): GroupStats {
     avgWinR: avgWinR == null ? null : round2(avgWinR),
     avgLossR: avgLossR == null ? null : round2(avgLossR),
     payoff: payoff == null ? null : round2(payoff),
+    maxDrawdownR: rDrawdown(list),
     edge: edgeVerdict(list.length, expectancyR),
   }
+}
+
+function rDrawdown(list: Trade[]): number | null {
+  if (list.length === 0) return null
+  const ordered = [...list].sort((a, b) => {
+    const byDate = a.date.localeCompare(b.date)
+    if (byDate !== 0) return byDate
+    return a.createdAt.localeCompare(b.createdAt)
+  })
+  let cum = 0
+  let peak = 0
+  let worst = 0
+  for (const trade of ordered) {
+    cum += trade.resultR ?? 0
+    peak = Math.max(peak, cum)
+    worst = Math.min(worst, cum - peak)
+  }
+  return round2(worst)
 }
 
 function winsRate(wins: number, decided: number): number {

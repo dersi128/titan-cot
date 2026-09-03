@@ -22,6 +22,7 @@ import {
   signedClassName,
 } from "@/lib/format"
 import { useLabels } from "@/lib/use-labels"
+import { cn } from "@/lib/utils"
 
 function GroupTable({
   title,
@@ -106,6 +107,25 @@ function Highlight({
   )
 }
 
+function Stat({
+  label,
+  value,
+  className,
+}: {
+  label: string
+  value: string
+  className?: string
+}) {
+  return (
+    <div>
+      <p className="text-[11px] text-muted-foreground">{label}</p>
+      <p className={cn("mt-0.5 font-mono text-[15px] tabular-nums", className)}>
+        {value}
+      </p>
+    </div>
+  )
+}
+
 function EdgeCard({ stats }: { stats: GroupStats }) {
   const { copy } = useLabels()
   if (stats.trades === 0) {
@@ -119,38 +139,53 @@ function EdgeCard({ stats }: { stats: GroupStats }) {
 
   return (
     <section className="titan-glass rounded-[10px] p-4">
-      <p className="text-[11px] text-muted-foreground">{copy.analytics.edge}</p>
-      <p className="mt-1 text-[22px] font-semibold tracking-tight">
-        <EdgeBadge edge={stats.edge} className="text-[22px]" />
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-[11px] text-muted-foreground">{copy.analytics.edge}</p>
+        <EdgeBadge edge={stats.edge} className="text-[11px]" />
+      </div>
+      <p
+        className={cn(
+          "mt-2 font-mono text-[28px] font-semibold tracking-tight tabular-nums",
+          signedClassName(stats.averageR)
+        )}
+      >
+        {formatSignedR(stats.averageR)}
       </p>
-      <p className="mt-2 font-mono text-[13px] text-muted-foreground">
-        <span className={signedClassName(stats.averageR)}>
-          {formatSignedR(stats.averageR)}
-        </span>
-        {" · "}
+      <p className="mt-0.5 text-[13px] text-muted-foreground">
         {copy.analytics.expectancy}
         {" · "}
-        PF {formatNumber(stats.profitFactor)}
-        {" · "}
-        {stats.trades} {copy.analytics.trades}
+        {copy.analytics.perTrade}
       </p>
-      <div className="mt-3 grid grid-cols-2 gap-2 text-[12px] sm:grid-cols-4">
-        <p>
-          <span className="text-muted-foreground">{copy.analytics.avgWin}</span>{" "}
-          <span className="font-mono text-bull">{formatSignedR(stats.avgWinR)}</span>
-        </p>
-        <p>
-          <span className="text-muted-foreground">{copy.analytics.avgLoss}</span>{" "}
-          <span className="font-mono text-bear">{formatSignedR(stats.avgLossR)}</span>
-        </p>
-        <p>
-          <span className="text-muted-foreground">{copy.analytics.payoff}</span>{" "}
-          <span className="font-mono">{formatNumber(stats.payoff)}</span>
-        </p>
-        <p>
-          <span className="text-muted-foreground">{copy.dashboard.winRate}</span>{" "}
-          <span className="font-mono">{formatPercent(stats.winRate)}</span>
-        </p>
+      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <Stat
+          label={copy.analytics.profitFactor}
+          value={formatNumber(stats.profitFactor)}
+        />
+        <Stat
+          label={copy.dashboard.winRate}
+          value={formatPercent(stats.winRate)}
+        />
+        <Stat
+          label={copy.analytics.trades}
+          value={String(stats.trades)}
+        />
+        <Stat
+          label={copy.dashboard.maxDrawdown}
+          value={formatSignedR(stats.maxDrawdownR)}
+          className={signedClassName(stats.maxDrawdownR)}
+        />
+      </div>
+      <div className="mt-3 grid grid-cols-2 gap-3">
+        <Stat
+          label={copy.analytics.avgWin}
+          value={formatSignedR(stats.avgWinR)}
+          className="text-bull"
+        />
+        <Stat
+          label={copy.analytics.avgLoss}
+          value={formatSignedR(stats.avgLossR)}
+          className="text-bear"
+        />
       </div>
       <p className="mt-3 text-[11px] text-muted-foreground">{edgeHint(copy)}</p>
     </section>
