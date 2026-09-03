@@ -27,7 +27,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      data-theme="slate"
+      data-theme="dark"
       data-density="comfortable"
       className={`${geist.variable} ${geistMono.variable} dark h-full antialiased`}
       style={{ colorScheme: "dark" }}

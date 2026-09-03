@@ -37,7 +37,7 @@ export type TradeFieldValue = {
 export const JOURNAL_MODES = ["simple", "advanced"] as const
 export type JournalMode = (typeof JOURNAL_MODES)[number]
 
-export const THEMES = ["light", "slate", "dark", "gold", "cyberpunk"] as const
+export const THEMES = ["light", "dark", "gold", "cyberpunk"] as const
 export type ThemeId = (typeof THEMES)[number]
 
 export const DENSITIES = ["compact", "comfortable", "large"] as const

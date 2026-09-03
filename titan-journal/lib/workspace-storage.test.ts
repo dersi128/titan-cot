@@ -9,13 +9,14 @@ import {
 } from "@/lib/workspace-storage"
 
 describe("workspace hydration", () => {
-  it("defaults journal mode to simple and theme to slate", () => {
+  it("defaults journal mode to simple and theme to dark", () => {
     expect(hydratePreferences(null)).toMatchObject({
       journalMode: "simple",
-      theme: "slate",
+      theme: "dark",
       density: "comfortable",
       language: "en",
     })
+    expect(hydratePreferences({ theme: "slate" }).theme).toBe("dark")
     expect(hydratePreferences({ journalMode: "advanced", theme: "light" })).toMatchObject({
       journalMode: "advanced",
       theme: "light",
