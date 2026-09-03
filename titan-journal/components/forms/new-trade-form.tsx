@@ -21,6 +21,7 @@ import { formatMoney } from "@/lib/format"
 import { isDirty } from "@/lib/dirty"
 import { useLabels } from "@/lib/use-labels"
 import { todayIsoDate } from "@/lib/locale"
+import { ingestScreenshot, isHttpUrl } from "@/lib/screenshot"
 import { applyTitanFieldValuesToLegacy } from "@/lib/playbook-legacy"
 import {
   activePlaybooks,
@@ -50,17 +51,6 @@ import {
 } from "@/types/trade"
 
 const NOTES_MAX = 1000
-
-function readScreenshot(file: File): Promise<string | null> {
-  if (file.size > 450_000) return Promise.resolve(null)
-  return new Promise((resolve) => {
-    const reader = new FileReader()
-    reader.onload = () =>
-      resolve(typeof reader.result === "string" ? reader.result : null)
-    reader.onerror = () => resolve(null)
-    reader.readAsDataURL(file)
-  })
-}
 
 function PreviewRow({
   label,
@@ -134,6 +124,10 @@ export function TradeForm({ trade }: { trade?: Trade }) {
   )
   const [notes, setNotes] = useState(trade?.notes ?? "")
   const [screenshot, setScreenshot] = useState<string | null>(trade?.screenshot ?? null)
+  const [screenshotUrl, setScreenshotUrl] = useState(
+    trade?.screenshot && isHttpUrl(trade.screenshot) ? trade.screenshot : ""
+  )
+  const [screenshotError, setScreenshotError] = useState<string | null>(null)
   const [fieldValues, setFieldValues] = useState<TradeFieldValue[]>(
     trade?.fieldValues ?? []
   )
@@ -196,6 +190,8 @@ export function TradeForm({ trade }: { trade?: Trade }) {
     setPlaybookId(defaultPlaybook?.id ?? TITAN_SWING_PLAYBOOK_ID)
     setNotes("")
     setScreenshot(null)
+    setScreenshotUrl("")
+    setScreenshotError(null)
     setFieldValues([])
     setResultR("")
     setPnl("")
@@ -211,10 +207,40 @@ export function TradeForm({ trade }: { trade?: Trade }) {
     setError(null)
   }
 
-  async function handleScreenshot(file: File | undefined) {
-    if (!file) return
-    const data = await readScreenshot(file)
-    setScreenshot(data)
+  async function applyScreenshot(source: Blob | string | undefined) {
+    if (!source) return
+    const result = await ingestScreenshot(source)
+    if (!result.ok) {
+      setScreenshotError(copy.form.screenshotError)
+      return
+    }
+    setScreenshot(result.value)
+    setScreenshotUrl(isHttpUrl(result.value) ? result.value : "")
+    setScreenshotError(null)
+  }
+
+  async function handlePaste(event: React.ClipboardEvent) {
+    const data = event.clipboardData
+    if (!data) return
+    const image = [...data.items].find((item) => item.type.startsWith("image/"))
+    if (image) {
+      const file = image.getAsFile()
+      if (!file) return
+      event.preventDefault()
+      await applyScreenshot(file)
+      return
+    }
+    const target = event.target as HTMLElement | null
+    const allowUrl =
+      target?.closest("[data-screenshot-drop]") ||
+      target?.closest("[data-screenshot-url]")
+    if (!allowUrl) return
+    const text = data.getData("text/plain").trim()
+    if (!text) return
+    if (isHttpUrl(text) || text.startsWith("data:image/")) {
+      event.preventDefault()
+      await applyScreenshot(text)
+    }
   }
 
   function handleSubmit(event: React.FormEvent) {
@@ -263,7 +289,10 @@ export function TradeForm({ trade }: { trade?: Trade }) {
       riskPercent: parseOptionalNumber(riskPercent) ?? profile.riskPercent,
       plannedRRR,
       notes: notes.trim(),
-      screenshot,
+      screenshot:
+        screenshotUrl.trim() && isHttpUrl(screenshotUrl.trim())
+          ? screenshotUrl.trim()
+          : screenshot,
       fieldValues: nextFieldValues,
     }
 
@@ -468,7 +497,12 @@ export function TradeForm({ trade }: { trade?: Trade }) {
               </div>
             ) : null}
 
-            <div className="titan-glass space-y-3 rounded-[10px] p-4">
+            <div
+              className="titan-glass space-y-3 rounded-[10px] p-4"
+              onPaste={(event) => {
+                void handlePaste(event)
+              }}
+            >
               <Field
                 label={copy.form.note}
                 hint={copy.form.noteLimit.replace("{n}", String(notes.length))}
@@ -481,29 +515,81 @@ export function TradeForm({ trade }: { trade?: Trade }) {
                 />
               </Field>
               <Field label={copy.form.screenshot}>
-                <label
-                  className="flex cursor-pointer flex-col items-center justify-center rounded-[10px] border border-dashed border-border px-3 py-6 text-center text-[12px] text-muted-foreground"
+                <div
+                  tabIndex={0}
+                  data-screenshot-drop=""
+                  className="flex cursor-pointer flex-col items-center justify-center rounded-[10px] border border-dashed border-border px-3 py-6 text-center text-[12px] text-muted-foreground outline-none focus-visible:border-primary/50"
                   onDragOver={(event) => event.preventDefault()}
                   onDrop={(event) => {
                     event.preventDefault()
-                    void handleScreenshot(event.dataTransfer.files?.[0])
+                    const file = event.dataTransfer.files?.[0]
+                    if (file) {
+                      void applyScreenshot(file)
+                      return
+                    }
+                    const uri =
+                      event.dataTransfer.getData("text/uri-list") ||
+                      event.dataTransfer.getData("text/plain")
+                    const first = uri.split("\n").map((line) => line.trim())[0]
+                    if (first) void applyScreenshot(first)
                   }}
                 >
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    className="sr-only"
-                    onChange={(event) => handleScreenshot(event.target.files?.[0])}
-                  />
-                  {copy.form.screenshotHint}
-                </label>
+                  <p>{copy.form.screenshotHint}</p>
+                  <label className="mt-2 cursor-pointer text-[12px] font-medium text-primary">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="sr-only"
+                      onChange={(event) => {
+                        void applyScreenshot(event.target.files?.[0])
+                        event.target.value = ""
+                      }}
+                    />
+                    {copy.form.screenshot}
+                  </label>
+                </div>
+                <Input
+                  type="text"
+                  inputMode="url"
+                  data-screenshot-url=""
+                  value={screenshotUrl}
+                  placeholder={copy.form.screenshotUrl}
+                  onChange={(event) => setScreenshotUrl(event.target.value)}
+                  onBlur={() => {
+                    if (screenshotUrl.trim()) void applyScreenshot(screenshotUrl)
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key !== "Enter") return
+                    event.preventDefault()
+                    if (screenshotUrl.trim()) void applyScreenshot(screenshotUrl)
+                  }}
+                />
+                {screenshotError ? (
+                  <p className="text-[12px] text-destructive">{screenshotError}</p>
+                ) : null}
                 {screenshot ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={screenshot}
-                    alt=""
-                    className="mt-2 max-h-40 rounded-md border border-border object-contain"
-                  />
+                  <div className="space-y-2">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={screenshot}
+                      alt=""
+                      className="max-h-40 rounded-md border border-border object-contain"
+                      onError={() => setScreenshotError(copy.form.screenshotError)}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 text-[12px]"
+                      onClick={() => {
+                        setScreenshot(null)
+                        setScreenshotUrl("")
+                        setScreenshotError(null)
+                      }}
+                    >
+                      {copy.form.screenshotRemove}
+                    </Button>
+                  </div>
                 ) : null}
               </Field>
             </div>

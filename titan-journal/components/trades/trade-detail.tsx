@@ -6,17 +6,15 @@ import { useRouter } from "next/navigation"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Field } from "@/components/forms/field"
 import {
   DirectionBadge,
   StatusBadge,
 } from "@/components/trades/trade-badges"
+import { CloseTradePanel } from "@/components/trades/close-trade-panel"
 import { ResultR } from "@/components/trades/result-r"
 import { SimpleReviewPanel } from "@/components/trades/simple-review-panel"
 import { useTrades } from "@/components/trades/trades-provider"
 import { useWorkspace } from "@/components/layout/workspace-provider"
-import { dollarsPerR, suggestedPnl } from "@/lib/account-scope"
 import { formatMarketLabel, classifyMarket } from "@/lib/market-classification"
 import { formatRRR } from "@/lib/trade-calculations"
 import { formatSignedUsd } from "@/lib/format"
@@ -27,7 +25,6 @@ import {
   playbookHasValues,
   sortedFields,
 } from "@/lib/playbooks"
-import { parseOptionalNumber } from "@/lib/trade-calculations"
 import type { Trade } from "@/types/trade"
 
 function FieldRow({ label, value }: { label: string; value: React.ReactNode }) {
@@ -55,66 +52,6 @@ function Section({
         <dl className="grid grid-cols-2 gap-x-4 gap-y-4 sm:grid-cols-3">
           {children}
         </dl>
-      </CardContent>
-    </Card>
-  )
-}
-
-function CloseTradePanel({ trade }: { trade: Trade }) {
-  const { copy } = useLabels()
-  const { updateTrade } = useTrades()
-  const { profile } = useWorkspace()
-  const [resultR, setResultR] = useState(
-    trade.resultR == null ? "" : String(trade.resultR)
-  )
-  const [pnl, setPnl] = useState(trade.pnl == null ? "" : String(trade.pnl))
-  const riskUsd = dollarsPerR(
-    profile.capital[trade.account],
-    trade.riskPercent
-  )
-
-  if (trade.status === "CLOSED" || trade.status === "REVIEWED") return null
-  if (trade.status === "CANCELLED") return null
-
-  function handleClose() {
-    const r = parseOptionalNumber(resultR)
-    if (r == null) return
-    const money = parseOptionalNumber(pnl)
-    updateTrade({
-      ...trade,
-      status: "CLOSED",
-      resultR: r,
-      pnl:
-        money ??
-        suggestedPnl(r, profile.capital[trade.account], trade.riskPercent),
-    })
-  }
-
-  return (
-    <Card>
-      <CardHeader className="border-b border-border">
-        <CardTitle>{copy.detail.result}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3 pt-4">
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Field label={copy.detail.resultR}>
-            <Input
-              value={resultR}
-              onChange={(event) => setResultR(event.target.value)}
-              placeholder="-1"
-            />
-          </Field>
-          <Field label={copy.detail.pnl}>
-            <Input
-              value={pnl}
-              onChange={(event) => setPnl(event.target.value)}
-              placeholder={riskUsd > 0 ? String(Math.round(riskUsd)) : copy.detail.optional}
-            />
-          </Field>
-        </div>
-        <Button type="button" onClick={handleClose} disabled={parseOptionalNumber(resultR) == null}>
-          {copy.detail.closeTrade}
-        </Button>
       </CardContent>
     </Card>
   )
@@ -220,7 +157,7 @@ export function TradeDetail({ trade }: { trade: Trade }) {
           <FieldRow label={copy.detail.pnl} value={formatSignedUsd(trade.pnl)} />
         </Section>
       ) : (
-        <CloseTradePanel trade={trade} />
+        <CloseTradePanel key={trade.id} trade={trade} />
       )}
 
       <SimpleReviewPanel trade={trade} />

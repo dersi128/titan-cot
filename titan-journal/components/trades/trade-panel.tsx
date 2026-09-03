@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
+import { CloseTradePanel } from "@/components/trades/close-trade-panel"
 import { ResultR } from "@/components/trades/result-r"
 import {
   DirectionBadge,
@@ -122,6 +123,8 @@ export function TradePanel({
           </div>
         ) : null}
       </div>
+
+      <CloseTradePanel key={trade.id} trade={trade} compact />
 
       <div className="flex flex-wrap items-center gap-2 pt-1">
         <Button size="sm" variant="outline" asChild className="h-7 text-[12px]">

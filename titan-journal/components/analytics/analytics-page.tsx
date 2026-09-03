@@ -380,7 +380,6 @@ export function AnalyticsPage() {
           <PerformanceBars
             trades={trades}
             currency={profile.currency}
-            showRange={false}
           />
           <EquityCurve data={equity} defaultMetric="r" />
         </div>
