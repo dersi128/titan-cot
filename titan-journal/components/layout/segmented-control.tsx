@@ -22,13 +22,8 @@ export function SegmentedControl<T extends string>({
       role="group"
       aria-label={ariaLabel}
       className={cn(
-<<<<<<< HEAD
-        "inline-flex w-fit max-w-full flex-wrap items-center rounded-[8px] border border-border bg-muted/50 p-0.5",
+        "inline-flex h-auto w-max max-w-full items-center rounded-[8px] border border-border bg-muted/50 p-0.5",
         size === "sm" ? "min-h-7" : "min-h-8"
-=======
-        "inline-flex w-fit items-center rounded-[8px] border border-border bg-muted/50 p-0.5",
-        size === "sm" ? "h-7" : "h-8"
->>>>>>> origin/main
       )}
     >
       {options.map((option) => {
@@ -40,7 +35,7 @@ export function SegmentedControl<T extends string>({
             onClick={() => onChange(option)}
             aria-pressed={selected}
             className={cn(
-              "rounded-[6px] font-medium transition-[color,background-color,box-shadow] duration-200",
+              "shrink-0 rounded-[6px] font-medium whitespace-nowrap transition-[color,background-color,box-shadow] duration-200",
               size === "sm"
                 ? "h-6 px-2 text-[11px]"
                 : "h-7 px-2.5 text-[12px]",
