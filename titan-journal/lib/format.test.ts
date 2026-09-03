@@ -6,6 +6,7 @@ import {
   formatMoney,
   formatPercent,
   formatSignedMoney,
+  formatSignedPercentPoints,
   formatYesNo,
 } from "@/lib/format"
 import { LOCALE, TIMEZONE } from "@/lib/locale"
@@ -43,5 +44,10 @@ describe("cs-CZ locale", () => {
     expect(formatCompactSigned(-180)).toBe("-180")
     expect(formatCompactSigned(1240)).toBe("+1.2k")
     expect(formatCompactSigned(15000)).toBe("+15k")
+  })
+
+  it("formats signed percent points", () => {
+    expect(formatSignedPercentPoints(2.8)).toBe("+2,8 %")
+    expect(formatSignedPercentPoints(-1)).toBe("-1 %")
   })
 })

@@ -28,6 +28,8 @@ describe("CZ/EN dictionaries", () => {
     expect(labelsFor("cs").DATE_RANGE_LABELS.ALL).toBe("Vše")
     expect(labelsFor("cs").copy.nav.calendar).toBe("Kalendář")
     expect(labelsFor("cs").copy.calendar.openTrade).toBe("Otevřít obchod")
+    expect(labelsFor("cs").copy.dashboard.performance).toBe("Výkon za období")
+    expect(labelsFor("en").copy.dashboard.performance).toBe("Performance by period")
     expect(labelsFor("en").copy.calendar.weekdays).toHaveLength(7)
   })
 })
