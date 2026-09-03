@@ -298,6 +298,8 @@ export const copyEn = {
     active: "Active",
     all: "All playbooks",
     topMarkets: "Most traded",
+    updated: "Updated",
+    cumulativeR: "Cumulative R",
     types: {
       select: "Select",
       yes_no: "Yes / No",
@@ -653,6 +655,8 @@ export const copyCs: Copy = {
     active: "Aktivní",
     all: "Všechny playbooky",
     topMarkets: "Nejčastější trhy",
+    updated: "Aktualizováno",
+    cumulativeR: "Kumulativní R",
     types: {
       select: "Výběr",
       yes_no: "Ano / Ne",
