@@ -28,6 +28,16 @@ const FOREX_CURRENCIES = new Set([
   "CAD",
   "AUD",
   "NZD",
+  "SGD",
+  "HKD",
+  "SEK",
+  "NOK",
+  "DKK",
+  "MXN",
+  "TRY",
+  "ZAR",
+  "PLN",
+  "CNH",
 ])
 
 const UNKNOWN: Omit<MarketClassification, "symbol"> = {
@@ -85,7 +95,17 @@ export function classifyMarket(rawSymbol: string): MarketClassification {
   const crypto = assetClassFromCryptoPattern(symbol)
   if (crypto) return classified(symbol, crypto)
 
-  return classifyForexPair(symbol) ?? { symbol, ...UNKNOWN }
+  const forex = classifyForexPair(symbol)
+  if (forex) return forex
+
+  // Share tickers are too many to alias. Anything that still looks like a
+  // market symbol and is not a known FX / metal / index / crypto / commodity
+  // is Stock.
+  if (/[A-Z]/.test(symbol)) {
+    return classified(symbol, "Stock")
+  }
+
+  return { symbol, ...UNKNOWN }
 }
 
 export function formatMarketLabel(classification: {
