@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
 
 import { useWorkspace } from "@/components/layout/workspace-provider"
+import { loadChrome, saveChrome } from "@/lib/chrome-storage"
 import {
   DATE_RANGES,
   defaultCustomRange,
@@ -33,12 +34,26 @@ export function WorkspaceChromeProvider({
   const [account, setAccount] = useState<Account>("Personal")
   const [range, setRangeState] = useState<DateRange>("ALL")
   const [custom, setCustom] = useState<CustomRange | null>(null)
+  const [ready, setReady] = useState(false)
 
   useEffect(() => {
-    setAccount(preferences.defaultAccount)
-    // Header starts from the saved default. After that the trader drives it.
+    const stored = loadChrome()
+    if (stored) {
+      setAccount(stored.account)
+      setRangeState(stored.range)
+      setCustom(stored.custom)
+    } else {
+      setAccount(preferences.defaultAccount)
+    }
+    setReady(true)
+    // Header starts from stored chrome, else the saved default account.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => {
+    if (!ready) return
+    saveChrome({ account, range, custom })
+  }, [ready, account, range, custom])
 
   const setRange = useCallback((next: DateRange) => {
     setRangeState(next)

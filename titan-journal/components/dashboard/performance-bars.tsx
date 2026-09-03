@@ -14,17 +14,13 @@ import {
 } from "recharts"
 
 import { SegmentedControl } from "@/components/layout/segmented-control"
-import {
-  DATE_RANGES,
-  useWorkspaceChrome,
-} from "@/components/layout/workspace-chrome"
+import { useWorkspaceChrome } from "@/components/layout/workspace-chrome"
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import {
   formatSignedMoney,
   formatSignedR,
@@ -123,14 +119,12 @@ function BarTooltip({
 export function PerformanceBars({
   trades,
   currency,
-  showRange = true,
 }: {
   trades: Trade[]
   currency: string
-  showRange?: boolean
 }) {
-  const { copy, language, DATE_RANGE_LABELS } = useLabels()
-  const { range, setRange, custom, setCustom } = useWorkspaceChrome()
+  const { copy, language } = useLabels()
+  const { range, custom } = useWorkspaceChrome()
   const [metric, setMetric] = useState<Metric>("r")
   const result = useMemo(
     () => getPerformanceByPeriod(trades, range, new Date(), custom),
@@ -185,40 +179,6 @@ export function PerformanceBars({
               aria-label={copy.dashboard.performance}
             />
           </div>
-          {showRange ? (
-            <>
-          <div className="max-w-full overflow-x-auto">
-            <SegmentedControl
-              size="sm"
-              options={DATE_RANGES}
-              value={range}
-              onChange={setRange}
-              labels={DATE_RANGE_LABELS}
-              aria-label={copy.shell.range}
-            />
-          </div>
-          {range === "CUSTOM" && custom ? (
-            <div className="flex gap-2">
-              <Input
-                type="date"
-                value={custom.start}
-                onChange={(event) =>
-                  setCustom({ ...custom, start: event.target.value })
-                }
-                className="h-7 px-2 text-[11px]"
-              />
-              <Input
-                type="date"
-                value={custom.end}
-                onChange={(event) =>
-                  setCustom({ ...custom, end: event.target.value })
-                }
-                className="h-7 px-2 text-[11px]"
-              />
-            </div>
-          ) : null}
-            </>
-          ) : null}
         </div>
       </CardHeader>
       <CardContent className="pt-2 pb-2">
