@@ -57,6 +57,20 @@ export function formatSignedR(value: number | null | undefined): string {
   return `0R`
 }
 
+export function formatCompactSigned(value: number | null | undefined): string {
+  if (value == null || !Number.isFinite(value)) return "—"
+  if (value === 0) return "0"
+  const sign = value > 0 ? "+" : "-"
+  const abs = Math.abs(value)
+  const body =
+    abs >= 10_000
+      ? `${Math.round(abs / 1000)}k`
+      : abs >= 1000
+        ? `${(Math.round(abs / 100) / 10).toFixed(1).replace(/\.0$/, "")}k`
+        : String(Math.round(abs))
+  return `${sign}${body}`
+}
+
 export function formatPercent(value: number | null | undefined): string {
   if (value == null || !Number.isFinite(value)) return "—"
   return `${Math.round(value * 100)} %`

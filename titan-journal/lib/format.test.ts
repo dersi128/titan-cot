@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest"
 
-import { formatDate, formatMoney, formatPercent, formatSignedMoney, formatYesNo } from "@/lib/format"
+import {
+  formatCompactSigned,
+  formatDate,
+  formatMoney,
+  formatPercent,
+  formatSignedMoney,
+  formatYesNo,
+} from "@/lib/format"
 import { LOCALE, TIMEZONE } from "@/lib/locale"
 
 describe("cs-CZ locale", () => {
@@ -28,5 +35,13 @@ describe("cs-CZ locale", () => {
     expect(eur).toContain("1")
     expect(eur).toMatch(/EUR|€/)
     expect(formatSignedMoney(-180, "EUR")).toMatch(/^-/)
+  })
+
+  it("compacts calendar-sized PnL", () => {
+    expect(formatCompactSigned(0)).toBe("0")
+    expect(formatCompactSigned(240)).toBe("+240")
+    expect(formatCompactSigned(-180)).toBe("-180")
+    expect(formatCompactSigned(1240)).toBe("+1.2k")
+    expect(formatCompactSigned(15000)).toBe("+15k")
   })
 })
