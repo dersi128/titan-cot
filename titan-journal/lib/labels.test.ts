@@ -26,5 +26,7 @@ describe("CZ/EN dictionaries", () => {
     expect(labelsFor("cs").YES_NO_LABELS.YES).toBe("Ano")
     expect(labelsFor("cs").ASSET_CLASS_LABELS.Stock).toBe("Akcie")
     expect(labelsFor("cs").DATE_RANGE_LABELS.ALL).toBe("Vše")
+    expect(labelsFor("cs").copy.dashboard.calendar).toBe("Kalendář")
+    expect(labelsFor("en").copy.dashboard.weekdays).toHaveLength(7)
   })
 })
