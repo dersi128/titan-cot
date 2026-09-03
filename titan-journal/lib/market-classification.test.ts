@@ -57,17 +57,15 @@ describe("classifyMarket", () => {
     })
   })
 
-  it("does not guess unsupported markets", () => {
+  it("treats unmatched tickers as Stock", () => {
     expect(classifyMarket("FOOBAR")).toMatchObject({
       symbol: "FOOBAR",
-      assetClass: "Unknown",
+      assetClass: "Stock",
       marketType: "Unknown",
       cotEnabled: false,
     })
-    expect(classifyMarket("XYZUSD")).toMatchObject({
-      assetClass: "Unknown",
-      cotEnabled: false,
-    })
+    expect(classifyMarket("MSFT")).toMatchObject({ assetClass: "Stock" })
+    expect(classifyMarket("XYZUSD")).toMatchObject({ assetClass: "Stock" })
   })
 
   it.each([
@@ -79,6 +77,8 @@ describe("classifyMarket", () => {
     ["XAGUSD", "Metal"],
     ["GOLD", "Metal"],
     ["SILVER", "Metal"],
+    ["COPPER", "Metal"],
+    ["XPTUSD", "Metal"],
     ["US30", "Index"],
     ["NAS100", "Index"],
     ["SPX500", "Index"],
@@ -86,21 +86,33 @@ describe("classifyMarket", () => {
     ["UK100", "Index"],
     ["USTEC", "Index"],
     ["NASDAQ", "Index"],
+    ["US500", "Index"],
+    ["JP225", "Index"],
     ["BTCUSD", "Crypto"],
     ["BTCUSDT", "Crypto"],
     ["ETHUSD", "Crypto"],
     ["ETHUSDT", "Crypto"],
+    ["SOLUSD", "Crypto"],
     ["COTTON", "Commodity"],
     ["COFFEE", "Commodity"],
     ["CORN", "Commodity"],
     ["WHEAT", "Commodity"],
     ["SOYBEAN", "Commodity"],
+    ["USOIL", "Commodity"],
+    ["WTI", "Commodity"],
   ] as const)("classifies %s as %s", (symbol, assetClass) => {
     expect(classifyMarket(symbol)).toMatchObject({
       symbol,
       assetClass,
       marketType: "Unknown",
       cotEnabled: false,
+    })
+  })
+
+  it("classifies extra FX legs as Forex, not Stock", () => {
+    expect(classifyMarket("EURSEK")).toMatchObject({
+      assetClass: "Forex",
+      marketType: "Cross",
     })
   })
 
