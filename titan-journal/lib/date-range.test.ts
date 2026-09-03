@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest"
 
-import { rangeBounds, previousRangeBounds, rangeStartIso, tradeInRange } from "@/lib/date-range"
+import {
+  defaultCustomRange,
+  previousRangeBounds,
+  rangeBounds,
+  rangeStartIso,
+  tradeInRange,
+} from "@/lib/date-range"
 
 describe("rangeStartIso", () => {
   const now = new Date(2026, 8, 3)
@@ -17,6 +23,11 @@ describe("rangeStartIso", () => {
     expect(
       rangeBounds("CUSTOM", now, { start: "2026-07-01", end: "2026-07-15" })
     ).toEqual({ start: "2026-07-01", end: "2026-07-15" })
+    expect(rangeBounds("CUSTOM", now, null)).toEqual(rangeBounds("30D", now))
+    expect(defaultCustomRange(now)).toEqual({
+      start: "2026-08-04",
+      end: "2026-09-03",
+    })
     expect(
       tradeInRange({ date: "2026-07-10" }, "CUSTOM", now, {
         start: "2026-07-01",

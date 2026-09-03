@@ -5,8 +5,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { useWorkspace } from "@/components/layout/workspace-provider"
 import {
   DATE_RANGES,
-  isoDateLocal,
-  rangeStartIso,
+  defaultCustomRange,
   type CustomRange,
   type DateRange,
 } from "@/lib/date-range"
@@ -24,13 +23,6 @@ type WorkspaceChrome = {
 }
 
 const WorkspaceChromeContext = createContext<WorkspaceChrome | null>(null)
-
-function defaultCustomRange(now = new Date()): CustomRange {
-  return {
-    start: rangeStartIso("30D", now) ?? isoDateLocal(now),
-    end: isoDateLocal(now),
-  }
-}
 
 export function WorkspaceChromeProvider({
   children,

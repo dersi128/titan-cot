@@ -435,6 +435,30 @@ html[data-density="large"] {
     backdrop-filter: blur(16px);
   }
 
+  .titan-seg {
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary) 22%, transparent);
+  }
+
+  html[data-theme="light"] .titan-seg {
+    border-color: color-mix(in srgb, var(--primary) 58%, transparent);
+    background: var(--elevated);
+    box-shadow: 0 1px 2px rgba(44, 53, 66, 0.14);
+  }
+
+  html[data-theme="dark"] .titan-seg {
+    border-color: rgba(61, 180, 255, 0.48);
+  }
+
+  html[data-theme="gold"] .titan-seg {
+    border-color: rgba(212, 175, 90, 0.55);
+    box-shadow: 0 0 12px rgba(212, 175, 90, 0.22);
+  }
+
+  html[data-theme="cyberpunk"] .titan-seg {
+    border-color: rgba(0, 232, 255, 0.5);
+    box-shadow: 0 0 12px rgba(0, 232, 255, 0.22);
+  }
+
   .titan-sidebar {
     background: color-mix(in srgb, var(--sidebar-bg) 94%, transparent);
     color: var(--sidebar-text);
