@@ -1,4 +1,4 @@
-import { todayIsoDate } from "@/lib/locale"
+import { dateLocale, todayIsoDate, usesDayMonthFormat } from "@/lib/locale"
 import { isRealizedTradeStatus } from "@/lib/trade-calculations"
 import type { Language } from "@/types/playbook"
 import type { Trade } from "@/types/trade"
@@ -77,6 +77,21 @@ const MONTH_SHORT_CS = [
   "Pro",
 ] as const
 
+const MONTH_SHORT_SK = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "Máj",
+  "Jún",
+  "Júl",
+  "Aug",
+  "Sep",
+  "Okt",
+  "Nov",
+  "Dec",
+] as const
+
 const MONTH_SHORT_EN = [
   "Jan",
   "Feb",
@@ -96,7 +111,7 @@ export function formatMonthTitle(
   cursor: MonthCursor,
   language: Language
 ): string {
-  const locale = language === "cs" ? "cs-CZ" : "en-US"
+  const locale = dateLocale(language)
   return new Date(Date.UTC(cursor.year, cursor.month - 1, 1)).toLocaleDateString(
     locale,
     { month: "long", year: "numeric", timeZone: "UTC" }
@@ -107,7 +122,12 @@ export function formatMonthShort(
   cursor: MonthCursor,
   language: Language
 ): string {
-  const names = language === "cs" ? MONTH_SHORT_CS : MONTH_SHORT_EN
+  const names =
+    language === "cs"
+      ? MONTH_SHORT_CS
+      : language === "sk"
+        ? MONTH_SHORT_SK
+        : MONTH_SHORT_EN
   return names[cursor.month - 1] ?? String(cursor.month)
 }
 
@@ -237,7 +257,7 @@ export function formatCalendarDayTitle(
   const parsed = parseIsoDate(iso)
   if (!parsed) return iso
   const month = formatMonthShort(parsed, language)
-  if (language === "cs") return `${parsed.day}. ${month.toLowerCase()} ${parsed.year}`
+  if (usesDayMonthFormat(language)) return `${parsed.day}. ${month.toLowerCase()} ${parsed.year}`
   return `${parsed.day} ${month} ${parsed.year}`
 }
 

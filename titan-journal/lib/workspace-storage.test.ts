@@ -26,6 +26,7 @@ describe("workspace hydration", () => {
     expect(hydratePreferences({ theme: "cyberpunk" }).theme).toBe("cyberpunk")
     expect(hydratePreferences({ theme: "gold" }).theme).toBe("gold")
     expect(hydratePreferences({ language: "cs" }).language).toBe("cs")
+    expect(hydratePreferences({ language: "sk" }).language).toBe("sk")
     expect(hydratePreferences({ language: "nope" }).language).toBe("en")
     expect(hydratePreferences({ defaultAccount: "Challenge" }).defaultAccount).toBe(
       "Backtesting"

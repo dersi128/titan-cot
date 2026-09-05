@@ -364,10 +364,10 @@ export function applyDocumentAppearance(preferences: UserPreferences) {
   const root = document.documentElement
   root.dataset.theme = preferences.theme
   root.dataset.density = preferences.density
-  root.lang = preferences.language === "cs" ? "cs" : "en"
+  root.lang = preferences.language
   const dark = isDarkTheme(preferences.theme)
   root.style.colorScheme = dark ? "dark" : "light"
   root.classList.toggle("dark", dark)
 }
 
-export const THEME_BOOT_SCRIPT = `try{var p=JSON.parse(localStorage.getItem("${PREFERENCES_STORAGE_KEY}")||"{}");var ok=["light","dark","gold","cyberpunk"];var t=p.theme==="slate"?"dark":ok.indexOf(p.theme)>=0?p.theme:"dark";var d=p.density==="compact"||p.density==="large"||p.density==="comfortable"?p.density:"comfortable";var lang=p.language==="cs"?"cs":"en";var r=document.documentElement;r.setAttribute("data-theme",t);r.setAttribute("data-density",d);r.setAttribute("lang",lang);var dark=t!=="light";r.style.colorScheme=dark?"dark":"light";r.classList.toggle("dark",dark);}catch(e){}`
+export const THEME_BOOT_SCRIPT = `try{var p=JSON.parse(localStorage.getItem("${PREFERENCES_STORAGE_KEY}")||"{}");var ok=["light","dark","gold","cyberpunk"];var t=p.theme==="slate"?"dark":ok.indexOf(p.theme)>=0?p.theme:"dark";var d=p.density==="compact"||p.density==="large"||p.density==="comfortable"?p.density:"comfortable";var langs=["cs","sk","en"];var lang=langs.indexOf(p.language)>=0?p.language:"en";var r=document.documentElement;r.setAttribute("data-theme",t);r.setAttribute("data-density",d);r.setAttribute("lang",lang);var dark=t!=="light";r.style.colorScheme=dark?"dark":"light";r.classList.toggle("dark",dark);}catch(e){}`

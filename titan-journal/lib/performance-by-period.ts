@@ -5,6 +5,7 @@ import {
   type DateRange,
 } from "@/lib/date-range"
 import { formatMonthShort, parseIsoDate } from "@/lib/pnl-calendar"
+import { usesDayMonthFormat } from "@/lib/locale"
 import { isRealizedTradeStatus } from "@/lib/trade-calculations"
 import { statsResultR, tradeOutcome } from "@/lib/trade-outcome"
 import type { Language } from "@/types/playbook"
@@ -294,7 +295,7 @@ export function performanceTickLabel(
   }
   const week = isoWeekNumber(bucket.key)
   if (compact && week != null) {
-    return language === "cs" ? `T${week}` : `W${week}`
+    return usesDayMonthFormat(language) ? `T${week}` : `W${week}`
   }
   if (bucket.startDate.slice(0, 7) === bucket.endDate.slice(0, 7)) {
     const start = parseIsoDate(bucket.startDate)

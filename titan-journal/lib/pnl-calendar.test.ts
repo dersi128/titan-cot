@@ -157,6 +157,7 @@ describe("formatMonthTitle", () => {
   it("localizes the month name", () => {
     expect(formatMonthTitle({ year: 2026, month: 8 }, "en")).toBe("August 2026")
     expect(formatMonthTitle({ year: 2026, month: 8 }, "cs").toLowerCase()).toContain("srpen")
+    expect(formatMonthTitle({ year: 2026, month: 8 }, "sk").toLowerCase()).toContain("august")
   })
 })
 
@@ -164,7 +165,8 @@ describe("formatMonthShort", () => {
   it("uses short Czech and English month names", () => {
     expect(formatMonthShort({ year: 2026, month: 8 }, "cs")).toBe("Srp")
     expect(formatMonthShort({ year: 2026, month: 1 }, "cs")).toBe("Led")
-    expect(formatMonthShort({ year: 2026, month: 8 }, "en")).toBe("Aug")
+    expect(formatMonthShort({ year: 2026, month: 8 }, "sk")).toBe("Aug")
+    expect(formatMonthShort({ year: 2026, month: 6 }, "sk")).toBe("Jún")
   })
 })
 
@@ -188,6 +190,7 @@ describe("calendarInsights", () => {
     expect(defaultSelectedDate(calendar, "2026-09-03")).toBe("2026-08-28")
     expect(defaultSelectedDate(calendar, "2026-08-10")).toBe("2026-08-10")
     expect(formatCalendarDayTitle("2026-08-15", "cs")).toBe("15. srp 2026")
+    expect(formatCalendarDayTitle("2026-08-15", "sk")).toBe("15. aug 2026")
     expect(formatCalendarDayTitle("2026-08-15", "en")).toBe("15 Aug 2026")
   })
 })
