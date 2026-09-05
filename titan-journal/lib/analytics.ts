@@ -134,6 +134,32 @@ export function statsBySymbol(trades: Trade[]): GroupStats[] {
   return groupStats(trades, (trade) => trade.symbol)
 }
 
+function groupPresentStats(
+  trades: Trade[],
+  keyOf: (trade: Trade) => string | null | undefined
+): GroupStats[] {
+  const groups = new Map<string, Trade[]>()
+  for (const trade of realized(trades)) {
+    const key = keyOf(trade)
+    if (!key) continue
+    const list = groups.get(key) ?? []
+    list.push(trade)
+    groups.set(key, list)
+  }
+
+  return [...groups.entries()]
+    .map(([key, list]) => statsFor(key, list))
+    .sort((a, b) => b.totalR - a.totalR)
+}
+
+export function statsByPlanFollowed(trades: Trade[]): GroupStats[] {
+  return groupPresentStats(trades, (trade) => trade.review?.planFollowed)
+}
+
+export function statsByEmotion(trades: Trade[]): GroupStats[] {
+  return groupPresentStats(trades, (trade) => trade.review?.emotionalState)
+}
+
 export function cappedGroups(
   trades: Trade[],
   keyOf: (trade: Trade) => string,
