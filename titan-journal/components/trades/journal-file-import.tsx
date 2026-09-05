@@ -15,6 +15,7 @@ import {
   parseImportFile,
   type ImportContext,
 } from "@/lib/trade-import"
+import { withoutSampleTrades } from "@/lib/mock-data"
 import { useLabels } from "@/lib/use-labels"
 import type { NewTradeInput } from "@/types/trade"
 
@@ -123,8 +124,9 @@ export function useJournalImport() {
         return
       }
       if (parsed.kind === "broker" && parsed.trades.length > 0) {
+        const kept = withoutSampleTrades(trades)
         const accountLabel = ACCOUNT_LABELS[importContext.account]
-        if (trades.length > 0) {
+        if (kept.length > 0) {
           const ok = window.confirm(
             copy.settings.importBrokerConfirm
               .replace("{n}", String(parsed.trades.length))
@@ -134,7 +136,7 @@ export function useJournalImport() {
         }
         setStatus("working")
         const withCot = await fillImportedCot(parsed.trades)
-        replaceAll([...materializeImportedTrades(withCot), ...trades])
+        replaceAll([...materializeImportedTrades(withCot), ...kept])
         setAddedCount(parsed.trades.length)
         setStatus("added")
         return

@@ -363,6 +363,10 @@ export function isSampleJournal(trades: Trade[]): boolean {
   return trades.length > 0 && trades.every((trade) => MOCK_TRADE_IDS.has(trade.id))
 }
 
+export function withoutSampleTrades(trades: Trade[]): Trade[] {
+  return trades.filter((trade) => !MOCK_TRADE_IDS.has(trade.id))
+}
+
 export const STRATEGY_SNAPSHOT = {
   best: {
     name: "A+ Fresh Demand",

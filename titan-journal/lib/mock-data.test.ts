@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { MOCK_TRADES, isSampleJournal } from "@/lib/mock-data"
+import { MOCK_TRADES, isSampleJournal, withoutSampleTrades } from "@/lib/mock-data"
 import { filterTrades } from "@/lib/trade-filters"
 
 describe("mock journal seed", () => {
@@ -54,6 +54,13 @@ describe("mock journal seed", () => {
     expect(
       isSampleJournal([...MOCK_TRADES, { ...MOCK_TRADES[0], id: "real-1" }])
     ).toBe(false)
+  })
+
+  it("drops sample trades so a broker import does not keep fake data", () => {
+    const real = { ...MOCK_TRADES[0], id: "real-1" }
+    expect(withoutSampleTrades(MOCK_TRADES)).toEqual([])
+    expect(withoutSampleTrades([real, MOCK_TRADES[0]])).toEqual([real])
+    expect(withoutSampleTrades([real])).toEqual([real])
   })
 })
 
