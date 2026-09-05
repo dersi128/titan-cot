@@ -19,6 +19,55 @@ function xmlEscape(value: string): string {
     .replace(/>/g, "&gt;")
 }
 
+function buildMt5PositionXlsx(): Uint8Array {
+  const strings = [
+    "Report",
+    "Name: Mt5 Position History List",
+    "Symbol",
+    "Account Number",
+    "Position",
+    "Position Status",
+    "Date Time",
+    "Transaction Type",
+    "Trade Volume Lots",
+    "Open Price",
+    "Profit",
+    "SBUX.NAS",
+    "Closed",
+    "6/2/2026 6:59:35 PM",
+    "Trade Buy In",
+    "6/4/2026 6:42:06 PM",
+    "Trade Sell Out",
+    "PEP.NAS",
+    "Open",
+    "6/1/2026 5:49:17 PM",
+  ]
+  const shared = `<?xml version="1.0" encoding="UTF-8"?><sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">${strings
+    .map((value) => `<si><t>${xmlEscape(value)}</t></si>`)
+    .join("")}</sst>`
+  const sheet = `<?xml version="1.0" encoding="UTF-8"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>
+    <row r="1"><c r="A1" t="s"><v>0</v></c></row>
+    <row r="2"><c r="A2" t="s"><v>1</v></c></row>
+    <row r="3">${["A","B","C","D","E","F","G","H","I"].map((col, i) => `<c r="${col}3" t="s"><v>${i + 2}</v></c>`).join("")}</row>
+    <row r="4">
+      <c r="A4" t="s"><v>11</v></c><c r="B4"><v>1</v></c><c r="C4"><v>20</v></c><c r="D4" t="s"><v>12</v></c>
+      <c r="E4" t="s"><v>13</v></c><c r="F4" t="s"><v>14</v></c><c r="G4"><v>120</v></c><c r="H4"><v>97.84</v></c><c r="I4"><v>0</v></c>
+    </row>
+    <row r="5">
+      <c r="A5" t="s"><v>11</v></c><c r="B5"><v>1</v></c><c r="C5"><v>20</v></c><c r="D5" t="s"><v>12</v></c>
+      <c r="E5" t="s"><v>15</v></c><c r="F5" t="s"><v>16</v></c><c r="G5"><v>120</v></c><c r="H5"><v>95.28</v></c><c r="I5"><v>-307.2</v></c>
+    </row>
+    <row r="6">
+      <c r="A6" t="s"><v>17</v></c><c r="B6"><v>1</v></c><c r="C6"><v>10</v></c><c r="D6" t="s"><v>18</v></c>
+      <c r="E6" t="s"><v>19</v></c><c r="F6" t="s"><v>16</v></c><c r="G6"><v>148</v></c><c r="H6"><v>142.4</v></c><c r="I6"><v>-518</v></c>
+    </row>
+  </sheetData></worksheet>`
+  return zipSync({
+    "xl/sharedStrings.xml": encoder.encode(shared),
+    "xl/worksheets/sheet1.xml": encoder.encode(sheet),
+  })
+}
+
 function buildCTraderXlsx(): Uint8Array {
   const strings = [
     "Symbol",
@@ -153,6 +202,12 @@ describe("parseBrokerDate", () => {
     expect(parseBrokerDate("2026.09.01 14:22")).toBe("2026-09-01")
     expect(parseBrokerDate("03.09.2026 11:00")).toBe("2026-09-03")
     expect(parseBrokerDate("45901")).toBe("2025-09-01")
+  })
+
+  it("reads US M/D/YYYY with AM/PM from IC Markets position history", () => {
+    expect(parseBrokerDate("6/1/2026 5:49:17 PM")).toBe("2026-06-01")
+    expect(parseBrokerDate("6/25/2026 7:58:02 PM")).toBe("2026-06-25")
+    expect(parseBrokerDate("8/31/2026 11:00:25 AM")).toBe("2026-08-31")
   })
 })
 
@@ -334,5 +389,68 @@ describe("parseImportText", () => {
   it("asks to save old Excel .xls as xlsx", () => {
     const bytes = Uint8Array.from([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1])
     expect(parseImportFile(bytes, DEFAULT_IMPORT_CONTEXT, "report.xls").kind).toBe("xls")
+  })
+
+  it("pairs IC Markets MT5 position-history In/Out rows into closed trades", () => {
+    const csv = `Report
+Name: Mt5 Position History List
+Symbol,Account Number,Position,Position Status,Date Time,Transaction Type,Trade Volume Lots,Open Price,Profit
+PEP.NAS,1,10,Open,6/1/2026 5:49:17 PM,Trade Sell Out,148,142.4,-518
+SBUX.NAS,1,20,Closed,6/2/2026 6:59:35 PM,Trade Buy In,120,97.84,0
+SBUX.NAS,1,20,Closed,6/4/2026 6:42:06 PM,Trade Sell Out,120,95.28,-307.2
+Cotton_Z6,1,30,Closed,8/31/2026 11:00:25 AM,Trade Sell In,5,91.7,0
+Cotton_Z6,1,30,Closed,8/31/2026 11:02:46 AM,Trade Buy Out,2,91.97,-54
+Cotton_Z6,1,30,Closed,8/31/2026 1:51:33 PM,Trade Buy Out,3,93.45,-525
+EURUSD,1,40,Closed,6/8/2026 3:13:03 PM,Trade Buy In,0.5,1.1539,0
+EURUSD,1,40,Closed,6/10/2026 2:37:36 PM,Trade Sell Out,0.5,1.1538,-4.5
+`
+
+    const parsed = parseImportText(csv, DEFAULT_IMPORT_CONTEXT, "position-history.csv")
+    expect(parsed.kind).toBe("broker")
+    if (parsed.kind !== "broker") return
+    expect(parsed.trades).toHaveLength(3)
+    expect(parsed.trades[0]).toMatchObject({
+      symbol: "SBUX.NAS",
+      direction: "LONG",
+      date: "2026-06-04",
+      entry: 97.84,
+      takeProfit: 95.28,
+      pnl: -307.2,
+      status: "CLOSED",
+      notes: "#20",
+    })
+    expect(parsed.trades[1]).toMatchObject({
+      symbol: "COTTON_Z6",
+      direction: "SHORT",
+      date: "2026-08-31",
+      entry: 91.7,
+      pnl: -579,
+      notes: "#30",
+    })
+    expect(parsed.trades[2]).toMatchObject({
+      symbol: "EURUSD",
+      direction: "LONG",
+      date: "2026-06-10",
+      entry: 1.1539,
+      pnl: -4.5,
+    })
+  })
+
+  it("reads an IC Markets MT5 position-history Excel workbook", () => {
+    const parsed = parseImportFile(
+      buildMt5PositionXlsx(),
+      DEFAULT_IMPORT_CONTEXT,
+      "icmarkets_mt5_position_history.xlsx"
+    )
+    expect(parsed.kind).toBe("broker")
+    if (parsed.kind !== "broker") return
+    expect(parsed.trades).toHaveLength(1)
+    expect(parsed.trades[0]).toMatchObject({
+      symbol: "SBUX.NAS",
+      direction: "LONG",
+      date: "2026-06-04",
+      entry: 97.84,
+      pnl: -307.2,
+    })
   })
 })
