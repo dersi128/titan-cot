@@ -282,12 +282,10 @@ function cloneDefaultPlaybooks(): Playbook[] {
 }
 
 export function hydratePlaybooks(raw: unknown): Playbook[] {
-  if (!Array.isArray(raw) || raw.length === 0) return cloneDefaultPlaybooks()
-  const playbooks = raw
+  if (raw == null || !Array.isArray(raw)) return cloneDefaultPlaybooks()
+  return raw
     .map((item) => hydratePlaybook(item))
     .filter((item): item is Playbook => item != null)
-  if (playbooks.length === 0) return cloneDefaultPlaybooks()
-  return playbooks
 }
 
 type Listener = () => void

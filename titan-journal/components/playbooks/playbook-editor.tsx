@@ -25,12 +25,13 @@ import { PLAYBOOK_FIELD_TYPES, type Playbook, type PlaybookFieldType } from "@/t
 export function PlaybookEditor({ playbook }: { playbook?: Playbook }) {
   const { copy } = useLabels()
   const router = useRouter()
-  const { savePlaybook } = useWorkspace()
+  const { savePlaybook, deletePlaybook } = useWorkspace()
   const [draft, setDraft] = useState<Playbook>(
     () => playbook ?? emptyPlaybook()
   )
   const baseline = useRef(draft)
   const [error, setError] = useState<string | null>(null)
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const dirty = isDirty(draft, baseline.current)
 
   function updateField(id: string, patch: Partial<Playbook["fields"][number]>) {
@@ -249,9 +250,45 @@ export function PlaybookEditor({ playbook }: { playbook?: Playbook }) {
 
         {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
-        <SaveButton type="button" dirty={dirty} onClick={handleSave}>
-          {copy.playbook.save}
-        </SaveButton>
+        <div className="flex flex-wrap items-center gap-2">
+          <SaveButton type="button" dirty={dirty} onClick={handleSave}>
+            {copy.playbook.save}
+          </SaveButton>
+          {playbook ? (
+            confirmDelete ? (
+              <>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={() => {
+                    deletePlaybook(playbook.id)
+                    router.push("/playbook")
+                  }}
+                >
+                  {copy.playbook.delete}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setConfirmDelete(false)}
+                >
+                  {copy.playbook.cancel}
+                </Button>
+              </>
+            ) : (
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setConfirmDelete(true)}
+              >
+                {copy.playbook.delete}
+              </Button>
+            )
+          ) : null}
+        </div>
+        {playbook && confirmDelete ? (
+          <p className="text-sm text-destructive">{copy.playbook.deleteConfirm}</p>
+        ) : null}
       </div>
     </PageFrame>
   )

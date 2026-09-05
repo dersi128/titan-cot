@@ -59,8 +59,8 @@ describe("workspace hydration", () => {
     expect(playbook?.fields[0]?.name).toBe("Session")
   })
 
-  it("seeds Demo when the stored list is empty", () => {
-    const playbooks = hydratePlaybooks([])
+  it("seeds Demo when nothing is stored", () => {
+    const playbooks = hydratePlaybooks(null)
     expect(playbooks).toHaveLength(1)
     expect(playbooks[0]?.id).toBe(TITAN_SWING_PLAYBOOK_ID)
     expect(playbooks[0]?.name).toBe("Demo")
@@ -68,6 +68,10 @@ describe("workspace hydration", () => {
       "demo-setup",
       "demo-session",
     ])
+  })
+
+  it("keeps an empty stored playbook list empty", () => {
+    expect(hydratePlaybooks([])).toEqual([])
   })
 
   it("does not inject Demo when the stored list has other playbooks", () => {

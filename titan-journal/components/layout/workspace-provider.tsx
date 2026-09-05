@@ -9,7 +9,7 @@ import {
   useSyncExternalStore,
 } from "react"
 
-import { createDemoPlaybook } from "@/lib/playbooks"
+import { createDemoPlaybook, fallbackPlaybookId, withoutPlaybook } from "@/lib/playbooks"
 import {
   applyDocumentAppearance,
   DEFAULT_PREFERENCES,
@@ -30,6 +30,7 @@ type WorkspaceValue = {
   updateProfile: (profile: UserProfile) => void
   updatePreferences: (patch: Partial<UserPreferences>) => void
   savePlaybook: (playbook: Playbook) => Playbook
+  deletePlaybook: (id: string) => void
   getPlaybook: (id: string) => Playbook | undefined
   replaceWorkspace: (next: {
     profile: UserProfile
@@ -79,7 +80,22 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     if (index >= 0) next[index] = playbook
     else next.unshift(playbook)
     playbookStore.set(next)
+    const prefs = preferencesStore.get()
+    const defaultPlaybookId = fallbackPlaybookId(next, prefs.defaultPlaybookId)
+    if (defaultPlaybookId !== prefs.defaultPlaybookId) {
+      preferencesStore.set({ ...prefs, defaultPlaybookId })
+    }
     return playbook
+  }, [])
+
+  const deletePlaybook = useCallback((id: string) => {
+    const next = withoutPlaybook(playbookStore.get(), id)
+    playbookStore.set(next)
+    const prefs = preferencesStore.get()
+    const defaultPlaybookId = fallbackPlaybookId(next, prefs.defaultPlaybookId)
+    if (defaultPlaybookId !== prefs.defaultPlaybookId) {
+      preferencesStore.set({ ...prefs, defaultPlaybookId })
+    }
   }, [])
 
   const getPlaybook = useCallback(
@@ -110,6 +126,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       updateProfile,
       updatePreferences,
       savePlaybook,
+      deletePlaybook,
       getPlaybook,
       replaceWorkspace,
     }),
@@ -120,6 +137,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       updateProfile,
       updatePreferences,
       savePlaybook,
+      deletePlaybook,
       getPlaybook,
       replaceWorkspace,
     ]

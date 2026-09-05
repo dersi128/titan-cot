@@ -276,10 +276,11 @@ function DirectionDonut({
 
 export function PlaybookListPage() {
   const { copy, DIRECTION_LABELS } = useLabels()
-  const { playbooks, savePlaybook } = useWorkspace()
+  const { playbooks, savePlaybook, deletePlaybook } = useWorkspace()
   const { accountTrades } = useScopedTrades()
   const [query, setQuery] = useState("")
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const edgeByPlaybook = Object.fromEntries(
     statsByPlaybook(accountTrades).map((row) => [row.key, row])
   )
@@ -355,7 +356,10 @@ export function PlaybookListPage() {
                   <button
                     key={playbook.id}
                     type="button"
-                    onClick={() => setSelectedId(playbook.id)}
+                    onClick={() => {
+                      setSelectedId(playbook.id)
+                      setConfirmDelete(false)
+                    }}
                     className={cn(
                       "w-full rounded-[10px] border p-3 text-left transition-colors",
                       active
@@ -468,8 +472,46 @@ export function PlaybookListPage() {
                         ? copy.playbook.restore
                         : copy.playbook.archive}
                     </Button>
+                    {confirmDelete ? (
+                      <>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          type="button"
+                          onClick={() => {
+                            deletePlaybook(selected.id)
+                            setConfirmDelete(false)
+                            setSelectedId(null)
+                          }}
+                        >
+                          {copy.playbook.delete}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          type="button"
+                          onClick={() => setConfirmDelete(false)}
+                        >
+                          {copy.playbook.cancel}
+                        </Button>
+                      </>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        type="button"
+                        onClick={() => setConfirmDelete(true)}
+                      >
+                        {copy.playbook.delete}
+                      </Button>
+                    )}
                   </div>
                 </div>
+                {confirmDelete ? (
+                  <p className="text-[12px] text-destructive">
+                    {copy.playbook.deleteConfirm}
+                  </p>
+                ) : null}
 
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5">
                   <Metric
