@@ -18,6 +18,7 @@ import { useTrades } from "@/components/trades/trades-provider"
 import { useWorkspace } from "@/components/layout/workspace-provider"
 import { formatMarketLabel, classifyMarket } from "@/lib/market-classification"
 import { formatRRR } from "@/lib/trade-calculations"
+import { displayResultR } from "@/lib/trade-outcome"
 import { formatSignedUsd } from "@/lib/format"
 import { useLabels } from "@/lib/use-labels"
 import {
@@ -164,7 +165,7 @@ export function TradeDetail({ trade }: { trade: Trade }) {
         <Section title={copy.detail.result}>
           <FieldRow
             label={copy.detail.resultR}
-            value={<ResultR value={trade.resultR} />}
+            value={<ResultR value={displayResultR(trade)} />}
           />
           <FieldRow label={copy.detail.pnl} value={formatSignedUsd(trade.pnl)} />
         </Section>

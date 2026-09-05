@@ -20,6 +20,7 @@ import {
   signedClassName,
 } from "@/lib/format"
 import { formatRRR } from "@/lib/trade-calculations"
+import { displayResultR } from "@/lib/trade-outcome"
 import { useLabels } from "@/lib/use-labels"
 import { cn } from "@/lib/utils"
 import type { Trade } from "@/types/trade"
@@ -58,8 +59,8 @@ export function TradePanel({
         </div>
         {trade.resultR != null ? (
           <div className="text-right">
-            <p className={cn("font-mono text-[22px] font-semibold tabular-nums", signedClassName(trade.resultR))}>
-              <ResultR value={trade.resultR} />
+            <p className={cn("font-mono text-[22px] font-semibold tabular-nums", signedClassName(displayResultR(trade)))}>
+              <ResultR value={displayResultR(trade)} />
             </p>
             {trade.pnl != null ? (
               <p className={cn("font-mono text-[12px]", signedClassName(trade.pnl))}>

@@ -2,6 +2,7 @@
 
 import { Badge } from "@/components/ui/badge"
 import { useLabels } from "@/lib/use-labels"
+import { tradeOutcome } from "@/lib/trade-outcome"
 import { cn } from "@/lib/utils"
 import type { Grade, TradeDirection, TradeStatus } from "@/types/trade"
 
@@ -45,26 +46,35 @@ export function DirectionBadge({ direction }: { direction: TradeDirection }) {
   )
 }
 
-export function OutcomeBadge({ resultR }: { resultR: number | null }) {
+export function OutcomeBadge({
+  resultR,
+  pnl,
+}: {
+  resultR: number | null
+  pnl?: number | null
+}) {
   const { copy } = useLabels()
-  if (resultR == null) {
+  const outcome = tradeOutcome({ resultR, pnl })
+  if (outcome == null) {
     return <span className="text-muted-foreground">—</span>
   }
-  const win = resultR > 0
-  const loss = resultR < 0
   return (
     <Badge
       variant="outline"
       className={cn(
         "rounded-md px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider",
-        win
+        outcome === "WIN"
           ? "border-bull/30 bg-bull/10 text-bull"
-          : loss
+          : outcome === "LOSS"
             ? "border-bear/30 bg-bear/10 text-bear"
             : "border-border text-muted-foreground"
       )}
     >
-      {win ? copy.outcome.win : loss ? copy.outcome.loss : copy.outcome.be}
+      {outcome === "WIN"
+        ? copy.outcome.win
+        : outcome === "LOSS"
+          ? copy.outcome.loss
+          : copy.outcome.be}
     </Badge>
   )
 }

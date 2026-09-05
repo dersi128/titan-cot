@@ -1,5 +1,6 @@
 import { isoDateLocal } from "@/lib/date-range"
 import { isRealizedTradeStatus, type EquityPoint } from "@/lib/trade-calculations"
+import { statsResultR, tradeOutcome } from "@/lib/trade-outcome"
 import type { Trade } from "@/types/trade"
 
 export type PeriodSnapshot = {
@@ -33,9 +34,9 @@ function monthKey(year: number, month: number): string {
 function snapshot(trades: Trade[]): PeriodSnapshot {
   const closed = realized(trades)
   const pnl = closed.reduce((sum, trade) => sum + (trade.pnl ?? 0), 0)
-  const r = closed.reduce((sum, trade) => sum + (trade.resultR ?? 0), 0)
-  const wins = closed.filter((trade) => (trade.resultR ?? 0) > 0).length
-  const losses = closed.filter((trade) => (trade.resultR ?? 0) < 0).length
+  const r = closed.reduce((sum, trade) => sum + statsResultR(trade), 0)
+  const wins = closed.filter((trade) => tradeOutcome(trade) === "WIN").length
+  const losses = closed.filter((trade) => tradeOutcome(trade) === "LOSS").length
   const decided = wins + losses
   return {
     pnl: Math.round(pnl * 100) / 100,
@@ -63,8 +64,8 @@ export function dashboardSnapshots(
   now = new Date()
 ): DashboardSnapshots {
   const closed = realized(trades)
-  const wins = closed.filter((trade) => (trade.resultR ?? 0) > 0).length
-  const losses = closed.filter((trade) => (trade.resultR ?? 0) < 0).length
+  const wins = closed.filter((trade) => tradeOutcome(trade) === "WIN").length
+  const losses = closed.filter((trade) => tradeOutcome(trade) === "LOSS").length
   const decided = wins + losses
 
   const days = 7

@@ -6,6 +6,7 @@ import {
 } from "@/lib/date-range"
 import { formatMonthShort, parseIsoDate } from "@/lib/pnl-calendar"
 import { isRealizedTradeStatus } from "@/lib/trade-calculations"
+import { statsResultR, tradeOutcome } from "@/lib/trade-outcome"
 import type { Language } from "@/types/playbook"
 import type { Trade } from "@/types/trade"
 
@@ -118,18 +119,20 @@ function summarizeTrades(closed: Trade[]): {
   let wins = 0
   let losses = 0
   for (const trade of closed) {
-    const r = trade.resultR ?? 0
+    const r = statsResultR(trade)
     netR += r
     pnl += trade.pnl ?? 0
-    if (r > 0) wins += 1
-    else if (r < 0) losses += 1
+    const outcome = tradeOutcome(trade)
+    if (outcome === "WIN") wins += 1
+    else if (outcome === "LOSS") losses += 1
   }
   const trades = closed.length
+  const decided = wins + losses
   return {
     trades,
     wins,
     losses,
-    winRate: trades === 0 ? null : round1((wins / trades) * 100),
+    winRate: decided === 0 ? null : round1((wins / decided) * 100),
     netR: round2(netR),
     pnl: round2(pnl),
   }

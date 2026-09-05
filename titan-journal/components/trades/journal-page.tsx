@@ -37,6 +37,7 @@ import {
   StatusBadge,
 } from "@/components/trades/trade-badges"
 import { accountEdge } from "@/lib/analytics"
+import { displayResultR } from "@/lib/trade-outcome"
 import {
   formatDate,
   formatNumber,
@@ -439,10 +440,10 @@ export function JournalPage() {
                             {playbookNames[trade.playbookId] ?? trade.strategy}
                           </TableCell>
                           <TableCell>
-                            <OutcomeBadge resultR={trade.resultR} />
+                            <OutcomeBadge resultR={trade.resultR} pnl={trade.pnl} />
                           </TableCell>
                           <TableCell>
-                            <ResultR value={trade.resultR} />
+                            <ResultR value={displayResultR(trade)} />
                           </TableCell>
                           <TableCell className={signedClassName(trade.pnl)}>
                             {formatSignedUsd(trade.pnl)}

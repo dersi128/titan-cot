@@ -11,6 +11,7 @@ import { PageFrame, PageHeader } from "@/components/layout/page-header"
 import { useScopedTrades } from "@/components/layout/use-scoped-trades"
 import { DirectionBadge } from "@/components/trades/trade-badges"
 import { ResultR } from "@/components/trades/result-r"
+import { displayResultR } from "@/lib/trade-outcome"
 import { tradeRowProps } from "@/components/trades/trade-row"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -172,7 +173,7 @@ function DayTrades({
                   </TableCell>
                   <TableCell>{trade.strategy}</TableCell>
                   <TableCell>
-                    <ResultR value={trade.resultR} />
+                    <ResultR value={displayResultR(trade)} />
                   </TableCell>
                   <TableCell className={signedClassName(trade.pnl)}>
                     {formatSignedMoney(trade.pnl, currency)}

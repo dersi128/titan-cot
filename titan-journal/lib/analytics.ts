@@ -1,4 +1,5 @@
 import { isRealizedTradeStatus } from "@/lib/trade-calculations"
+import { statsResultR, tradeOutcome } from "@/lib/trade-outcome"
 import type { Trade } from "@/types/trade"
 
 export const EDGE_MIN_TRADES = 20
@@ -19,6 +20,7 @@ export type GroupStats = {
   maxDrawdownR: number | null
   wins: number
   losses: number
+  be: number
   edge: EdgeVerdict
 }
 
@@ -35,20 +37,21 @@ export function edgeVerdict(
 }
 
 function statsFor(key: string, list: Trade[]): GroupStats {
-  const totalR = list.reduce((sum, trade) => sum + (trade.resultR ?? 0), 0)
-  const netPnl = list.reduce((sum, trade) => sum + (trade.pnl ?? 0), 0)
-  const winners = list.filter((trade) => (trade.resultR ?? 0) > 0)
-  const losers = list.filter((trade) => (trade.resultR ?? 0) < 0)
+  const winners = list.filter((trade) => tradeOutcome(trade) === "WIN")
+  const losers = list.filter((trade) => tradeOutcome(trade) === "LOSS")
+  const be = list.filter((trade) => tradeOutcome(trade) === "BE").length
   const decided = winners.length + losers.length
+  const totalR = list.reduce((sum, trade) => sum + statsResultR(trade), 0)
+  const netPnl = list.reduce((sum, trade) => sum + (trade.pnl ?? 0), 0)
   const grossProfit = winners.reduce((sum, trade) => sum + (trade.pnl ?? 0), 0)
   const grossLoss = Math.abs(
     losers.reduce((sum, trade) => sum + (trade.pnl ?? 0), 0)
   )
-  const winR = winners.reduce((sum, trade) => sum + (trade.resultR ?? 0), 0)
-  const lossR = losers.reduce((sum, trade) => sum + (trade.resultR ?? 0), 0)
+  const winR = winners.reduce((sum, trade) => sum + statsResultR(trade), 0)
+  const lossR = losers.reduce((sum, trade) => sum + statsResultR(trade), 0)
   const avgWinR = winners.length > 0 ? winR / winners.length : null
   const avgLossR = losers.length > 0 ? lossR / losers.length : null
-  const expectancyR = list.length > 0 ? round2(totalR / list.length) : null
+  const expectancyR = decided > 0 ? round2(totalR / decided) : null
   const payoff =
     avgWinR != null && avgLossR != null && avgLossR !== 0
       ? avgWinR / Math.abs(avgLossR)
@@ -68,7 +71,8 @@ function statsFor(key: string, list: Trade[]): GroupStats {
     maxDrawdownR: rDrawdown(list),
     wins: winners.length,
     losses: losers.length,
-    edge: edgeVerdict(list.length, expectancyR),
+    be,
+    edge: edgeVerdict(decided, expectancyR),
   }
 }
 
@@ -83,7 +87,7 @@ function rDrawdown(list: Trade[]): number | null {
   let peak = 0
   let worst = 0
   for (const trade of ordered) {
-    cum += trade.resultR ?? 0
+    cum += statsResultR(trade)
     peak = Math.max(peak, cum)
     worst = Math.min(worst, cum - peak)
   }

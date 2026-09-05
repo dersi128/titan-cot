@@ -1,4 +1,5 @@
 import type { Trade, TradeDirection, TradeStatus } from "@/types/trade"
+import { statsResultR, tradeOutcome } from "@/lib/trade-outcome"
 
 export const ZONE_INVALID_MITIGATION_PERCENT = 25
 
@@ -66,11 +67,11 @@ export function computeDashboardStats(trades: Trade[]): DashboardStats {
     (trade) => isRealizedTradeStatus(trade.status) && trade.resultR != null
   )
 
-  const totalR = closed.reduce((sum, trade) => sum + (trade.resultR ?? 0), 0)
+  const totalR = closed.reduce((sum, trade) => sum + statsResultR(trade), 0)
   const netPnl = closed.reduce((sum, trade) => sum + (trade.pnl ?? 0), 0)
 
-  const winners = closed.filter((trade) => (trade.resultR ?? 0) > 0)
-  const losers = closed.filter((trade) => (trade.resultR ?? 0) < 0)
+  const winners = closed.filter((trade) => tradeOutcome(trade) === "WIN")
+  const losers = closed.filter((trade) => tradeOutcome(trade) === "LOSS")
   const decided = winners.length + losers.length
 
   const grossProfit = winners.reduce(
@@ -86,7 +87,7 @@ export function computeDashboardStats(trades: Trade[]): DashboardStats {
     totalR,
     winRate: decided > 0 ? winners.length / decided : null,
     profitFactor: grossLoss > 0 ? grossProfit / grossLoss : null,
-    averageR: closed.length > 0 ? totalR / closed.length : null,
+    averageR: decided > 0 ? totalR / decided : null,
     totalTrades: trades.length,
     closedTrades: closed.length,
   }
@@ -123,7 +124,7 @@ export function buildEquityCurve(
   let r = 0
   for (const trade of closed) {
     equity += trade.pnl ?? 0
-    r += trade.resultR ?? 0
+    r += statsResultR(trade)
     points.push({
       date: trade.date,
       label: trade.date.slice(5),

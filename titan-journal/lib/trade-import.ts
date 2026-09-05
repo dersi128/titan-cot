@@ -4,6 +4,7 @@ import { classifyMarket, cotFieldsForClassification } from "@/lib/market-classif
 import { isPdfBytes, pdfToRows } from "@/lib/pdf-import"
 import { TITAN_SWING_PLAYBOOK_ID } from "@/lib/playbooks"
 import { calculatePlannedRRR } from "@/lib/trade-calculations"
+import { tradeOutcome } from "@/lib/trade-outcome"
 import { isXlsxZip, xlsxSheetsToRows } from "@/lib/xlsx-import"
 import {
   DEFAULT_STRATEGY,
@@ -362,6 +363,7 @@ export function tradeFromBrokerFill(
     input.resultR ??
     (pnl != null && riskUsd > 0 ? Math.round((pnl / riskUsd) * 100) / 100 : null)
   const closed = resultR != null || pnl != null
+  const outcomeR = tradeOutcome({ resultR, pnl }) === "BE" ? 0 : resultR
 
   return {
     date: input.date,
@@ -397,7 +399,7 @@ export function tradeFromBrokerFill(
     takeProfit,
     riskPercent: context.riskPercent,
     plannedRRR,
-    resultR: closed ? (resultR ?? 0) : null,
+    resultR: closed ? (outcomeR ?? 0) : null,
     pnl: closed ? (pnl ?? 0) : null,
     notes: input.notes,
     screenshot: null,
