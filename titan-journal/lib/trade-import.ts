@@ -128,6 +128,14 @@ export function parseBrokerDate(raw: string | undefined): string | null {
   const dotted = value.match(/^(\d{4})\.(\d{2})\.(\d{2})/)
   if (dotted) return `${dotted[1]}-${dotted[2]}-${dotted[3]}`
 
+  const slash = value.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/)
+  if (slash) {
+    const monthFirst = /\b(AM|PM)\b/i.test(value) || Number(slash[2]) > 12
+    if (monthFirst) {
+      return `${slash[3]}-${slash[1].padStart(2, "0")}-${slash[2].padStart(2, "0")}`
+    }
+  }
+
   const eu = value.match(/^(\d{1,2})[.\/](\d{1,2})[.\/](\d{4})/)
   if (eu) {
     return `${eu[3]}-${eu[2].padStart(2, "0")}-${eu[1].padStart(2, "0")}`
@@ -408,11 +416,129 @@ function rowToObject(headers: string[], cells: string[]): Record<string, string>
   return row
 }
 
+function parseMt5DealType(
+  raw: string | undefined
+): { inOut: "in" | "out"; direction: TradeDirection } | null {
+  if (!raw) return null
+  const value = raw.trim().toLowerCase()
+  const isIn = /\bin\b/.test(value)
+  const isOut = /\bout\b/.test(value)
+  const isBuy = /\bbuy\b/.test(value)
+  const isSell = /\bsell\b/.test(value)
+  if (!isBuy && !isSell) return null
+  if (isIn) return { inOut: "in", direction: isBuy ? "LONG" : "SHORT" }
+  if (isOut) return { inOut: "out", direction: isSell ? "LONG" : "SHORT" }
+  return null
+}
+
+function isMt5PositionHistory(headers: string[]): boolean {
+  return (
+    headers.includes("transaction type") &&
+    headers.includes("symbol") &&
+    (headers.includes("position") || headers.includes("date time"))
+  )
+}
+
+function parseMt5PositionHistory(
+  headers: string[],
+  rows: string[][],
+  context: ImportContext
+): { trades: NewTradeInput[]; skipped: number } {
+  type Deal = {
+    symbol: string
+    position: string
+    closed: boolean
+    date: string
+    inOut: "in" | "out"
+    direction: TradeDirection
+    price: number
+    pnl: number
+  }
+
+  const deals: Deal[] = []
+  let skipped = 0
+
+  for (const cells of rows) {
+    const row = rowToObject(headers, cells)
+    const symbol = pick(row, ["symbol", "item", "pair", "instrument", "market"])?.trim()
+    const position = pick(row, ["position", "position id", "deal"])?.trim() ?? ""
+    const deal = parseMt5DealType(pick(row, ["transaction type", "type"]))
+    const date = parseBrokerDate(
+      pick(row, ["date time", "closing time", "close time", "open time", "time", "date"])
+    )
+    const price = parseLocaleNumber(
+      pick(row, ["open price", "price", "entry price", "closing price", "close price"])
+    )
+    const pnl = parseLocaleNumber(pick(row, ["profit", "net usd", "net", "pnl", "p l"])) ?? 0
+    const closed = pick(row, ["position status", "status"])?.trim().toLowerCase() === "closed"
+
+    if (!symbol || !deal || !date || price == null) {
+      skipped += 1
+      continue
+    }
+
+    deals.push({
+      symbol,
+      position: position || `${symbol}|${date}|${price}`,
+      closed,
+      date,
+      inOut: deal.inOut,
+      direction: deal.direction,
+      price,
+      pnl,
+    })
+  }
+
+  const groups = new Map<string, Deal[]>()
+  for (const deal of deals) {
+    const list = groups.get(deal.position) ?? []
+    list.push(deal)
+    groups.set(deal.position, list)
+  }
+
+  const trades: NewTradeInput[] = []
+  for (const [position, group] of groups) {
+    const ins = group.filter((deal) => deal.inOut === "in")
+    const outs = group.filter((deal) => deal.inOut === "out")
+    const closed = group.some((deal) => deal.closed)
+    if (outs.length === 0 || (ins.length === 0 && !closed)) {
+      skipped += group.length
+      continue
+    }
+
+    const open = ins[0] ?? outs[0]
+    const close = outs[outs.length - 1] ?? open
+    const pnl = group.reduce((sum, deal) => sum + deal.pnl, 0)
+    trades.push(
+      tradeFromBrokerFill(
+        {
+          date: close.date,
+          symbol: open.symbol,
+          direction: open.direction,
+          entry: open.price,
+          stopLoss: null,
+          takeProfit: close.price,
+          pnl,
+          resultR: null,
+          notes: position ? `#${position}` : "",
+        },
+        context
+      )
+    )
+  }
+
+  return { trades, skipped }
+}
+
 function parseBrokerRows(
   headers: string[],
   rows: string[][],
   context: ImportContext
 ): { trades: NewTradeInput[]; skipped: number } {
+  if (isMt5PositionHistory(headers)) {
+    return parseMt5PositionHistory(headers, rows, context)
+  }
+
   const trades: NewTradeInput[] = []
   let skipped = 0
 
