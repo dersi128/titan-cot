@@ -4,9 +4,12 @@ import type {
   Account,
   AssetClass,
   Bias,
+  EmotionalState,
+  ExecutionQuality,
   Impulse,
   Location,
   MarketType,
+  PlanFollowed,
   TradeDirection,
   TradeStatus,
   Trend,
@@ -211,6 +214,8 @@ export const copyEn = {
     simpleReview: "Review",
     planFollowed: "Did I follow my plan?",
     wouldTakeAgain: "Would I take this trade again?",
+    executionQuality: "Execution",
+    emotionalState: "Emotion",
     postTradeNote: "Post-trade note",
     saveReview: "Save review",
     reviewSaved: "Review saved",
@@ -311,11 +316,16 @@ export const copyEn = {
     beHint: "< 0.5R, not in win rate",
     bySetup: "Results by setup",
     byMarket: "Results by market",
+    byPlan: "By plan",
+    byEmotion: "By emotion",
+    noReviewBreakdown: "Review a closed trade to see this.",
     tradeMix: "Trade distribution",
     others: "Other",
     vsPrevious: "vs previous period",
     setup: "Setup",
     market: "Market",
+    plan: "Plan",
+    emotion: "Emotion",
   },
 
   playbook: {
@@ -639,6 +649,8 @@ export const copyCs: Copy = {
     simpleReview: "Review",
     planFollowed: "Dodržel jsem plán?",
     wouldTakeAgain: "Vzal bych tenhle obchod znovu?",
+    executionQuality: "Exekuce",
+    emotionalState: "Emoce",
     postTradeNote: "Poznámka po obchodu",
     saveReview: "Uložit review",
     reviewSaved: "Review uloženo",
@@ -739,11 +751,16 @@ export const copyCs: Copy = {
     beHint: "< 0,5R, mimo win rate",
     bySetup: "Výsledky podle setupů",
     byMarket: "Výsledky podle trhů",
+    byPlan: "Podle plánu",
+    byEmotion: "Podle emoce",
+    noReviewBreakdown: "Recenze uzavřeného obchodu se tu objeví.",
     tradeMix: "Rozložení obchodů",
     others: "Ostatní",
     vsPrevious: "vs. předchozí období",
     setup: "Setup",
     market: "Trh",
+    plan: "Plán",
+    emotion: "Emoce",
   },
 
   playbook: {
@@ -1065,6 +1082,8 @@ export const copySk: Copy = {
     simpleReview: "Review",
     planFollowed: "Dodržal som plán?",
     wouldTakeAgain: "Vzal by som tento obchod znova?",
+    executionQuality: "Exekúcia",
+    emotionalState: "Emócia",
     postTradeNote: "Poznámka po obchode",
     saveReview: "Uložiť review",
     reviewSaved: "Review uložené",
@@ -1165,11 +1184,16 @@ export const copySk: Copy = {
     beHint: "< 0,5R, mimo win rate",
     bySetup: "Výsledky podľa setupov",
     byMarket: "Výsledky podľa trhov",
+    byPlan: "Podľa plánu",
+    byEmotion: "Podľa emócie",
+    noReviewBreakdown: "Recenzia uzavretého obchodu sa tu objaví.",
     tradeMix: "Rozloženie obchodov",
     others: "Ostatné",
     vsPrevious: "vs. predchádzajúce obdobie",
     setup: "Setup",
     market: "Trh",
+    plan: "Plán",
+    emotion: "Emócia",
   },
 
   playbook: {
@@ -1516,6 +1540,75 @@ export const YES_NO_LABELS_SK = {
   NO: "Nie",
 }
 
+export const PLAN_FOLLOWED_LABELS_EN: Record<PlanFollowed, string> = {
+  Yes: "Yes",
+  Partially: "Partly",
+  No: "No",
+}
+
+export const PLAN_FOLLOWED_LABELS_CS: Record<PlanFollowed, string> = {
+  Yes: "Ano",
+  Partially: "Částečně",
+  No: "Ne",
+}
+
+export const PLAN_FOLLOWED_LABELS_SK: Record<PlanFollowed, string> = {
+  Yes: "Áno",
+  Partially: "Čiastočne",
+  No: "Nie",
+}
+
+export const EXECUTION_QUALITY_LABELS_EN: Record<ExecutionQuality, string> = {
+  Perfect: "Perfect",
+  Good: "Good",
+  Average: "Average",
+  Poor: "Poor",
+}
+
+export const EXECUTION_QUALITY_LABELS_CS: Record<ExecutionQuality, string> = {
+  Perfect: "Perfektní",
+  Good: "Dobrá",
+  Average: "Průměrná",
+  Poor: "Špatná",
+}
+
+export const EXECUTION_QUALITY_LABELS_SK: Record<ExecutionQuality, string> = {
+  Perfect: "Perfektná",
+  Good: "Dobrá",
+  Average: "Priemerná",
+  Poor: "Zlá",
+}
+
+export const EMOTION_LABELS_EN: Record<EmotionalState, string> = {
+  Calm: "Calm",
+  Confident: "Confident",
+  Hesitant: "Hesitant",
+  Fear: "Fear",
+  FOMO: "FOMO",
+  Frustrated: "Frustrated",
+  Revenge: "Revenge",
+}
+
+export const EMOTION_LABELS_CS: Record<EmotionalState, string> = {
+  Calm: "Klid",
+  Confident: "Jistota",
+  Hesitant: "Váhavost",
+  Fear: "Strach",
+  FOMO: "FOMO",
+  Frustrated: "Frustrace",
+  Revenge: "Revenge",
+}
+
+export const EMOTION_LABELS_SK: Record<EmotionalState, string> = {
+  Calm: "Pokoj",
+  Confident: "Istota",
+  Hesitant: "Váhavosť",
+  Fear: "Strach",
+  FOMO: "FOMO",
+  Frustrated: "Frustrácia",
+  Revenge: "Revenge",
+}
+
 export const DATE_RANGE_LABELS_EN: Record<DateRange, string> = {
   "30D": "30D",
   "3M": "3M",
@@ -1558,6 +1651,9 @@ export type Labels = {
   ASSET_CLASS_LABELS: Record<AssetClass, string>
   MARKET_TYPE_LABELS: Record<MarketType, string>
   YES_NO_LABELS: { YES: string; NO: string }
+  PLAN_FOLLOWED_LABELS: Record<PlanFollowed, string>
+  EXECUTION_QUALITY_LABELS: Record<ExecutionQuality, string>
+  EMOTION_LABELS: Record<EmotionalState, string>
   DATE_RANGE_LABELS: Record<DateRange, string>
 }
 
@@ -1576,6 +1672,9 @@ const PACKS: Record<Language, Omit<Labels, "language">> = {
     ASSET_CLASS_LABELS: ASSET_CLASS_LABELS_EN,
     MARKET_TYPE_LABELS: MARKET_TYPE_LABELS_EN,
     YES_NO_LABELS: YES_NO_LABELS_EN,
+    PLAN_FOLLOWED_LABELS: PLAN_FOLLOWED_LABELS_EN,
+    EXECUTION_QUALITY_LABELS: EXECUTION_QUALITY_LABELS_EN,
+    EMOTION_LABELS: EMOTION_LABELS_EN,
     DATE_RANGE_LABELS: DATE_RANGE_LABELS_EN,
   },
   cs: {
@@ -1592,6 +1691,9 @@ const PACKS: Record<Language, Omit<Labels, "language">> = {
     ASSET_CLASS_LABELS: ASSET_CLASS_LABELS_CS,
     MARKET_TYPE_LABELS: MARKET_TYPE_LABELS_CS,
     YES_NO_LABELS: YES_NO_LABELS_CS,
+    PLAN_FOLLOWED_LABELS: PLAN_FOLLOWED_LABELS_CS,
+    EXECUTION_QUALITY_LABELS: EXECUTION_QUALITY_LABELS_CS,
+    EMOTION_LABELS: EMOTION_LABELS_CS,
     DATE_RANGE_LABELS: DATE_RANGE_LABELS_CS,
   },
   sk: {
@@ -1608,6 +1710,9 @@ const PACKS: Record<Language, Omit<Labels, "language">> = {
     ASSET_CLASS_LABELS: ASSET_CLASS_LABELS_SK,
     MARKET_TYPE_LABELS: MARKET_TYPE_LABELS_SK,
     YES_NO_LABELS: YES_NO_LABELS_SK,
+    PLAN_FOLLOWED_LABELS: PLAN_FOLLOWED_LABELS_SK,
+    EXECUTION_QUALITY_LABELS: EXECUTION_QUALITY_LABELS_SK,
+    EMOTION_LABELS: EMOTION_LABELS_SK,
     DATE_RANGE_LABELS: DATE_RANGE_LABELS_SK,
   },
 }
@@ -1628,4 +1733,7 @@ export const BIAS_LABELS = BIAS_LABELS_EN
 export const ASSET_CLASS_LABELS = ASSET_CLASS_LABELS_EN
 export const MARKET_TYPE_LABELS = MARKET_TYPE_LABELS_EN
 export const YES_NO_LABELS = YES_NO_LABELS_EN
+export const PLAN_FOLLOWED_LABELS = PLAN_FOLLOWED_LABELS_EN
+export const EXECUTION_QUALITY_LABELS = EXECUTION_QUALITY_LABELS_EN
+export const EMOTION_LABELS = EMOTION_LABELS_EN
 export const DATE_RANGE_LABELS = DATE_RANGE_LABELS_EN

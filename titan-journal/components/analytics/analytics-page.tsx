@@ -26,6 +26,8 @@ import {
   accountEdge,
   cappedGroups,
   changePct,
+  statsByEmotion,
+  statsByPlanFollowed,
   type GroupStats,
 } from "@/lib/analytics"
 import { previousRangeBounds } from "@/lib/date-range"
@@ -178,26 +180,32 @@ function BarTrack({
   )
 }
 
-function SetupTable({
+function BreakdownTable({
+  title,
+  empty,
+  column,
   rows,
   names,
 }: {
+  title: string
+  empty: string
+  column: string
   rows: GroupStats[]
-  names: Record<string, string>
+  names?: Record<string, string>
 }) {
   const { copy } = useLabels()
   const pfMax = Math.max(2, ...rows.map((row) => row.profitFactor ?? 0))
   return (
     <section className="titan-glass rounded-[10px] p-4">
-      <h2 className="text-sm font-semibold">{copy.analytics.bySetup}</h2>
+      <h2 className="text-sm font-semibold">{title}</h2>
       {rows.length === 0 ? (
-        <p className="mt-3 text-sm text-muted-foreground">{copy.analytics.empty}</p>
+        <p className="mt-3 text-sm text-muted-foreground">{empty}</p>
       ) : (
         <div className="mt-3 overflow-x-auto">
           <table className="w-full min-w-[420px] text-left text-[12px]">
             <thead className="text-[11px] text-muted-foreground">
               <tr>
-                <th className="pb-2 font-medium">{copy.analytics.setup}</th>
+                <th className="pb-2 font-medium">{column}</th>
                 <th className="pb-2 font-medium">{copy.analytics.trades}</th>
                 <th className="pb-2 font-medium">{copy.dashboard.winRate}</th>
                 <th className="pb-2 font-medium">{copy.analytics.expectancy}</th>
@@ -208,7 +216,7 @@ function SetupTable({
               {rows.map((row) => (
                 <tr key={row.key} className="border-t border-border">
                   <td className="py-2 pr-3 font-medium">
-                    {names[row.key] ?? row.key}
+                    {names?.[row.key] ?? row.key}
                   </td>
                   <td className="py-2 pr-3 font-mono tabular-nums">{row.trades}</td>
                   <td className="py-2 pr-3 font-mono tabular-nums">
@@ -287,7 +295,7 @@ function MarketTable({ rows }: { rows: GroupStats[] }) {
 }
 
 export function AnalyticsPage() {
-  const { copy } = useLabels()
+  const { copy, PLAN_FOLLOWED_LABELS, EMOTION_LABELS } = useLabels()
   const { playbooks } = useWorkspace()
   const { custom } = useWorkspaceChrome()
   const { trades, accountTrades, range, capital, profile } =
@@ -325,6 +333,8 @@ export function AnalyticsPage() {
       ),
     [copy.analytics.others, trades]
   )
+  const planRows = useMemo(() => statsByPlanFollowed(trades), [trades])
+  const emotionRows = useMemo(() => statsByEmotion(trades), [trades])
   const equity = useMemo(
     () => buildEquityCurve(trades, capital),
     [trades, capital]
@@ -437,8 +447,31 @@ export function AnalyticsPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
-          <SetupTable rows={setupRows} names={playbookNames} />
+          <BreakdownTable
+            title={copy.analytics.bySetup}
+            empty={copy.analytics.empty}
+            column={copy.analytics.setup}
+            rows={setupRows}
+            names={playbookNames}
+          />
           <MarketTable rows={marketRows} />
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
+          <BreakdownTable
+            title={copy.analytics.byPlan}
+            empty={copy.analytics.noReviewBreakdown}
+            column={copy.analytics.plan}
+            rows={planRows}
+            names={PLAN_FOLLOWED_LABELS}
+          />
+          <BreakdownTable
+            title={copy.analytics.byEmotion}
+            empty={copy.analytics.noReviewBreakdown}
+            column={copy.analytics.emotion}
+            rows={emotionRows}
+            names={EMOTION_LABELS}
+          />
         </div>
       </div>
       )}

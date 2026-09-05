@@ -10,32 +10,51 @@ import { useTrades } from "@/components/trades/trades-provider"
 import { isDirty } from "@/lib/dirty"
 import { useLabels } from "@/lib/use-labels"
 import { isReviewAvailable } from "@/lib/review-calculations"
-import type { Trade } from "@/types/trade"
+import {
+  EMOTIONAL_STATES,
+  EXECUTION_QUALITY_OPTIONS,
+  PLAN_FOLLOWED_OPTIONS,
+  type EmotionalState,
+  type ExecutionQuality,
+  type PlanFollowed,
+  type Trade,
+} from "@/types/trade"
 
 export function SimpleReviewPanel({ trade }: { trade: Trade }) {
-  const { copy } = useLabels()
+  const {
+    copy,
+    PLAN_FOLLOWED_LABELS,
+    EXECUTION_QUALITY_LABELS,
+    EMOTION_LABELS,
+  } = useLabels()
   const { updateTrade } = useTrades()
   const existing = trade.review
-  const [followed, setFollowed] = useState<"Yes" | "No" | null>(
-    existing?.planFollowed === "Yes" || existing?.planFollowed === "No"
-      ? existing.planFollowed
-      : null
+  const [followed, setFollowed] = useState<PlanFollowed | null>(
+    existing?.planFollowed ?? null
   )
   const [again, setAgain] = useState<boolean | null>(
     existing?.wouldTakeAgain ?? null
+  )
+  const [quality, setQuality] = useState<ExecutionQuality | null>(
+    existing?.executionQuality ?? null
+  )
+  const [emotion, setEmotion] = useState<EmotionalState | null>(
+    existing?.emotionalState ?? null
   )
   const [note, setNote] = useState(existing?.learningNote ?? "")
   const [saved, setSaved] = useState(existing?.completed === true)
   const [baseline, setBaseline] = useState({
     followed,
     again,
+    quality,
+    emotion,
     note: existing?.learningNote ?? "",
   })
 
   if (!isReviewAvailable(trade) && trade.status !== "CLOSED") return null
   if (trade.status !== "CLOSED" && trade.status !== "REVIEWED") return null
 
-  const draft = { followed, again, note }
+  const draft = { followed, again, quality, emotion, note }
   const dirty = isDirty(draft, baseline)
 
   function handleSave() {
@@ -48,8 +67,8 @@ export function SimpleReviewPanel({ trade }: { trade: Trade }) {
         planFollowed: followed,
         setupValid: existing?.setupValid ?? null,
         wouldTakeAgain: again,
-        executionQuality: existing?.executionQuality ?? null,
-        emotionalState: existing?.emotionalState ?? null,
+        executionQuality: quality,
+        emotionalState: emotion,
         tags: existing?.tags ?? [],
         learningNote: note.trim() || undefined,
         nextTimeNote: existing?.nextTimeNote,
@@ -58,7 +77,7 @@ export function SimpleReviewPanel({ trade }: { trade: Trade }) {
         reviewedAt: new Date().toISOString(),
       },
     })
-    setBaseline({ followed, again, note })
+    setBaseline({ followed, again, quality, emotion, note })
     setSaved(true)
   }
 
@@ -74,8 +93,8 @@ export function SimpleReviewPanel({ trade }: { trade: Trade }) {
         <Field label={copy.detail.planFollowed}>
           <OptionPills
             value={followed}
-            options={["Yes", "No"] as const}
-            labels={{ Yes: copy.detail.yes, No: copy.detail.no }}
+            options={PLAN_FOLLOWED_OPTIONS}
+            labels={PLAN_FOLLOWED_LABELS}
             onChange={setFollowed}
           />
         </Field>
@@ -85,6 +104,22 @@ export function SimpleReviewPanel({ trade }: { trade: Trade }) {
             options={["Yes", "No"] as const}
             labels={{ Yes: copy.detail.yes, No: copy.detail.no }}
             onChange={(value) => setAgain(value === "Yes")}
+          />
+        </Field>
+        <Field label={copy.detail.executionQuality} hint={copy.detail.optional}>
+          <OptionPills
+            value={quality}
+            options={EXECUTION_QUALITY_OPTIONS}
+            labels={EXECUTION_QUALITY_LABELS}
+            onChange={setQuality}
+          />
+        </Field>
+        <Field label={copy.detail.emotionalState} hint={copy.detail.optional}>
+          <OptionPills
+            value={emotion}
+            options={EMOTIONAL_STATES}
+            labels={EMOTION_LABELS}
+            onChange={setEmotion}
           />
         </Field>
         <Field label={copy.detail.postTradeNote}>
