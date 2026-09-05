@@ -134,17 +134,19 @@ export function SettingsPage() {
           <p className="text-[12px] text-muted-foreground">
             {copy.settings.riskOnProfile}
           </p>
-          <SelectField
-            label={copy.settings.defaultPlaybook}
-            value={preferences.defaultPlaybookId}
-            options={playbookOptions.map((item) => item.id)}
-            labels={Object.fromEntries(
-              playbookOptions.map((item) => [item.id, item.name])
-            )}
-            onChange={(defaultPlaybookId) =>
-              updatePreferences({ defaultPlaybookId })
-            }
-          />
+          {playbookOptions.length > 0 ? (
+            <SelectField
+              label={copy.settings.defaultPlaybook}
+              value={preferences.defaultPlaybookId}
+              options={playbookOptions.map((item) => item.id)}
+              labels={Object.fromEntries(
+                playbookOptions.map((item) => [item.id, item.name])
+              )}
+              onChange={(defaultPlaybookId) =>
+                updatePreferences({ defaultPlaybookId })
+              }
+            />
+          ) : null}
         </section>
       </div>
     </PageFrame>

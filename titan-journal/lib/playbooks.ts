@@ -175,3 +175,19 @@ export function playbookHasValues(
 export function activePlaybooks(playbooks: Playbook[]): Playbook[] {
   return playbooks.filter((playbook) => playbook.status === "active")
 }
+
+export function withoutPlaybook(playbooks: Playbook[], id: string): Playbook[] {
+  return playbooks.filter((playbook) => playbook.id !== id)
+}
+
+export function fallbackPlaybookId(
+  playbooks: Playbook[],
+  currentId: string
+): string {
+  if (playbooks.some((playbook) => playbook.id === currentId)) return currentId
+  return (
+    playbooks.find((playbook) => playbook.status === "active")?.id ??
+    playbooks[0]?.id ??
+    ""
+  )
+}
