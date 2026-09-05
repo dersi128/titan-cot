@@ -433,6 +433,7 @@ EURUSD,1,40,Closed,6/10/2026 2:37:36 PM,Trade Sell Out,0.5,1.1538,-4.5
       date: "2026-06-10",
       entry: 1.1539,
       pnl: -4.5,
+      resultR: 0,
     })
   })
 

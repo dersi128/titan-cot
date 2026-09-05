@@ -1,3 +1,4 @@
+import { tradeOutcome } from "@/lib/trade-outcome"
 import type { Trade, TradeDirection } from "@/types/trade"
 
 export type ResultFilter = "ALL" | "WIN" | "LOSS" | "BE"
@@ -20,13 +21,6 @@ export const EMPTY_TRADE_FILTERS: TradeFilters = {
   dateTo: "",
 }
 
-function resultBucket(resultR: number | null): ResultFilter | null {
-  if (resultR == null) return null
-  if (resultR > 0) return "WIN"
-  if (resultR < 0) return "LOSS"
-  return "BE"
-}
-
 export function filterTrades(trades: Trade[], filters: TradeFilters): Trade[] {
   const query = filters.query.trim().toUpperCase()
 
@@ -42,7 +36,7 @@ export function filterTrades(trades: Trade[], filters: TradeFilters): Trade[] {
     if (filters.direction !== "ALL" && trade.direction !== filters.direction) {
       return false
     }
-    if (filters.result !== "ALL" && resultBucket(trade.resultR) !== filters.result) {
+    if (filters.result !== "ALL" && tradeOutcome(trade) !== filters.result) {
       return false
     }
     if (filters.dateFrom && trade.date < filters.dateFrom) return false

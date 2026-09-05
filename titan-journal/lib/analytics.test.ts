@@ -154,6 +154,22 @@ describe("strategy edge", () => {
     ])
     expect(stats.wins).toBe(1)
     expect(stats.losses).toBe(2)
+    expect(stats.be).toBe(0)
+  })
+
+  it("treats leftover PnL within $130 as BE and keeps it out of win rate", () => {
+    const stats = accountEdge([
+      trade({ id: "w", resultR: 2, pnl: 260 }),
+      trade({ id: "l", resultR: -1, pnl: -200 }),
+      trade({ id: "be", resultR: 0.4, pnl: 51 }),
+    ])
+    expect(stats.trades).toBe(3)
+    expect(stats.wins).toBe(1)
+    expect(stats.losses).toBe(1)
+    expect(stats.be).toBe(1)
+    expect(stats.winRate).toBe(0.5)
+    expect(stats.averageR).toBe(0.5)
+    expect(stats.netPnl).toBe(111)
   })
 
   it("measures max drawdown in R from the equity peak", () => {

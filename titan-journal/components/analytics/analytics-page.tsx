@@ -354,8 +354,8 @@ export function AnalyticsPage() {
             label={copy.dashboard.winRate}
             value={formatPercent(edge.winRate)}
             hint={
-              edge.trades > 0
-                ? `${edge.wins} / ${edge.trades} ${copy.analytics.trades}`
+              edge.wins + edge.losses > 0
+                ? `${edge.wins} / ${edge.wins + edge.losses} ${copy.analytics.trades}`
                 : undefined
             }
             icon={<Percent className="size-3.5 text-muted-foreground" />}
@@ -388,7 +388,7 @@ export function AnalyticsPage() {
           <EquityCurve data={equity} defaultMetric="r" />
         </div>
 
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-6">
           <StatCard
             label={copy.analytics.tradeCount}
             value={String(edge.trades)}
@@ -415,6 +415,12 @@ export function AnalyticsPage() {
                 : "—"
             }
             icon={<CircleX className="size-3.5 text-bear" />}
+          />
+          <StatCard
+            label={copy.analytics.beTrades}
+            value={`${edge.be}`}
+            hint={copy.analytics.beHint}
+            icon={<Scale className="size-3.5 text-muted-foreground" />}
           />
           <StatCard
             label={copy.dashboard.maxDrawdown}

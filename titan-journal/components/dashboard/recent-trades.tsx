@@ -17,6 +17,7 @@ import { ResultR } from "@/components/trades/result-r"
 import type { Trade } from "@/types/trade"
 import { tradeRowProps } from "@/components/trades/trade-row"
 import { formatDate, formatSignedUsd, signedClassName } from "@/lib/format"
+import { displayResultR } from "@/lib/trade-outcome"
 import { useLabels } from "@/lib/use-labels"
 
 export function RecentTrades({ trades }: { trades: Trade[] }) {
@@ -73,7 +74,7 @@ export function RecentTrades({ trades }: { trades: Trade[] }) {
                   {formatSignedUsd(trade.pnl)}
                 </TableCell>
                 <TableCell>
-                  <ResultR value={trade.resultR} />
+                  <ResultR value={displayResultR(trade)} />
                 </TableCell>
                 <TableCell className="px-4 text-muted-foreground">
                   {formatDate(trade.date)}
