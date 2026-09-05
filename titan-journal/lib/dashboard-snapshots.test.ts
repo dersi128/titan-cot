@@ -82,8 +82,8 @@ describe("dashboardSnapshots", () => {
     )
 
     expect(snap.wins).toBe(2)
-    expect(snap.losses).toBe(1)
-    expect(snap.winShare).toBeCloseTo(2 / 3)
+    expect(snap.losses).toBe(2)
+    expect(snap.winShare).toBe(0.5)
     expect(snap.thisMonth.pnl).toBe(100)
     expect(snap.lastMonth.pnl).toBe(100)
     expect(snap.vsLastMonth).toBe(0)

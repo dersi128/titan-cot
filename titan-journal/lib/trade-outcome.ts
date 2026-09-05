@@ -1,6 +1,6 @@
 export type TradeOutcome = "WIN" | "LOSS" | "BE"
 
-export const BREAKEVEN_PNL_USD = 130
+export const BREAKEVEN_R = 0.5
 
 type OutcomeInput = {
   resultR?: number | null
@@ -11,10 +11,7 @@ export function tradeOutcome(trade: OutcomeInput): TradeOutcome | null {
   const r = trade.resultR ?? null
   const pnl = trade.pnl ?? null
   if (r == null && pnl == null) return null
-  if (r === 0) return "BE"
-  if (pnl != null && Math.abs(pnl) <= BREAKEVEN_PNL_USD && Math.abs(r ?? 0) < 1) {
-    return "BE"
-  }
+  if (r != null && Math.abs(r) < BREAKEVEN_R) return "BE"
   const sign = r ?? pnl ?? 0
   if (sign > 0) return "WIN"
   if (sign < 0) return "LOSS"

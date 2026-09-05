@@ -157,7 +157,7 @@ describe("strategy edge", () => {
     expect(stats.be).toBe(0)
   })
 
-  it("treats leftover PnL within $130 as BE and keeps it out of win rate", () => {
+  it("treats |R| under 0.5 as BE and keeps it out of win rate", () => {
     const stats = accountEdge([
       trade({ id: "w", resultR: 2, pnl: 260 }),
       trade({ id: "l", resultR: -1, pnl: -200 }),
