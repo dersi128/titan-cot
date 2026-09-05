@@ -28,6 +28,7 @@ import {
   changePct,
   statsByEmotion,
   statsByPlanFollowed,
+  statsByPlaybookFields,
   type GroupStats,
 } from "@/lib/analytics"
 import { previousRangeBounds } from "@/lib/date-range"
@@ -295,7 +296,8 @@ function MarketTable({ rows }: { rows: GroupStats[] }) {
 }
 
 export function AnalyticsPage() {
-  const { copy, PLAN_FOLLOWED_LABELS, EMOTION_LABELS } = useLabels()
+  const { copy, PLAN_FOLLOWED_LABELS, EMOTION_LABELS, YES_NO_LABELS } =
+    useLabels()
   const { playbooks } = useWorkspace()
   const { custom } = useWorkspaceChrome()
   const { trades, accountTrades, range, capital, profile } =
@@ -335,6 +337,10 @@ export function AnalyticsPage() {
   )
   const planRows = useMemo(() => statsByPlanFollowed(trades), [trades])
   const emotionRows = useMemo(() => statsByEmotion(trades), [trades])
+  const fieldBreakdowns = useMemo(
+    () => statsByPlaybookFields(trades, playbooks),
+    [playbooks, trades]
+  )
   const equity = useMemo(
     () => buildEquityCurve(trades, capital),
     [trades, capital]
@@ -473,6 +479,31 @@ export function AnalyticsPage() {
             names={EMOTION_LABELS}
           />
         </div>
+
+        {fieldBreakdowns.length === 0 ? (
+          <BreakdownTable
+            title={copy.analytics.byFields}
+            empty={copy.analytics.noFieldBreakdown}
+            column={copy.analytics.value}
+            rows={[]}
+          />
+        ) : (
+          <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
+            {fieldBreakdowns.map((item) => (
+              <BreakdownTable
+                key={item.fieldId}
+                title={item.title}
+                empty={copy.analytics.noFieldBreakdown}
+                column={copy.analytics.value}
+                rows={item.rows}
+                names={{
+                  Yes: YES_NO_LABELS.YES,
+                  No: YES_NO_LABELS.NO,
+                }}
+              />
+            ))}
+          </div>
+        )}
       </div>
       )}
     </PageFrame>

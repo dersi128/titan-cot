@@ -1,5 +1,11 @@
+import {
+  fieldValueKeys,
+  isDiscretePlaybookField,
+  sortedFields,
+} from "@/lib/playbooks"
 import { isRealizedTradeStatus } from "@/lib/trade-calculations"
 import { statsResultR, tradeOutcome } from "@/lib/trade-outcome"
+import type { Playbook, PlaybookField } from "@/types/playbook"
 import type { Trade } from "@/types/trade"
 
 export const EDGE_MIN_TRADES = 20
@@ -134,22 +140,33 @@ export function statsBySymbol(trades: Trade[]): GroupStats[] {
   return groupStats(trades, (trade) => trade.symbol)
 }
 
-function groupPresentStats(
+function groupByKeys(
   trades: Trade[],
-  keyOf: (trade: Trade) => string | null | undefined
+  keysOf: (trade: Trade) => string[]
 ): GroupStats[] {
   const groups = new Map<string, Trade[]>()
   for (const trade of realized(trades)) {
-    const key = keyOf(trade)
-    if (!key) continue
-    const list = groups.get(key) ?? []
-    list.push(trade)
-    groups.set(key, list)
+    for (const key of keysOf(trade)) {
+      if (!key) continue
+      const list = groups.get(key) ?? []
+      list.push(trade)
+      groups.set(key, list)
+    }
   }
 
   return [...groups.entries()]
     .map(([key, list]) => statsFor(key, list))
     .sort((a, b) => b.totalR - a.totalR)
+}
+
+function groupPresentStats(
+  trades: Trade[],
+  keyOf: (trade: Trade) => string | null | undefined
+): GroupStats[] {
+  return groupByKeys(trades, (trade) => {
+    const key = keyOf(trade)
+    return key ? [key] : []
+  })
 }
 
 export function statsByPlanFollowed(trades: Trade[]): GroupStats[] {
@@ -158,6 +175,71 @@ export function statsByPlanFollowed(trades: Trade[]): GroupStats[] {
 
 export function statsByEmotion(trades: Trade[]): GroupStats[] {
   return groupPresentStats(trades, (trade) => trade.review?.emotionalState)
+}
+
+export const MAX_FIELD_BREAKDOWNS = 6
+
+export type FieldBreakdown = {
+  fieldId: string
+  playbookId: string
+  playbookName: string
+  title: string
+  rows: GroupStats[]
+}
+
+export function statsByPlaybookFields(
+  trades: Trade[],
+  playbooks: Playbook[]
+): FieldBreakdown[] {
+  const catalog: {
+    field: PlaybookField
+    playbookId: string
+    playbookName: string
+    title: string
+  }[] = []
+  const seen = new Set<string>()
+  for (const playbook of playbooks) {
+    for (const field of sortedFields(playbook)) {
+      if (seen.has(field.id) || !isDiscretePlaybookField(field)) continue
+      seen.add(field.id)
+      catalog.push({
+        field,
+        playbookId: playbook.id,
+        playbookName: playbook.name,
+        title: field.name.trim() || field.id,
+      })
+    }
+  }
+
+  const breakdowns: FieldBreakdown[] = []
+  for (const item of catalog) {
+    const rows = groupByKeys(trades, (trade) => {
+      const raw = trade.fieldValues?.find((row) => row.fieldId === item.field.id)
+        ?.value
+      return fieldValueKeys(item.field, raw ?? null)
+    })
+    if (rows.length === 0) continue
+    breakdowns.push({
+      fieldId: item.field.id,
+      playbookId: item.playbookId,
+      playbookName: item.playbookName,
+      title: item.title,
+      rows,
+    })
+  }
+
+  const prefixPlaybook = new Set(breakdowns.map((row) => row.playbookId)).size > 1
+  return breakdowns
+    .map((row) => ({
+      ...row,
+      title: prefixPlaybook ? `${row.playbookName} · ${row.title}` : row.title,
+    }))
+    .sort((a, b) => {
+      const filledA = a.rows.reduce((sum, group) => sum + group.trades, 0)
+      const filledB = b.rows.reduce((sum, group) => sum + group.trades, 0)
+      return filledB - filledA || a.title.localeCompare(b.title)
+    })
+    .slice(0, MAX_FIELD_BREAKDOWNS)
 }
 
 export function cappedGroups(

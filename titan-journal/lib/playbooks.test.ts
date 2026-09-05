@@ -3,8 +3,10 @@ import { describe, expect, it } from "vitest"
 import {
   emptyPlaybook,
   fallbackPlaybookId,
+  fieldValueKeys,
   withoutPlaybook,
 } from "@/lib/playbooks"
+import type { PlaybookField } from "@/types/playbook"
 
 describe("playbook delete helpers", () => {
   it("removes a playbook by id", () => {
@@ -23,5 +25,37 @@ describe("playbook delete helpers", () => {
     expect(fallbackPlaybookId([archived, live], "pb-gone")).toBe("pb-live")
     expect(fallbackPlaybookId([archived, live], "pb-live")).toBe("pb-live")
     expect(fallbackPlaybookId([], "pb-gone")).toBe("")
+  })
+})
+
+describe("field value keys", () => {
+  const select: PlaybookField = {
+    id: "s",
+    name: "Setup",
+    type: "select",
+    options: ["Breakout"],
+    order: 0,
+  }
+  const yesNo: PlaybookField = {
+    id: "y",
+    name: "HQ",
+    type: "yes_no",
+    options: [],
+    order: 0,
+  }
+  const text: PlaybookField = {
+    id: "t",
+    name: "Note",
+    type: "text",
+    options: [],
+    order: 0,
+  }
+
+  it("keeps select and yes/no keys, skips text and empty values", () => {
+    expect(fieldValueKeys(select, "Breakout")).toEqual(["Breakout"])
+    expect(fieldValueKeys(yesNo, true)).toEqual(["Yes"])
+    expect(fieldValueKeys(yesNo, "No")).toEqual(["No"])
+    expect(fieldValueKeys(text, "hello")).toEqual([])
+    expect(fieldValueKeys(select, null)).toEqual([])
   })
 })

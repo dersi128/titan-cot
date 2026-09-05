@@ -145,6 +145,38 @@ export function upsertFieldValue(
   return next
 }
 
+export function isDiscretePlaybookField(field: PlaybookField): boolean {
+  return (
+    field.type === "select" ||
+    field.type === "yes_no" ||
+    field.type === "multi_select"
+  )
+}
+
+export function fieldValueKeys(
+  field: PlaybookField,
+  value: TradeFieldValue["value"]
+): string[] {
+  if (!isDiscretePlaybookField(field)) return []
+  if (value == null || value === "") return []
+  if (field.type === "yes_no") {
+    if (value === true || value === "Yes") return ["Yes"]
+    if (value === false || value === "No") return ["No"]
+    return []
+  }
+  if (Array.isArray(value)) {
+    return [
+      ...new Set(
+        value.filter(
+          (item): item is string => typeof item === "string" && item.length > 0
+        )
+      ),
+    ]
+  }
+  if (typeof value === "string") return [value]
+  return []
+}
+
 export function formatFieldValue(
   field: PlaybookField,
   value: TradeFieldValue["value"],
