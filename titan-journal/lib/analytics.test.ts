@@ -10,9 +10,11 @@ import {
   statsByEmotion,
   statsByPlanFollowed,
   statsByPlaybook,
+  statsByPlaybookFields,
 } from "@/lib/analytics"
 import { MOCK_TRADES } from "@/lib/mock-data"
-import { TITAN_SWING_PLAYBOOK_ID } from "@/lib/playbooks"
+import { createDemoPlaybook, emptyPlaybook, TITAN_SWING_PLAYBOOK_ID } from "@/lib/playbooks"
+import type { PlaybookField } from "@/types/playbook"
 import type { Trade, TradeReview } from "@/types/trade"
 
 function trade(partial: Partial<Trade>): Trade {
@@ -55,7 +57,7 @@ function trade(partial: Partial<Trade>): Trade {
     pnl: partial.pnl === undefined ? 200 : partial.pnl,
     notes: "",
     screenshot: null,
-    fieldValues: [],
+    fieldValues: partial.fieldValues ?? [],
     review: partial.review === undefined ? null : partial.review,
   }
 }
@@ -265,5 +267,127 @@ describe("review analytics", () => {
     ])
     expect(groups.map((row) => row.key)).toEqual(["Calm", "Fear"])
     expect(groups.find((row) => row.key === "Fear")?.averageR).toBe(-2)
+  })
+})
+
+describe("playbook field analytics", () => {
+  const demo = createDemoPlaybook()
+
+  it("groups discrete field values and skips missing ones", () => {
+    const groups = statsByPlaybookFields(
+      [
+        trade({
+          id: "bo",
+          resultR: 2,
+          pnl: 200,
+          fieldValues: [{ fieldId: "demo-setup", value: "Breakout" }],
+        }),
+        trade({
+          id: "pb",
+          resultR: -1,
+          pnl: -100,
+          fieldValues: [{ fieldId: "demo-setup", value: "Pullback" }],
+        }),
+        trade({
+          id: "ldn",
+          resultR: 1,
+          pnl: 100,
+          fieldValues: [{ fieldId: "demo-session", value: "London" }],
+        }),
+        trade({ id: "blank", resultR: 3, pnl: 300 }),
+      ],
+      [demo]
+    )
+    expect(groups.map((row) => row.title)).toEqual(["Setup", "Session"])
+    expect(groups[0]?.rows.map((row) => row.key)).toEqual(["Breakout", "Pullback"])
+    expect(groups[1]?.rows.map((row) => row.key)).toEqual(["London"])
+    expect(groups.some((row) => row.rows.some((item) => item.key === "—"))).toBe(
+      false
+    )
+  })
+
+  it("splits multi-select values across groups", () => {
+    const field: PlaybookField = {
+      id: "tags",
+      name: "Tags",
+      type: "multi_select",
+      options: ["A", "B"],
+      order: 0,
+    }
+    const pb = emptyPlaybook({ id: "pb-tags", name: "Tags PB", fields: [field] })
+    const groups = statsByPlaybookFields(
+      [
+        trade({
+          id: "both",
+          resultR: 1,
+          pnl: 100,
+          fieldValues: [{ fieldId: "tags", value: ["A", "B"] }],
+        }),
+      ],
+      [pb]
+    )
+    expect(groups).toHaveLength(1)
+    expect(groups[0]?.rows.map((row) => row.key).sort()).toEqual(["A", "B"])
+    expect(groups[0]?.rows.every((row) => row.trades === 1)).toBe(true)
+  })
+
+  it("skips text fields and prefixes playbook names when several apply", () => {
+    const alpha = emptyPlaybook({
+      id: "alpha",
+      name: "Alpha",
+      fields: [
+        {
+          id: "alpha-setup",
+          name: "Setup",
+          type: "select",
+          options: ["X"],
+          order: 0,
+        },
+        {
+          id: "alpha-note",
+          name: "Note",
+          type: "text",
+          options: [],
+          order: 1,
+        },
+      ],
+    })
+    const beta = emptyPlaybook({
+      id: "beta",
+      name: "Beta",
+      fields: [
+        {
+          id: "beta-setup",
+          name: "Setup",
+          type: "select",
+          options: ["Y"],
+          order: 0,
+        },
+      ],
+    })
+    const groups = statsByPlaybookFields(
+      [
+        trade({
+          id: "a",
+          resultR: 1,
+          pnl: 100,
+          fieldValues: [
+            { fieldId: "alpha-setup", value: "X" },
+            { fieldId: "alpha-note", value: "hello" },
+          ],
+        }),
+        trade({
+          id: "b",
+          resultR: 2,
+          pnl: 200,
+          fieldValues: [{ fieldId: "beta-setup", value: "Y" }],
+        }),
+      ],
+      [alpha, beta]
+    )
+    expect(groups.map((row) => row.title).sort()).toEqual([
+      "Alpha · Setup",
+      "Beta · Setup",
+    ])
   })
 })

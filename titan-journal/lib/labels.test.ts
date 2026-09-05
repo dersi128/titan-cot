@@ -49,6 +49,8 @@ describe("CZ/SK/EN dictionaries", () => {
     expect(labelsFor("cs").EXECUTION_QUALITY_LABELS.Poor).toBe("Špatná")
     expect(labelsFor("sk").EMOTION_LABELS.Calm).toBe("Pokoj")
     expect(labelsFor("en").copy.detail.executionQuality).toBe("Execution")
+    expect(labelsFor("en").copy.analytics.byFields).toBe("By playbook fields")
+    expect(labelsFor("cs").copy.analytics.value).toBe("Hodnota")
     expect(labelsFor("cs").copy.journal.clearFilters).toBe("Vymazat filtry")
     expect(labelsFor("en").copy.journal.clearAllHint).toContain("DELETE")
     expect(labelsFor("cs").copy.playbook.active).toBe("Aktivní")
