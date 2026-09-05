@@ -16,6 +16,7 @@ import type {
 
 export const LANGUAGE_SHORT: Record<Language, string> = {
   cs: "CZ",
+  sk: "SK",
   en: "EN",
 }
 
@@ -873,6 +874,432 @@ export const copyCs: Copy = {
   },
 }
 
+export const copySk: Copy = {
+  brand: "TITAN Journal",
+  openNav: "Otvoriť navigáciu",
+
+  nav: {
+    main: "Hlavné",
+    dashboard: "Prehľad",
+    calendar: "Kalendár",
+    journal: "Denník",
+    newTrade: "Nový obchod",
+    analytics: "Analýzy",
+    playbook: "Playbook",
+    profile: "Profil",
+    settings: "Nastavenia",
+    hints: {
+      dashboard: "Rýchly prehľad výkonu",
+      calendar: "Obchody v čase",
+      journal: "Všetky obchody",
+      newTrade: "Pridať obchod",
+      analytics: "Detailné štatistiky",
+      playbook: "Stratégie a setupy",
+      profile: "Používateľský účet",
+      settings: "Vzhľad a preferencie",
+    },
+  },
+
+  sidebar: {
+    motto: "Discipline creates freedom.",
+    account: "Účet",
+    appearance: "Vzhľad",
+    collapse: "Zbaliť menu",
+    expand: "Rozbaliť menu",
+    trader: "Trader",
+    themes: {
+      light: "Svetlý",
+      dark: "Tmavý",
+      gold: "Modro-zlatý",
+      cyberpunk: "Cyberpunk",
+    },
+  },
+
+  shell: {
+    account: "Účet",
+    range: "Obdobie",
+    settings: "Nastavenia",
+  },
+
+  dashboard: {
+    title: "Prehľad",
+    description: "Kapitál, riziko a výsledky vybraného účtu.",
+    startingCapital: "Počiatočný kapitál",
+    equityNow: "Equity",
+    riskPerTrade: "Riziko / obchod",
+    markets: "Trhy",
+    netPnl: "Celkové PnL",
+    totalR: "Celkové R",
+    winRate: "Win Rate",
+    profitFactor: "Profit Factor",
+    averageR: "Avg R",
+    totalTrades: "Obchody",
+    maxDrawdown: "Max Drawdown",
+    hello: "Ahoj, {name}",
+    overview: {
+      "30D": "Tu je tvoj prehľad za posledných 30 dní.",
+      "3M": "Tu je tvoj prehľad za posledné 3 mesiace.",
+      "6M": "Tu je tvoj prehľad za posledných 6 mesiacov.",
+      YTD: "Tu je tvoj prehľad od začiatku roka.",
+      ALL: "Tu je tvoj prehľad za celé obdobie.",
+      CUSTOM: "Tu je tvoj prehľad za vybrané obdobie.",
+    },
+    viewAllTrades: "Zobraziť všetky obchody",
+    profitVsLoss: "Zisk vs. strata",
+    last7Days: "Posledných 7 dní",
+    thisMonth: "Tento mesiac",
+    vsLastMonth: "Proti minulému mesiacu",
+    better: "lepší výsledok",
+    worse: "slabší výsledok",
+    wins: "Zisk",
+    losses: "Strata",
+    motto: "Plan. Execute. Review. Repeat.",
+    percent: "%",
+    equityCurve: "Krivka equity",
+    marketDistribution: "Rozloženie trhov",
+    marketDistributionEmpty: "Zatiaľ žiadne obchody na rozdelenie.",
+    byTrades: "Obchody",
+    byR: "R",
+    byPnl: "PnL",
+    totalTradesLabel: "Obchody",
+    equity: "Equity",
+    recentTrades: "Posledné obchody",
+    strategySnapshot: "Playbooky",
+    bestSetup: "Najlepší playbook",
+    weakestSetup: "Najslabší playbook",
+    winRateShort: "WR",
+    expectancy: "expectancy",
+    symbol: "Symbol",
+    direction: "Smer",
+    grade: "Známka",
+    result: "Výsledok",
+    r: "R",
+    pnl: "PnL",
+    performance: "Výkon v čase",
+    performanceEmpty: "Zatiaľ nie je dosť dát na zobrazenie výkonu v čase.",
+  },
+
+  calendar: {
+    title: "Kalendár",
+    description: "Prehľad výkonnosti v čase.",
+    previousMonth: "Predchádzajúci mesiac",
+    nextMonth: "Ďalší mesiac",
+    today: "Dnes",
+    openTrade: "Otvoriť obchod",
+    openTrades: "Otvoriť obchody",
+    weekdays: ["Po", "Ut", "St", "Št", "Pi", "So", "Ne"],
+    legendWin: "Ziskový deň",
+    legendLoss: "Stratový deň",
+    legendEmpty: "Bez obchodov",
+    tradesOn: "Obchody {date}",
+    emptyDay: "Žiadne obchody tento deň.",
+    bestDay: "Najlepší deň",
+    worstDay: "Najhorší deň",
+    monthOverview: "Mesačný prehľad",
+    endingCapital: "Konečný kapitál",
+    equityChange: "Zmena kapitálu",
+    byWeek: "Výsledok podľa týždňa",
+    byWeekday: "Výsledok podľa dňa",
+    monthProgress: "Priebeh mesiaca",
+    week: "Týždeň {n}",
+    avgPerDay: "priem. {n}/deň",
+    totalResult: "Celkový výsledok",
+    dayTrades: "Obchody: {n}",
+  },
+
+  journal: {
+    title: "Denník",
+    description: "Kompletný prehľad všetkých tvojich obchodov.",
+    searchSymbol: "Hľadať symbol alebo poznámku",
+    allPlaybooks: "Všetky playbooky",
+    allDirections: "Všetky smery",
+    allResults: "Všetky výsledky",
+    empty: "Žiadne obchody nezodpovedajú filtrom.",
+    date: "Dátum",
+    symbol: "Symbol",
+    direction: "Smer",
+    playbook: "Playbook",
+    result: "Výsledok",
+    r: "R",
+    pnl: "PnL",
+    dateFrom: "Od",
+    dateTo: "Do",
+    clearFilters: "Vymazať filtre",
+    status: "Stav",
+    averageRrr: "Priemerné RRR",
+    perPage: "na stránku",
+    showing: "Zobraziť",
+    of: "z",
+    page: "Strana",
+    export: "Export",
+    clearAll: "Zmazať denník",
+    clearAllHint: "Zmaže všetky obchody v tomto prehliadači. Na potvrdenie napíš DELETE.",
+    clearAllConfirm: "Zmazať všetky obchody",
+    dangerZone: "Nebezpečná zóna",
+    importReport: "Nahrať report",
+    importHint:
+      "JSON záloha, CSV, HTML, Excel alebo PDF z cTrader / MT5 / IC Markets.",
+  },
+
+  detail: {
+    trade: "Obchod",
+    plan: "Plán",
+    result: "Výsledok",
+    screenshot: "Screenshot",
+    notes: "Poznámky",
+    strategyContext: "Kontext stratégie",
+    noNote: "Žiadna poznámka.",
+    noScreenshot: "Žiadny screenshot.",
+    notFound: "Obchod sa nenašiel.",
+    backToJournal: "Späť do denníka",
+    entry: "Entry",
+    stopLoss: "Stop loss",
+    takeProfit: "Take profit",
+    riskPercent: "Riziko %",
+    plannedRrr: "RRR",
+    resultR: "R",
+    pnl: "PnL",
+    account: "Účet",
+    market: "Trh",
+    type: "Typ",
+    simpleReview: "Review",
+    planFollowed: "Dodržal som plán?",
+    wouldTakeAgain: "Vzal by som tento obchod znova?",
+    postTradeNote: "Poznámka po obchode",
+    saveReview: "Uložiť review",
+    reviewSaved: "Review uložené",
+    yes: "Áno",
+    no: "Nie",
+    edit: "Upraviť",
+    delete: "Zmazať",
+    cancel: "Zrušiť",
+    deleteConfirm: "Zmazať tento obchod? Túto akciu nemožno vrátiť.",
+    closeTrade: "Uzavrieť obchod",
+    optional: "voliteľné",
+    duration: "Trvanie",
+    setup: "Setup",
+    id: "ID",
+    tags: "Tagy",
+    cot: "COT",
+    cotCommercials: "Commercials",
+    cotScore: "COT skóre",
+  },
+
+  form: {
+    title: "Nový obchod",
+    editTitle: "Upraviť obchod",
+    description: "Zapíš obchod. R nechaj prázdne, ak ešte beží.",
+    editDescription: "Oprav chybu. Záznam nech sedí.",
+    clear: "Vymazať formulár",
+    basics: "Základné údaje",
+    plan: "Trade plán",
+    templates: "Šablóny obchodov",
+    preview: "Náhľad",
+    screenshotHint: "Pretiahni, vlož (Ctrl+V) alebo vyber súbor. Môžeš aj vložiť / zadať URL.",
+    screenshotUrl: "URL obrázka",
+    screenshotError: "Obrázok sa nepodarilo použiť. Skús iný súbor, vloženie alebo URL.",
+    screenshotRemove: "Odstrániť",
+    potential: "Potenciál",
+    noteLimit: "{n} / 1000",
+    symbol: "Symbol",
+    direction: "Smer",
+    entry: "Entry",
+    stopLoss: "Stop loss",
+    takeProfit: "Take profit",
+    risk: "Riziko",
+    riskPercent: "Riziko %",
+    riskHint: "na 1R",
+    plannedRrr: "RRR",
+    playbook: "Playbook",
+    account: "Účet",
+    screenshot: "Screenshot",
+    note: "Poznámka",
+    date: "Dátum",
+    save: "Uložiť obchod",
+    saveChanges: "Uložiť zmeny",
+    symbolRequired: "Zadaj symbol.",
+    planRequired: "Entry, stop loss a take profit sú povinné.",
+    resultHint: "Voliteľné. Vyplň R a obchod sa uloží ako uzavretý.",
+    advancedFields: "Polia playbooku",
+    cotTitle: "Titan COT",
+    cotLoading: "Načítavam COT…",
+    cotUnavailable: "COT teraz nie je dostupné. Obchod môžeš uložiť.",
+    cotCommercials: "Commercials",
+    cotPairLean: "Smer páru",
+    cotScore: "Skóre",
+    cotReport: "Report",
+    cotAligned: "V súlade",
+    cotAgainst: "Proti COT",
+    cotNeutral: "Neutrálne COT",
+    cotInverse: "{pair} je inverzný k {market}",
+    cotFrozen: "Uložené k tomuto obchodu. Nové týždenné reporty to nemenia.",
+  },
+
+  analytics: {
+    title: "Analýzy",
+    description: "Detailný pohľad na tvoj trading výkon.",
+    byPlaybook: "Podľa playbooku",
+    byDirection: "Podľa smeru",
+    bySymbol: "Podľa symbolu",
+    best: "Najlepší playbook",
+    worst: "Najhorší playbook",
+    trades: "obchodov",
+    empty: "Uzavri pár obchodov, aby sa zobrazili analýzy.",
+    edge: "Edge",
+    edgeYes: "Má edge",
+    edgeNo: "Nemá edge",
+    edgeThin: "Málo obchodov",
+    edgeHint: "Kladné priemerné R na obchod. Potreba aspoň {n} uzavretých obchodov.",
+    expectancy: "Expectancy",
+    payoff: "Payoff",
+    avgWin: "Priemerný zisk",
+    avgLoss: "Priemerná strata",
+    perTrade: "na obchod",
+    profitFactor: "PF",
+    expectedPerTrade: "Očakávaný zisk na obchod",
+    profitFactorHint: "Celkový zisk / strata",
+    tradeCount: "Počet obchodov",
+    winningTrades: "Ziskové obchody",
+    losingTrades: "Stratové obchody",
+    beTrades: "BE",
+    beHint: "< 0,5R, mimo win rate",
+    bySetup: "Výsledky podľa setupov",
+    byMarket: "Výsledky podľa trhov",
+    tradeMix: "Rozloženie obchodov",
+    others: "Ostatné",
+    vsPrevious: "vs. predchádzajúce obdobie",
+    setup: "Setup",
+    market: "Trh",
+  },
+
+  playbook: {
+    title: "Playbook",
+    description: "Tvoje stratégie a opakovateľné setupy.",
+    new: "Nový playbook",
+    name: "Názov",
+    descriptionLabel: "Popis",
+    fields: "Polia",
+    fieldCount: "polí",
+    addField: "Pridať pole",
+    fieldName: "Názov poľa",
+    fieldType: "Typ",
+    options: "Možnosti",
+    optionsHint: "Jedna možnosť na riadok.",
+    icon: "Ikona",
+    color: "Farba",
+    save: "Uložiť playbook",
+    archived: "Archivované",
+    archive: "Archivovať",
+    restore: "Obnoviť",
+    empty: "Zatiaľ žiadny playbook.",
+    nameRequired: "Daj playbooku názov.",
+    delete: "Zmazať",
+    cancel: "Zrušiť",
+    deleteConfirm: "Zmazať tento playbook? Obchody ostanú. Túto akciu nemožno vrátiť.",
+    howToTitle: "Vlastný playbook",
+    howTo: "Nový playbook, pridaj pár polí, vyber ho pri Novom obchode. Demo je len ukážka.",
+    moveUp: "Hore",
+    moveDown: "Dole",
+    removeField: "Odstrániť",
+    edit: "Upraviť",
+    search: "Hľadať playbook…",
+    active: "Aktívny",
+    all: "Všetky playbooky",
+    topMarkets: "Najčastejšie trhy",
+    updated: "Aktualizované",
+    cumulativeR: "Kumulatívne R",
+    types: {
+      select: "Výber",
+      yes_no: "Áno / Nie",
+      number: "Číslo",
+      text: "Text",
+      multi_select: "Viac možností",
+    },
+  },
+
+  settings: {
+    title: "Nastavenia",
+    description: "Režim denníka, vzhľad a predvolené obchodovanie.",
+    journal: "Denník",
+    journalMode: "Režim denníka",
+    simple: "Jednoduchý",
+    advanced: "Pokročilý",
+    appearance: "Vzhľad",
+    theme: "Motív",
+    language: "Jazyk",
+    light: "Light",
+    dark: "Dark",
+    gold: "Navy Gold",
+    cyberpunk: "Cyberpunk",
+    density: "Veľkosť rozhrania",
+    compact: "Kompaktné",
+    comfortable: "Pohodlné",
+    large: "Veľké",
+    trading: "Obchodovanie",
+    defaultAccount: "Predvolený účet",
+    defaultPlaybook: "Predvolený playbook",
+    riskOnProfile: "Riziko % sa nastavuje pri každom účte v Profile.",
+    backup: "Záloha",
+    backupHint:
+      "JSON záloha nahradí denník v tomto prehliadači. CSV, HTML, Excel alebo PDF z cTrader / MT5 / IC Markets obchody pridá.",
+    exportJournal: "Export",
+    importJournal: "Import",
+    importReplace: "Import nahradí denník na tomto zariadení.",
+    importBrokerConfirm: "Pridať {n} obchodov na účet {account}? Existujúci denník ostane.",
+    importOk: "Denník je naimportovaný.",
+    importAdded: "Pridané obchody: {n}.",
+    importBad: "Tento súbor sa nedá naimportovať. Použi JSON zálohu, CSV, HTML, Excel alebo PDF.",
+    importNeedCsv:
+      "Starý Excel (.xls) denník nevie. Ulož report ako .xlsx, CSV, HTML alebo PDF.",
+    importCot: "Dopĺňam COT k naimportovaným obchodom…",
+  },
+
+  profile: {
+    title: "Profil",
+    description: "Kto si a ako sizinguješ knihu.",
+    displayName: "Zobrazované meno",
+    traderType: "Typ tradera",
+    bio: "Krátke bio",
+    avatar: "Foto",
+    avatarHint: "Štvorcový orez. JPG alebo PNG.",
+    removeAvatar: "Odstrániť",
+    trading: "Obchodovanie",
+    capital: "Počiatočný kapitál",
+    riskPercent: "Riziko %",
+    riskHint: "na obchod",
+    markets: "Trhy, ktoré obchodujem",
+    save: "Uložiť profil",
+  },
+
+  comingSoon: "V tejto verzii nie je.",
+  emptyStart: {
+    title: "Tvoj journal je pripravený.",
+    body: "Nič tu nie je vopred vyplnené. Prvý zapísaný obchod je začiatok záznamu.",
+    cta: "Zapísať prvý obchod",
+    sample: "Ukázať ukážkový journal",
+    sampleBanner: "Ukážkové dáta. Nie sú to tvoje obchody.",
+    sampleClear: "Vymazať ukážku",
+    step1: "Zapíš plán",
+    step2: "Uzavri R",
+    step3: "Napíš jednu poznámku",
+    scoped: "Na tomto účte zatiaľ žiadne obchody.",
+  },
+  saveState: {
+    unsaved: "Neuložené zmeny",
+    saved: "Uložené",
+  },
+  notFound: {
+    title: "Nenájdené",
+    description: "Táto stránka neexistuje.",
+    back: "Späť na prehľad",
+  },
+  outcome: {
+    win: "Win",
+    loss: "Loss",
+    be: "BE",
+  },
+}
+
 export const copy = copyEn
 
 export const DIRECTION_LABELS_EN: Record<TradeDirection, string> = {
@@ -884,6 +1311,8 @@ export const DIRECTION_LABELS_CS: Record<TradeDirection, string> = {
   LONG: "LONG",
   SHORT: "SHORT",
 }
+
+export const DIRECTION_LABELS_SK: Record<TradeDirection, string> = DIRECTION_LABELS_CS
 
 export const STATUS_LABELS_EN: Record<TradeStatus, string> = {
   IDEA: "IDEA",
@@ -903,6 +1332,15 @@ export const STATUS_LABELS_CS: Record<TradeStatus, string> = {
   CANCELLED: "ZRUŠENO",
 }
 
+export const STATUS_LABELS_SK: Record<TradeStatus, string> = {
+  IDEA: "NÁPAD",
+  PLANNED: "PLÁN",
+  ACTIVE: "OTVORENÝ",
+  CLOSED: "UZAVRETÝ",
+  REVIEWED: "REVIEW",
+  CANCELLED: "ZRUŠENÉ",
+}
+
 export const ACCOUNT_LABELS_EN: Record<Account, string> = {
   Personal: "Own capital",
   Funded: "Funded",
@@ -911,6 +1349,12 @@ export const ACCOUNT_LABELS_EN: Record<Account, string> = {
 
 export const ACCOUNT_LABELS_CS: Record<Account, string> = {
   Personal: "Vlastní kapitál",
+  Funded: "Funded",
+  Backtesting: "Prop",
+}
+
+export const ACCOUNT_LABELS_SK: Record<Account, string> = {
+  Personal: "Vlastný kapitál",
   Funded: "Funded",
   Backtesting: "Prop",
 }
@@ -935,6 +1379,16 @@ export const TREND_LABELS_CS: Record<Trend, string> = {
   "Strong Downtrend": "Silný downtrend",
 }
 
+export const TREND_LABELS_SK: Record<Trend, string> = {
+  "Strong Uptrend": "Silný uptrend",
+  Uptrend: "Uptrend",
+  Correction: "Korekcia",
+  Consolidation: "Konsolidácia",
+  Transition: "Prechod",
+  Downtrend: "Downtrend",
+  "Strong Downtrend": "Silný downtrend",
+}
+
 export const LOCATION_LABELS_EN: Record<Location, string> = {
   "Top Premium": "Top Premium",
   Premium: "Premium",
@@ -944,6 +1398,7 @@ export const LOCATION_LABELS_EN: Record<Location, string> = {
 }
 
 export const LOCATION_LABELS_CS: Record<Location, string> = LOCATION_LABELS_EN
+export const LOCATION_LABELS_SK: Record<Location, string> = LOCATION_LABELS_EN
 
 export const ZONE_TYPE_LABELS_EN: Record<ZoneType, string> = {
   Supply: "Supply",
@@ -951,6 +1406,7 @@ export const ZONE_TYPE_LABELS_EN: Record<ZoneType, string> = {
 }
 
 export const ZONE_TYPE_LABELS_CS: Record<ZoneType, string> = ZONE_TYPE_LABELS_EN
+export const ZONE_TYPE_LABELS_SK: Record<ZoneType, string> = ZONE_TYPE_LABELS_EN
 
 export const ZONE_TIMEFRAME_LABELS_EN: Record<ZoneTimeframe, string> = {
   Weekly: "Weekly",
@@ -961,6 +1417,12 @@ export const ZONE_TIMEFRAME_LABELS_EN: Record<ZoneTimeframe, string> = {
 export const ZONE_TIMEFRAME_LABELS_CS: Record<ZoneTimeframe, string> = {
   Weekly: "Týdenní",
   Daily: "Denní",
+  "16H": "16H",
+}
+
+export const ZONE_TIMEFRAME_LABELS_SK: Record<ZoneTimeframe, string> = {
+  Weekly: "Týždenný",
+  Daily: "Denný",
   "16H": "16H",
 }
 
@@ -976,6 +1438,12 @@ export const IMPULSE_LABELS_CS: Record<Impulse, string> = {
   Weak: "Slabý",
 }
 
+export const IMPULSE_LABELS_SK: Record<Impulse, string> = {
+  Strong: "Silný",
+  Normal: "Normálny",
+  Weak: "Slabý",
+}
+
 export const BIAS_LABELS_EN: Record<Bias, string> = {
   Bullish: "Bullish",
   Neutral: "Neutral",
@@ -983,6 +1451,7 @@ export const BIAS_LABELS_EN: Record<Bias, string> = {
 }
 
 export const BIAS_LABELS_CS: Record<Bias, string> = BIAS_LABELS_EN
+export const BIAS_LABELS_SK: Record<Bias, string> = BIAS_LABELS_EN
 
 export const ASSET_CLASS_LABELS_EN: Record<AssetClass, string> = {
   Forex: "Forex",
@@ -1004,6 +1473,16 @@ export const ASSET_CLASS_LABELS_CS: Record<AssetClass, string> = {
   Unknown: "Neznámé",
 }
 
+export const ASSET_CLASS_LABELS_SK: Record<AssetClass, string> = {
+  Forex: "Forex",
+  Stock: "Akcie",
+  Commodity: "Komodity",
+  Metal: "Kovy",
+  Index: "Indexy",
+  Crypto: "Krypto",
+  Unknown: "Neznáme",
+}
+
 export const MARKET_TYPE_LABELS_EN: Record<MarketType, string> = {
   Major: "Major",
   Cross: "Cross",
@@ -1016,6 +1495,12 @@ export const MARKET_TYPE_LABELS_CS: Record<MarketType, string> = {
   Unknown: "Neznámé",
 }
 
+export const MARKET_TYPE_LABELS_SK: Record<MarketType, string> = {
+  Major: "Major",
+  Cross: "Cross",
+  Unknown: "Neznáme",
+}
+
 export const YES_NO_LABELS_EN = {
   YES: "Yes",
   NO: "No",
@@ -1024,6 +1509,11 @@ export const YES_NO_LABELS_EN = {
 export const YES_NO_LABELS_CS = {
   YES: "Ano",
   NO: "Ne",
+}
+
+export const YES_NO_LABELS_SK = {
+  YES: "Áno",
+  NO: "Nie",
 }
 
 export const DATE_RANGE_LABELS_EN: Record<DateRange, string> = {
@@ -1042,6 +1532,15 @@ export const DATE_RANGE_LABELS_CS: Record<DateRange, string> = {
   YTD: "YTD",
   ALL: "Vše",
   CUSTOM: "Vlastní",
+}
+
+export const DATE_RANGE_LABELS_SK: Record<DateRange, string> = {
+  "30D": "30D",
+  "3M": "3M",
+  "6M": "6M",
+  YTD: "YTD",
+  ALL: "Všetko",
+  CUSTOM: "Vlastné",
 }
 
 export type Labels = {
@@ -1094,6 +1593,22 @@ const PACKS: Record<Language, Omit<Labels, "language">> = {
     MARKET_TYPE_LABELS: MARKET_TYPE_LABELS_CS,
     YES_NO_LABELS: YES_NO_LABELS_CS,
     DATE_RANGE_LABELS: DATE_RANGE_LABELS_CS,
+  },
+  sk: {
+    copy: copySk,
+    DIRECTION_LABELS: DIRECTION_LABELS_SK,
+    STATUS_LABELS: STATUS_LABELS_SK,
+    ACCOUNT_LABELS: ACCOUNT_LABELS_SK,
+    TREND_LABELS: TREND_LABELS_SK,
+    LOCATION_LABELS: LOCATION_LABELS_SK,
+    ZONE_TYPE_LABELS: ZONE_TYPE_LABELS_SK,
+    ZONE_TIMEFRAME_LABELS: ZONE_TIMEFRAME_LABELS_SK,
+    IMPULSE_LABELS: IMPULSE_LABELS_SK,
+    BIAS_LABELS: BIAS_LABELS_SK,
+    ASSET_CLASS_LABELS: ASSET_CLASS_LABELS_SK,
+    MARKET_TYPE_LABELS: MARKET_TYPE_LABELS_SK,
+    YES_NO_LABELS: YES_NO_LABELS_SK,
+    DATE_RANGE_LABELS: DATE_RANGE_LABELS_SK,
   },
 }
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { copyCs, copyEn, labelsFor } from "@/lib/labels"
+import { copyCs, copyEn, copySk, labelsFor } from "@/lib/labels"
 
 function stringKeys(value: unknown, prefix = ""): string[] {
   if (value && typeof value === "object" && !Array.isArray(value)) {
@@ -13,9 +13,10 @@ function stringKeys(value: unknown, prefix = ""): string[] {
   return prefix ? [prefix] : []
 }
 
-describe("CZ/EN dictionaries", () => {
-  it("keeps the same keys in Czech and English copy", () => {
+describe("CZ/SK/EN dictionaries", () => {
+  it("keeps the same keys in Czech, Slovak, and English copy", () => {
     expect(stringKeys(copyCs).sort()).toEqual(stringKeys(copyEn).sort())
+    expect(stringKeys(copySk).sort()).toEqual(stringKeys(copyEn).sort())
   })
 
   it("switches chrome labels with language", () => {
@@ -48,6 +49,11 @@ describe("CZ/EN dictionaries", () => {
     expect(labelsFor("cs").copy.playbook.updated).toBe("Aktualizováno")
     expect(labelsFor("en").copy.playbook.cumulativeR).toBe("Cumulative R")
     expect(labelsFor("cs").copy.playbook.delete).toBe("Smazat")
+    expect(labelsFor("sk").copy.nav.dashboard).toBe("Prehľad")
+    expect(labelsFor("sk").copy.journal.title).toBe("Denník")
+    expect(labelsFor("sk").ACCOUNT_LABELS.Personal).toBe("Vlastný kapitál")
+    expect(labelsFor("sk").DATE_RANGE_LABELS.ALL).toBe("Všetko")
+    expect(labelsFor("sk").copy.playbook.delete).toBe("Zmazať")
     expect(labelsFor("cs").copy.form.templates).toBe("Šablony obchodů")
     expect(labelsFor("en").copy.form.preview).toBe("Preview")
     expect(labelsFor("cs").copy.form.screenshotUrl).toBe("URL obrázku")
@@ -55,5 +61,6 @@ describe("CZ/EN dictionaries", () => {
     expect(labelsFor("cs").copy.emptyStart.title).toBe("Tvůj journal je připravený.")
     expect(labelsFor("en").copy.emptyStart.sample).toBe("Show sample journal")
     expect(labelsFor("en").copy.calendar.weekdays).toHaveLength(7)
+    expect(labelsFor("sk").copy.calendar.weekdays).toHaveLength(7)
   })
 })
