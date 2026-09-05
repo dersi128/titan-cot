@@ -7,18 +7,21 @@ import {
 } from "@/types/playbook"
 
 export const TITAN_SWING_PLAYBOOK_ID = "pb-titan-swing"
-export const SWING_PLAYBOOK_NAME = "Swing"
+export const DEMO_PLAYBOOK_ID = TITAN_SWING_PLAYBOOK_ID
+export const DEMO_PLAYBOOK_NAME = "Demo"
+export const SWING_PLAYBOOK_NAME = DEMO_PLAYBOOK_NAME
 export const LEGACY_SWING_PLAYBOOK_NAME = "TITAN Swing"
+const LEGACY_DEMO_NAMES = new Set(["TITAN Swing", "Swing"])
 
 export function normalizePlaybookName(id: string, name: string): string {
-  if (id === TITAN_SWING_PLAYBOOK_ID && name.trim() === LEGACY_SWING_PLAYBOOK_NAME) {
-    return SWING_PLAYBOOK_NAME
+  if (id === TITAN_SWING_PLAYBOOK_ID && LEGACY_DEMO_NAMES.has(name.trim())) {
+    return DEMO_PLAYBOOK_NAME
   }
   return name
 }
 
 export function normalizeStrategyName(name: string): string {
-  return name.trim() === LEGACY_SWING_PLAYBOOK_NAME ? SWING_PLAYBOOK_NAME : name
+  return LEGACY_DEMO_NAMES.has(name.trim()) ? DEMO_PLAYBOOK_NAME : name
 }
 
 export const PLAYBOOK_COLORS = [
@@ -37,16 +40,6 @@ export const TITAN_FIELD_IDS = {
   cot: "titan-cot",
 } as const
 
-const TITAN_TREND_OPTIONS = [
-  "Strong Uptrend",
-  "Uptrend",
-  "Consolidation",
-  "Downtrend",
-  "Strong Downtrend",
-] as const
-
-const TITAN_LOCATION_OPTIONS = ["Premium", "Mid", "Discount"] as const
-
 function field(
   id: string,
   name: string,
@@ -57,35 +50,29 @@ function field(
   return { id, name, type, options: [...options], order }
 }
 
-export function createTitanSwingPlaybook(): Playbook {
+export function createDemoPlaybook(): Playbook {
   return {
-    id: TITAN_SWING_PLAYBOOK_ID,
-    name: SWING_PLAYBOOK_NAME,
-    description: "Supply and demand swing framework.",
+    id: DEMO_PLAYBOOK_ID,
+    name: DEMO_PLAYBOOK_NAME,
+    description: "Example only. Add your own fields, or create a new playbook.",
     color: "#5ba8ff",
     icon: null,
     status: "active",
     createdAt: "2026-01-01T00:00:00.000Z",
     fields: [
-      field(TITAN_FIELD_IDS.trend, "Trend", "select", TITAN_TREND_OPTIONS, 0),
-      field(
-        TITAN_FIELD_IDS.location,
-        "Location",
-        "select",
-        TITAN_LOCATION_OPTIONS,
-        1
-      ),
-      field(TITAN_FIELD_IDS.zone, "Zone", "select", ["Supply", "Demand"], 2),
-      field(TITAN_FIELD_IDS.grade, "Grade", "select", ["A+", "A", "B+", "B"], 3),
-      field(
-        TITAN_FIELD_IDS.cot,
-        "COT",
-        "select",
-        ["Bullish", "Neutral", "Bearish"],
-        4
-      ),
+      field("demo-setup", "Setup", "select", ["Breakout", "Pullback"], 0),
+      field("demo-session", "Session", "select", ["London", "NY"], 1),
     ],
   }
+}
+
+export const createTitanSwingPlaybook = createDemoPlaybook
+
+export function isLegacyTitanFactory(playbook: Playbook): boolean {
+  return (
+    playbook.id === TITAN_SWING_PLAYBOOK_ID &&
+    playbook.fields.some((item) => item.id === TITAN_FIELD_IDS.trend)
+  )
 }
 
 export function emptyPlaybook(partial?: Partial<Playbook>): Playbook {

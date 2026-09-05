@@ -2,7 +2,7 @@ import { dollarsPerR } from "@/lib/account-scope"
 import { parseJournalBackup, type JournalBackup } from "@/lib/journal-backup"
 import { classifyMarket, cotFieldsForClassification } from "@/lib/market-classification"
 import { isPdfBytes, pdfToRows } from "@/lib/pdf-import"
-import { TITAN_SWING_PLAYBOOK_ID } from "@/lib/playbooks"
+import { DEMO_PLAYBOOK_NAME, TITAN_SWING_PLAYBOOK_ID } from "@/lib/playbooks"
 import { calculatePlannedRRR } from "@/lib/trade-calculations"
 import { tradeOutcome } from "@/lib/trade-outcome"
 import { isXlsxZip, xlsxSheetsToRows } from "@/lib/xlsx-import"
@@ -717,7 +717,7 @@ export const DEFAULT_IMPORT_CONTEXT: ImportContext = {
   riskPercent: 1,
   capital: 10_000,
   playbookId: TITAN_SWING_PLAYBOOK_ID,
-  playbookName: "Swing",
+  playbookName: DEMO_PLAYBOOK_NAME,
 }
 
 export function materializeImportedTrades(

@@ -3,7 +3,7 @@ import type { TradeFieldValue } from "@/types/playbook"
 export const TRADE_DIRECTIONS = ["LONG", "SHORT"] as const
 export type TradeDirection = (typeof TRADE_DIRECTIONS)[number]
 
-export const DEFAULT_STRATEGY = "Swing"
+export const DEFAULT_STRATEGY = "Demo"
 export const STRATEGIES = [DEFAULT_STRATEGY] as const
 export type Strategy = string
 

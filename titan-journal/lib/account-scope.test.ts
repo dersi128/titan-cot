@@ -6,6 +6,7 @@ import {
   filterTradesByAccount,
   filterTradesByScope,
   realizedResultFromInputs,
+  riskForAccount,
   suggestedPnl,
 } from "@/lib/account-scope"
 import { MOCK_TRADES } from "@/lib/mock-data"
@@ -43,6 +44,29 @@ describe("account scope", () => {
     expect(
       capitalForAccount(DEFAULT_PROFILE.capital, "Backtesting")
     ).toBe(100_000)
+  })
+
+  it("reads risk per account and falls back to the old global percent", () => {
+    expect(riskForAccount(DEFAULT_PROFILE, "Personal")).toBe(1)
+    expect(
+      riskForAccount(
+        {
+          ...DEFAULT_PROFILE,
+          riskByAccount: { Personal: 0.5, Funded: 2, Backtesting: 1.25 },
+        },
+        "Funded"
+      )
+    ).toBe(2)
+    expect(
+      riskForAccount(
+        {
+          ...DEFAULT_PROFILE,
+          riskByAccount: undefined as never,
+          riskPercent: 0.75,
+        },
+        "Backtesting"
+      )
+    ).toBe(0.75)
   })
 
   it("closes a new trade when R is filled", () => {

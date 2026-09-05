@@ -56,7 +56,7 @@ describe("hydrateTrade", () => {
       cotScore: null,
       commercialsBias: null,
       playbookId: "pb-titan-swing",
-      strategy: "Swing",
+      strategy: "Demo",
     })
   })
 

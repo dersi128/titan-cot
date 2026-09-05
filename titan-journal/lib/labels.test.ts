@@ -23,7 +23,7 @@ describe("CZ/EN dictionaries", () => {
     expect(labelsFor("cs").copy.nav.dashboard).toBe("Přehled")
     expect(labelsFor("en").ACCOUNT_LABELS.Personal).toBe("Own capital")
     expect(labelsFor("cs").ACCOUNT_LABELS.Personal).toBe("Vlastní kapitál")
-    expect(labelsFor("cs").ACCOUNT_LABELS.Backtesting).toBe("Backtesting")
+    expect(labelsFor("cs").ACCOUNT_LABELS.Backtesting).toBe("Prop")
     expect(labelsFor("cs").DATE_RANGE_LABELS.ALL).toBe("Vše")
     expect(labelsFor("cs").copy.dashboard.hello).toBe("Ahoj, {name}")
     expect(labelsFor("cs").copy.dashboard.overview["30D"]).toContain("30 dní")
