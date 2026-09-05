@@ -9,7 +9,7 @@ import {
   useSyncExternalStore,
 } from "react"
 
-import { createTitanSwingPlaybook } from "@/lib/playbooks"
+import { createDemoPlaybook } from "@/lib/playbooks"
 import {
   applyDocumentAppearance,
   DEFAULT_PREFERENCES,
@@ -20,7 +20,7 @@ import {
 } from "@/lib/workspace-storage"
 import type { Playbook, UserPreferences, UserProfile } from "@/types/playbook"
 
-const SERVER_PLAYBOOKS = [createTitanSwingPlaybook()]
+const SERVER_PLAYBOOKS = [createDemoPlaybook()]
 
 type WorkspaceValue = {
   profile: UserProfile

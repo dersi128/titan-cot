@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { classifyMarket } from "@/lib/market-classification"
 import { resolveSavedCot, snapshotFromTrade, type CotLiveSnapshot } from "@/lib/cot-link"
-import { dollarsPerR, realizedResultFromInputs, suggestedPnl } from "@/lib/account-scope"
+import { dollarsPerR, realizedResultFromInputs, suggestedPnl, riskForAccount } from "@/lib/account-scope"
 import { formatMoney } from "@/lib/format"
 import { isDirty } from "@/lib/dirty"
 import { useLabels } from "@/lib/use-labels"
@@ -116,7 +116,10 @@ export function TradeForm({ trade }: { trade?: Trade }) {
   const [stopLoss, setStopLoss] = useState(trade ? String(trade.stopLoss) : "")
   const [takeProfit, setTakeProfit] = useState(trade ? String(trade.takeProfit) : "")
   const [riskPercent, setRiskPercent] = useState(
-    String(trade?.riskPercent ?? profile.riskPercent ?? preferences.defaultRisk)
+    String(
+      trade?.riskPercent ??
+        riskForAccount(profile, trade?.account ?? chromeAccount)
+    )
   )
   const [account, setAccount] = useState<Account>(
     trade?.account ?? chromeAccount
@@ -183,9 +186,10 @@ export function TradeForm({ trade }: { trade?: Trade }) {
   const values = fieldValueMap(fieldValues)
   const showResult =
     !editing || trade.status === "CLOSED" || trade.status === "REVIEWED"
+  const fallbackRisk = riskForAccount(profile, account)
   const riskUsd = dollarsPerR(
     profile.capital[account],
-    parseOptionalNumber(riskPercent) ?? profile.riskPercent
+    parseOptionalNumber(riskPercent) ?? fallbackRisk
   )
   const typedR = parseOptionalNumber(resultR)
   const suggestedClosePnl =
@@ -193,7 +197,7 @@ export function TradeForm({ trade }: { trade?: Trade }) {
       ? suggestedPnl(
           typedR,
           profile.capital[account],
-          parseOptionalNumber(riskPercent) ?? profile.riskPercent
+          parseOptionalNumber(riskPercent) ?? fallbackRisk
         )
       : null
   const potentialUsd =
@@ -208,7 +212,7 @@ export function TradeForm({ trade }: { trade?: Trade }) {
     setEntry("")
     setStopLoss("")
     setTakeProfit("")
-    setRiskPercent(String(profile.riskPercent ?? preferences.defaultRisk))
+    setRiskPercent(String(riskForAccount(profile, chromeAccount)))
     setAccount(chromeAccount)
     setPlaybookId(defaultPlaybook?.id ?? TITAN_SWING_PLAYBOOK_ID)
     setNotes("")
@@ -326,7 +330,7 @@ export function TradeForm({ trade }: { trade?: Trade }) {
       entry: entryN,
       stopLoss: sl,
       takeProfit: tp,
-      riskPercent: parseOptionalNumber(riskPercent) ?? profile.riskPercent,
+      riskPercent: parseOptionalNumber(riskPercent) ?? fallbackRisk,
       plannedRRR,
       notes: notes.trim(),
       screenshot:
@@ -354,7 +358,7 @@ export function TradeForm({ trade }: { trade?: Trade }) {
       resultR,
       pnl,
       profile.capital[account],
-      parseOptionalNumber(riskPercent) ?? profile.riskPercent
+      parseOptionalNumber(riskPercent) ?? fallbackRisk
     )
     const created = saveTrade({
       ...patch,
@@ -452,7 +456,12 @@ export function TradeForm({ trade }: { trade?: Trade }) {
                   value={account}
                   options={ACCOUNTS}
                   labels={ACCOUNT_LABELS}
-                  onChange={setAccount}
+                  onChange={(next) => {
+                    setAccount(next)
+                    if (!editing) {
+                      setRiskPercent(String(riskForAccount(profile, next)))
+                    }
+                  }}
                 />
               </Field>
               <Field label={copy.form.direction}>

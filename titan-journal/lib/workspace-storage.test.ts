@@ -59,22 +59,48 @@ describe("workspace hydration", () => {
     expect(playbook?.fields[0]?.name).toBe("Session")
   })
 
-  it("keeps the default Swing playbook when the stored list omits it", () => {
+  it("seeds Demo when the stored list is empty", () => {
+    const playbooks = hydratePlaybooks([])
+    expect(playbooks).toHaveLength(1)
+    expect(playbooks[0]?.id).toBe(TITAN_SWING_PLAYBOOK_ID)
+    expect(playbooks[0]?.name).toBe("Demo")
+    expect(playbooks[0]?.fields.map((item) => item.id)).toEqual([
+      "demo-setup",
+      "demo-session",
+    ])
+  })
+
+  it("does not inject Demo when the stored list has other playbooks", () => {
     const playbooks = hydratePlaybooks([
       { id: "pb-other", name: "Scalping", fields: [] },
     ])
-    expect(playbooks[0]?.id).toBe(TITAN_SWING_PLAYBOOK_ID)
-    expect(playbooks[0]?.name).toBe("Swing")
-    expect(playbooks.some((item) => item.id === "pb-other")).toBe(true)
+    expect(playbooks).toHaveLength(1)
+    expect(playbooks[0]?.id).toBe("pb-other")
   })
 
-  it("renames a stored TITAN Swing playbook to Swing", () => {
+  it("replaces a stored TITAN Swing factory with Demo", () => {
+    const playbooks = hydratePlaybooks([
+      {
+        id: TITAN_SWING_PLAYBOOK_ID,
+        name: "Swing",
+        fields: [
+          { id: "titan-trend", name: "Trend", type: "select", options: [], order: 0 },
+        ],
+      },
+    ])
+    expect(playbooks[0]?.name).toBe("Demo")
+    expect(playbooks[0]?.fields.some((item) => item.id === "titan-trend")).toBe(
+      false
+    )
+  })
+
+  it("renames a stored TITAN Swing playbook to Demo", () => {
     const playbook = hydratePlaybook({
       id: TITAN_SWING_PLAYBOOK_ID,
       name: "TITAN Swing",
       fields: [],
     })
-    expect(playbook?.name).toBe("Swing")
+    expect(playbook?.name).toBe("Demo")
   })
 
   it("falls back to a display name", () => {
@@ -95,13 +121,20 @@ describe("workspace hydration", () => {
       Backtesting: 100_000,
     })
     expect(profile.riskPercent).toBe(1)
+    expect(profile.riskByAccount).toEqual({
+      Personal: 1,
+      Funded: 1,
+      Backtesting: 1,
+    })
     expect(profile.markets).toEqual(["Forex"])
     expect(profile.currency).toBe("USD")
   })
 
   it("inherits settings risk when the profile has none", () => {
     expect(hydrateProfile({}, 2).riskPercent).toBe(2)
+    expect(hydrateProfile({}, 2).riskByAccount.Funded).toBe(2)
     expect(hydrateProfile({ riskPercent: 0.5 }, 2).riskPercent).toBe(0.5)
+    expect(hydrateProfile({ riskPercent: 0.5 }, 2).riskByAccount.Personal).toBe(0.5)
   })
 
   it("keeps saved capital and an empty market list", () => {
@@ -111,6 +144,13 @@ describe("workspace hydration", () => {
       markets: ["Index", "Forex", "Unknown"],
     })
     expect(profile.capital.Personal).toBe(25_000)
+    expect(profile.riskByAccount.Funded).toBe(0.75)
+    expect(
+      hydrateProfile({
+        riskPercent: 1,
+        riskByAccount: { Personal: 0.5, Funded: 2, Backtesting: 1.25 },
+      }).riskByAccount
+    ).toEqual({ Personal: 0.5, Funded: 2, Backtesting: 1.25 })
     expect(profile.markets).toEqual(["Forex", "Index"])
     expect(
       hydrateProfile({ markets: [] }).markets

@@ -62,12 +62,19 @@ export type AccountCapital = {
   Backtesting: number
 }
 
+export type AccountRisk = {
+  Personal: number
+  Funded: number
+  Backtesting: number
+}
+
 export type UserProfile = {
   displayName: string
   traderType: string
   bio: string
   avatar: string | null
   capital: AccountCapital
+  riskByAccount: AccountRisk
   riskPercent: number
   markets: TradingMarket[]
   currency: string

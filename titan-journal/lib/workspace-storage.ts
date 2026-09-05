@@ -1,11 +1,13 @@
 import { DEFAULT_CURRENCY, resolveCurrency } from "@/lib/currency"
 import {
-  createTitanSwingPlaybook,
+  createDemoPlaybook,
+  isLegacyTitanFactory,
   normalizePlaybookName,
   TITAN_SWING_PLAYBOOK_ID,
 } from "@/lib/playbooks"
 import type {
   AccountCapital,
+  AccountRisk,
   Density,
   JournalMode,
   Language,
@@ -33,6 +35,11 @@ export const DEFAULT_PROFILE: UserProfile = {
     Funded: 0,
     Backtesting: 100_000,
   },
+  riskByAccount: {
+    Personal: 1,
+    Funded: 1,
+    Backtesting: 1,
+  },
   riskPercent: 1,
   markets: ["Forex"],
   currency: DEFAULT_CURRENCY,
@@ -49,7 +56,7 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
   defaultPlaybookId: TITAN_SWING_PLAYBOOK_ID,
 }
 
-const DEFAULT_PLAYBOOKS: Playbook[] = [createTitanSwingPlaybook()]
+const DEFAULT_PLAYBOOKS: Playbook[] = [createDemoPlaybook()]
 
 function canUseLocalStorage(): boolean {
   return typeof window !== "undefined" && typeof window.localStorage !== "undefined"
@@ -163,6 +170,24 @@ function hydrateCapital(raw: unknown): AccountCapital {
   }
 }
 
+function asRisk(value: unknown, fallback: number): number {
+  if (typeof value === "number" && Number.isFinite(value) && value >= 0) return value
+  if (typeof value === "string" && value.trim()) {
+    const parsed = Number(value)
+    if (Number.isFinite(parsed) && parsed >= 0) return parsed
+  }
+  return fallback
+}
+
+function hydrateRiskByAccount(raw: unknown, fallbackRisk: number): AccountRisk {
+  const row = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {}
+  return {
+    Personal: asRisk(row.Personal, fallbackRisk),
+    Funded: asRisk(row.Funded, fallbackRisk),
+    Backtesting: asRisk(row.Backtesting, fallbackRisk),
+  }
+}
+
 function hydrateMarkets(raw: unknown): TradingMarket[] {
   if (!Array.isArray(raw)) return [...DEFAULT_PROFILE.markets]
   return TRADING_MARKETS.filter((market) => raw.includes(market))
@@ -177,6 +202,10 @@ export function hydrateProfile(
     typeof row.riskPercent === "number" && Number.isFinite(row.riskPercent)
       ? row.riskPercent
       : fallbackRisk
+  const riskByAccount = hydrateRiskByAccount(
+    row.riskByAccount,
+    riskPercent
+  )
   return {
     displayName:
       typeof row.displayName === "string" && row.displayName.trim()
@@ -186,7 +215,8 @@ export function hydrateProfile(
     bio: typeof row.bio === "string" ? row.bio : "",
     avatar: hydrateAvatar(row.avatar),
     capital: hydrateCapital(row.capital),
-    riskPercent,
+    riskByAccount,
+    riskPercent: riskByAccount.Personal,
     markets: hydrateMarkets(row.markets),
     currency: resolveCurrency(
       typeof row.currency === "string" ? row.currency : DEFAULT_PROFILE.currency
@@ -227,7 +257,7 @@ export function hydratePlaybook(raw: unknown): Playbook | null {
         .map((item, index) => hydrateField(item, index))
         .filter((item): item is PlaybookField => item != null)
     : []
-  return {
+  const playbook: Playbook = {
     id: row.id,
     name: normalizePlaybookName(row.id, row.name),
     description: typeof row.description === "string" ? row.description : "",
@@ -240,19 +270,23 @@ export function hydratePlaybook(raw: unknown): Playbook | null {
         ? row.createdAt
         : new Date(0).toISOString(),
   }
+  if (isLegacyTitanFactory(playbook)) return createDemoPlaybook()
+  return playbook
 }
 
-export function hydratePlaybooks(raw: unknown): Playbook[] {
-  if (!Array.isArray(raw) || raw.length === 0) return DEFAULT_PLAYBOOKS.map((item) => ({
+function cloneDefaultPlaybooks(): Playbook[] {
+  return DEFAULT_PLAYBOOKS.map((item) => ({
     ...item,
     fields: item.fields.map((field) => ({ ...field })),
   }))
+}
+
+export function hydratePlaybooks(raw: unknown): Playbook[] {
+  if (!Array.isArray(raw) || raw.length === 0) return cloneDefaultPlaybooks()
   const playbooks = raw
     .map((item) => hydratePlaybook(item))
     .filter((item): item is Playbook => item != null)
-  if (!playbooks.some((item) => item.id === TITAN_SWING_PLAYBOOK_ID)) {
-    playbooks.unshift(createTitanSwingPlaybook())
-  }
+  if (playbooks.length === 0) return cloneDefaultPlaybooks()
   return playbooks
 }
 

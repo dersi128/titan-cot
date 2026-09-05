@@ -16,6 +16,10 @@ import { useLabels } from "@/lib/use-labels"
 import { ACCOUNTS } from "@/types/trade"
 import { TRADING_MARKETS, type UserProfile } from "@/types/playbook"
 
+function clampRisk(value: number): number {
+  return Number.isFinite(value) && value >= 0 ? value : 1
+}
+
 export function ProfilePage() {
   const { copy, ACCOUNT_LABELS, ASSET_CLASS_LABELS } = useLabels()
   const { profile, preferences, updateProfile, updatePreferences } = useWorkspace()
@@ -26,11 +30,13 @@ export function ProfilePage() {
   }, [profile])
 
   function save() {
-    const riskPercent =
-      Number.isFinite(draft.riskPercent) && draft.riskPercent >= 0
-        ? draft.riskPercent
-        : 1
-    const next = { ...draft, riskPercent }
+    const riskByAccount = {
+      Personal: clampRisk(draft.riskByAccount.Personal),
+      Funded: clampRisk(draft.riskByAccount.Funded),
+      Backtesting: clampRisk(draft.riskByAccount.Backtesting),
+    }
+    const riskPercent = riskByAccount[preferences.defaultAccount]
+    const next = { ...draft, riskByAccount, riskPercent }
     updateProfile(next)
     if (preferences.defaultRisk !== riskPercent) {
       updatePreferences({ defaultRisk: riskPercent })
@@ -114,44 +120,49 @@ export function ProfilePage() {
 
         <div className="titan-glass space-y-3 rounded-[10px] p-4">
           <h2 className="text-sm font-semibold">{copy.profile.trading}</h2>
-          <p className="text-[11px] font-medium tracking-wide text-muted-foreground">
-            {copy.profile.capital}
-          </p>
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-3">
             {ACCOUNTS.map((account) => (
-              <Field key={account} label={ACCOUNT_LABELS[account]}>
-                <Input
-                  type="number"
-                  min={0}
-                  step={100}
-                  value={draft.capital[account]}
-                  onChange={(event) =>
-                    setDraft((current) => ({
-                      ...current,
-                      capital: {
-                        ...current.capital,
-                        [account]: Number(event.target.value) || 0,
-                      },
-                    }))
-                  }
-                />
-              </Field>
+              <div key={account} className="space-y-3">
+                <p className="text-[11px] font-medium tracking-wide text-muted-foreground">
+                  {ACCOUNT_LABELS[account]}
+                </p>
+                <Field label={copy.profile.capital}>
+                  <Input
+                    type="number"
+                    min={0}
+                    step={100}
+                    value={draft.capital[account]}
+                    onChange={(event) =>
+                      setDraft((current) => ({
+                        ...current,
+                        capital: {
+                          ...current.capital,
+                          [account]: Number(event.target.value) || 0,
+                        },
+                      }))
+                    }
+                  />
+                </Field>
+                <Field label={copy.profile.riskPercent} hint={copy.profile.riskHint}>
+                  <Input
+                    type="number"
+                    min={0}
+                    step={0.1}
+                    value={draft.riskByAccount[account]}
+                    onChange={(event) =>
+                      setDraft((current) => ({
+                        ...current,
+                        riskByAccount: {
+                          ...current.riskByAccount,
+                          [account]: Number(event.target.value) || 0,
+                        },
+                      }))
+                    }
+                  />
+                </Field>
+              </div>
             ))}
           </div>
-          <Field label={copy.profile.riskPercent}>
-            <Input
-              type="number"
-              min={0}
-              step={0.1}
-              value={draft.riskPercent}
-              onChange={(event) =>
-                setDraft((current) => ({
-                  ...current,
-                  riskPercent: Number(event.target.value) || 0,
-                }))
-              }
-            />
-          </Field>
           <Field label={copy.profile.markets}>
             <MultiPills
               value={draft.markets}

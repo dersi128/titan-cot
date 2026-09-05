@@ -10,6 +10,7 @@ import {
   dollarsPerR,
   filterTradesByAccount,
   filterTradesByScope,
+  riskForAccount,
 } from "@/lib/account-scope"
 import { computeDashboardStats } from "@/lib/trade-calculations"
 
@@ -28,7 +29,8 @@ export function useScopedTrades() {
   )
   const stats = useMemo(() => computeDashboardStats(scoped), [scoped])
   const capital = capitalForAccount(profile.capital, account)
-  const riskUsd = dollarsPerR(capital, profile.riskPercent)
+  const riskPercent = riskForAccount(profile, account)
+  const riskUsd = dollarsPerR(capital, riskPercent)
 
   return {
     trades: scoped,
@@ -37,7 +39,7 @@ export function useScopedTrades() {
     account,
     range,
     capital,
-    riskPercent: profile.riskPercent,
+    riskPercent,
     riskUsd,
     markets: profile.markets,
     stats,

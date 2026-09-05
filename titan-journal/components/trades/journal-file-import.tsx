@@ -16,6 +16,8 @@ import {
   type ImportContext,
 } from "@/lib/trade-import"
 import { withoutSampleTrades } from "@/lib/mock-data"
+import { riskForAccount } from "@/lib/account-scope"
+import { DEMO_PLAYBOOK_NAME } from "@/lib/playbooks"
 import { useLabels } from "@/lib/use-labels"
 import type { NewTradeInput } from "@/types/trade"
 
@@ -88,12 +90,12 @@ export function useJournalImport() {
 
   const importContext: ImportContext = {
     account: preferences.defaultAccount,
-    riskPercent: profile.riskPercent,
+    riskPercent: riskForAccount(profile, preferences.defaultAccount),
     capital: profile.capital[preferences.defaultAccount] ?? 0,
     playbookId: preferences.defaultPlaybookId,
     playbookName:
       playbooks.find((item) => item.id === preferences.defaultPlaybookId)?.name ??
-      "Swing",
+      DEMO_PLAYBOOK_NAME,
   }
 
   function pick() {

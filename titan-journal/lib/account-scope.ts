@@ -1,6 +1,6 @@
 import { tradeInRange, type CustomRange, type DateRange } from "@/lib/date-range"
 import { parseOptionalNumber } from "@/lib/trade-calculations"
-import type { AccountCapital } from "@/types/playbook"
+import type { AccountCapital, UserProfile } from "@/types/playbook"
 import type { Account, Trade, TradeStatus } from "@/types/trade"
 
 export function filterTradesByAccount(trades: Trade[], account: Account): Trade[] {
@@ -41,6 +41,21 @@ export function capitalForAccount(
   account: Account
 ): number {
   return capital[account] ?? 0
+}
+
+export function riskForAccount(profile: UserProfile, account: Account): number {
+  const mapped = profile.riskByAccount?.[account]
+  if (typeof mapped === "number" && Number.isFinite(mapped) && mapped >= 0) {
+    return mapped
+  }
+  if (
+    typeof profile.riskPercent === "number" &&
+    Number.isFinite(profile.riskPercent) &&
+    profile.riskPercent >= 0
+  ) {
+    return profile.riskPercent
+  }
+  return 1
 }
 
 export function realizedResultFromInputs(

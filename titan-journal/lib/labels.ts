@@ -338,6 +338,8 @@ export const copyEn = {
     restore: "Restore",
     empty: "No playbooks yet.",
     nameRequired: "Give the playbook a name.",
+    howToTitle: "Make your own",
+    howTo: "Create Playbook, add a few fields, pick it on New Trade. Demo is only an example.",
     moveUp: "Move up",
     moveDown: "Move down",
     removeField: "Remove",
@@ -378,7 +380,7 @@ export const copyEn = {
     trading: "Trading",
     defaultAccount: "Default Account",
     defaultPlaybook: "Default Playbook",
-    riskOnProfile: "Risk % is set on Profile.",
+    riskOnProfile: "Risk % is set per account on Profile.",
     backup: "Backup",
     backupHint:
       "JSON backup replaces this browser's journal. A cTrader / MT5 / IC Markets CSV, HTML, Excel, or PDF adds closed trades.",
@@ -405,7 +407,8 @@ export const copyEn = {
     removeAvatar: "Remove",
     trading: "Trading",
     capital: "Starting capital",
-    riskPercent: "Risk per trade",
+    riskPercent: "Risk %",
+    riskHint: "per trade",
     markets: "Markets I trade",
     save: "Save Profile",
   },
@@ -760,6 +763,8 @@ export const copyCs: Copy = {
     restore: "Obnovit",
     empty: "Zatím žádný playbook.",
     nameRequired: "Dej playbooku název.",
+    howToTitle: "Vlastní playbook",
+    howTo: "Nový playbook, přidej pár polí, vyber ho u Nového obchodu. Demo je jen ukázka.",
     moveUp: "Nahoru",
     moveDown: "Dolů",
     removeField: "Odebrat",
@@ -800,7 +805,7 @@ export const copyCs: Copy = {
     trading: "Obchodování",
     defaultAccount: "Výchozí účet",
     defaultPlaybook: "Výchozí playbook",
-    riskOnProfile: "Riziko % se nastavuje v Profilu.",
+    riskOnProfile: "Riziko % se nastavuje u každého účtu v Profilu.",
     backup: "Záloha",
     backupHint:
       "JSON záloha nahradí deník v tomto prohlížeči. CSV, HTML, Excel nebo PDF z cTrader / MT5 / IC Markets obchody přidá.",
@@ -827,7 +832,8 @@ export const copyCs: Copy = {
     removeAvatar: "Odstranit",
     trading: "Obchodování",
     capital: "Počáteční kapitál",
-    riskPercent: "Riziko na obchod",
+    riskPercent: "Riziko %",
+    riskHint: "na obchod",
     markets: "Trhy, které obchoduji",
     save: "Uložit profil",
   },
@@ -894,13 +900,13 @@ export const STATUS_LABELS_CS: Record<TradeStatus, string> = {
 export const ACCOUNT_LABELS_EN: Record<Account, string> = {
   Personal: "Own capital",
   Funded: "Funded",
-  Backtesting: "Backtesting",
+  Backtesting: "Prop",
 }
 
 export const ACCOUNT_LABELS_CS: Record<Account, string> = {
   Personal: "Vlastní kapitál",
   Funded: "Funded",
-  Backtesting: "Backtesting",
+  Backtesting: "Prop",
 }
 
 export const TREND_LABELS_EN: Record<Trend, string> = {
