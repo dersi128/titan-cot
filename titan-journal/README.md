@@ -27,4 +27,4 @@ npm run build
 
 Fáze 1 ukládá obchody do `localStorage` (klíč `titan-journal.trades.v2`) za adaptérem `TradeRepository` (`lib/storage.ts`) — každý návštěvník má vlastní data, při prvním otevření se nasadí mock seed 47 obchodů. Výměna za API/databázi je připravená bez zásahu do UI.
 
-<!-- redeploy trigger -->
+<!-- redeploy trigger 2026-09-05 -->
