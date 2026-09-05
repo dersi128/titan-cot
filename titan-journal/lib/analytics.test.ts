@@ -7,11 +7,13 @@ import {
   cappedGroups,
   changePct,
   edgeVerdict,
+  statsByEmotion,
+  statsByPlanFollowed,
   statsByPlaybook,
 } from "@/lib/analytics"
 import { MOCK_TRADES } from "@/lib/mock-data"
 import { TITAN_SWING_PLAYBOOK_ID } from "@/lib/playbooks"
-import type { Trade } from "@/types/trade"
+import type { Trade, TradeReview } from "@/types/trade"
 
 function trade(partial: Partial<Trade>): Trade {
   return {
@@ -54,7 +56,22 @@ function trade(partial: Partial<Trade>): Trade {
     notes: "",
     screenshot: null,
     fieldValues: [],
-    review: null,
+    review: partial.review === undefined ? null : partial.review,
+  }
+}
+
+function review(partial: Partial<TradeReview>): TradeReview {
+  return {
+    completed: true,
+    planFollowed: null,
+    setupValid: null,
+    wouldTakeAgain: true,
+    executionQuality: null,
+    emotionalState: null,
+    tags: [],
+    executionScore: null,
+    tradeQuality: null,
+    ...partial,
   }
 }
 
@@ -194,5 +211,59 @@ describe("strategy edge", () => {
   it("compares sample size to the previous window", () => {
     expect(changePct(200, 178)).toBe(12.4)
     expect(changePct(10, 0)).toBeNull()
+  })
+})
+
+describe("review analytics", () => {
+  it("groups realized trades by plan and skips missing reviews", () => {
+    const groups = statsByPlanFollowed([
+      trade({
+        id: "yes",
+        resultR: 2,
+        pnl: 200,
+        review: review({ planFollowed: "Yes" }),
+      }),
+      trade({
+        id: "no",
+        resultR: -1,
+        pnl: -100,
+        review: review({ planFollowed: "No" }),
+      }),
+      trade({
+        id: "part",
+        resultR: 1,
+        pnl: 100,
+        review: review({ planFollowed: "Partially" }),
+      }),
+      trade({ id: "blank", resultR: 3, pnl: 300, review: null }),
+    ])
+    expect(groups.map((row) => row.key)).toEqual(["Yes", "Partially", "No"])
+    expect(groups.find((row) => row.key === "Yes")?.trades).toBe(1)
+    expect(groups.some((row) => row.key === "—")).toBe(false)
+  })
+
+  it("groups realized trades by emotion and skips missing emotion", () => {
+    const groups = statsByEmotion([
+      trade({
+        id: "calm",
+        resultR: 1,
+        pnl: 100,
+        review: review({ emotionalState: "Calm" }),
+      }),
+      trade({
+        id: "fear",
+        resultR: -2,
+        pnl: -200,
+        review: review({ emotionalState: "Fear" }),
+      }),
+      trade({
+        id: "none",
+        resultR: 1,
+        pnl: 100,
+        review: review({ planFollowed: "Yes" }),
+      }),
+    ])
+    expect(groups.map((row) => row.key)).toEqual(["Calm", "Fear"])
+    expect(groups.find((row) => row.key === "Fear")?.averageR).toBe(-2)
   })
 })
