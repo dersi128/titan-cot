@@ -443,6 +443,35 @@ export const copyEn = {
     step3: "Write one note",
     scoped: "No trades on this account yet.",
   },
+  guide: {
+    open: "Guide",
+    skip: "Skip",
+    next: "Next",
+    back: "Back",
+    done: "Done",
+    beta: "Beta",
+    stepOf: "{current} / {total}",
+    welcomeTitle: "Welcome to TITAN Journal",
+    welcomeBody:
+      "A short tour of how it works. Skip anytime — handy on the phone if you just want to start.",
+    profileTitle: "Your profile",
+    profileBody:
+      "In Profile you can set a photo, display name, trader type, starting capital, and risk per trade.",
+    dataTitle: "Your data stays here",
+    dataBody:
+      "Imported reports and logged trades live only in this browser. Nobody else can see them. Cloud storage is in progress.",
+    dataDevices:
+      "They do not move to your phone or another computer. Each device has its own journal until cloud sync exists.",
+    playbookTitle: "Playbooks and accounts",
+    playbookBody:
+      "Build a playbook that matches how you trade. Personal capital, Prop, and Backtesting stay as separate books — switch them at the top.",
+    startTitle: "How do you want to start?",
+    startBody: "Log a trade, import a broker report, or load a sample journal.",
+    report:
+      "This is a Beta. If you find a bug or something that does not add up, email {email}.",
+    reportSoon:
+      "This is a Beta. If you find a bug or something that does not add up, you can report it by email — we will add the address soon.",
+  },
   saveState: {
     unsaved: "Unsaved changes",
     saved: "Saved",
@@ -881,6 +910,35 @@ export const copyCs: Copy = {
     step3: "Napiš jednu poznámku",
     scoped: "Na tomto účtu zatím žádné obchody.",
   },
+  guide: {
+    open: "Průvodce",
+    skip: "Přeskočit",
+    next: "Další",
+    back: "Zpět",
+    done: "Hotovo",
+    beta: "Beta",
+    stepOf: "{current} / {total}",
+    welcomeTitle: "Vítej v TITAN Journal",
+    welcomeBody:
+      "Krátký přehled, jak to tu funguje. Kdykoli můžeš přeskočit — hodí se to na telefonu, když chceš hned začít.",
+    profileTitle: "Profil",
+    profileBody:
+      "V Profilu si nastavíš fotku, jméno, typ tradera, počáteční kapitál a riziko na obchod.",
+    dataTitle: "Data zůstanou tady",
+    dataBody:
+      "Importované reporty i zapsané obchody jsou jen lokálně v tomto prohlížeči. Nikdo jiný k nim nemá přístup. Na cloudu se pracuje.",
+    dataDevices:
+      "Nepřenesou se na telefon ani na jiný počítač. Každé zařízení má vlastní journal, dokud nebude cloud.",
+    playbookTitle: "Playbook a účty",
+    playbookBody:
+      "Playbook si sestavíš podle sebe. Osobní kapitál, Prop a Backtesting jsou oddělené knihy — přepínáš je nahoře.",
+    startTitle: "Jak chceš začít?",
+    startBody: "Zapiš obchod, nahraj broker report, nebo si ukaž ukázkový journal.",
+    report:
+      "Teď běží Beta. Nesrovnalost nebo chybu napiš na {email}.",
+    reportSoon:
+      "Teď běží Beta. Nesrovnalost nebo chybu můžeš nahlásit e-mailem — adresu brzy doplníme.",
+  },
   saveState: {
     unsaved: "Neuložené změny",
     saved: "Uloženo",
@@ -1316,6 +1374,35 @@ export const copySk: Copy = {
     step2: "Uzavri R",
     step3: "Napíš jednu poznámku",
     scoped: "Na tomto účte zatiaľ žiadne obchody.",
+  },
+  guide: {
+    open: "Sprievodca",
+    skip: "Preskočiť",
+    next: "Ďalej",
+    back: "Späť",
+    done: "Hotovo",
+    beta: "Beta",
+    stepOf: "{current} / {total}",
+    welcomeTitle: "Vitaj v TITAN Journal",
+    welcomeBody:
+      "Krátky prehľad, ako to tu funguje. Kedykoľvek môžeš preskočiť — hodí sa to na telefóne, keď chceš hneď začať.",
+    profileTitle: "Profil",
+    profileBody:
+      "V Profile si nastavíš fotku, meno, typ tradera, počiatočný kapitál a riziko na obchod.",
+    dataTitle: "Dáta ostanú tu",
+    dataBody:
+      "Importované reporty aj zapísané obchody sú len lokálne v tomto prehliadači. Nikto iný k nim nemá prístup. Na cloude sa pracuje.",
+    dataDevices:
+      "Nepenesú sa na telefón ani na iný počítač. Každé zariadenie má vlastný journal, kým nebude cloud.",
+    playbookTitle: "Playbook a účty",
+    playbookBody:
+      "Playbook si poskladáš podľa seba. Osobný kapitál, Prop a Backtesting sú oddelené knihy — prepínaš ich hore.",
+    startTitle: "Ako chceš začať?",
+    startBody: "Zapíš obchod, nahraj broker report, alebo si ukáž ukážkový journal.",
+    report:
+      "Teraz beží Beta. Nesúlad alebo chybu napíš na {email}.",
+    reportSoon:
+      "Teraz beží Beta. Nesúlad alebo chybu môžeš nahlásiť e-mailom — adresu čoskoro doplníme.",
   },
   saveState: {
     unsaved: "Neuložené zmeny",
