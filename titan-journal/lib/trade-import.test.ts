@@ -68,6 +68,49 @@ function buildMt5PositionXlsx(): Uint8Array {
   })
 }
 
+function buildFtmoXlsx(): Uint8Array {
+  const strings = [
+    "Pokyn",
+    "Otevření",
+    "Typ",
+    "Lotů",
+    "Symbol",
+    "Cena",
+    "SL",
+    "TP",
+    "Uzavření",
+    "Swap",
+    "Komise",
+    "Zisk",
+    "NZDCHF",
+    "buy",
+    "2026-09-02 08:14:05",
+    "2026-09-04 14:30:01",
+  ]
+  const shared = `<?xml version="1.0" encoding="UTF-8"?><sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">${strings
+    .map((value) => `<si><t>${xmlEscape(value)}</t></si>`)
+    .join("")}</sst>`
+  const sheet = `<?xml version="1.0" encoding="UTF-8"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>
+    <row r="1">
+      <c r="A1" t="s"><v>0</v></c><c r="B1" t="s"><v>1</v></c><c r="C1" t="s"><v>2</v></c>
+      <c r="D1" t="s"><v>3</v></c><c r="E1" t="s"><v>4</v></c><c r="F1" t="s"><v>5</v></c>
+      <c r="G1" t="s"><v>6</v></c><c r="H1" t="s"><v>7</v></c><c r="I1" t="s"><v>8</v></c>
+      <c r="J1" t="s"><v>5</v></c><c r="K1" t="s"><v>9</v></c><c r="L1" t="s"><v>10</v></c>
+      <c r="M1" t="s"><v>11</v></c>
+    </row>
+    <row r="2">
+      <c r="A2"><v>146416371</v></c><c r="B2" t="s"><v>14</v></c><c r="C2" t="s"><v>13</v></c>
+      <c r="D2"><v>3</v></c><c r="E2" t="s"><v>12</v></c><c r="F2"><v>0.4751</v></c>
+      <c r="G2"><v>0.47513</v></c><c r="H2"><v>0.48026</v></c><c r="I2" t="s"><v>15</v></c>
+      <c r="J2"><v>0.47508</v></c><c r="K2"><v>14.31</v></c><c r="L2"><v>-15</v></c><c r="M2"><v>-7.47</v></c>
+    </row>
+  </sheetData></worksheet>`
+  return zipSync({
+    "xl/sharedStrings.xml": encoder.encode(shared),
+    "xl/worksheets/sheet1.xml": encoder.encode(sheet),
+  })
+}
+
 function buildCTraderXlsx(): Uint8Array {
   const strings = [
     "Symbol",
@@ -186,6 +229,12 @@ const MT5_CSV = `Time;Deal;Symbol;Type;Direction;Volume;Price;S/L;T/P;Profit
 2026.09.01 14:30;11003;;balance;in;0;0;0;0;500.00
 `
 
+const FTMO_CSV = `Pokyn,Otevření,Typ,Lotů,Symbol,Cena,SL,TP,Uzavření,Cena,Swap,Komise,Zisk,Pipů,"Trvání obchodu v sekundách"
+146463304,"2026-08-28 07:04:53",sell,350,COTTON.c,90.05000000,89.92,82.47000000,"2026-09-04 18:11:37",84.81000000,17.94,0,1834.00000000,5.2,644804
+146416371,"2026-09-02 08:14:05",buy,3,NZDCHF,0.47510000,0.47513,0.48026000,"2026-09-04 14:30:01",0.47508000,14.31,-15,-7.47000000,-0.2,195356
+146188740,"2026-09-02 08:22:23",sell,1,AUDNZD,1.22224000,1.23016,1.21391000,"2026-09-02 11:30:01",1.22655000,0,-5,-252.06000000,-43.1,11258
+`
+
 describe("parseLocaleNumber", () => {
   it("reads US and EU decimals", () => {
     expect(parseLocaleNumber("190.00")).toBe(190)
@@ -269,6 +318,55 @@ describe("parseImportText", () => {
       direction: "SHORT",
       date: "2026-09-03",
       pnl: 1234.5,
+    })
+  })
+
+  it("adds closed trades from an FTMO Czech trading journal CSV", () => {
+    const parsed = parseImportText(FTMO_CSV, DEFAULT_IMPORT_CONTEXT, "trading-journal.csv")
+    expect(parsed.kind).toBe("broker")
+    if (parsed.kind !== "broker") return
+    expect(parsed.trades).toHaveLength(3)
+    expect(parsed.trades[0]).toMatchObject({
+      symbol: "COTTON.C",
+      direction: "SHORT",
+      date: "2026-09-04",
+      entry: 90.05,
+      stopLoss: 89.92,
+      takeProfit: 82.47,
+      pnl: 1851.94,
+      status: "CLOSED",
+      notes: "#146463304",
+    })
+    expect(parsed.trades[1]).toMatchObject({
+      symbol: "NZDCHF",
+      direction: "LONG",
+      date: "2026-09-04",
+      pnl: -8.16,
+    })
+    expect(parsed.trades[2]).toMatchObject({
+      symbol: "AUDNZD",
+      direction: "SHORT",
+      date: "2026-09-02",
+      pnl: -257.06,
+    })
+  })
+
+  it("adds closed trades from an FTMO Czech trading journal Excel workbook", () => {
+    const parsed = parseImportFile(
+      buildFtmoXlsx(),
+      DEFAULT_IMPORT_CONTEXT,
+      "trading-journal.xlsx"
+    )
+    expect(parsed.kind).toBe("broker")
+    if (parsed.kind !== "broker") return
+    expect(parsed.trades).toHaveLength(1)
+    expect(parsed.trades[0]).toMatchObject({
+      symbol: "NZDCHF",
+      direction: "LONG",
+      date: "2026-09-04",
+      entry: 0.4751,
+      pnl: -8.16,
+      notes: "#146416371",
     })
   })
 

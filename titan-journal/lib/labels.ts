@@ -192,7 +192,7 @@ export const copyEn = {
     dangerZone: "Danger zone",
     importReport: "Import report",
     importHint:
-      "JSON backup, CSV, HTML, Excel, or PDF from cTrader / MT5 / IC Markets.",
+      "JSON backup, CSV, HTML, Excel, or PDF from cTrader / MT5 / IC Markets / FTMO.",
   },
 
   detail: {
@@ -405,7 +405,7 @@ export const copyEn = {
     riskOnProfile: "Risk % is set per account on Profile.",
     backup: "Backup",
     backupHint:
-      "JSON backup replaces this browser's journal. A cTrader / MT5 / IC Markets CSV, HTML, Excel, or PDF adds closed trades.",
+      "JSON backup replaces this browser's journal. A cTrader / MT5 / IC Markets / FTMO CSV, HTML, Excel, or PDF adds closed trades.",
     exportJournal: "Export",
     importJournal: "Import",
     importReplace: "Import replaces the journal on this device.",
@@ -700,7 +700,7 @@ export const copyCs: Copy = {
     dangerZone: "Nebezpečná zóna",
     importReport: "Nahrát report",
     importHint:
-      "JSON záloha, CSV, HTML, Excel nebo PDF z cTrader / MT5 / IC Markets.",
+      "JSON záloha, CSV, HTML, Excel nebo PDF z cTrader / MT5 / IC Markets / FTMO.",
   },
 
   detail: {
@@ -913,7 +913,7 @@ export const copyCs: Copy = {
     riskOnProfile: "Riziko % se nastavuje u každého účtu v Profilu.",
     backup: "Záloha",
     backupHint:
-      "JSON záloha nahradí deník v tomto prohlížeči. CSV, HTML, Excel nebo PDF z cTrader / MT5 / IC Markets obchody přidá.",
+      "JSON záloha nahradí deník v tomto prohlížeči. CSV, HTML, Excel nebo PDF z cTrader / MT5 / IC Markets / FTMO obchody přidá.",
     exportJournal: "Export",
     importJournal: "Import",
     importReplace: "Import nahradí deník na tomto zařízení.",
@@ -1206,7 +1206,7 @@ export const copySk: Copy = {
     dangerZone: "Nebezpečná zóna",
     importReport: "Nahrať report",
     importHint:
-      "JSON záloha, CSV, HTML, Excel alebo PDF z cTrader / MT5 / IC Markets.",
+      "JSON záloha, CSV, HTML, Excel alebo PDF z cTrader / MT5 / IC Markets / FTMO.",
   },
 
   detail: {
@@ -1419,7 +1419,7 @@ export const copySk: Copy = {
     riskOnProfile: "Riziko % sa nastavuje pri každom účte v Profile.",
     backup: "Záloha",
     backupHint:
-      "JSON záloha nahradí denník v tomto prehliadači. CSV, HTML, Excel alebo PDF z cTrader / MT5 / IC Markets obchody pridá.",
+      "JSON záloha nahradí denník v tomto prehliadači. CSV, HTML, Excel alebo PDF z cTrader / MT5 / IC Markets / FTMO obchody pridá.",
     exportJournal: "Export",
     importJournal: "Import",
     importReplace: "Import nahradí denník na tomto zariadení.",
