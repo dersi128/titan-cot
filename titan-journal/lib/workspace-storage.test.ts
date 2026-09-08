@@ -6,13 +6,14 @@ import {
   hydratePlaybooks,
   hydratePreferences,
   hydrateProfile,
+  THEME_BOOT_SCRIPT,
 } from "@/lib/workspace-storage"
 
 describe("workspace hydration", () => {
-  it("defaults journal mode to simple and theme to dark", () => {
+  it("defaults journal mode to simple and theme to light", () => {
     expect(hydratePreferences(null)).toMatchObject({
       journalMode: "simple",
-      theme: "dark",
+      theme: "light",
       density: "comfortable",
       language: "en",
       sidebarCollapsed: false,
@@ -28,6 +29,7 @@ describe("workspace hydration", () => {
     expect(hydratePreferences({ language: "cs" }).language).toBe("cs")
     expect(hydratePreferences({ language: "sk" }).language).toBe("sk")
     expect(hydratePreferences({ language: "nope" }).language).toBe("en")
+    expect(THEME_BOOT_SCRIPT).toContain('?p.theme:"light"')
     expect(hydratePreferences({ defaultAccount: "Challenge" }).defaultAccount).toBe(
       "Backtesting"
     )

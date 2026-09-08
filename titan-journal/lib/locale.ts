@@ -14,3 +14,7 @@ export function dateLocale(language: string): string {
 export function usesDayMonthFormat(language: string): boolean {
   return language === "cs" || language === "sk"
 }
+
+export function prefersMoneyMetrics(language: string): boolean {
+  return language === "cs" || language === "sk"
+}

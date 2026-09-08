@@ -26,7 +26,7 @@ import {
   formatSignedR,
   signedClassName,
 } from "@/lib/format"
-import { LOCALE } from "@/lib/locale"
+import { LOCALE, prefersMoneyMetrics } from "@/lib/locale"
 import { formatMonthTitle, parseIsoDate } from "@/lib/pnl-calendar"
 import {
   getPerformanceByPeriod,
@@ -125,7 +125,9 @@ export function PerformanceBars({
 }) {
   const { copy, language } = useLabels()
   const { range, custom } = useWorkspaceChrome()
-  const [metric, setMetric] = useState<Metric>("r")
+  const preferredMetric: Metric = prefersMoneyMetrics(language) ? "pnl" : "r"
+  const [pickedMetric, setPickedMetric] = useState<Metric | null>(null)
+  const metric = pickedMetric ?? preferredMetric
   const result = useMemo(
     () => getPerformanceByPeriod(trades, range, new Date(), custom),
     [trades, range, custom]
@@ -174,7 +176,7 @@ export function PerformanceBars({
               size="sm"
               options={METRICS}
               value={metric}
-              onChange={setMetric}
+              onChange={setPickedMetric}
               labels={metricLabels}
               aria-label={copy.dashboard.performance}
             />

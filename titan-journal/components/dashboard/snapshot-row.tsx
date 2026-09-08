@@ -1,6 +1,7 @@
 "use client"
 
 import { formatSignedMoney, formatSignedR, signedClassName } from "@/lib/format"
+import { prefersMoneyMetrics } from "@/lib/locale"
 import { useLabels } from "@/lib/use-labels"
 import { cn } from "@/lib/utils"
 import type { DashboardSnapshots } from "@/lib/dashboard-snapshots"
@@ -40,7 +41,11 @@ export function SnapshotRow({
   snapshots: DashboardSnapshots
   currency: string
 }) {
-  const { copy } = useLabels()
+  const { copy, language } = useLabels()
+  const moneyFirst = prefersMoneyMetrics(language)
+  const last7Value = moneyFirst ? snapshots.last7Days.pnl : snapshots.last7Days.r
+  const monthPrimary = moneyFirst ? snapshots.thisMonth.pnl : snapshots.thisMonth.r
+  const monthSecondary = moneyFirst ? snapshots.thisMonth.r : snapshots.thisMonth.pnl
   const winPct = Math.round(snapshots.winShare * 100)
   const lossPct = Math.round(snapshots.lossShare * 100)
   const vs = snapshots.vsLastMonth
@@ -80,10 +85,12 @@ export function SnapshotRow({
           <p
             className={cn(
               "mt-1 font-mono text-[18px] font-medium tabular-nums",
-              signedClassName(snapshots.last7Days.r)
+              signedClassName(last7Value)
             )}
           >
-            {formatSignedR(snapshots.last7Days.r)}
+            {moneyFirst
+              ? formatSignedMoney(last7Value, currency)
+              : formatSignedR(last7Value)}
           </p>
         </div>
         <Sparkline values={snapshots.last7Days.spark} />
@@ -96,14 +103,18 @@ export function SnapshotRow({
         <p
           className={cn(
             "mt-1 font-mono text-[18px] font-medium tabular-nums",
-            signedClassName(snapshots.thisMonth.r)
+            signedClassName(monthPrimary)
           )}
         >
-          {formatSignedR(snapshots.thisMonth.r)}
+          {moneyFirst
+            ? formatSignedMoney(monthPrimary, currency)
+            : formatSignedR(monthPrimary)}
         </p>
         <p className="mt-0.5 text-[12px] text-muted-foreground">
-          <span className={signedClassName(snapshots.thisMonth.pnl)}>
-            {formatSignedMoney(snapshots.thisMonth.pnl, currency)}
+          <span className={signedClassName(monthSecondary)}>
+            {moneyFirst
+              ? formatSignedR(monthSecondary)
+              : formatSignedMoney(monthSecondary, currency)}
           </span>
           <span className="mx-1.5">·</span>
           {copy.dashboard.winRateShort}{" "}
