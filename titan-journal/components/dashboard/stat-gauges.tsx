@@ -1,3 +1,7 @@
+"use client"
+
+import { useId } from "react"
+
 import { cn } from "@/lib/utils"
 
 function clamp01(value: number): number {
@@ -5,17 +9,26 @@ function clamp01(value: number): number {
   return Math.min(1, Math.max(0, value))
 }
 
+function GaugeGradient({ id }: { id: string }) {
+  return (
+    <linearGradient id={id} x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stopColor="var(--bull)" />
+      <stop offset="100%" stopColor="var(--bear)" />
+    </linearGradient>
+  )
+}
+
 export function ArcGauge({
   progress,
-  color = "var(--bull)",
   caption,
   size = 84,
 }: {
   progress: number | null
-  color?: string
   caption?: string
   size?: number
 }) {
+  const rawId = useId().replace(/:/g, "")
+  const gradId = `arc-${rawId}`
   const p = progress == null ? 0 : clamp01(progress)
   const stroke = 8
   const pad = 10
@@ -39,24 +52,27 @@ export function ArcGauge({
       className="shrink-0 overflow-visible"
       aria-hidden
     >
+      <defs>
+        <GaugeGradient id={gradId} />
+      </defs>
       <path
         d={d}
         fill="none"
-        stroke="color-mix(in srgb, var(--muted-foreground) 28%, transparent)"
+        stroke={`url(#${gradId})`}
         strokeWidth={stroke}
         strokeLinecap="round"
+        opacity={0.28}
         pathLength={100}
       />
       <path
         d={d}
         fill="none"
-        stroke={color}
+        stroke={`url(#${gradId})`}
         strokeWidth={stroke}
         strokeLinecap="round"
         pathLength={100}
         strokeDasharray={`${p * 100} 100`}
         className="titan-gauge-fill"
-        style={{ color }}
       />
       {caption ? (
         <text
@@ -75,15 +91,15 @@ export function ArcGauge({
 
 export function RingGauge({
   progress,
-  color = "var(--bull)",
   caption,
   size = 72,
 }: {
   progress: number | null
-  color?: string
   caption?: string
   size?: number
 }) {
+  const rawId = useId().replace(/:/g, "")
+  const gradId = `ring-${rawId}`
   const p = progress == null ? 0 : clamp01(progress)
   const stroke = 7
   const cx = size / 2
@@ -99,27 +115,30 @@ export function RingGauge({
       className="shrink-0 overflow-visible"
       aria-hidden
     >
+      <defs>
+        <GaugeGradient id={gradId} />
+      </defs>
       <circle
         cx={cx}
         cy={cy}
         r={r}
         fill="none"
-        stroke="color-mix(in srgb, var(--muted-foreground) 28%, transparent)"
+        stroke={`url(#${gradId})`}
         strokeWidth={stroke}
+        opacity={0.28}
       />
       <circle
         cx={cx}
         cy={cy}
         r={r}
         fill="none"
-        stroke={color}
+        stroke={`url(#${gradId})`}
         strokeWidth={stroke}
         strokeLinecap="round"
         pathLength={100}
         strokeDasharray={`${p * 100} 100`}
         transform={`rotate(-90 ${cx} ${cy})`}
         className="titan-gauge-fill"
-        style={{ color }}
       />
       {caption ? (
         <text
@@ -172,11 +191,7 @@ export function OutcomeDots({
 }) {
   return (
     <div className="mt-2 flex items-center gap-1.5">
-      <span
-        className={cn(
-          "inline-flex min-w-5 items-center justify-center rounded-full bg-bull/15 px-1.5 text-[10px] font-mono tabular-nums text-bull"
-        )}
-      >
+      <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-bull/15 px-1.5 text-[10px] font-mono tabular-nums text-bull">
         {wins}
       </span>
       <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-muted px-1.5 text-[10px] font-mono tabular-nums text-muted-foreground">
