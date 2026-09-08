@@ -6,7 +6,9 @@ import {
   calendarDayHref,
   calendarInsights,
   defaultSelectedDate,
+  buildMonthProgress,
   calendarWeekSlices,
+  monthAxisTicks,
   formatCalendarDayLong,
   formatCalendarDayTitle,
   formatCalendarRange,
@@ -221,5 +223,22 @@ describe("calendar labels", () => {
       trades: 0,
     })
     expect(weeks.some((week) => week.totalR === 1.5 && week.trades === 1)).toBe(true)
+  })
+
+  it("builds a PnL curve from zero and stops at today", () => {
+    const calendar = buildMonthCalendar(
+      [
+        trade({ date: "2026-09-02", pnl: 100, resultR: 1 }),
+        trade({ id: "t2", date: "2026-09-08", pnl: -40, resultR: -0.5 }),
+        trade({ id: "t3", date: "2026-09-16", pnl: 80, resultR: 1 }),
+      ],
+      { year: 2026, month: 9 }
+    )
+    const points = buildMonthProgress(calendar.days, "pnl", "2026-09-08")
+    expect(points[0]).toEqual({ day: 0, value: 0 })
+    expect(points.at(-1)).toMatchObject({ day: 8, value: 60 })
+    expect(points.some((point) => point.day === 16)).toBe(false)
+    expect(points.at(-1)?.value).toBe(60)
+    expect(monthAxisTicks(30)).toEqual([1, 5, 10, 15, 20, 25, 30])
   })
 })

@@ -43,6 +43,7 @@ import {
 import { todayIsoDate } from "@/lib/locale"
 import {
   buildMonthCalendar,
+  buildMonthProgress,
   calendarWeekSlices,
   defaultSelectedDate,
   formatCalendarDayLong,
@@ -57,7 +58,7 @@ import { useLabels } from "@/lib/use-labels"
 import { cn } from "@/lib/utils"
 import { ACCOUNTS, type Trade } from "@/types/trade"
 
-const CALENDAR_METRICS = ["r", "pnl"] as const
+const CALENDAR_METRICS = ["pnl", "r"] as const
 
 const MonthProgress = dynamic(
   () =>
@@ -314,7 +315,7 @@ export function CalendarPage() {
   const { copy, language, ACCOUNT_LABELS } = useLabels()
   const { account, setAccount } = useWorkspaceChrome()
   const { accountTrades, isReady, profile } = useScopedTrades()
-  const [metric, setMetric] = useState<CalendarMetric>("r")
+  const [metric, setMetric] = useState<CalendarMetric>("pnl")
   const [cursor, setCursor] = useState(() =>
     initialCalendarMonth(accountTrades, todayIsoDate())
   )
@@ -365,13 +366,11 @@ export function CalendarPage() {
       return current > lead ? day : best
     })
   }, [inMonth, metric])
-  const progress = useMemo(() => {
-    let value = 0
-    return inMonth.map((day) => {
-      value = Math.round((value + (metric === "r" ? day.totalR : day.pnl)) * 100) / 100
-      return { day: day.day, value }
-    })
-  }, [inMonth, metric])
+  const progress = useMemo(
+    () => buildMonthProgress(calendar.days, metric, todayIsoDate()),
+    [calendar.days, metric]
+  )
+  const lastDay = inMonth.at(-1)?.day ?? 31
 
   function goToday() {
     const today = todayIsoDate()
@@ -548,6 +547,7 @@ export function CalendarPage() {
                     points={progress}
                     metric={metric}
                     currency={profile.currency}
+                    lastDay={lastDay}
                   />
                 </CardContent>
               </Card>

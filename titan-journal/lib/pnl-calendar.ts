@@ -324,6 +324,37 @@ export type CalendarWeekSlice = {
   trades: number
 }
 
+export type MonthProgressPoint = {
+  day: number
+  value: number
+}
+
+export function buildMonthProgress(
+  days: CalendarDay[],
+  metric: "r" | "pnl",
+  today: string
+): MonthProgressPoint[] {
+  const visible = days.filter((day) => day.inMonth && day.date <= today)
+  let value = 0
+  const points: MonthProgressPoint[] = [{ day: 0, value: 0 }]
+  for (const day of visible) {
+    value = roundMoney(value + (metric === "r" ? day.totalR : day.pnl))
+    points.push({ day: day.day, value })
+  }
+  return points
+}
+
+export function monthAxisTicks(lastDay: number): number[] {
+  if (lastDay <= 1) return [1]
+  const step = lastDay > 20 ? 5 : lastDay > 10 ? 2 : 1
+  const ticks = [1]
+  for (let day = step; day < lastDay; day += step) {
+    if (day !== 1) ticks.push(day)
+  }
+  if (ticks.at(-1) !== lastDay) ticks.push(lastDay)
+  return ticks
+}
+
 export function calendarWeekSlices(calendar: MonthCalendar): CalendarWeekSlice[] {
   const weeks: CalendarWeekSlice[] = []
   for (let week = 0; week < 6; week += 1) {
