@@ -20,7 +20,7 @@ import {
   formatSignedR,
   formatSignedUsd,
 } from "@/lib/format"
-import { LOCALE } from "@/lib/locale"
+import { LOCALE, prefersMoneyMetrics } from "@/lib/locale"
 import { useLabels } from "@/lib/use-labels"
 import type { EquityPoint } from "@/lib/trade-calculations"
 
@@ -75,8 +75,12 @@ export function EquityCurve({
   data: EquityPoint[]
   defaultMetric?: EquityMetric
 }) {
-  const { copy } = useLabels()
-  const [metric, setMetric] = useState<EquityMetric>(defaultMetric)
+  const { copy, language } = useLabels()
+  const preferredMetric: EquityMetric = prefersMoneyMetrics(language)
+    ? "pnl"
+    : defaultMetric
+  const [pickedMetric, setPickedMetric] = useState<EquityMetric | null>(null)
+  const metric = pickedMetric ?? preferredMetric
   const start = data[0]?.equity ?? 0
   const chart = useMemo<ChartPoint[]>(
     () =>
@@ -103,7 +107,7 @@ export function EquityCurve({
             size="sm"
             options={EQUITY_METRICS}
             value={metric}
-            onChange={setMetric}
+            onChange={setPickedMetric}
             labels={labels}
             aria-label={copy.dashboard.equityCurve}
           />

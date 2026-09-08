@@ -47,7 +47,7 @@ export const DEFAULT_PROFILE: UserProfile = {
 
 export const DEFAULT_PREFERENCES: UserPreferences = {
   journalMode: "simple",
-  theme: "dark",
+  theme: "light",
   density: "comfortable",
   language: "en",
   sidebarCollapsed: false,
@@ -370,4 +370,4 @@ export function applyDocumentAppearance(preferences: UserPreferences) {
   root.classList.toggle("dark", dark)
 }
 
-export const THEME_BOOT_SCRIPT = `try{var p=JSON.parse(localStorage.getItem("${PREFERENCES_STORAGE_KEY}")||"{}");var ok=["light","dark","gold","cyberpunk"];var t=p.theme==="slate"?"dark":ok.indexOf(p.theme)>=0?p.theme:"dark";var d=p.density==="compact"||p.density==="large"||p.density==="comfortable"?p.density:"comfortable";var langs=["cs","sk","en"];var lang=langs.indexOf(p.language)>=0?p.language:"en";var r=document.documentElement;r.setAttribute("data-theme",t);r.setAttribute("data-density",d);r.setAttribute("lang",lang);var dark=t!=="light";r.style.colorScheme=dark?"dark":"light";r.classList.toggle("dark",dark);}catch(e){}`
+export const THEME_BOOT_SCRIPT = `try{var p=JSON.parse(localStorage.getItem("${PREFERENCES_STORAGE_KEY}")||"{}");var ok=["light","dark","gold","cyberpunk"];var t=p.theme==="slate"?"dark":ok.indexOf(p.theme)>=0?p.theme:"light";var d=p.density==="compact"||p.density==="large"||p.density==="comfortable"?p.density:"comfortable";var langs=["cs","sk","en"];var lang=langs.indexOf(p.language)>=0?p.language:"en";var r=document.documentElement;r.setAttribute("data-theme",t);r.setAttribute("data-density",d);r.setAttribute("lang",lang);var dark=t!=="light";r.style.colorScheme=dark?"dark":"light";r.classList.toggle("dark",dark);}catch(e){}`

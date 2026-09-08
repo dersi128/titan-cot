@@ -27,10 +27,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      data-theme="dark"
+      data-theme="light"
       data-density="comfortable"
-      className={`${geist.variable} ${geistMono.variable} dark h-full antialiased`}
-      style={{ colorScheme: "dark" }}
+      className={`${geist.variable} ${geistMono.variable} h-full antialiased`}
+      style={{ colorScheme: "light" }}
       suppressHydrationWarning
     >
       <head>
