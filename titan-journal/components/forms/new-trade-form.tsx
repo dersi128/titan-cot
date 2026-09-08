@@ -389,9 +389,11 @@ export function TradeForm({ trade }: { trade?: Trade }) {
         }
         actions={
           editing ? undefined : (
-            <Button type="button" variant="outline" className="titan-clear" onClick={resetForm}>
-              {copy.form.clear}
-            </Button>
+            <div className="titan-action-bar">
+              <button type="button" className="titan-clear" onClick={resetForm}>
+                {copy.form.clear}
+              </button>
+            </div>
           )
         }
       />

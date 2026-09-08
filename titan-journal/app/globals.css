@@ -136,13 +136,14 @@
   0%,
   100% {
     box-shadow:
-      0 0 0 1px color-mix(in srgb, var(--titan-clear) 28%, transparent),
-      0 8px 18px color-mix(in srgb, var(--background) 35%, transparent);
+      0 0 0 2px color-mix(in srgb, var(--titan-clear-fg) 22%, transparent),
+      0 8px 20px color-mix(in srgb, var(--background) 45%, transparent);
   }
   50% {
     box-shadow:
-      0 0 0 1px color-mix(in srgb, var(--titan-clear) 70%, transparent),
-      0 0 16px 1px color-mix(in srgb, var(--titan-clear) 38%, transparent);
+      0 0 0 3px var(--titan-clear),
+      0 0 0 7px color-mix(in srgb, var(--titan-clear-fg) 55%, transparent),
+      0 0 22px 2px color-mix(in srgb, var(--titan-clear) 70%, transparent);
   }
 }
 
@@ -212,6 +213,7 @@
   --bull: #3aefab;
   --bear: #ff6b7d;
   --titan-clear: #ff2d3a;
+  --titan-clear-fg: #ffffff;
   --asset-forex: #ff2d3a;
   --asset-stock: #9aa8b8;
   --asset-commodity: #3f8f6e;
@@ -269,7 +271,8 @@
   --sidebar-ring: #2d64a0;
   --bull: #1b8a52;
   --bear: #c53648;
-  --titan-clear: #2d64a0;
+  --titan-clear: #1a4d80;
+  --titan-clear-fg: #ffffff;
   --asset-forex: #2d64a0;
   --asset-stock: #5a7a9a;
   --asset-commodity: #1b8a52;
@@ -328,6 +331,7 @@
   --bull: #39ff88;
   --bear: #ff2d6a;
   --titan-clear: #00e8ff;
+  --titan-clear-fg: #05030a;
   --bg-glow: rgba(255, 47, 185, 0.2);
   --nav-hover: rgba(0, 232, 255, 0.1);
   --nav-active: rgba(255, 47, 185, 0.22);
@@ -378,7 +382,8 @@
   --sidebar-ring: #e0bc6a;
   --bull: #45d18a;
   --bear: #ef6b6b;
-  --titan-clear: #e0bc6a;
+  --titan-clear: #fff6dc;
+  --titan-clear-fg: #0b1220;
   --asset-forex: #e0bc6a;
   --asset-stock: #8eb4d4;
   --asset-commodity: #3f8f6e;
@@ -1040,42 +1045,36 @@ html[data-density="large"] {
   }
 
   .titan-clear {
-    border: 1px solid color-mix(in srgb, var(--titan-clear) 55%, transparent);
-    background: color-mix(in srgb, var(--elevated) 82%, var(--titan-clear));
-    color: var(--foreground);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.35rem;
+    padding: 0 0.95rem;
+    border: 2px solid color-mix(in srgb, var(--titan-clear-fg) 28%, var(--titan-clear));
+    border-radius: 8px;
+    background: var(--titan-clear);
+    color: var(--titan-clear-fg);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    line-height: 1;
+    cursor: pointer;
+    isolation: isolate;
     box-shadow:
-      0 0 0 1px color-mix(in srgb, var(--titan-clear) 28%, transparent),
-      0 8px 18px color-mix(in srgb, var(--background) 35%, transparent);
-    animation: titan-clear-pulse 2.6s ease-in-out infinite;
+      0 0 0 2px color-mix(in srgb, var(--titan-clear-fg) 22%, transparent),
+      0 8px 20px color-mix(in srgb, var(--background) 45%, transparent);
+    animation: titan-clear-pulse 2.2s ease-in-out infinite;
   }
 
   .titan-clear:hover {
-    background: color-mix(in srgb, var(--elevated) 70%, var(--titan-clear));
-    border-color: color-mix(in srgb, var(--titan-clear) 80%, transparent);
-    color: var(--foreground);
-  }
-
-  html[data-theme="light"] .titan-clear {
-    background: color-mix(in srgb, #fff 88%, var(--titan-clear));
-    color: #1c2430;
-    box-shadow:
-      0 0 0 1px rgba(45, 100, 160, 0.28),
-      0 8px 18px rgba(28, 36, 48, 0.12);
-  }
-
-  html[data-theme="dark"] .titan-clear {
-    background: color-mix(in srgb, #1b1b1f 78%, #ff2d3a);
-    color: #ffe8ea;
+    filter: brightness(1.08);
   }
 
   html[data-theme="gold"] .titan-clear {
-    background: color-mix(in srgb, #0b1220 78%, #e0bc6a);
-    color: #f8e7bc;
-  }
-
-  html[data-theme="cyberpunk"] .titan-clear {
-    background: color-mix(in srgb, #12051c 76%, #00e8ff);
-    color: #d9fbff;
+    border-color: #0b1220;
+    box-shadow:
+      0 0 0 2px #0b1220,
+      0 10px 24px rgba(3, 8, 20, 0.55);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -1089,6 +1088,12 @@ html[data-density="large"] {
       box-shadow:
         0 0 0 1px color-mix(in srgb, var(--primary) 45%, transparent),
         0 0 12px color-mix(in srgb, var(--primary) 28%, transparent);
+    }
+
+    .titan-clear {
+      box-shadow:
+        0 0 0 2px color-mix(in srgb, var(--titan-clear-fg) 35%, transparent),
+        0 8px 20px color-mix(in srgb, var(--background) 45%, transparent);
     }
   }
 
