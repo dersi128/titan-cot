@@ -1,4 +1,4 @@
-export const GUIDE_STORAGE_KEY = "titan-journal.guide.v2"
+export const GUIDE_STORAGE_KEY = "titan-journal.guide.v3"
 
 /** Fill this when the support inbox is ready. */
 export const SUPPORT_EMAIL = ""

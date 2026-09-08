@@ -302,7 +302,8 @@ export function JournalPage() {
         />
       </div>
 
-      <div className="mb-4 flex flex-wrap items-center gap-2">
+      <div data-guide="journal-list">
+      <div className="mb-4 flex flex-wrap items-center gap-2" data-guide="journal-filters">
         <Input
           type="date"
           value={filters.dateFrom}
@@ -494,6 +495,7 @@ export function JournalPage() {
             </div>
           </aside>
         ) : null}
+      </div>
       </div>
       <div className="mt-8">
         <ClearJournal />

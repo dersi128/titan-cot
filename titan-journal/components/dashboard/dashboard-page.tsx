@@ -104,7 +104,9 @@ export function DashboardPage() {
           <EmptyJournal />
         ) : (
           <>
-            <KpiCards stats={stats} currency={profile.currency} />
+            <div data-guide="overview-stats">
+              <KpiCards stats={stats} currency={profile.currency} />
+            </div>
             <EquityCurve data={equity} />
             <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
               <PerformanceBars trades={trades} currency={profile.currency} />

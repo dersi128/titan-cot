@@ -328,6 +328,7 @@ export function PlaybookListPage() {
         }
       />
       </div>
+      <div data-guide="playbook-board">
       <div className="titan-glass mb-4 rounded-[10px] p-4">
         <p className="text-sm font-medium">{copy.playbook.howToTitle}</p>
         <p className="mt-1 text-[13px] text-muted-foreground">{copy.playbook.howTo}</p>
@@ -604,6 +605,7 @@ export function PlaybookListPage() {
           </div>
         </>
       )}
+      </div>
     </PageFrame>
   )
 }
