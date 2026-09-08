@@ -46,10 +46,10 @@ function BackupSection() {
       <h2 className="text-sm font-semibold">{copy.settings.backup}</h2>
       <p className="text-[12px] text-muted-foreground">{copy.settings.backupHint}</p>
       <div className="flex flex-wrap gap-2">
-        <Button type="button" variant="outline" size="sm" className="bg-elevated" onClick={exportJournal}>
+        <Button type="button" variant="outline" size="sm" onClick={exportJournal}>
           {copy.settings.exportJournal}
         </Button>
-        <Button type="button" variant="outline" size="sm" className="bg-elevated" onClick={importer.pick}>
+        <Button type="button" variant="outline" size="sm" onClick={importer.pick}>
           {copy.settings.importJournal}
         </Button>
         {importer.fileInput}
@@ -76,7 +76,7 @@ export function SettingsPage() {
         <section className="titan-glass rounded-[10px] p-4 space-y-3">
           <h2 className="text-sm font-semibold">{copy.settings.guide}</h2>
           <p className="text-[12px] text-muted-foreground">{copy.settings.guideHint}</p>
-          <Button type="button" variant="outline" size="sm" className="bg-elevated" onClick={openGuide}>
+          <Button type="button" variant="outline" size="sm" onClick={openGuide}>
             {copy.settings.guideOpen}
           </Button>
         </section>

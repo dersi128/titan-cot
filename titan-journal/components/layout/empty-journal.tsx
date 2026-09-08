@@ -45,14 +45,14 @@ export function EmptyJournal() {
         <Button asChild>
           <Link href="/new-trade">{copy.emptyStart.cta}</Link>
         </Button>
-        <Button type="button" variant="outline" className="bg-elevated" onClick={importer.pick}>
+        <Button type="button" variant="outline" onClick={importer.pick}>
           {copy.journal.importReport}
         </Button>
         {importer.fileInput}
         {!scoped ? (
           <Button
             type="button"
-            variant="ghost"
+            variant="outline"
             onClick={() => replaceAll(sortTrades(MOCK_TRADES))}
           >
             {copy.emptyStart.sample}

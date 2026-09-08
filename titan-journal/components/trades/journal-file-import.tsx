@@ -189,9 +189,6 @@ export function JournalImportButton() {
     <div className="flex flex-col items-end gap-1">
       <Button
         type="button"
-        variant="outline"
-        size="sm"
-        className="h-8 bg-elevated text-[12px]"
         onClick={pick}
       >
         {copy.journal.importReport}

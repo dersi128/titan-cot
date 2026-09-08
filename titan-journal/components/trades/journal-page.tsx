@@ -169,7 +169,7 @@ function Pagination({
       </div>
       <div className="flex items-center gap-1">
         <Button
-          variant="outline"
+          variant="secondary"
           size="sm"
           className="h-7 px-2 text-[12px]"
           disabled={page === 1}
@@ -185,7 +185,7 @@ function Pagination({
           ) : (
             <Button
               key={p}
-              variant={p === page ? "default" : "outline"}
+              variant={p === page ? "default" : "secondary"}
               size="sm"
               className="h-7 w-7 p-0 text-[12px]"
               onClick={() => onPage(p)}
@@ -195,7 +195,7 @@ function Pagination({
           )
         )}
         <Button
-          variant="outline"
+          variant="secondary"
           size="sm"
           className="h-7 px-2 text-[12px]"
           disabled={page === totalPages}
@@ -376,7 +376,7 @@ export function JournalPage() {
         {filtersActive(filters) ? (
           <Button
             type="button"
-            variant="ghost"
+            variant="outline"
             size="sm"
             className="h-8 text-[12px]"
             onClick={() => {

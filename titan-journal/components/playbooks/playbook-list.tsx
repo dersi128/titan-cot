@@ -462,7 +462,7 @@ export function PlaybookListPage() {
                     </Button>
                     <Button
                       size="sm"
-                      variant="ghost"
+                      variant="outline"
                       type="button"
                       onClick={() =>
                         savePlaybook({
