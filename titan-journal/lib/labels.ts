@@ -1375,21 +1375,21 @@ export const STATUS_LABELS_SK: Record<TradeStatus, string> = {
 }
 
 export const ACCOUNT_LABELS_EN: Record<Account, string> = {
-  Personal: "Own capital",
-  Funded: "Funded",
-  Backtesting: "Prop",
+  Personal: "Personal capital",
+  Funded: "Prop",
+  Backtesting: "Backtesting",
 }
 
 export const ACCOUNT_LABELS_CS: Record<Account, string> = {
-  Personal: "Vlastní kapitál",
-  Funded: "Funded",
-  Backtesting: "Prop",
+  Personal: "Osobní kapitál",
+  Funded: "Prop",
+  Backtesting: "Backtesting",
 }
 
 export const ACCOUNT_LABELS_SK: Record<Account, string> = {
-  Personal: "Vlastný kapitál",
-  Funded: "Funded",
-  Backtesting: "Prop",
+  Personal: "Osobný kapitál",
+  Funded: "Prop",
+  Backtesting: "Backtesting",
 }
 
 export const TREND_LABELS_EN: Record<Trend, string> = {
