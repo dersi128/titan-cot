@@ -9,7 +9,7 @@ export function ArcGauge({
   progress,
   color = "var(--bull)",
   caption,
-  size = 78,
+  size = 84,
 }: {
   progress: number | null
   color?: string
@@ -17,20 +17,26 @@ export function ArcGauge({
   size?: number
 }) {
   const p = progress == null ? 0 : clamp01(progress)
-  const w = size
-  const h = Math.round(size * 0.62)
-  const stroke = 7
-  const r = size * 0.36
-  const cx = w / 2
-  const cy = h - stroke
-  const d = `M ${cx - r} ${cy} A ${r} ${r} 0 0 0 ${cx + r} ${cy}`
+  const stroke = 8
+  const pad = 10
+  const r = (size - pad * 2) / 2
+  const cx = size / 2
+  const cy = pad + r
+  const h = cy + pad
+  const k = 0.5522847498 * r
+  const d = [
+    `M ${cx - r} ${cy}`,
+    `C ${cx - r} ${cy - k} ${cx - k} ${cy - r} ${cx} ${cy - r}`,
+    `S ${cx + r} ${cy - k} ${cx + r} ${cy}`,
+  ].join(" ")
 
   return (
     <svg
-      width={w}
+      width={size}
       height={h}
-      viewBox={`0 0 ${w} ${h}`}
-      className="shrink-0"
+      viewBox={`0 0 ${size} ${h}`}
+      overflow="visible"
+      className="shrink-0 overflow-visible"
       aria-hidden
     >
       <path
@@ -55,7 +61,7 @@ export function ArcGauge({
       {caption ? (
         <text
           x={cx}
-          y={cy - 4}
+          y={cy - 6}
           textAnchor="middle"
           className="fill-foreground font-mono"
           fontSize="10"
@@ -89,7 +95,8 @@ export function RingGauge({
       width={size}
       height={size}
       viewBox={`0 0 ${size} ${size}`}
-      className="shrink-0"
+      overflow="visible"
+      className="shrink-0 overflow-visible"
       aria-hidden
     >
       <circle
