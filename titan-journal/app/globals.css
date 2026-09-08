@@ -791,6 +791,14 @@ html[data-density="large"] {
     filter: drop-shadow(0 0 6px var(--bull)) drop-shadow(0 0 6px var(--bear));
   }
 
+  .titan-gauge-bull {
+    filter: drop-shadow(0 0 3px var(--bull));
+  }
+
+  .titan-gauge-bear {
+    filter: drop-shadow(0 0 3px var(--bear));
+  }
+
   span.titan-gauge-fill {
     filter: none;
     box-shadow: 0 0 10px currentColor;

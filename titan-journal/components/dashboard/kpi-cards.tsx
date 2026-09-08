@@ -43,7 +43,7 @@ export function KpiCards({
           </p>
           <OutcomeDots wins={stats.wins} be={stats.be} losses={stats.losses} />
         </div>
-        <ArcGauge progress={wr} caption={compactPercent(wr)} />
+        <ArcGauge progress={wr} />
       </article>
 
       <article className="titan-kpi flex items-center justify-between gap-3 rounded-[10px] px-3 py-2.5">
@@ -61,10 +61,7 @@ export function KpiCards({
           </p>
           <OutcomeDots wins={stats.wins} be={stats.be} losses={stats.losses} />
         </div>
-        <RingGauge
-          progress={pf == null ? null : pf / 2}
-          caption={formatNumber(pf)}
-        />
+        <RingGauge progress={pf == null ? null : pf / 2} />
       </article>
 
       <article className="titan-kpi flex items-center justify-between gap-3 overflow-visible rounded-[10px] px-3 py-2.5">
@@ -82,10 +79,7 @@ export function KpiCards({
           </p>
           <OutcomeDots wins={stats.wins} be={stats.be} losses={stats.losses} />
         </div>
-        <ArcGauge
-          progress={avg == null ? null : (avg + 2) / 4}
-          caption={formatSignedR(avg)}
-        />
+        <ArcGauge progress={avg == null ? null : (avg + 2) / 4} />
       </article>
 
       <article className="titan-kpi rounded-[10px] px-3 py-2.5">
