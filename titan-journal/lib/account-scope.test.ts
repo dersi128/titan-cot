@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest"
 import {
   capitalForAccount,
   dollarsPerR,
+  percentFromRiskMoney,
   filterTradesByAccount,
   filterTradesByScope,
   realizedResultFromInputs,
@@ -38,6 +39,9 @@ describe("account scope", () => {
 
   it("sizes 1R from capital and risk percent", () => {
     expect(dollarsPerR(10_000, 1)).toBe(100)
+    expect(percentFromRiskMoney(10_000, 100)).toBe(1)
+    expect(percentFromRiskMoney(10_000, 500)).toBe(5)
+    expect(percentFromRiskMoney(0, 100)).toBe(0)
     expect(suggestedPnl(2, 10_000, 1)).toBe(200)
     expect(suggestedPnl(-1, 100_000, 1)).toBe(-1000)
     expect(dollarsPerR(0, 1)).toBe(0)

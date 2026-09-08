@@ -24,6 +24,13 @@ export function dollarsPerR(capital: number, riskPercent: number): number {
   return Math.round(capital * (riskPercent / 100) * 100) / 100
 }
 
+export function percentFromRiskMoney(capital: number, money: number): number {
+  if (!Number.isFinite(capital) || capital <= 0 || !Number.isFinite(money) || money < 0) {
+    return 0
+  }
+  return Math.round((money / capital) * 10000) / 100
+}
+
 export function suggestedPnl(
   resultR: number,
   capital: number,
