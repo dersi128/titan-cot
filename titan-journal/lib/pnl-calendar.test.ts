@@ -6,7 +6,10 @@ import {
   calendarDayHref,
   calendarInsights,
   defaultSelectedDate,
+  calendarWeekSlices,
+  formatCalendarDayLong,
   formatCalendarDayTitle,
+  formatCalendarRange,
   formatMonthShort,
   formatMonthTitle,
   initialCalendarMonth,
@@ -193,5 +196,30 @@ describe("calendarInsights", () => {
     expect(formatCalendarDayTitle("2026-08-15", "cs")).toBe("15. srp 2026")
     expect(formatCalendarDayTitle("2026-08-15", "sk")).toBe("15. aug 2026")
     expect(formatCalendarDayTitle("2026-08-15", "en")).toBe("15 Aug 2026")
+  })
+})
+
+describe("calendar labels", () => {
+  it("formats a long weekday title and same-month range", () => {
+    expect(formatCalendarDayLong("2026-09-08", "cs").toLowerCase()).toContain("úterý")
+    expect(formatCalendarDayLong("2026-09-08", "cs")).toContain("8")
+    expect(formatCalendarDayLong("2026-09-08", "en").toLowerCase()).toContain("tuesday")
+    expect(formatCalendarRange("2026-09-01", "2026-09-06", "cs")).toBe("1.–6. září")
+    expect(formatCalendarRange("2026-09-01", "2026-09-06", "en")).toMatch(/September 1–6/i)
+  })
+
+  it("keeps week slices aligned with the month grid", () => {
+    const calendar = buildMonthCalendar(
+      [trade({ date: "2026-09-08", pnl: 100, resultR: 1.5 })],
+      { year: 2026, month: 9 }
+    )
+    const weeks = calendarWeekSlices(calendar)
+    expect(weeks[0]).toMatchObject({
+      index: 1,
+      start: "2026-09-01",
+      end: "2026-09-06",
+      trades: 0,
+    })
+    expect(weeks.some((week) => week.totalR === 1.5 && week.trades === 1)).toBe(true)
   })
 })

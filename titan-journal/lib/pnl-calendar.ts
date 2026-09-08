@@ -261,6 +261,86 @@ export function formatCalendarDayTitle(
   return `${parsed.day} ${month} ${parsed.year}`
 }
 
+function capitalize(value: string): string {
+  if (!value) return value
+  return value.charAt(0).toLocaleUpperCase() + value.slice(1)
+}
+
+export function formatCalendarDayLong(
+  iso: string,
+  language: Language
+): string {
+  const parsed = parseIsoDate(iso)
+  if (!parsed) return iso
+  const formatted = new Date(
+    Date.UTC(parsed.year, parsed.month - 1, parsed.day)
+  ).toLocaleDateString(dateLocale(language), {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    timeZone: "UTC",
+  })
+  return capitalize(formatted)
+}
+
+export function formatCalendarRange(
+  start: string,
+  end: string,
+  language: Language
+): string {
+  const from = parseIsoDate(start)
+  const to = parseIsoDate(end)
+  if (!from || !to) return `${start}–${end}`
+  const locale = dateLocale(language)
+  const endMonth = new Date(Date.UTC(to.year, to.month - 1, 1)).toLocaleDateString(
+    locale,
+    { month: "long", timeZone: "UTC" }
+  )
+  if (from.year === to.year && from.month === to.month) {
+    if (from.day === to.day) {
+      return usesDayMonthFormat(language)
+        ? `${from.day}. ${endMonth}`
+        : `${capitalize(endMonth)} ${from.day}`
+    }
+    return usesDayMonthFormat(language)
+      ? `${from.day}.–${to.day}. ${endMonth}`
+      : `${capitalize(endMonth)} ${from.day}–${to.day}`
+  }
+  const startMonth = new Date(
+    Date.UTC(from.year, from.month - 1, 1)
+  ).toLocaleDateString(locale, { month: "short", timeZone: "UTC" })
+  if (usesDayMonthFormat(language)) {
+    return `${from.day}. ${startMonth} – ${to.day}. ${endMonth}`
+  }
+  return `${capitalize(startMonth)} ${from.day} – ${capitalize(endMonth)} ${to.day}`
+}
+
+export type CalendarWeekSlice = {
+  index: number
+  start: string
+  end: string
+  totalR: number
+  netPnl: number
+  trades: number
+}
+
+export function calendarWeekSlices(calendar: MonthCalendar): CalendarWeekSlice[] {
+  const weeks: CalendarWeekSlice[] = []
+  for (let week = 0; week < 6; week += 1) {
+    const slice = calendar.days.slice(week * 7, week * 7 + 7).filter((day) => day.inMonth)
+    if (slice.length === 0) continue
+    weeks.push({
+      index: weeks.length + 1,
+      start: slice[0]!.date,
+      end: slice.at(-1)!.date,
+      totalR: roundMoney(slice.reduce((sum, day) => sum + day.totalR, 0)),
+      netPnl: roundMoney(slice.reduce((sum, day) => sum + day.pnl, 0)),
+      trades: slice.reduce((sum, day) => sum + day.trades, 0),
+    })
+  }
+  return weeks
+}
+
 export function defaultSelectedDate(
   calendar: MonthCalendar,
   today: string

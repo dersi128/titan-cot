@@ -1,127 +1,170 @@
 "use client"
 
 import dynamic from "next/dynamic"
-import { useEffect, useMemo, useState } from "react"
-import { useRouter } from "next/navigation"
-
-import { PnlCalendar } from "@/components/calendar/pnl-calendar"
-import { EmptyJournal } from "@/components/layout/empty-journal"
-import { TableSkeleton } from "@/components/layout/loading-state"
-import { PageFrame, PageHeader } from "@/components/layout/page-header"
-import { useScopedTrades } from "@/components/layout/use-scoped-trades"
-import { DirectionBadge } from "@/components/trades/trade-badges"
-import { ResultR } from "@/components/trades/result-r"
-import { displayResultR } from "@/lib/trade-outcome"
-import { tradeRowProps } from "@/components/trades/trade-row"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
+import { useEffect, useMemo, useState, type ReactNode } from "react"
+import Link from "next/link"
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { accountEquity } from "@/lib/account-scope"
+  Briefcase,
+  ChevronLeft,
+  ChevronRight,
+  PieChart,
+  Trophy,
+  TrendingDown,
+  TrendingUp,
+} from "lucide-react"
+
+import {
+  PnlCalendar,
+  type CalendarMetric,
+} from "@/components/calendar/pnl-calendar"
+import { EmptyJournal } from "@/components/layout/empty-journal"
+import { PageFrame } from "@/components/layout/page-header"
+import { SegmentedControl } from "@/components/layout/segmented-control"
+import { TableSkeleton } from "@/components/layout/loading-state"
+import { useScopedTrades } from "@/components/layout/use-scoped-trades"
+import { useWorkspaceChrome } from "@/components/layout/workspace-chrome"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Skeleton } from "@/components/ui/skeleton"
 import { accountEdge } from "@/lib/analytics"
 import {
-  formatMoney,
-  formatNumber,
   formatPercent,
   formatSignedMoney,
-  formatSignedPercentPoints,
   formatSignedR,
   signedClassName,
 } from "@/lib/format"
 import { todayIsoDate } from "@/lib/locale"
 import {
   buildMonthCalendar,
-  calendarInsights,
+  calendarWeekSlices,
   defaultSelectedDate,
-  formatCalendarDayTitle,
+  formatCalendarDayLong,
+  formatCalendarRange,
+  formatMonthTitle,
   initialCalendarMonth,
+  shiftMonth,
 } from "@/lib/pnl-calendar"
+import { displayResultR } from "@/lib/trade-outcome"
+import { formatRRR } from "@/lib/trade-calculations"
 import { useLabels } from "@/lib/use-labels"
 import { cn } from "@/lib/utils"
-import type { Trade } from "@/types/trade"
+import { ACCOUNTS, type Trade } from "@/types/trade"
+
+const CALENDAR_METRICS = ["r", "pnl"] as const
 
 const MonthProgress = dynamic(
   () =>
     import("@/components/calendar/month-progress").then((mod) => mod.MonthProgress),
   {
     ssr: false,
-    loading: () => <Skeleton className="h-[160px] w-full rounded-[10px]" />,
+    loading: () => <Skeleton className="h-[180px] w-full rounded-[10px]" />,
   }
 )
+
+function tradeCountLabel(count: number, one: string, many: string) {
+  return (count === 1 ? one : many).replace("{n}", String(count))
+}
+
+function formatValue(
+  metric: CalendarMetric,
+  r: number,
+  pnl: number,
+  currency: string
+) {
+  return metric === "r" ? formatSignedR(r) : formatSignedMoney(pnl, currency)
+}
 
 function StatCard({
   label,
   value,
-  hint,
+  icon,
   valueClassName,
 }: {
   label: string
   value: string
-  hint?: string
+  icon: ReactNode
   valueClassName?: string
 }) {
   return (
-    <article className="titan-kpi rounded-[10px] px-3 py-2.5">
-      <p className="text-[11px] text-muted-foreground">{label}</p>
-      <p className={cn("mt-1 font-mono text-[18px] font-medium tabular-nums", valueClassName)}>
-        {value}
-      </p>
-      {hint ? <p className="mt-0.5 text-[11px] text-muted-foreground">{hint}</p> : null}
+    <article className="titan-kpi flex items-center gap-3 rounded-[10px] px-3 py-2.5">
+      <span className="flex size-9 shrink-0 items-center justify-center rounded-[8px] bg-primary/10 text-primary">
+        {icon}
+      </span>
+      <div className="min-w-0">
+        <p className="text-[11px] text-muted-foreground">{label}</p>
+        <p
+          className={cn(
+            "mt-0.5 font-mono text-[18px] font-medium tabular-nums",
+            valueClassName
+          )}
+        >
+          {value}
+        </p>
+      </div>
     </article>
   )
 }
 
-function OverviewRow({
-  label,
-  value,
-  className,
+function WeekBars({
+  weeks,
+  metric,
+  currency,
 }: {
-  label: string
-  value: string
-  className?: string
+  weeks: ReturnType<typeof calendarWeekSlices>
+  metric: CalendarMetric
+  currency: string
 }) {
-  return (
-    <p className="flex items-baseline justify-between gap-3 text-[12px]">
-      <span className="text-muted-foreground">{label}</span>
-      <span className={cn("font-mono tabular-nums", className)}>{value}</span>
-    </p>
+  const { copy, language } = useLabels()
+  const maxAbs = Math.max(
+    1,
+    ...weeks.map((week) => Math.abs(metric === "r" ? week.totalR : week.netPnl))
   )
-}
 
-function RBars({ rows }: { rows: Array<{ label: string; value: number | null }> }) {
-  const maxAbs = Math.max(1, ...rows.map((row) => Math.abs(row.value ?? 0)))
   return (
-    <div className="space-y-2">
-      {rows.map((row) => {
-        const value = row.value ?? 0
-        const width = row.value == null ? "0%" : `${(Math.abs(value) / maxAbs) * 100}%`
+    <div className="space-y-2.5">
+      {weeks.map((week) => {
+        const value = metric === "r" ? week.totalR : week.netPnl
+        const empty = week.trades === 0
+        const width = empty ? "0%" : `${(Math.abs(value) / maxAbs) * 100}%`
         return (
-          <div key={row.label} className="flex items-center gap-2">
-            <span className="w-[4.5rem] shrink-0 text-[11px] text-muted-foreground">
-              {row.label}
-            </span>
-            <div className="h-1.5 min-w-0 flex-1 rounded-full bg-muted">
+          <div key={week.index} className="grid grid-cols-[5.5rem_1fr_auto] items-center gap-2">
+            <div className="min-w-0">
+              <p className="text-[12px] font-medium">
+                {copy.calendar.week.replace("{n}", String(week.index))}
+              </p>
+              <p className="truncate text-[10px] text-muted-foreground">
+                {formatCalendarRange(week.start, week.end, language)}
+              </p>
+            </div>
+            <div className="h-1.5 min-w-0 rounded-full bg-muted">
               <div
                 className={cn(
                   "h-1.5 rounded-full",
-                  value > 0 ? "bg-bull" : value < 0 ? "bg-bear" : "bg-muted-foreground/40"
+                  empty
+                    ? "bg-muted-foreground/25"
+                    : value > 0
+                      ? "bg-bull"
+                      : value < 0
+                        ? "bg-bear"
+                        : "bg-muted-foreground/40"
                 )}
-                style={{ width }}
+                style={{ width: empty ? "18%" : width }}
               />
             </div>
             <span
               className={cn(
-                "w-14 text-right font-mono text-[11px] tabular-nums",
-                signedClassName(row.value)
+                "w-[4.75rem] text-right font-mono text-[11px] tabular-nums",
+                empty ? "text-muted-foreground" : signedClassName(value)
               )}
             >
-              {row.value == null ? "—" : formatSignedR(row.value)}
+              {empty ? "—" : formatValue(metric, week.totalR, week.netPnl, currency)}
             </span>
           </div>
         )
@@ -130,61 +173,137 @@ function RBars({ rows }: { rows: Array<{ label: string; value: number | null }> 
   )
 }
 
-function DayTrades({
+function DayPanel({
+  date,
   trades,
-  title,
-  empty,
+  metric,
   currency,
+  canPrev,
+  canNext,
+  onPrev,
+  onNext,
 }: {
+  date: string
   trades: Trade[]
-  title: string
-  empty: string
+  metric: CalendarMetric
   currency: string
+  canPrev: boolean
+  canNext: boolean
+  onPrev: () => void
+  onNext: () => void
 }) {
-  const { copy } = useLabels()
-  const router = useRouter()
+  const { copy, language } = useLabels()
+  const totalR = trades.reduce((sum, trade) => sum + (displayResultR(trade) ?? 0), 0)
+  const totalPnl = trades.reduce(
+    (sum, trade) => sum + (trade.pnl != null && Number.isFinite(trade.pnl) ? trade.pnl : 0),
+    0
+  )
+  const total = metric === "r" ? totalR : totalPnl
 
   return (
-    <Card size="sm" className="flex min-h-[220px] flex-1 flex-col gap-0 py-0">
-      <CardHeader className="shrink-0 border-b border-border py-2">
-        <CardTitle>{title}</CardTitle>
+    <Card size="sm" className="flex min-h-0 flex-1 flex-col gap-0 py-0">
+      <CardHeader className="shrink-0 border-b border-border py-2.5">
+        <div className="flex items-center justify-between gap-2">
+          <CardTitle className="min-w-0 capitalize">
+            {formatCalendarDayLong(date, language)}
+          </CardTitle>
+          <div className="flex shrink-0 items-center gap-0.5">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-xs"
+              aria-label={copy.calendar.previousDay}
+              disabled={!canPrev}
+              onClick={onPrev}
+            >
+              <ChevronLeft />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-xs"
+              aria-label={copy.calendar.nextDay}
+              disabled={!canNext}
+              onClick={onNext}
+            >
+              <ChevronRight />
+            </Button>
+          </div>
+        </div>
+        {trades.length > 0 ? (
+          <p className="mt-1 flex items-baseline gap-2 text-[12px]">
+            <span className={cn("font-mono font-medium tabular-nums", signedClassName(total))}>
+              {formatValue(metric, totalR, totalPnl, currency)}
+            </span>
+            <span className="text-muted-foreground">
+              {tradeCountLabel(
+                trades.length,
+                copy.calendar.dayTradeOne,
+                copy.calendar.dayTrades
+              )}
+            </span>
+          </p>
+        ) : null}
       </CardHeader>
-      <CardContent className="min-h-0 flex-1 overflow-auto px-0 pt-0">
+      <CardContent className="min-h-0 flex-1 space-y-2 overflow-auto px-3 py-3">
         {trades.length === 0 ? (
-          <p className="px-4 py-6 text-center text-[12px] text-muted-foreground">{empty}</p>
+          <p className="py-6 text-center text-[12px] text-muted-foreground">
+            {copy.calendar.emptyDay}
+          </p>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="px-4 text-[11px]">{copy.journal.symbol}</TableHead>
-                <TableHead className="text-[11px]">{copy.journal.direction}</TableHead>
-                <TableHead className="text-[11px]">{copy.journal.playbook}</TableHead>
-                <TableHead className="text-[11px]">{copy.journal.r}</TableHead>
-                <TableHead className="text-[11px]">{copy.journal.pnl}</TableHead>
-                <TableHead className="px-4 text-[11px]">{copy.detail.notes}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {trades.map((trade) => (
-                <TableRow key={trade.id} {...tradeRowProps(trade.id, router.push)}>
-                  <TableCell className="px-4 font-medium">{trade.symbol}</TableCell>
-                  <TableCell>
-                    <DirectionBadge direction={trade.direction} />
-                  </TableCell>
-                  <TableCell>{trade.strategy}</TableCell>
-                  <TableCell>
-                    <ResultR value={displayResultR(trade)} />
-                  </TableCell>
-                  <TableCell className={signedClassName(trade.pnl)}>
-                    {formatSignedMoney(trade.pnl, currency)}
-                  </TableCell>
-                  <TableCell className="max-w-[10rem] truncate px-4 text-muted-foreground">
-                    {trade.notes.trim() || "—"}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          trades.map((trade) => {
+            const result = displayResultR(trade) ?? 0
+            const pnl = trade.pnl ?? 0
+            const value = metric === "r" ? result : pnl
+            return (
+              <article
+                key={trade.id}
+                className="overflow-hidden rounded-[10px] border border-border bg-elevated"
+              >
+                <div className="flex">
+                  <span
+                    className={cn(
+                      "w-1 shrink-0",
+                      value > 0 ? "bg-bull" : value < 0 ? "bg-bear" : "bg-muted-foreground/40"
+                    )}
+                  />
+                  <div className="min-w-0 flex-1 px-3 py-2.5">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="min-w-0 truncate text-[13px] font-semibold">
+                        {trade.symbol} • {trade.direction}
+                      </p>
+                      <p
+                        className={cn(
+                          "shrink-0 font-mono text-[13px] font-semibold tabular-nums",
+                          signedClassName(value)
+                        )}
+                      >
+                        {formatValue(metric, result, pnl, currency)}
+                      </p>
+                    </div>
+                    <p className="mt-0.5 truncate text-[12px] text-muted-foreground">
+                      {trade.strategy.trim() || copy.analytics.setup}
+                    </p>
+                    <div className="mt-2 grid grid-cols-3 gap-2 text-[11px] text-muted-foreground">
+                      <p>{copy.calendar.risk.replace("{n}", String(trade.riskPercent))}</p>
+                      <p>
+                        {copy.detail.plannedRrr} {formatRRR(trade.plannedRRR)}
+                      </p>
+                      <p className={cn("font-mono tabular-nums", signedClassName(value))}>
+                        {copy.detail.result} {formatValue(metric, result, pnl, currency)}
+                      </p>
+                    </div>
+                    <Button asChild variant="outline" size="sm" className="mt-3 w-full bg-elevated">
+                      <Link href={`/journal/${trade.id}`}>
+                        {copy.calendar.openDetail}
+                        <ChevronRight />
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
+              </article>
+            )
+          })
         )}
       </CardContent>
     </Card>
@@ -192,8 +311,10 @@ function DayTrades({
 }
 
 export function CalendarPage() {
-  const { copy, language } = useLabels()
-  const { accountTrades, isReady, account, capital, profile } = useScopedTrades()
+  const { copy, language, ACCOUNT_LABELS } = useLabels()
+  const { account, setAccount } = useWorkspaceChrome()
+  const { accountTrades, isReady, profile } = useScopedTrades()
+  const [metric, setMetric] = useState<CalendarMetric>("r")
   const [cursor, setCursor] = useState(() =>
     initialCalendarMonth(accountTrades, todayIsoDate())
   )
@@ -201,7 +322,6 @@ export function CalendarPage() {
     () => buildMonthCalendar(accountTrades, cursor),
     [accountTrades, cursor]
   )
-  const insights = useMemo(() => calendarInsights(calendar), [calendar])
   const [selectedDate, setSelectedDate] = useState(() =>
     defaultSelectedDate(calendar, todayIsoDate())
   )
@@ -228,164 +348,207 @@ export function CalendarPage() {
     () => accountTrades.filter((trade) => trade.date === selectedDate),
     [accountTrades, selectedDate]
   )
+  const inMonth = useMemo(
+    () => calendar.days.filter((day) => day.inMonth),
+    [calendar.days]
+  )
+  const selectedIndex = inMonth.findIndex((day) => day.date === selectedDate)
+  const weeks = useMemo(() => calendarWeekSlices(calendar), [calendar])
   const edge = accountEdge(monthTrades)
-  const ending = accountEquity(capital, edge.netPnl)
-  const change = capital > 0 ? edge.netPnl / capital : null
-  const avgPerDay =
-    insights.tradingDays > 0
-      ? (Math.round((edge.trades / insights.tradingDays) * 10) / 10).toString()
-      : null
+  const monthValue = metric === "r" ? calendar.totalR : calendar.netPnl
+  const bestDay = useMemo(() => {
+    const traded = inMonth.filter((day) => day.trades > 0)
+    if (traded.length === 0) return null
+    return traded.reduce((best, day) => {
+      const current = metric === "r" ? day.totalR : day.pnl
+      const lead = metric === "r" ? best.totalR : best.pnl
+      return current > lead ? day : best
+    })
+  }, [inMonth, metric])
+  const progress = useMemo(() => {
+    let value = 0
+    return inMonth.map((day) => {
+      value = Math.round((value + (metric === "r" ? day.totalR : day.pnl)) * 100) / 100
+      return { day: day.day, value }
+    })
+  }, [inMonth, metric])
+
+  function goToday() {
+    const today = todayIsoDate()
+    const year = Number(today.slice(0, 4))
+    const month = Number(today.slice(5, 7))
+    if (Number.isFinite(year) && Number.isFinite(month)) {
+      setCursor({ year, month })
+    }
+    setSelectedDate(today)
+  }
 
   return (
     <PageFrame>
       <div className="flex flex-col gap-3 pb-4">
-        <PageHeader
-          title={copy.calendar.title}
-          description={copy.calendar.description}
-        />
+        <header className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-end">
+          <div className="min-w-0">
+            <h1 className="text-[length:var(--ui-title)] font-semibold tracking-tight text-foreground">
+              {copy.calendar.title}
+            </h1>
+            <p className="mt-1 text-[13px] text-muted-foreground">
+              {copy.calendar.description}
+            </p>
+          </div>
+          <div className="flex items-center justify-center gap-1">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              aria-label={copy.calendar.previousMonth}
+              onClick={() => setCursor(shiftMonth(cursor, -1))}
+            >
+              <ChevronLeft />
+            </Button>
+            <button
+              type="button"
+              className="min-w-[9.5rem] px-1 text-center text-[15px] font-semibold capitalize"
+              onClick={goToday}
+              title={copy.calendar.today}
+            >
+              {formatMonthTitle(cursor, language)}
+            </button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              aria-label={copy.calendar.nextMonth}
+              onClick={() => setCursor(shiftMonth(cursor, 1))}
+            >
+              <ChevronRight />
+            </Button>
+          </div>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <Select
+              value={account}
+              onValueChange={(next) => setAccount(next as (typeof ACCOUNTS)[number])}
+            >
+              <SelectTrigger size="sm" aria-label={copy.shell.account} className="min-w-[9.5rem]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent position="popper" align="end">
+                {ACCOUNTS.map((item) => (
+                  <SelectItem key={item} value={item}>
+                    {ACCOUNT_LABELS[item]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <SegmentedControl
+              size="sm"
+              tone="strong"
+              options={CALENDAR_METRICS}
+              value={metric}
+              onChange={setMetric}
+              labels={{ r: copy.dashboard.byR, pnl: copy.journal.pnl }}
+              aria-label={copy.calendar.totalResult}
+            />
+          </div>
+        </header>
+
         {!isReady ? (
           <TableSkeleton rows={8} />
         ) : accountTrades.length === 0 ? (
           <EmptyJournal />
         ) : (
           <>
-            <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1.4fr)_minmax(300px,0.9fr)]">
+            <div className="grid grid-cols-2 gap-2 xl:grid-cols-4">
+              <StatCard
+                label={copy.calendar.totalResult}
+                value={formatValue(metric, calendar.totalR, calendar.netPnl, profile.currency)}
+                valueClassName={signedClassName(monthValue)}
+                icon={
+                  monthValue >= 0 ? (
+                    <TrendingUp className="size-4" aria-hidden />
+                  ) : (
+                    <TrendingDown className="size-4" aria-hidden />
+                  )
+                }
+              />
+              <StatCard
+                label={copy.analytics.tradeCount}
+                value={String(calendar.tradeCount)}
+                icon={<Briefcase className="size-4" aria-hidden />}
+              />
+              <StatCard
+                label={copy.dashboard.winRate}
+                value={formatPercent(edge.winRate)}
+                icon={<PieChart className="size-4" aria-hidden />}
+              />
+              <StatCard
+                label={copy.calendar.bestDay}
+                value={
+                  bestDay
+                    ? formatValue(metric, bestDay.totalR, bestDay.pnl, profile.currency)
+                    : "—"
+                }
+                valueClassName={signedClassName(
+                  bestDay ? (metric === "r" ? bestDay.totalR : bestDay.pnl) : null
+                )}
+                icon={<Trophy className="size-4" aria-hidden />}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.85fr)]">
               <PnlCalendar
                 calendar={calendar}
-                cursor={cursor}
-                onCursor={setCursor}
                 selectedDate={selectedDate}
+                onCursor={setCursor}
                 onSelect={setSelectedDate}
-                currency={profile.currency}
+                metric={metric}
               />
-              <div className="flex min-w-0 flex-col gap-2">
-                <div className="grid grid-cols-2 gap-2">
-                  <StatCard
-                    label={copy.calendar.totalResult}
-                    value={formatSignedR(edge.totalR)}
-                    valueClassName={signedClassName(edge.totalR)}
-                  />
-                  <StatCard
-                    label={copy.analytics.tradeCount}
-                    value={String(edge.trades)}
-                    hint={
-                      avgPerDay
-                        ? copy.calendar.avgPerDay.replace("{n}", avgPerDay)
-                        : undefined
-                    }
-                  />
-                  <StatCard
-                    label={copy.dashboard.winRate}
-                    value={formatPercent(edge.winRate)}
-                    hint={edge.trades > 0 ? `${edge.wins}/${edge.trades}` : undefined}
-                  />
-                  <StatCard
-                    label={copy.dashboard.profitFactor}
-                    value={formatNumber(edge.profitFactor)}
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <StatCard
-                    label={copy.calendar.bestDay}
-                    value={
-                      insights.bestDay ? formatSignedR(insights.bestDay.totalR) : "—"
-                    }
-                    hint={
-                      insights.bestDay
-                        ? formatCalendarDayTitle(insights.bestDay.date, language)
-                        : undefined
-                    }
-                    valueClassName={signedClassName(insights.bestDay?.totalR)}
-                  />
-                  <StatCard
-                    label={copy.calendar.worstDay}
-                    value={
-                      insights.worstDay ? formatSignedR(insights.worstDay.totalR) : "—"
-                    }
-                    hint={
-                      insights.worstDay
-                        ? formatCalendarDayTitle(insights.worstDay.date, language)
-                        : undefined
-                    }
-                    valueClassName={signedClassName(insights.worstDay?.totalR)}
-                  />
-                </div>
-                <DayTrades
-                  trades={dayTrades}
-                  title={copy.calendar.tradesOn.replace(
-                    "{date}",
-                    formatCalendarDayTitle(selectedDate, language)
-                  )}
-                  empty={copy.calendar.emptyDay}
-                  currency={profile.currency}
-                />
-              </div>
+              <DayPanel
+                date={selectedDate}
+                trades={dayTrades}
+                metric={metric}
+                currency={profile.currency}
+                canPrev={selectedIndex > 0}
+                canNext={selectedIndex >= 0 && selectedIndex < inMonth.length - 1}
+                onPrev={() => {
+                  const previous = inMonth[selectedIndex - 1]
+                  if (previous) setSelectedDate(previous.date)
+                }}
+                onNext={() => {
+                  const next = inMonth[selectedIndex + 1]
+                  if (next) setSelectedDate(next.date)
+                }}
+              />
             </div>
-            <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-4">
-              <Card size="sm" className="gap-0 py-0">
-                <CardHeader className="border-b border-border py-2">
-                  <CardTitle>{copy.calendar.monthOverview}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-1.5 py-3">
-                  <OverviewRow
-                    label={copy.dashboard.startingCapital}
-                    value={formatMoney(capital, profile.currency)}
-                  />
-                  <OverviewRow
-                    label={copy.calendar.endingCapital}
-                    value={formatMoney(ending, profile.currency)}
-                  />
-                  <OverviewRow
-                    label={copy.calendar.equityChange}
-                    value={formatSignedPercentPoints(
-                      change == null ? null : change * 100
-                    )}
-                    className={signedClassName(change)}
-                  />
-                  <OverviewRow
-                    label={copy.dashboard.maxDrawdown}
-                    value={formatSignedR(edge.maxDrawdownR)}
-                    className={signedClassName(edge.maxDrawdownR)}
-                  />
-                  <OverviewRow
-                    label={copy.analytics.expectancy}
-                    value={formatSignedR(edge.averageR)}
-                    className={signedClassName(edge.averageR)}
-                  />
-                </CardContent>
-              </Card>
+
+            <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
               <Card size="sm" className="gap-0 py-0">
                 <CardHeader className="border-b border-border py-2">
                   <CardTitle>{copy.calendar.byWeek}</CardTitle>
                 </CardHeader>
                 <CardContent className="py-3">
-                  <RBars
-                    rows={insights.weeks.map((week) => ({
-                      label: copy.calendar.week.replace("{n}", String(week.index)),
-                      value: week.totalR,
-                    }))}
-                  />
+                  <WeekBars weeks={weeks} metric={metric} currency={profile.currency} />
                 </CardContent>
               </Card>
               <Card size="sm" className="gap-0 py-0">
                 <CardHeader className="border-b border-border py-2">
-                  <CardTitle>{copy.calendar.byWeekday}</CardTitle>
-                </CardHeader>
-                <CardContent className="py-3">
-                  <RBars
-                    rows={insights.weekdays.map((day) => ({
-                      label: copy.calendar.weekdays[day.weekday] ?? "",
-                      value: day.averageR,
-                    }))}
-                  />
-                </CardContent>
-              </Card>
-              <Card size="sm" className="gap-0 py-0">
-                <CardHeader className="border-b border-border py-2">
-                  <CardTitle>{copy.calendar.monthProgress}</CardTitle>
+                  <div className="flex items-center justify-between gap-2">
+                    <CardTitle>{copy.calendar.monthProgress}</CardTitle>
+                    <p
+                      className={cn(
+                        "font-mono text-[12px] font-medium tabular-nums",
+                        signedClassName(monthValue)
+                      )}
+                    >
+                      {formatValue(metric, calendar.totalR, calendar.netPnl, profile.currency)}
+                    </p>
+                  </div>
                 </CardHeader>
                 <CardContent className="py-2">
-                  <MonthProgress points={insights.progress} />
+                  <MonthProgress
+                    points={progress}
+                    metric={metric}
+                    currency={profile.currency}
+                  />
                 </CardContent>
               </Card>
             </div>

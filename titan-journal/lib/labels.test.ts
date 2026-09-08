@@ -36,6 +36,8 @@ describe("CZ/SK/EN dictionaries", () => {
     expect(labelsFor("cs").copy.sidebar.themes.gold).toBe("Modro-zlatý")
     expect(labelsFor("cs").copy.calendar.openTrade).toBe("Otevřít obchod")
     expect(labelsFor("cs").copy.calendar.today).toBe("Dnes")
+    expect(labelsFor("cs").copy.calendar.openDetail).toBe("Otevřít detail")
+    expect(labelsFor("cs").copy.calendar.totalResult).toBe("Výsledek")
     expect(labelsFor("en").copy.form.resultHint).toContain("closed")
     expect(labelsFor("cs").copy.dashboard.performance).toBe("Výkon v čase")
     expect(labelsFor("en").copy.dashboard.performance).toBe("Performance over time")
