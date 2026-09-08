@@ -191,7 +191,7 @@ export function JournalImportButton() {
         type="button"
         variant="outline"
         size="sm"
-        className="h-8 text-[12px]"
+        className="h-8 bg-elevated text-[12px]"
         onClick={pick}
       >
         {copy.journal.importReport}
