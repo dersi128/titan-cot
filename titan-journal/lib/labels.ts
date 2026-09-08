@@ -152,8 +152,13 @@ export const copyEn = {
     monthProgress: "Month progress",
     week: "Week {n}",
     avgPerDay: "avg {n}/day",
-    totalResult: "Total result",
-    dayTrades: "Trades: {n}",
+    totalResult: "Result",
+    dayTrades: "{n} trades",
+    dayTradeOne: "{n} trade",
+    openDetail: "Open detail",
+    previousDay: "Previous day",
+    nextDay: "Next day",
+    risk: "Risk {n}%",
   },
 
   journal: {
@@ -641,8 +646,13 @@ export const copyCs: Copy = {
     monthProgress: "Průběh měsíce",
     week: "Týden {n}",
     avgPerDay: "prům. {n}/den",
-    totalResult: "Celkový výsledek",
-    dayTrades: "Obchody: {n}",
+    totalResult: "Výsledek",
+    dayTrades: "{n} obchody",
+    dayTradeOne: "{n} obchod",
+    openDetail: "Otevřít detail",
+    previousDay: "Předchozí den",
+    nextDay: "Další den",
+    risk: "Riziko {n}%",
   },
 
   journal: {
@@ -1127,8 +1137,13 @@ export const copySk: Copy = {
     monthProgress: "Priebeh mesiaca",
     week: "Týždeň {n}",
     avgPerDay: "priem. {n}/deň",
-    totalResult: "Celkový výsledok",
-    dayTrades: "Obchody: {n}",
+    totalResult: "Výsledok",
+    dayTrades: "{n} obchody",
+    dayTradeOne: "{n} obchod",
+    openDetail: "Otvoriť detail",
+    previousDay: "Predchádzajúci deň",
+    nextDay: "Ďalší deň",
+    risk: "Riziko {n}%",
   },
 
   journal: {
