@@ -438,7 +438,7 @@ export const copyEn = {
     riskPercent: "Risk %",
     riskHint: "1R per trade",
     riskWhy:
-      "A report often has SL at BE after 1:1, so R is PnL ÷ 1R. Set 1R on each account here.",
+      "If you sometimes move SL to BE, R is recalculated from PnL using this account's capital and risk.",
     markets: "Markets I trade",
     save: "Save Profile",
   },
@@ -949,7 +949,7 @@ export const copyCs: Copy = {
     riskPercent: "Riziko %",
     riskHint: "1R na obchod",
     riskWhy:
-      "V reportu bývá SL po 1:1 na BE, takže R z něj nejde. R se počítá z PnL a 1R. 1R nastav u každého účtu tady.",
+      "Pokud dáváš SL někdy na BE, R se přepočítá z PnL podle kapitálu a rizika na účtu.",
     markets: "Trhy, které obchoduji",
     save: "Uložit profil",
   },
@@ -1458,7 +1458,7 @@ export const copySk: Copy = {
     riskPercent: "Riziko %",
     riskHint: "1R na obchod",
     riskWhy:
-      "V reporte býva SL po 1:1 na BE, takže R z neho nejde. R sa počíta z PnL a 1R. 1R nastav pri každom účte tu.",
+      "Ak dávaš SL niekedy na BE, R sa prepočíta z PnL podľa kapitálu a rizika na účte.",
     markets: "Trhy, ktoré obchodujem",
     save: "Uložiť profil",
   },
