@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { readAvatarFile } from "@/lib/avatar"
+import { dollarsPerR, percentFromRiskMoney } from "@/lib/account-scope"
 import { isDirty } from "@/lib/dirty"
 import { useLabels } from "@/lib/use-labels"
 import { ACCOUNTS } from "@/types/trade"
@@ -138,6 +139,32 @@ export function ProfilePage() {
                         capital: {
                           ...current.capital,
                           [account]: Number(event.target.value) || 0,
+                        },
+                      }))
+                    }
+                  />
+                </Field>
+                <Field
+                  label={copy.profile.riskMoney}
+                  hint={`${copy.profile.riskMoneyHint} · ${draft.currency}`}
+                >
+                  <Input
+                    type="number"
+                    min={0}
+                    step={1}
+                    value={dollarsPerR(
+                      draft.capital[account],
+                      draft.riskByAccount[account]
+                    )}
+                    onChange={(event) =>
+                      setDraft((current) => ({
+                        ...current,
+                        riskByAccount: {
+                          ...current.riskByAccount,
+                          [account]: percentFromRiskMoney(
+                            current.capital[account],
+                            Number(event.target.value) || 0
+                          ),
                         },
                       }))
                     }

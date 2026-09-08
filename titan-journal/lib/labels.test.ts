@@ -81,6 +81,7 @@ describe("CZ/SK/EN dictionaries", () => {
     expect(labelsFor("cs").copy.guide.welcomeBody).not.toMatch(/Křivka Curve/i)
     expect(labelsFor("cs").copy.guide.playbookLead.toLowerCase()).toContain("setup")
     expect(labelsFor("cs").copy.settings.guideOpen).toBe("Otevřít průvodce")
+    expect(labelsFor("cs").copy.profile.riskMoney).toBe("Riziko na obchod")
     expect(labelsFor("en").copy.calendar.weekdays).toHaveLength(7)
     expect(labelsFor("sk").copy.calendar.weekdays).toHaveLength(7)
   })
