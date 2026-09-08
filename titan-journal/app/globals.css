@@ -788,7 +788,7 @@ html[data-density="large"] {
   }
 
   .titan-gauge-fill {
-    filter: drop-shadow(0 0 8px currentColor);
+    filter: drop-shadow(0 0 6px var(--bull)) drop-shadow(0 0 6px var(--bear));
   }
 
   span.titan-gauge-fill {
