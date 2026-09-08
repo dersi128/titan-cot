@@ -56,14 +56,16 @@ function TopBar({ onOpenNav }: { onOpenNav: () => void }) {
       </Button>
 
       <div className="ml-auto flex min-w-0 flex-wrap items-center justify-end gap-2">
-        <SegmentedControl
-          aria-label={copy.shell.account}
-          tone="strong"
-          options={ACCOUNTS}
-          labels={ACCOUNT_LABELS}
-          value={account}
-          onChange={setAccount}
-        />
+        <div data-guide="accounts">
+          <SegmentedControl
+            aria-label={copy.shell.account}
+            tone="strong"
+            options={ACCOUNTS}
+            labels={ACCOUNT_LABELS}
+            value={account}
+            onChange={setAccount}
+          />
+        </div>
         <SegmentedControl
           aria-label={copy.shell.range}
           tone="strong"

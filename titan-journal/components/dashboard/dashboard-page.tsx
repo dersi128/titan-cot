@@ -68,7 +68,10 @@ export function DashboardPage() {
   return (
     <PageFrame>
       <div className="flex flex-col gap-3 pb-4">
-        <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <header
+          className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
+          data-guide="overview-head"
+        >
           <div className="min-w-0">
             <h1 className="text-[26px] font-semibold tracking-tight text-foreground">
               {copy.dashboard.hello.replace("{name}", profile.displayName)}

@@ -395,7 +395,7 @@ export function TradeForm({ trade }: { trade?: Trade }) {
           )
         }
       />
-      <form onSubmit={handleSubmit} className="space-y-4 pb-16">
+      <form onSubmit={handleSubmit} className="space-y-4 pb-16" data-guide="new-trade-form">
         {templates.length > 0 ? (
           <div>
             <p className="mb-2 text-[11px] font-medium tracking-wide text-muted-foreground">

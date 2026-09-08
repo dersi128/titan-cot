@@ -95,7 +95,7 @@ export function EquityCurve({
   const dataKey: EquityMetric = metric
 
   return (
-    <Card size="sm" className="gap-0 py-0">
+    <Card size="sm" className="gap-0 py-0" data-guide="equity">
       <CardHeader className="shrink-0 border-b border-border py-2">
         <div className="flex flex-wrap items-center justify-between gap-1.5">
           <CardTitle>{copy.dashboard.equityCurve}</CardTitle>

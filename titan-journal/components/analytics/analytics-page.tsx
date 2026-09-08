@@ -343,10 +343,12 @@ export function AnalyticsPage() {
 
   return (
     <PageFrame>
+      <div data-guide="analytics">
       <PageHeader
         title={copy.analytics.title}
         description={copy.analytics.description}
       />
+      </div>
       {accountTrades.length === 0 ? (
         <EmptyJournal />
       ) : (

@@ -3,6 +3,7 @@
 import { Field, OptionPills } from "@/components/forms/field"
 import { LanguageSwitcher } from "@/components/layout/language-switcher"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
+import { useGuide } from "@/components/layout/guide-provider"
 import { useWorkspace } from "@/components/layout/workspace-provider"
 import { SelectField } from "@/components/forms/select-field"
 import { useTrades } from "@/components/trades/trades-provider"
@@ -61,6 +62,7 @@ function BackupSection() {
 export function SettingsPage() {
   const { preferences, updatePreferences, playbooks } = useWorkspace()
   const { copy, ACCOUNT_LABELS } = useLabels()
+  const { openGuide } = useGuide()
   const playbookOptions = playbooks
 
   return (
@@ -71,6 +73,14 @@ export function SettingsPage() {
       />
 
       <div className="space-y-4">
+        <section className="titan-glass rounded-[10px] p-4 space-y-3">
+          <h2 className="text-sm font-semibold">{copy.settings.guide}</h2>
+          <p className="text-[12px] text-muted-foreground">{copy.settings.guideHint}</p>
+          <Button type="button" variant="outline" size="sm" className="bg-elevated" onClick={openGuide}>
+            {copy.settings.guideOpen}
+          </Button>
+        </section>
+
         <section className="titan-glass rounded-[10px] p-4 space-y-3">
           <h2 className="text-sm font-semibold">{copy.settings.journal}</h2>
           <Field label={copy.settings.journalMode}>
