@@ -451,22 +451,44 @@ export const copyEn = {
     done: "Done",
     beta: "Beta",
     stepOf: "{current} / {total}",
-    welcomeTitle: "Welcome to TITAN Journal",
-    welcomeBody:
-      "A short tour of how it works. Skip anytime — handy on the phone if you just want to start.",
-    profileTitle: "Your profile",
-    profileBody:
-      "In Profile you can set a photo, display name, trader type, starting capital, and risk per trade.",
-    dataTitle: "Your data stays here",
-    dataBody:
-      "Imported reports and logged trades live only in this browser. Nobody else can see them. Cloud storage is in progress.",
-    dataDevices:
-      "They do not move to your phone or another computer. Each device has its own journal until cloud sync exists.",
-    playbookTitle: "Playbooks and accounts",
-    playbookBody:
-      "Build a playbook that matches how you trade. Personal capital, Prop, and Backtesting stay as separate books — switch them at the top.",
-    startTitle: "How do you want to start?",
-    startBody: "Log a trade, import a broker report, or load a sample journal.",
+    welcomeTitle: "TITAN Journal",
+    welcomeLead:
+      "Every trade belongs here: the plan, the result, and the review. Not a list — your own statistics.",
+    welcome1:
+      "The dashboard shows win rate, average R, the equity curve, and performance over time. The calendar maps your days. The journal is the full history.",
+    welcome2:
+      "This guide walks through the parts that make the journal work. You can close it any time and open it again from the dashboard.",
+    profileTitle: "Profile",
+    profileLead: "Set the journal up around how you trade.",
+    profile1:
+      "Name, photo, and trader type. That is how the journal addresses you and how the account looks in the menu.",
+    profile2:
+      "Starting capital and risk per trade sit here too. They size 1R and turn results into money.",
+    playbookTitle: "Playbook",
+    playbookLead: "Write the rules you actually trade.",
+    playbook1:
+      "Setup, session, entry conditions — build the fields around your method, not a generic template.",
+    playbook2:
+      "Each trade links to the playbook. Analytics then shows which setup has an edge, where you leak, and what is worth repeating.",
+    playbook3:
+      "Without a playbook the journal is history. With one, it is feedback on the strategy.",
+    accountsTitle: "Accounts",
+    accountsLead: "Personal capital, Prop, and Backtesting are three separate books.",
+    accounts1:
+      "Switch them at the top. Capital, risk, and results never mix.",
+    accounts2:
+      "Backtesting is for history and rehearsing rules. Prop is the funded book. Personal capital is your own money.",
+    dataTitle: "Privacy",
+    dataLead: "Your trades stay on this device.",
+    data1:
+      "Broker imports and trades you type in are stored locally in this browser. Nobody else can see them.",
+    data2:
+      "They do not sync to another computer or another browser yet. Cloud sync is in progress.",
+    data3:
+      "The product is in Beta. If something looks wrong, you can report it by email — we will add the address soon.",
+    startTitle: "Start here",
+    startLead:
+      "Log the first trade, import a broker report, or open a sample journal to see the layout.",
     report:
       "This is a Beta. If you find a bug or something that does not add up, email {email}.",
     reportSoon:
@@ -918,22 +940,43 @@ export const copyCs: Copy = {
     done: "Hotovo",
     beta: "Beta",
     stepOf: "{current} / {total}",
-    welcomeTitle: "Vítej v TITAN Journal",
-    welcomeBody:
-      "Krátký přehled, jak to tu funguje. Kdykoli můžeš přeskočit — hodí se to na telefonu, když chceš hned začít.",
+    welcomeTitle: "TITAN Journal",
+    welcomeLead:
+      "Sem patří každý obchod: plán, výsledek a review. Není to seznam — je to tvoje statistika.",
+    welcome1:
+      "Na Přehledu uvidíš win rate, průměrné R, křivku equity a výkon v čase. Kalendář ukáže dny. Deník je celá historie.",
+    welcome2:
+      "Průvodce tě provede částmi, ze kterých journal stojí. Kdykoli ho můžeš zavřít a znovu otevřít z Přehledu.",
     profileTitle: "Profil",
-    profileBody:
-      "V Profilu si nastavíš fotku, jméno, typ tradera, počáteční kapitál a riziko na obchod.",
-    dataTitle: "Data zůstanou tady",
-    dataBody:
-      "Importované reporty i zapsané obchody jsou jen lokálně v tomto prohlížeči. Nikdo jiný k nim nemá přístup. Na cloudu se pracuje.",
-    dataDevices:
-      "Nepřenesou se na telefon ani na jiný počítač. Každé zařízení má vlastní journal, dokud nebude cloud.",
-    playbookTitle: "Playbook a účty",
-    playbookBody:
-      "Playbook si sestavíš podle sebe. Osobní kapitál, Prop a Backtesting jsou oddělené knihy — přepínáš je nahoře.",
-    startTitle: "Jak chceš začít?",
-    startBody: "Zapiš obchod, nahraj broker report, nebo si ukaž ukázkový journal.",
+    profileLead: "Nejdřív si journal nastav podle sebe.",
+    profile1:
+      "Jméno, fotka a typ tradera. Tak tě journal oslovuje a tak vypadá účet v menu.",
+    profile2:
+      "Počáteční kapitál a riziko na obchod jsou základ sizeru. Od nich se počítá 1R i PnL.",
+    playbookTitle: "Playbook",
+    playbookLead: "Tady napíšeš pravidla, podle kterých obchoduješ.",
+    playbook1:
+      "Setup, session, podmínky vstupu — pole si sestavíš podle své metodiky, ne podle cizí šablony.",
+    playbook2:
+      "Každý obchod se na playbook napojí. V Analýzách pak uvidíš, který setup má edge, kde ztrácíš a co má smysl opakovat.",
+    playbook3:
+      "Bez playbooku je journal historie. S ním je to zpětná vazba k tvé strategii.",
+    accountsTitle: "Účty",
+    accountsLead: "Osobní kapitál, Prop a Backtesting jsou tři oddělené knihy.",
+    accounts1: "Přepínáš je nahoře. Kapitál, riziko i výsledky se nemíchají.",
+    accounts2:
+      "Backtesting je na historii a nácvik pravidel. Prop na funded účet. Osobní kapitál na vlastní peníze.",
+    dataTitle: "Soukromí",
+    dataLead: "Obchody zůstávají jen u tebe, na tomto zařízení.",
+    data1:
+      "Import z brokeru i ručně zapsané obchody se ukládají lokálně v tomto prohlížeči. Nikdo jiný k nim nemá přístup.",
+    data2:
+      "Na jiný počítač nebo jiný prohlížeč se zatím nepřenášejí. Cloud synchronizace se připravuje.",
+    data3:
+      "Journal je v Betě. Najdeš-li nesrovnalost nebo chybu, můžeš ji nahlásit e-mailem — adresu brzy doplníme.",
+    startTitle: "Začni tady",
+    startLead:
+      "Zapiš první obchod, nahraj report z brokeru, nebo si prohlédni ukázkový journal.",
     report:
       "Teď běží Beta. Nesrovnalost nebo chybu napiš na {email}.",
     reportSoon:
@@ -1383,22 +1426,43 @@ export const copySk: Copy = {
     done: "Hotovo",
     beta: "Beta",
     stepOf: "{current} / {total}",
-    welcomeTitle: "Vitaj v TITAN Journal",
-    welcomeBody:
-      "Krátky prehľad, ako to tu funguje. Kedykoľvek môžeš preskočiť — hodí sa to na telefóne, keď chceš hneď začať.",
+    welcomeTitle: "TITAN Journal",
+    welcomeLead:
+      "Sem patrí každý obchod: plán, výsledok a review. Nie je to zoznam — je to tvoja štatistika.",
+    welcome1:
+      "Na Prehľade uvidíš win rate, priemerné R, krivku equity a výkon v čase. Kalendár ukáže dni. Denník je celá história.",
+    welcome2:
+      "Sprievodca ťa prevedie časťami, z ktorých journal stojí. Kedykoľvek ho môžeš zavrieť a znova otvoriť z Prehľadu.",
     profileTitle: "Profil",
-    profileBody:
-      "V Profile si nastavíš fotku, meno, typ tradera, počiatočný kapitál a riziko na obchod.",
-    dataTitle: "Dáta ostanú tu",
-    dataBody:
-      "Importované reporty aj zapísané obchody sú len lokálne v tomto prehliadači. Nikto iný k nim nemá prístup. Na cloude sa pracuje.",
-    dataDevices:
-      "Nepenesú sa na telefón ani na iný počítač. Každé zariadenie má vlastný journal, kým nebude cloud.",
-    playbookTitle: "Playbook a účty",
-    playbookBody:
-      "Playbook si poskladáš podľa seba. Osobný kapitál, Prop a Backtesting sú oddelené knihy — prepínaš ich hore.",
-    startTitle: "Ako chceš začať?",
-    startBody: "Zapíš obchod, nahraj broker report, alebo si ukáž ukážkový journal.",
+    profileLead: "Najprv si journal nastav podľa seba.",
+    profile1:
+      "Meno, fotka a typ tradera. Tak ťa journal oslovuje a tak vyzerá účet v menu.",
+    profile2:
+      "Počiatočný kapitál a riziko na obchod sú základ sizeru. Od nich sa počíta 1R aj PnL.",
+    playbookTitle: "Playbook",
+    playbookLead: "Tu napíšeš pravidlá, podľa ktorých obchoduješ.",
+    playbook1:
+      "Setup, session, podmienky vstupu — polia si poskladáš podľa svojej metodiky, nie podľa cudzej šablóny.",
+    playbook2:
+      "Každý obchod sa na playbook napojí. V Analýzach potom uvidíš, ktorý setup má edge, kde strácaš a čo má zmysel opakovať.",
+    playbook3:
+      "Bez playbooku je journal história. S ním je to spätná väzba k tvojej stratégii.",
+    accountsTitle: "Účty",
+    accountsLead: "Osobný kapitál, Prop a Backtesting sú tri oddelené knihy.",
+    accounts1: "Prepínaš ich hore. Kapitál, riziko aj výsledky sa nemiešajú.",
+    accounts2:
+      "Backtesting je na históriu a nácvik pravidiel. Prop na funded účet. Osobný kapitál na vlastné peniaze.",
+    dataTitle: "Súkromie",
+    dataLead: "Obchody ostávajú len u teba, na tomto zariadení.",
+    data1:
+      "Import z brokera aj ručne zapísané obchody sa ukladajú lokálne v tomto prehliadači. Nikto iný k nim nemá prístup.",
+    data2:
+      "Na iný počítač alebo iný prehliadač sa zatiaľ neprenášajú. Cloud synchronizácia sa pripravuje.",
+    data3:
+      "Journal je v Bete. Ak nájdeš nesúlad alebo chybu, môžeš ju nahlásiť e-mailom — adresu čoskoro doplníme.",
+    startTitle: "Začni tu",
+    startLead:
+      "Zapíš prvý obchod, nahraj report z brokera, alebo si pozri ukážkový journal.",
     report:
       "Teraz beží Beta. Nesúlad alebo chybu napíš na {email}.",
     reportSoon:
