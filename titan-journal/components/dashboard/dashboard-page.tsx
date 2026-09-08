@@ -77,12 +77,12 @@ export function DashboardPage() {
               {copy.dashboard.overview[range]}
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Button type="button" variant="ghost" onClick={openGuide}>
+          <div className="titan-action-bar">
+            <Button type="button" variant="outline" onClick={openGuide}>
               {copy.guide.open}
             </Button>
             {accountTrades.length > 0 ? (
-              <Button asChild variant="outline" className="border-primary/60 text-primary">
+              <Button asChild>
                 <Link href="/new-trade">
                   <PlusCircle />
                   {copy.nav.newTrade}

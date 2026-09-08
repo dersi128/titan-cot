@@ -319,9 +319,11 @@ export function PlaybookListPage() {
         title={copy.playbook.title}
         description={copy.playbook.description}
         actions={
-          <Button asChild>
-            <Link href="/playbook/new">{copy.playbook.new}</Link>
-          </Button>
+          <div className="titan-action-bar">
+            <Button asChild>
+              <Link href="/playbook/new">{copy.playbook.new}</Link>
+            </Button>
+          </div>
         }
       />
       <div className="titan-glass mb-4 rounded-[10px] p-4">
@@ -343,7 +345,7 @@ export function PlaybookListPage() {
           </div>
           <div className="grid gap-4 lg:grid-cols-[minmax(260px,0.85fr)_minmax(0,1.5fr)] lg:items-start">
             <div className="space-y-2">
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-[11px] text-foreground/75">
                 {copy.playbook.all} · {visible.length}
               </p>
               {visible.map((playbook) => {
@@ -498,8 +500,9 @@ export function PlaybookListPage() {
                     ) : (
                       <Button
                         size="sm"
-                        variant="ghost"
+                        variant="outline"
                         type="button"
+                        className="border-destructive/50 bg-destructive/15 text-destructive hover:bg-destructive/25"
                         onClick={() => setConfirmDelete(true)}
                       >
                         {copy.playbook.delete}

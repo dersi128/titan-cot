@@ -248,7 +248,7 @@ export function JournalPage() {
         title={copy.journal.title}
         description={copy.journal.description}
         actions={
-          <div className="flex flex-wrap items-start justify-end gap-2">
+          <div className="titan-action-bar">
             <JournalImportButton />
             {accountTrades.length > 0 ? (
               <Button asChild>

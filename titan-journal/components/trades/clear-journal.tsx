@@ -29,20 +29,19 @@ export function ClearJournal() {
   }
 
   return (
-    <section className="rounded-[10px] border border-destructive/35 bg-destructive/[0.06] p-5">
+    <section className="titan-danger">
       <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-destructive">
         {copy.journal.dangerZone}
       </p>
-      <h2 className="mt-1 text-sm font-semibold">{copy.journal.clearAll}</h2>
-      <p className="mt-1 max-w-xl text-[12px] text-muted-foreground">
+      <h2 className="mt-1 text-sm font-semibold text-foreground">{copy.journal.clearAll}</h2>
+      <p className="mt-1 max-w-xl text-[13px] leading-relaxed text-foreground/80">
         {copy.journal.clearAllHint}
       </p>
       {!open ? (
         <Button
           type="button"
-          variant="outline"
           size="sm"
-          className="mt-3 border-destructive/40 text-destructive hover:bg-destructive/10"
+          className="mt-3 bg-destructive text-white hover:bg-destructive/90"
           onClick={() => setOpen(true)}
         >
           {copy.journal.clearAll}
