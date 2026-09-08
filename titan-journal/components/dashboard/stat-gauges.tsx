@@ -1,46 +1,34 @@
 "use client"
 
-import { useId } from "react"
-
-import { cn } from "@/lib/utils"
-
 function clamp01(value: number): number {
   if (!Number.isFinite(value)) return 0
   return Math.min(1, Math.max(0, value))
 }
 
-function GaugeGradient({ id }: { id: string }) {
-  return (
-    <linearGradient id={id} x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stopColor="var(--bull)" />
-      <stop offset="100%" stopColor="var(--bear)" />
-    </linearGradient>
-  )
-}
-
 export function ArcGauge({
   progress,
-  caption,
   size = 84,
 }: {
   progress: number | null
-  caption?: string
   size?: number
 }) {
-  const rawId = useId().replace(/:/g, "")
-  const gradId = `arc-${rawId}`
   const p = progress == null ? 0 : clamp01(progress)
-  const stroke = 8
+  const stroke = 9
   const pad = 10
   const r = (size - pad * 2) / 2
   const cx = size / 2
   const cy = pad + r
   const h = cy + pad
   const k = 0.5522847498 * r
-  const d = [
+  const leftToRight = [
     `M ${cx - r} ${cy}`,
     `C ${cx - r} ${cy - k} ${cx - k} ${cy - r} ${cx} ${cy - r}`,
     `S ${cx + r} ${cy - k} ${cx + r} ${cy}`,
+  ].join(" ")
+  const rightToLeft = [
+    `M ${cx + r} ${cy}`,
+    `C ${cx + r} ${cy - k} ${cx + k} ${cy - r} ${cx} ${cy - r}`,
+    `S ${cx - r} ${cy - k} ${cx - r} ${cy}`,
   ].join(" ")
 
   return (
@@ -52,38 +40,39 @@ export function ArcGauge({
       className="shrink-0 overflow-visible"
       aria-hidden
     >
-      <defs>
-        <GaugeGradient id={gradId} />
-      </defs>
       <path
-        d={d}
+        d={leftToRight}
         fill="none"
-        stroke={`url(#${gradId})`}
+        stroke="currentColor"
+        className="text-muted-foreground"
         strokeWidth={stroke}
         strokeLinecap="round"
-        opacity={0.28}
+        opacity={0.22}
         pathLength={100}
       />
-      <path
-        d={d}
-        fill="none"
-        stroke={`url(#${gradId})`}
-        strokeWidth={stroke}
-        strokeLinecap="round"
-        pathLength={100}
-        strokeDasharray={`${p * 100} 100`}
-        className="titan-gauge-fill"
-      />
-      {caption ? (
-        <text
-          x={cx}
-          y={cy - 6}
-          textAnchor="middle"
-          className="fill-foreground font-mono"
-          fontSize="10"
-        >
-          {caption}
-        </text>
+      {progress != null && p > 0 ? (
+        <path
+          d={leftToRight}
+          fill="none"
+          stroke="var(--bull)"
+          strokeWidth={stroke}
+          strokeLinecap="round"
+          pathLength={100}
+          strokeDasharray={`${p * 100} 100`}
+          className="titan-gauge-bull"
+        />
+      ) : null}
+      {progress != null && p < 1 ? (
+        <path
+          d={rightToLeft}
+          fill="none"
+          stroke="var(--bear)"
+          strokeWidth={stroke}
+          strokeLinecap="round"
+          pathLength={100}
+          strokeDasharray={`${(1 - p) * 100} 100`}
+          className="titan-gauge-bear"
+        />
       ) : null}
     </svg>
   )
@@ -91,17 +80,13 @@ export function ArcGauge({
 
 export function RingGauge({
   progress,
-  caption,
   size = 72,
 }: {
   progress: number | null
-  caption?: string
   size?: number
 }) {
-  const rawId = useId().replace(/:/g, "")
-  const gradId = `ring-${rawId}`
   const p = progress == null ? 0 : clamp01(progress)
-  const stroke = 7
+  const stroke = 8
   const cx = size / 2
   const cy = size / 2
   const r = (size - stroke) / 2 - 1
@@ -115,42 +100,48 @@ export function RingGauge({
       className="shrink-0 overflow-visible"
       aria-hidden
     >
-      <defs>
-        <GaugeGradient id={gradId} />
-      </defs>
       <circle
         cx={cx}
         cy={cy}
         r={r}
         fill="none"
-        stroke={`url(#${gradId})`}
+        stroke="currentColor"
+        className="text-muted-foreground"
         strokeWidth={stroke}
-        opacity={0.28}
+        opacity={0.22}
       />
-      <circle
-        cx={cx}
-        cy={cy}
-        r={r}
-        fill="none"
-        stroke={`url(#${gradId})`}
-        strokeWidth={stroke}
-        strokeLinecap="round"
-        pathLength={100}
-        strokeDasharray={`${p * 100} 100`}
-        transform={`rotate(-90 ${cx} ${cy})`}
-        className="titan-gauge-fill"
-      />
-      {caption ? (
-        <text
-          x={cx}
-          y={cy + 4}
-          textAnchor="middle"
-          className="fill-foreground font-mono"
-          fontSize="11"
-        >
-          {caption}
-        </text>
-      ) : null}
+      <g transform={`translate(${cx} ${cy})`}>
+        {progress != null && p > 0 ? (
+          <circle
+            cx={0}
+            cy={0}
+            r={r}
+            fill="none"
+            stroke="var(--bull)"
+            strokeWidth={stroke}
+            strokeLinecap="round"
+            pathLength={100}
+            strokeDasharray={`${p * 100} 100`}
+            transform="rotate(90)"
+            className="titan-gauge-bull"
+          />
+        ) : null}
+        {progress != null && p < 1 ? (
+          <circle
+            cx={0}
+            cy={0}
+            r={r}
+            fill="none"
+            stroke="var(--bear)"
+            strokeWidth={stroke}
+            strokeLinecap="round"
+            pathLength={100}
+            strokeDasharray={`${(1 - p) * 100} 100`}
+            transform="scale(-1, 1) rotate(90)"
+            className="titan-gauge-bear"
+          />
+        ) : null}
+      </g>
     </svg>
   )
 }
