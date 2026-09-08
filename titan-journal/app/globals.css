@@ -103,8 +103,32 @@
 
 @media (prefers-reduced-motion: reduce) {
   .titan-guide-in,
-  .titan-guide-icon {
+  .titan-guide-icon,
+  .titan-guide-spot-ring {
     animation: none;
+  }
+}
+
+.titan-guide-spot {
+  border-radius: 14px;
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--primary) 88%, white),
+    0 0 0 9999px rgba(0, 0, 0, 0.58);
+}
+
+.titan-guide-spot-ring {
+  border-radius: inherit;
+  box-shadow: 0 0 0 7px color-mix(in srgb, var(--primary) 24%, transparent);
+  animation: titan-guide-spot-ring 1.8s ease-in-out infinite;
+}
+
+@keyframes titan-guide-spot-ring {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.9;
   }
 }
 

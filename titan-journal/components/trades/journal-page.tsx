@@ -244,6 +244,7 @@ export function JournalPage() {
 
   return (
     <PageFrame width="wide">
+      <div data-guide="journal">
       <PageHeader
         title={copy.journal.title}
         description={copy.journal.description}
@@ -258,6 +259,7 @@ export function JournalPage() {
           </div>
         }
       />
+      </div>
 
       {!isReady ? (
         <TableSkeleton rows={10} />

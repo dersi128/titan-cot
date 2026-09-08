@@ -43,6 +43,7 @@ type NavLink = {
   label: string
   hint: string
   icon: LucideIcon
+  guide?: string
 }
 
 function isActive(pathname: string, href: string) {
@@ -72,6 +73,7 @@ function SidebarNavLink({
       aria-label={item.label}
       aria-current={active ? "page" : undefined}
       title={collapsed ? item.label : undefined}
+      data-guide={item.guide}
       className={cn("titan-nav-item", active && "titan-nav-item--active")}
     >
       <Icon className="titan-nav-icon" aria-hidden />
@@ -210,36 +212,42 @@ export function AppSidebar({
       label: copy.nav.dashboard,
       hint: copy.nav.hints.dashboard,
       icon: LayoutDashboard,
+      guide: "overview-nav",
     },
     {
       href: "/calendar",
       label: copy.nav.calendar,
       hint: copy.nav.hints.calendar,
       icon: CalendarDays,
+      guide: "calendar",
     },
     {
       href: "/journal",
       label: copy.nav.journal,
       hint: copy.nav.hints.journal,
       icon: BookOpen,
+      guide: "journal-nav",
     },
     {
       href: "/new-trade",
       label: copy.nav.newTrade,
       hint: copy.nav.hints.newTrade,
       icon: PlusCircle,
+      guide: "new-trade",
     },
     {
       href: "/analytics",
       label: copy.nav.analytics,
       hint: copy.nav.hints.analytics,
       icon: ChartNoAxesCombined,
+      guide: "analytics-nav",
     },
     {
       href: "/playbook",
       label: copy.nav.playbook,
       hint: copy.nav.hints.playbook,
       icon: NotebookTabs,
+      guide: "playbook-nav",
     },
   ]
 
@@ -249,6 +257,7 @@ export function AppSidebar({
       label: copy.nav.profile,
       hint: copy.nav.hints.profile,
       icon: User,
+      guide: "profile-nav",
     },
     {
       href: "/settings",

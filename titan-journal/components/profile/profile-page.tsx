@@ -118,7 +118,7 @@ export function ProfilePage() {
           </Field>
         </div>
 
-        <div className="titan-glass space-y-3 rounded-[10px] p-4">
+        <div className="titan-glass space-y-3 rounded-[10px] p-4" data-guide="profile-risk">
           <h2 className="text-sm font-semibold">{copy.profile.trading}</h2>
           <div className="grid gap-4 sm:grid-cols-3">
             {ACCOUNTS.map((account) => (
