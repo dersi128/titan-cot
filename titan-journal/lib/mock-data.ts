@@ -111,6 +111,41 @@ function fromSeed(seed: Seed): Trade {
   return trade
 }
 
+function closed(seed: {
+  id: string
+  date: string
+  symbol: string
+  direction: TradeDirection
+  resultR: number
+  grade?: Grade
+  account?: Account
+  notes?: string
+  cotScore?: number
+}): Seed {
+  const grade = seed.grade ?? "B+"
+  const down = seed.direction === "SHORT"
+  const fresh = grade === "A+" || grade === "A"
+
+  return {
+    id: seed.id,
+    date: seed.date,
+    symbol: seed.symbol,
+    direction: seed.direction,
+    grade,
+    htfTrend: down ? "Downtrend" : "Uptrend",
+    tradeTrend: down ? "Downtrend" : "Uptrend",
+    location: down ? "Premium" : "Discount",
+    resultR: seed.resultR,
+    status: "CLOSED",
+    zoneType: down ? "Supply" : "Demand",
+    fresh,
+    touchCount: fresh ? "0" : "1",
+    account: seed.account,
+    notes: seed.notes,
+    cotScore: seed.cotScore,
+  }
+}
+
 const FEATURED: Seed[] = [
   {
     id: "trd-001",
@@ -165,197 +200,126 @@ const FEATURED: Seed[] = [
   },
 ]
 
-const SYMBOLS = [
-  "EURUSD",
-  "AAPL",
-  "US30",
-  "XAUUSD",
-  "COFFEE",
-  "BTCUSD",
-  "GBPUSD",
-  "NVDA",
-  "NAS100",
-  "XAGUSD",
-  "CORN",
-  "ETHUSD",
-  "AUDUSD",
-  "TSLA",
-  "SPX500",
-  "GOLD",
-  "WHEAT",
-  "BTCUSDT",
-] as const
-
-const CLASS_COVERAGE: Array<{ symbol: (typeof SYMBOLS)[number]; account: Account }> = [
-  { symbol: "AAPL", account: "Personal" },
-  { symbol: "US30", account: "Personal" },
-  { symbol: "XAUUSD", account: "Personal" },
-  { symbol: "COFFEE", account: "Personal" },
-  { symbol: "BTCUSD", account: "Personal" },
+const MORE_CLOSED: Seed[] = [
+  closed({ id: "trd-004", date: "2026-09-04", symbol: "EURUSD", direction: "LONG", resultR: -1, grade: "B" }),
+  closed({ id: "trd-005", date: "2026-09-02", symbol: "NVDA", direction: "LONG", resultR: 2, grade: "A" }),
+  closed({ id: "trd-006", date: "2026-09-01", symbol: "XAUUSD", direction: "SHORT", resultR: 1.5, grade: "A+" }),
+  closed({ id: "trd-007", date: "2026-08-20", symbol: "AAPL", direction: "LONG", resultR: 1, grade: "B+" }),
+  closed({ id: "trd-008", date: "2026-08-18", symbol: "BTCUSD", direction: "LONG", resultR: -1.5, grade: "B" }),
+  closed({ id: "trd-009", date: "2026-08-14", symbol: "US30", direction: "SHORT", resultR: 2, grade: "A" }),
+  closed({ id: "trd-010", date: "2026-08-11", symbol: "GBPUSD", direction: "LONG", resultR: -1, grade: "B+" }),
+  closed({ id: "trd-011", date: "2026-08-07", symbol: "COFFEE", direction: "LONG", resultR: 3, grade: "A+" }),
+  closed({ id: "trd-012", date: "2026-08-04", symbol: "XAGUSD", direction: "SHORT", resultR: -1, grade: "B" }),
+  closed({ id: "trd-013", date: "2026-07-29", symbol: "ETHUSD", direction: "LONG", resultR: 2, grade: "A" }),
+  closed({ id: "trd-014", date: "2026-07-24", symbol: "TSLA", direction: "LONG", resultR: -1, grade: "B" }),
+  closed({ id: "trd-015", date: "2026-07-21", symbol: "EURUSD", direction: "SHORT", resultR: 0, grade: "B+" }),
+  closed({ id: "trd-016", date: "2026-07-16", symbol: "NAS100", direction: "LONG", resultR: 1.5, grade: "A" }),
+  closed({ id: "trd-017", date: "2026-07-10", symbol: "GOLD", direction: "SHORT", resultR: -1, grade: "B" }),
+  closed({ id: "trd-018", date: "2026-07-06", symbol: "AUDUSD", direction: "LONG", resultR: 2, grade: "A+" }),
+  closed({ id: "trd-019", date: "2026-07-02", symbol: "WHEAT", direction: "LONG", resultR: -0.5, grade: "B+" }),
+  closed({ id: "trd-020", date: "2026-06-26", symbol: "AAPL", direction: "SHORT", resultR: 2, grade: "A" }),
+  closed({ id: "trd-021", date: "2026-06-20", symbol: "GBPUSD", direction: "LONG", resultR: -1, grade: "B" }),
+  closed({ id: "trd-022", date: "2026-06-17", symbol: "XAUUSD", direction: "LONG", resultR: 2.5, grade: "A+" }),
+  closed({ id: "trd-023", date: "2026-06-11", symbol: "CORN", direction: "LONG", resultR: -1, grade: "B+" }),
+  closed({ id: "trd-024", date: "2026-06-08", symbol: "US30", direction: "LONG", resultR: 1, grade: "A" }),
+  closed({ id: "trd-025", date: "2026-06-03", symbol: "BTCUSD", direction: "SHORT", resultR: -1.5, grade: "B" }),
+  closed({ id: "trd-026", date: "2026-05-27", symbol: "EURUSD", direction: "LONG", resultR: -1, grade: "B" }),
+  closed({ id: "trd-027", date: "2026-05-22", symbol: "NVDA", direction: "LONG", resultR: -1.5, grade: "B" }),
+  closed({ id: "trd-028", date: "2026-05-19", symbol: "AUDUSD", direction: "SHORT", resultR: 2, grade: "A" }),
+  closed({ id: "trd-029", date: "2026-05-13", symbol: "XAUUSD", direction: "LONG", resultR: -1, grade: "B+" }),
+  closed({ id: "trd-030", date: "2026-05-08", symbol: "SPX500", direction: "LONG", resultR: -1, grade: "B" }),
+  closed({ id: "trd-031", date: "2026-05-04", symbol: "GBPUSD", direction: "SHORT", resultR: 1, grade: "A" }),
+  closed({ id: "trd-032", date: "2026-04-27", symbol: "TSLA", direction: "LONG", resultR: 3, grade: "A+" }),
+  closed({ id: "trd-033", date: "2026-04-21", symbol: "EURUSD", direction: "LONG", resultR: -1, grade: "B" }),
+  closed({ id: "trd-034", date: "2026-04-16", symbol: "XAUUSD", direction: "SHORT", resultR: 2, grade: "A" }),
+  closed({ id: "trd-035", date: "2026-04-10", symbol: "AAPL", direction: "LONG", resultR: 1.5, grade: "A" }),
+  closed({ id: "trd-036", date: "2026-04-06", symbol: "BTCUSD", direction: "LONG", resultR: -1, grade: "B+" }),
+  closed({ id: "trd-037", date: "2026-04-02", symbol: "GBPUSD", direction: "LONG", resultR: 2, grade: "A+" }),
+  closed({ id: "trd-038", date: "2026-03-27", symbol: "US30", direction: "LONG", resultR: -1, grade: "B" }),
+  closed({ id: "trd-039", date: "2026-03-23", symbol: "GOLD", direction: "SHORT", resultR: 2, grade: "A" }),
+  closed({ id: "trd-040", date: "2026-03-17", symbol: "EURUSD", direction: "LONG", resultR: 1, grade: "B+" }),
+  closed({ id: "trd-041", date: "2026-03-11", symbol: "NVDA", direction: "LONG", resultR: -1, grade: "B" }),
+  closed({ id: "trd-042", date: "2026-03-05", symbol: "AUDUSD", direction: "SHORT", resultR: 2, grade: "A" }),
+  closed({ id: "trd-043", date: "2026-03-02", symbol: "COFFEE", direction: "LONG", resultR: -1, grade: "B+" }),
+  closed({ id: "trd-044", date: "2026-08-15", symbol: "EURUSD", direction: "LONG", resultR: 2, grade: "A", account: "Funded" }),
+  closed({ id: "trd-045", date: "2026-07-08", symbol: "GBPUSD", direction: "SHORT", resultR: -1, grade: "B", account: "Funded" }),
+  closed({ id: "trd-046", date: "2026-06-14", symbol: "XAUUSD", direction: "LONG", resultR: 1.5, grade: "A", account: "Funded" }),
+  closed({ id: "trd-047", date: "2026-05-18", symbol: "AAPL", direction: "LONG", resultR: -1, grade: "B+", account: "Funded" }),
+  closed({ id: "trd-048", date: "2026-04-09", symbol: "US30", direction: "SHORT", resultR: 2, grade: "A", account: "Funded" }),
+  closed({ id: "trd-049", date: "2026-03-20", symbol: "BTCUSD", direction: "LONG", resultR: -1, grade: "B", account: "Funded" }),
+  closed({ id: "trd-050", date: "2026-08-09", symbol: "NAS100", direction: "LONG", resultR: 3, grade: "A+", account: "Backtesting" }),
+  closed({ id: "trd-051", date: "2026-06-22", symbol: "EURUSD", direction: "SHORT", resultR: -1, grade: "B", account: "Backtesting" }),
+  closed({ id: "trd-052", date: "2026-04-30", symbol: "GOLD", direction: "LONG", resultR: 2, grade: "A", account: "Backtesting" }),
+  closed({ id: "trd-053", date: "2026-03-12", symbol: "AUDUSD", direction: "LONG", resultR: -1.5, grade: "B+", account: "Backtesting" }),
 ]
 
-const GRADES: Grade[] = ["A+", "A", "B+", "B"]
-const TRENDS_UP: Trend[] = ["Strong Uptrend", "Uptrend"]
-const TRENDS_DOWN: Trend[] = ["Strong Downtrend", "Downtrend"]
-const ACCOUNTS: Account[] = ["Personal", "Funded", "Backtesting"]
-
-// Remaining closed R results chosen so dashboard stats sit near the Phase 1 examples.
-const CLOSED_R = [
-  2, -1, 2, 3, -1, 2, -1, 1, 2, -1.5, 2, -1, 3, -1, 2, 2, -0.5, -1, 2, 1, 3, -1,
-  2, -1.5, 2, -1, 1, 2, -1, 2, -0.5, 3, -1, 2, -1, 2, 1,
+const OPEN: Seed[] = [
+  {
+    id: "trd-054",
+    date: "2026-09-05",
+    symbol: "GBPUSD",
+    direction: "LONG",
+    grade: "A",
+    htfTrend: "Uptrend",
+    tradeTrend: "Correction",
+    location: "Discount",
+    resultR: null,
+    status: "ACTIVE",
+    zoneType: "Demand",
+    fresh: true,
+    touchCount: "0",
+    notes: "Aktivní long z diskontu. Čekám na HTF pokračování.",
+  },
+  {
+    id: "trd-055",
+    date: "2026-08-27",
+    symbol: "USDJPY",
+    direction: "SHORT",
+    grade: "B+",
+    htfTrend: "Downtrend",
+    tradeTrend: "Downtrend",
+    location: "Premium",
+    resultR: null,
+    status: "ACTIVE",
+    zoneType: "Supply",
+    fresh: false,
+    touchCount: "1",
+  },
+  {
+    id: "trd-056",
+    date: "2026-09-06",
+    symbol: "EURUSD",
+    direction: "LONG",
+    grade: "A+",
+    htfTrend: "Uptrend",
+    tradeTrend: "Uptrend",
+    location: "Discount",
+    resultR: null,
+    status: "PLANNED",
+    zoneType: "Demand",
+    fresh: true,
+    touchCount: "0",
+    notes: "Plánovaný long. Čekám na Daily close zpátky do zóny.",
+  },
+  {
+    id: "trd-057",
+    date: "2026-08-12",
+    symbol: "GBPCAD",
+    direction: "LONG",
+    grade: "B+",
+    htfTrend: "Correction",
+    tradeTrend: "Consolidation",
+    location: "Discount",
+    resultR: null,
+    status: "IDEA",
+    zoneType: "Demand",
+    fresh: false,
+    touchCount: "1",
+    notes: "Zatím jen nápad. Než plánovat, potřebuje jasnější HTF impulse.",
+  },
 ]
 
-function dateBefore(days: number): string {
-  const date = new Date(Date.UTC(2026, 7, 28))
-  date.setUTCDate(date.getUTCDate() - days)
-  return date.toISOString().slice(0, 10)
-}
-
-function buildRest(): Seed[] {
-  const rest: Seed[] = []
-
-  CLOSED_R.forEach((resultR, index) => {
-    const coverage = CLASS_COVERAGE[index]
-    const symbol = coverage?.symbol ?? SYMBOLS[index % SYMBOLS.length]
-    const direction: TradeDirection = index % 3 === 0 ? "SHORT" : "LONG"
-    const down = direction === "SHORT"
-    const grade = GRADES[index % GRADES.length]
-    const fresh = grade === "A+" || grade === "A"
-    const tested = index % 7 === 0
-
-    rest.push({
-      id: `trd-${String(index + 4).padStart(3, "0")}`,
-      date: dateBefore(index + 4),
-      symbol,
-      direction,
-      grade,
-      htfTrend: down ? TRENDS_DOWN[index % 2] : TRENDS_UP[index % 2],
-      tradeTrend: down ? "Downtrend" : "Uptrend",
-      location: down ? (index % 2 === 0 ? "Premium" : "Top Premium") : index % 2 === 0 ? "Discount" : "Top Discount",
-      resultR,
-      status: "CLOSED",
-      zoneType: down ? "Supply" : "Demand",
-      fresh: fresh && !tested,
-      touchCount: tested ? "2+" : fresh ? "0" : "1",
-      account: coverage?.account ?? ACCOUNTS[index % ACCOUNTS.length],
-    })
-  })
-
-  const open: Seed[] = [
-    {
-      id: "trd-041",
-      date: "2026-08-29",
-      symbol: "GBPUSD",
-      direction: "LONG",
-      grade: "A",
-      htfTrend: "Uptrend",
-      tradeTrend: "Correction",
-      location: "Discount",
-      resultR: null,
-      status: "ACTIVE",
-      zoneType: "Demand",
-      fresh: true,
-      touchCount: "0",
-      notes: "Aktivní long z diskontu. Čekám na HTF pokračování.",
-    },
-    {
-      id: "trd-042",
-      date: "2026-08-27",
-      symbol: "USDJPY",
-      direction: "SHORT",
-      grade: "B+",
-      htfTrend: "Downtrend",
-      tradeTrend: "Downtrend",
-      location: "Premium",
-      resultR: null,
-      status: "ACTIVE",
-      zoneType: "Supply",
-      fresh: false,
-      touchCount: "1",
-    },
-    {
-      id: "trd-043",
-      date: "2026-08-25",
-      symbol: "NZDUSD",
-      direction: "LONG",
-      grade: "A+",
-      htfTrend: "Strong Uptrend",
-      tradeTrend: "Uptrend",
-      location: "Top Discount",
-      resultR: null,
-      status: "ACTIVE",
-      zoneType: "Demand",
-      fresh: true,
-      touchCount: "0",
-    },
-    {
-      id: "trd-044",
-      date: "2026-08-21",
-      symbol: "USDCAD",
-      direction: "SHORT",
-      grade: "A",
-      htfTrend: "Downtrend",
-      tradeTrend: "Transition",
-      location: "Premium",
-      resultR: null,
-      status: "ACTIVE",
-      zoneType: "Supply",
-      fresh: true,
-      touchCount: "0",
-    },
-    {
-      id: "trd-045",
-      date: "2026-08-30",
-      symbol: "EURUSD",
-      direction: "LONG",
-      grade: "A+",
-      htfTrend: "Uptrend",
-      tradeTrend: "Uptrend",
-      location: "Discount",
-      resultR: null,
-      status: "PLANNED",
-      zoneType: "Demand",
-      fresh: true,
-      touchCount: "0",
-      notes: "Plánovaný long. Čekám na Daily close zpátky do zóny.",
-    },
-    {
-      id: "trd-046",
-      date: "2026-08-19",
-      symbol: "AUDNZD",
-      direction: "SHORT",
-      grade: "B",
-      htfTrend: "Consolidation",
-      tradeTrend: "Downtrend",
-      location: "Mid",
-      resultR: null,
-      status: "PLANNED",
-      zoneType: "Supply",
-      fresh: false,
-      touchCount: "2+",
-    },
-    {
-      id: "trd-047",
-      date: "2026-08-18",
-      symbol: "GBPCAD",
-      direction: "LONG",
-      grade: "B+",
-      htfTrend: "Correction",
-      tradeTrend: "Consolidation",
-      location: "Discount",
-      resultR: null,
-      status: "IDEA",
-      zoneType: "Demand",
-      fresh: false,
-      touchCount: "1",
-      notes: "Zatím jen nápad. Než plánovat, potřebuje jasnější HTF impulse.",
-    },
-  ]
-
-  return [...rest, ...open]
-}
-
-export const MOCK_TRADES: Trade[] = [...FEATURED, ...buildRest()].map(fromSeed)
+export const MOCK_TRADES: Trade[] = [...FEATURED, ...MORE_CLOSED, ...OPEN].map(fromSeed)
 
 const MOCK_TRADE_IDS = new Set(MOCK_TRADES.map((trade) => trade.id))
 

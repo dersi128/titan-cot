@@ -4,8 +4,8 @@ import { MOCK_TRADES, isSampleJournal, withoutSampleTrades } from "@/lib/mock-da
 import { filterTrades } from "@/lib/trade-filters"
 
 describe("mock journal seed", () => {
-  it("contains 47 trades including the three examples", () => {
-    expect(MOCK_TRADES).toHaveLength(47)
+  it("contains a mixed sample journal across several months", () => {
+    expect(MOCK_TRADES.length).toBeGreaterThanOrEqual(50)
     expect(MOCK_TRADES[0]).toMatchObject({
       symbol: "AUDUSD",
       direction: "SHORT",
@@ -31,6 +31,16 @@ describe("mock journal seed", () => {
       review: null,
       playbookId: "pb-titan-swing",
     })
+  })
+
+  it("keeps at least 40 Personal trades, mixed results, and several months", () => {
+    const personal = MOCK_TRADES.filter((item) => item.account === "Personal")
+    const closed = personal.filter((item) => item.resultR != null)
+    const months = new Set(closed.map((item) => item.date.slice(0, 7)))
+    expect(personal.length).toBeGreaterThanOrEqual(40)
+    expect(closed.some((item) => (item.resultR ?? 0) > 0)).toBe(true)
+    expect(closed.some((item) => (item.resultR ?? 0) < 0)).toBe(true)
+    expect(months.size).toBeGreaterThanOrEqual(5)
   })
 
   it("seeds mixed asset classes onto Personal trades", () => {

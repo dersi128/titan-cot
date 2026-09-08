@@ -144,12 +144,13 @@ describe("initialCalendarMonth", () => {
     })
   })
 
-  it("opens August 2026 for the mock journal in September", () => {
+  it("opens September 2026 for the mock journal when that month has trades", () => {
     expect(initialCalendarMonth(MOCK_TRADES, "2026-09-03")).toEqual({
       year: 2026,
-      month: 8,
+      month: 9,
     })
-    expect(buildMonthCalendar(MOCK_TRADES, { year: 2026, month: 8 }).tradeCount).toBeGreaterThan(0)
+    expect(buildMonthCalendar(MOCK_TRADES, { year: 2026, month: 9 }).tradeCount).toBeGreaterThan(0)
+    expect(buildMonthCalendar(MOCK_TRADES, { year: 2026, month: 3 }).tradeCount).toBeGreaterThan(0)
   })
 })
 
