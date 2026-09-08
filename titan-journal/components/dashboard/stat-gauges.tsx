@@ -5,14 +5,39 @@ function clamp01(value: number): number {
   return Math.min(1, Math.max(0, value))
 }
 
+function outcomeMix(
+  wins?: number,
+  be?: number,
+  losses?: number
+): { win: number; be: number; loss: number } | null {
+  if (wins == null || be == null || losses == null) return null
+  const total = wins + be + losses
+  if (total <= 0) return null
+  return {
+    win: (wins / total) * 100,
+    be: (be / total) * 100,
+    loss: (losses / total) * 100,
+  }
+}
+
 export function ArcGauge({
   progress,
+  wins,
+  be,
+  losses,
   size = 84,
 }: {
-  progress: number | null
+  progress?: number | null
+  wins?: number
+  be?: number
+  losses?: number
   size?: number
 }) {
+  const mix = outcomeMix(wins, be, losses)
   const p = progress == null ? 0 : clamp01(progress)
+  const winPct = mix ? mix.win : p * 100
+  const bePct = mix ? mix.be : 0
+  const lossPct = mix ? mix.loss : (1 - p) * 100
   const stroke = 9
   const pad = 10
   const r = (size - pad * 2) / 2
@@ -30,6 +55,7 @@ export function ArcGauge({
     `C ${cx + r} ${cy - k} ${cx + k} ${cy - r} ${cx} ${cy - r}`,
     `S ${cx - r} ${cy - k} ${cx - r} ${cy}`,
   ].join(" ")
+  const show = mix != null || progress != null
 
   return (
     <svg
@@ -50,7 +76,7 @@ export function ArcGauge({
         opacity={0.22}
         pathLength={100}
       />
-      {progress != null && p > 0 ? (
+      {show && winPct > 0 ? (
         <path
           d={leftToRight}
           fill="none"
@@ -58,11 +84,22 @@ export function ArcGauge({
           strokeWidth={stroke}
           strokeLinecap="round"
           pathLength={100}
-          strokeDasharray={`${p * 100} 100`}
-          className="titan-gauge-bull"
+          strokeDasharray={`${winPct} 100`}
         />
       ) : null}
-      {progress != null && p < 1 ? (
+      {show && bePct > 0 ? (
+        <path
+          d={leftToRight}
+          fill="none"
+          stroke="var(--chart-4)"
+          strokeWidth={stroke}
+          strokeLinecap="round"
+          pathLength={100}
+          strokeDasharray={`${bePct} 100`}
+          strokeDashoffset={-winPct}
+        />
+      ) : null}
+      {show && lossPct > 0 ? (
         <path
           d={rightToLeft}
           fill="none"
@@ -70,8 +107,7 @@ export function ArcGauge({
           strokeWidth={stroke}
           strokeLinecap="round"
           pathLength={100}
-          strokeDasharray={`${(1 - p) * 100} 100`}
-          className="titan-gauge-bear"
+          strokeDasharray={`${lossPct} 100`}
         />
       ) : null}
     </svg>
@@ -80,16 +116,27 @@ export function ArcGauge({
 
 export function RingGauge({
   progress,
+  wins,
+  be,
+  losses,
   size = 72,
 }: {
-  progress: number | null
+  progress?: number | null
+  wins?: number
+  be?: number
+  losses?: number
   size?: number
 }) {
+  const mix = outcomeMix(wins, be, losses)
   const p = progress == null ? 0 : clamp01(progress)
+  const winPct = mix ? mix.win : p * 100
+  const bePct = mix ? mix.be : 0
+  const lossPct = mix ? mix.loss : (1 - p) * 100
   const stroke = 8
   const cx = size / 2
   const cy = size / 2
   const r = (size - stroke) / 2 - 1
+  const show = mix != null || progress != null
 
   return (
     <svg
@@ -111,7 +158,7 @@ export function RingGauge({
         opacity={0.22}
       />
       <g transform={`translate(${cx} ${cy})`}>
-        {progress != null && p > 0 ? (
+        {show && winPct > 0 ? (
           <circle
             cx={0}
             cy={0}
@@ -121,12 +168,26 @@ export function RingGauge({
             strokeWidth={stroke}
             strokeLinecap="round"
             pathLength={100}
-            strokeDasharray={`${p * 100} 100`}
+            strokeDasharray={`${winPct} 100`}
             transform="rotate(90)"
-            className="titan-gauge-bull"
           />
         ) : null}
-        {progress != null && p < 1 ? (
+        {show && bePct > 0 ? (
+          <circle
+            cx={0}
+            cy={0}
+            r={r}
+            fill="none"
+            stroke="var(--chart-4)"
+            strokeWidth={stroke}
+            strokeLinecap="round"
+            pathLength={100}
+            strokeDasharray={`${bePct} 100`}
+            strokeDashoffset={-winPct}
+            transform="rotate(90)"
+          />
+        ) : null}
+        {show && lossPct > 0 ? (
           <circle
             cx={0}
             cy={0}
@@ -136,9 +197,8 @@ export function RingGauge({
             strokeWidth={stroke}
             strokeLinecap="round"
             pathLength={100}
-            strokeDasharray={`${(1 - p) * 100} 100`}
+            strokeDasharray={`${lossPct} 100`}
             transform="scale(-1, 1) rotate(90)"
-            className="titan-gauge-bear"
           />
         ) : null}
       </g>
@@ -159,14 +219,8 @@ export function SplitBar({
 
   return (
     <div className="flex h-2 w-full overflow-hidden rounded-full bg-muted/80">
-      <span
-        className="h-full bg-bull text-bull titan-gauge-fill"
-        style={{ width: `${winPct}%` }}
-      />
-      <span
-        className="h-full bg-bear text-bear titan-gauge-fill"
-        style={{ width: `${lossPct}%` }}
-      />
+      <span className="h-full bg-bull" style={{ width: `${winPct}%` }} />
+      <span className="h-full bg-bear" style={{ width: `${lossPct}%` }} />
     </div>
   )
 }
@@ -185,7 +239,7 @@ export function OutcomeDots({
       <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-bull/15 px-1.5 text-[10px] font-mono tabular-nums text-bull">
         {wins}
       </span>
-      <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-muted px-1.5 text-[10px] font-mono tabular-nums text-muted-foreground">
+      <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--chart-4)_22%,transparent)] px-1.5 text-[10px] font-mono tabular-nums text-[color:var(--chart-4)]">
         {be}
       </span>
       <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-bear/15 px-1.5 text-[10px] font-mono tabular-nums text-bear">
