@@ -2,6 +2,7 @@
 
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { AppShell } from "@/components/layout/app-shell"
+import { GuideProvider } from "@/components/layout/guide-provider"
 import { WorkspaceChromeProvider } from "@/components/layout/workspace-chrome"
 import { WorkspaceProvider } from "@/components/layout/workspace-provider"
 import { TradesProvider } from "@/components/trades/trades-provider"
@@ -12,7 +13,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <WorkspaceProvider>
         <TradesProvider>
           <WorkspaceChromeProvider>
-            <AppShell>{children}</AppShell>
+            <GuideProvider>
+              <AppShell>{children}</AppShell>
+            </GuideProvider>
           </WorkspaceChromeProvider>
         </TradesProvider>
       </WorkspaceProvider>

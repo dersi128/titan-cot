@@ -9,6 +9,7 @@ import { KpiCards } from "@/components/dashboard/kpi-cards"
 import { RecentTrades } from "@/components/dashboard/recent-trades"
 import { SnapshotRow } from "@/components/dashboard/snapshot-row"
 import { EmptyJournal } from "@/components/layout/empty-journal"
+import { useGuide } from "@/components/layout/guide-provider"
 import { KpiSkeleton, TableSkeleton } from "@/components/layout/loading-state"
 import { PageFrame } from "@/components/layout/page-header"
 import { useScopedTrades } from "@/components/layout/use-scoped-trades"
@@ -51,6 +52,7 @@ const PerformanceBars = dynamic(
 
 export function DashboardPage() {
   const { copy } = useLabels()
+  const { openGuide } = useGuide()
   const { trades, accountTrades, isReady, range, capital, stats, profile } =
     useScopedTrades()
 
@@ -75,14 +77,19 @@ export function DashboardPage() {
               {copy.dashboard.overview[range]}
             </p>
           </div>
-          {accountTrades.length > 0 ? (
-            <Button asChild variant="outline" className="border-primary/60 text-primary">
-              <Link href="/new-trade">
-                <PlusCircle />
-                {copy.nav.newTrade}
-              </Link>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button type="button" variant="ghost" onClick={openGuide}>
+              {copy.guide.open}
             </Button>
-          ) : null}
+            {accountTrades.length > 0 ? (
+              <Button asChild variant="outline" className="border-primary/60 text-primary">
+                <Link href="/new-trade">
+                  <PlusCircle />
+                  {copy.nav.newTrade}
+                </Link>
+              </Button>
+            ) : null}
+          </div>
         </header>
 
         {!isReady ? (

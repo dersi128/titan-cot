@@ -69,6 +69,8 @@ describe("CZ/SK/EN dictionaries", () => {
     expect(labelsFor("en").copy.form.screenshotHint).toContain("paste")
     expect(labelsFor("cs").copy.emptyStart.title).toBe("Tvůj journal je připravený.")
     expect(labelsFor("en").copy.emptyStart.sample).toBe("Show sample journal")
+    expect(labelsFor("cs").copy.guide.skip).toBe("Přeskočit")
+    expect(labelsFor("en").copy.guide.open).toBe("Guide")
     expect(labelsFor("en").copy.calendar.weekdays).toHaveLength(7)
     expect(labelsFor("sk").copy.calendar.weekdays).toHaveLength(7)
   })
