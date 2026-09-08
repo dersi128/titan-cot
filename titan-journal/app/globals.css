@@ -214,6 +214,11 @@
   --bear: #ff6b7d;
   --titan-clear: #ff2d3a;
   --titan-clear-fg: #ffffff;
+  --titan-danger: #ff2d3a;
+  --titan-danger-fg: #ffffff;
+  --titan-danger-bg: #2a0d12;
+  --titan-danger-title: #ffe8ea;
+  --titan-danger-copy: #f0cfd3;
   --asset-forex: #ff2d3a;
   --asset-stock: #9aa8b8;
   --asset-commodity: #3f8f6e;
@@ -273,6 +278,11 @@
   --bear: #c53648;
   --titan-clear: #1a4d80;
   --titan-clear-fg: #ffffff;
+  --titan-danger: #c53648;
+  --titan-danger-fg: #ffffff;
+  --titan-danger-bg: #ffe8eb;
+  --titan-danger-title: #3a1016;
+  --titan-danger-copy: #5a2a32;
   --asset-forex: #2d64a0;
   --asset-stock: #5a7a9a;
   --asset-commodity: #1b8a52;
@@ -332,6 +342,11 @@
   --bear: #ff2d6a;
   --titan-clear: #00e8ff;
   --titan-clear-fg: #05030a;
+  --titan-danger: #ff2d6a;
+  --titan-danger-fg: #ffffff;
+  --titan-danger-bg: #2a0614;
+  --titan-danger-title: #ffe4ef;
+  --titan-danger-copy: #f0c0d0;
   --bg-glow: rgba(255, 47, 185, 0.2);
   --nav-hover: rgba(0, 232, 255, 0.1);
   --nav-active: rgba(255, 47, 185, 0.22);
@@ -384,6 +399,11 @@
   --bear: #ef6b6b;
   --titan-clear: #fff6dc;
   --titan-clear-fg: #0b1220;
+  --titan-danger: #ff6b6b;
+  --titan-danger-fg: #0b1220;
+  --titan-danger-bg: #2a1018;
+  --titan-danger-title: #fff1e4;
+  --titan-danger-copy: #f0d4c4;
   --asset-forex: #e0bc6a;
   --asset-stock: #8eb4d4;
   --asset-commodity: #3f8f6e;
@@ -540,22 +560,99 @@ html[data-density="large"] {
   }
 
   .titan-danger {
-    border: 1px solid color-mix(in srgb, var(--destructive) 45%, transparent);
-    border-radius: 10px;
-    background: color-mix(in srgb, var(--elevated) 90%, var(--destructive));
-    padding: 1.25rem;
-    box-shadow: 0 12px 32px color-mix(in srgb, var(--background) 45%, transparent);
-    backdrop-filter: blur(18px);
+    isolation: isolate;
+    border: 2px solid var(--titan-danger);
+    border-left-width: 8px;
+    border-radius: 12px;
+    background: var(--titan-danger-bg);
+    padding: 1.2rem 1.35rem 1.3rem 1.2rem;
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--titan-danger) 40%, transparent),
+      0 16px 36px color-mix(in srgb, var(--titan-danger) 28%, transparent);
+  }
+
+  .titan-danger-kicker {
+    margin: 0;
+    color: var(--titan-danger);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .titan-danger-title {
+    margin: 0.4rem 0 0;
+    color: var(--titan-danger-title);
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+
+  .titan-danger-hint {
+    margin: 0.4rem 0 0;
+    max-width: 40rem;
+    color: var(--titan-danger-copy);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+  }
+
+  .titan-danger-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 0.9rem;
+    min-height: 2.35rem;
+    padding: 0 1rem;
+    border: 2px solid var(--titan-danger);
+    border-radius: 8px;
+    background: var(--titan-danger);
+    color: var(--titan-danger-fg);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .titan-danger-btn:hover {
+    filter: brightness(1.08);
+  }
+
+  .titan-danger-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+    filter: none;
+  }
+
+  .titan-danger-confirm {
+    margin-top: 0.9rem;
+    max-width: 20rem;
+  }
+
+  .titan-danger-confirm .titan-danger-btn {
+    margin-top: 0;
+  }
+
+  .titan-danger-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  .titan-danger-input {
+    border-color: color-mix(in srgb, var(--titan-danger) 55%, transparent) !important;
+    background: color-mix(in srgb, var(--titan-danger-bg) 70%, #000) !important;
+    color: var(--titan-danger-title) !important;
+  }
+
+  html[data-theme="light"] .titan-danger-input {
+    background: #fff !important;
+    color: var(--titan-danger-title) !important;
   }
 
   html[data-theme="light"] .titan-action-bar {
     background: color-mix(in srgb, var(--elevated) 96%, #fff);
     box-shadow: 0 8px 20px rgba(28, 36, 48, 0.12);
-  }
-
-  html[data-theme="light"] .titan-danger {
-    background: color-mix(in srgb, #fff 86%, #f4cfd4);
-    box-shadow: 0 8px 20px rgba(28, 36, 48, 0.1);
   }
 
   .titan-seg {
