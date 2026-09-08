@@ -787,6 +787,15 @@ html[data-density="large"] {
     box-shadow: inset 0 1px 0 color-mix(in srgb, var(--foreground) 4%, transparent);
   }
 
+  .titan-gauge-fill {
+    filter: drop-shadow(0 0 8px currentColor);
+  }
+
+  span.titan-gauge-fill {
+    filter: none;
+    box-shadow: 0 0 10px currentColor;
+  }
+
   html[data-theme="light"] .titan-glass,
   html[data-theme="light"] .titan-kpi {
     background: color-mix(in srgb, var(--surface) 94%, #fff);

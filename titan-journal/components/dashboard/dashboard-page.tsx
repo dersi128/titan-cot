@@ -95,7 +95,12 @@ export function DashboardPage() {
           <EmptyJournal />
         ) : (
           <>
-            <KpiCards stats={stats} dense drawdown={drawdown} />
+            <KpiCards
+              stats={stats}
+              dense
+              drawdown={drawdown}
+              currency={profile.currency}
+            />
             <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1.85fr)_minmax(220px,0.72fr)]">
               <EquityCurve data={equity} />
               <MarketDistribution trades={trades} currency={profile.currency} />

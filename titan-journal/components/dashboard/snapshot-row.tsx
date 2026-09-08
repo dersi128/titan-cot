@@ -55,13 +55,13 @@ export function SnapshotRow({
         <p className="text-[11px] font-medium text-muted-foreground">
           {copy.dashboard.profitVsLoss}
         </p>
-        <div className="mt-2 flex h-2 overflow-hidden rounded-full bg-muted">
+        <div className="mt-2 flex h-2 overflow-hidden rounded-full bg-muted/80">
           <span
-            className="h-full bg-bull"
+            className="h-full bg-bull text-bull titan-gauge-fill"
             style={{ width: `${winPct}%` }}
           />
           <span
-            className="h-full bg-bear"
+            className="h-full bg-bear text-bear titan-gauge-fill"
             style={{ width: `${lossPct}%` }}
           />
         </div>
