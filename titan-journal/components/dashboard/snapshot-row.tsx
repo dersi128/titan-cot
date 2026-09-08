@@ -57,11 +57,11 @@ export function SnapshotRow({
         </p>
         <div className="mt-2 flex h-2 overflow-hidden rounded-full bg-muted/80">
           <span
-            className="h-full bg-bull text-bull titan-gauge-fill"
+            className="h-full bg-bull"
             style={{ width: `${winPct}%` }}
           />
           <span
-            className="h-full bg-bear text-bear titan-gauge-fill"
+            className="h-full bg-bear"
             style={{ width: `${lossPct}%` }}
           />
         </div>

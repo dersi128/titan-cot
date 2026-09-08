@@ -43,7 +43,7 @@ export function KpiCards({
           </p>
           <OutcomeDots wins={stats.wins} be={stats.be} losses={stats.losses} />
         </div>
-        <ArcGauge progress={wr} />
+        <ArcGauge progress={wr} wins={stats.wins} be={stats.be} losses={stats.losses} />
       </article>
 
       <article className="titan-kpi flex items-center justify-between gap-3 rounded-[10px] px-3 py-2.5">
@@ -61,7 +61,12 @@ export function KpiCards({
           </p>
           <OutcomeDots wins={stats.wins} be={stats.be} losses={stats.losses} />
         </div>
-        <RingGauge progress={pf == null ? null : pf / 2} />
+        <RingGauge
+          progress={pf == null ? null : pf / 2}
+          wins={stats.wins}
+          be={stats.be}
+          losses={stats.losses}
+        />
       </article>
 
       <article className="titan-kpi flex items-center justify-between gap-3 overflow-visible rounded-[10px] px-3 py-2.5">
@@ -79,7 +84,12 @@ export function KpiCards({
           </p>
           <OutcomeDots wins={stats.wins} be={stats.be} losses={stats.losses} />
         </div>
-        <ArcGauge progress={avg == null ? null : (avg + 2) / 4} />
+        <ArcGauge
+          progress={avg == null ? null : (avg + 2) / 4}
+          wins={stats.wins}
+          be={stats.be}
+          losses={stats.losses}
+        />
       </article>
 
       <article className="titan-kpi rounded-[10px] px-3 py-2.5">
