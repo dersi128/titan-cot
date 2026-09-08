@@ -26,7 +26,7 @@ const STEPS = [
   {
     id: "overview",
     href: "/dashboard",
-    targets: ["overview", "equity", "overview-head", "overview-nav"],
+    targets: ["range", "overview", "equity", "overview-head", "overview-nav"],
     icon: LayoutDashboard,
   },
   {
@@ -139,6 +139,21 @@ function GuideMiniVisual({ step }: { step: GuideStepId }) {
   if (step === "overview") {
     return (
       <div className="grid grid-cols-4 gap-1.5">
+        <div className="col-span-4 flex justify-end gap-1">
+          {["30D", "3M", "ALL"].map((label, index) => (
+            <span
+              key={label}
+              className={cn(
+                "rounded-md px-1.5 py-0.5 text-[9px] font-semibold",
+                index === 0
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted/70 text-muted-foreground"
+              )}
+            >
+              {label}
+            </span>
+          ))}
+        </div>
         {["WR", "P&L", "R", "PF"].map((label) => (
           <div key={label} className="rounded-lg bg-muted/60 px-1 py-2 text-center">
             <div className="mx-auto h-7 w-7 rounded-full border border-primary/40" />
