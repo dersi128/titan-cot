@@ -70,6 +70,9 @@ describe("computeDashboardStats", () => {
 
     expect(computeDashboardStats(reviewed)).toEqual(baseline)
     expect(baseline.closedTrades).toBeGreaterThan(0)
+    expect(baseline.wins + baseline.losses + baseline.be).toBe(baseline.closedTrades)
+    expect(baseline.grossProfit).toBeGreaterThanOrEqual(0)
+    expect(baseline.grossLoss).toBeGreaterThanOrEqual(0)
   })
 })
 

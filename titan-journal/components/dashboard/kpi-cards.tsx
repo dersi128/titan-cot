@@ -1,7 +1,9 @@
 "use client"
 
+import { ArcGauge, OutcomeDots, RingGauge, SplitBar } from "@/components/dashboard/stat-gauges"
 import {
   formatNumber,
+  formatSignedMoney,
   formatSignedPercentPoints,
   formatSignedR,
   formatSignedUsd,
@@ -20,24 +22,19 @@ function Metric({
   label,
   value,
   className,
-  dense = false,
 }: {
   label: string
   value: string
   className?: string
-  dense?: boolean
 }) {
   return (
-    <article
-      className={cn("titan-kpi rounded-[10px]", dense ? "px-3 py-2.5" : "px-4 py-3")}
-    >
+    <article className="titan-kpi rounded-[10px] px-3 py-2.5">
       <p className="text-[11px] font-medium tracking-wide text-muted-foreground">
         {label}
       </p>
       <p
         className={cn(
-          "font-mono font-medium tracking-tight tabular-nums",
-          dense ? "mt-1 text-[18px]" : "mt-1.5 text-[18px]",
+          "mt-1 font-mono text-[18px] font-medium tracking-tight tabular-nums",
           className
         )}
       >
@@ -51,92 +48,128 @@ export function KpiCards({
   stats,
   dense = false,
   drawdown,
+  currency,
 }: {
   stats: DashboardStats
   dense?: boolean
   drawdown?: number | null
+  currency?: string
 }) {
   const { copy } = useLabels()
-  const sixth =
-    drawdown !== undefined ? (
-      <Metric
-        label={copy.dashboard.maxDrawdown}
-        value={drawdown == null ? "—" : formatSignedPercentPoints(drawdown * 100)}
-        className={signedClassName(drawdown)}
-        dense={dense}
-      />
-    ) : (
-      <Metric
-        label={copy.dashboard.totalTrades}
-        value={String(stats.totalTrades)}
-        dense={dense}
-      />
-    )
-
-  if (dense) {
-    return (
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
-        <Metric
-          label={copy.dashboard.netPnl}
-          value={formatSignedUsd(stats.netPnl)}
-          className={signedClassName(stats.netPnl)}
-          dense
-        />
-        <Metric
-          label={copy.dashboard.totalR}
-          value={formatSignedR(stats.totalR)}
-          className={signedClassName(stats.totalR)}
-          dense
-        />
-        <Metric label={copy.dashboard.winRate} value={compactPercent(stats.winRate)} dense />
-        <Metric
-          label={copy.dashboard.profitFactor}
-          value={formatNumber(stats.profitFactor)}
-          className={signedClassName(
-            stats.profitFactor == null ? null : stats.profitFactor - 1
-          )}
-          dense
-        />
-        <Metric
-          label={copy.dashboard.averageR}
-          value={formatSignedR(stats.averageR)}
-          className={signedClassName(stats.averageR)}
-          dense
-        />
-        {sixth}
-      </div>
-    )
-  }
+  const wr = stats.winRate
+  const pf = stats.profitFactor
+  const avg = stats.averageR
+  const money = (value: number) =>
+    currency ? formatSignedMoney(value, currency) : formatSignedUsd(value)
 
   return (
-    <div className="space-y-3">
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Metric
-          label={copy.dashboard.netPnl}
-          value={formatSignedUsd(stats.netPnl)}
-          className={signedClassName(stats.netPnl)}
-        />
+    <div className="space-y-2">
+      <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+        <article className="titan-kpi flex items-center justify-between gap-3 rounded-[10px] px-3 py-2.5">
+          <div className="min-w-0">
+            <p className="text-[11px] font-medium tracking-wide text-muted-foreground">
+              {copy.dashboard.winRate}
+            </p>
+            <p className="mt-1 font-mono text-[20px] font-medium tabular-nums">
+              {compactPercent(wr)}
+            </p>
+            <OutcomeDots wins={stats.wins} be={stats.be} losses={stats.losses} />
+          </div>
+          <ArcGauge
+            progress={wr}
+            color={wr != null && wr >= 0.5 ? "var(--bull)" : "var(--bear)"}
+            caption={compactPercent(wr)}
+          />
+        </article>
+
+        <article className="titan-kpi flex items-center justify-between gap-3 rounded-[10px] px-3 py-2.5">
+          <div className="min-w-0">
+            <p className="text-[11px] font-medium tracking-wide text-muted-foreground">
+              {copy.dashboard.profitFactor}
+            </p>
+            <p
+              className={cn(
+                "mt-1 font-mono text-[20px] font-medium tabular-nums",
+                signedClassName(pf == null ? null : pf - 1)
+              )}
+            >
+              {formatNumber(pf)}
+            </p>
+            <OutcomeDots wins={stats.wins} be={stats.be} losses={stats.losses} />
+          </div>
+          <RingGauge
+            progress={pf == null ? null : pf / 2}
+            color={pf != null && pf >= 1 ? "var(--bull)" : "var(--bear)"}
+            caption={formatNumber(pf)}
+          />
+        </article>
+
+        <article className="titan-kpi flex items-center justify-between gap-3 rounded-[10px] px-3 py-2.5">
+          <div className="min-w-0">
+            <p className="text-[11px] font-medium tracking-wide text-muted-foreground">
+              {copy.dashboard.averageR}
+            </p>
+            <p
+              className={cn(
+                "mt-1 font-mono text-[20px] font-medium tabular-nums",
+                signedClassName(avg)
+              )}
+            >
+              {formatSignedR(avg)}
+            </p>
+            <OutcomeDots wins={stats.wins} be={stats.be} losses={stats.losses} />
+          </div>
+          <ArcGauge
+            progress={avg == null ? null : (avg + 2) / 4}
+            color={avg != null && avg >= 0 ? "var(--bull)" : "var(--bear)"}
+            caption={formatSignedR(avg)}
+          />
+        </article>
+
+        <article className="titan-kpi rounded-[10px] px-3 py-2.5">
+          <p className="text-[11px] font-medium tracking-wide text-muted-foreground">
+            {copy.dashboard.netPnl}
+          </p>
+          <p
+            className={cn(
+              "mt-1 font-mono text-[20px] font-medium tabular-nums",
+              signedClassName(stats.netPnl)
+            )}
+          >
+            {money(stats.netPnl)}
+          </p>
+          <div className="mt-3">
+            <SplitBar profit={stats.grossProfit} loss={stats.grossLoss} />
+          </div>
+          <div className="mt-2 flex items-center justify-between text-[11px] font-mono tabular-nums">
+            <span className="text-bull">{money(stats.grossProfit)}</span>
+            <span className="text-bear">{money(-stats.grossLoss)}</span>
+          </div>
+        </article>
+      </div>
+
+      <div className={cn("grid gap-2", dense ? "grid-cols-3" : "grid-cols-2 sm:grid-cols-3")}>
         <Metric
           label={copy.dashboard.totalR}
           value={formatSignedR(stats.totalR)}
           className={signedClassName(stats.totalR)}
         />
-      </div>
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Metric label={copy.dashboard.winRate} value={compactPercent(stats.winRate)} />
         <Metric
-          label={copy.dashboard.profitFactor}
-          value={formatNumber(stats.profitFactor)}
-          className={signedClassName(
-            stats.profitFactor == null ? null : stats.profitFactor - 1
-          )}
+          label={copy.dashboard.totalTrades}
+          value={String(stats.closedTrades)}
         />
-        <Metric
-          label={copy.dashboard.averageR}
-          value={formatSignedR(stats.averageR)}
-          className={signedClassName(stats.averageR)}
-        />
-        <Metric label={copy.dashboard.totalTrades} value={String(stats.totalTrades)} />
+        {drawdown !== undefined ? (
+          <Metric
+            label={copy.dashboard.maxDrawdown}
+            value={drawdown == null ? "—" : formatSignedPercentPoints(drawdown * 100)}
+            className={signedClassName(drawdown)}
+          />
+        ) : (
+          <Metric
+            label={copy.dashboard.totalTrades}
+            value={String(stats.totalTrades)}
+          />
+        )}
       </div>
     </div>
   )

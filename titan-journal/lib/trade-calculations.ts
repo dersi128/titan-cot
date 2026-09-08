@@ -60,6 +60,11 @@ export type DashboardStats = {
   averageR: number | null
   totalTrades: number
   closedTrades: number
+  wins: number
+  losses: number
+  be: number
+  grossProfit: number
+  grossLoss: number
 }
 
 export function computeDashboardStats(trades: Trade[]): DashboardStats {
@@ -72,6 +77,7 @@ export function computeDashboardStats(trades: Trade[]): DashboardStats {
 
   const winners = closed.filter((trade) => tradeOutcome(trade) === "WIN")
   const losers = closed.filter((trade) => tradeOutcome(trade) === "LOSS")
+  const be = closed.filter((trade) => tradeOutcome(trade) === "BE").length
   const decided = winners.length + losers.length
 
   const grossProfit = winners.reduce(
@@ -90,6 +96,11 @@ export function computeDashboardStats(trades: Trade[]): DashboardStats {
     averageR: decided > 0 ? totalR / decided : null,
     totalTrades: trades.length,
     closedTrades: closed.length,
+    wins: winners.length,
+    losses: losers.length,
+    be,
+    grossProfit: Math.round(grossProfit * 100) / 100,
+    grossLoss: Math.round(grossLoss * 100) / 100,
   }
 }
 
