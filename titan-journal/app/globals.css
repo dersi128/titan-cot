@@ -402,7 +402,7 @@
   --sidebar-accent-alt: #e0bc6a;
   --sidebar-accent-soft: rgba(224, 188, 106, 0.16);
   --sidebar-glow: rgba(224, 188, 106, 0.36);
-  --bg-scene: url("/backgrounds/gold.webp");
+  --bg-scene: url("/backgrounds/gold.webp?v=2");
 }
 
 :root,
