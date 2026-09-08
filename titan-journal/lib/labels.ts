@@ -463,9 +463,9 @@ export const copyEn = {
     sampleSafe: "Sample data does not change your real trades.",
     overviewTitle: "Overview",
     overviewLead:
-      "Start here: navigation on the left, accounts on top. The cards show Win Rate, P&L, average R, and Profit Factor. The Equity Curve is the account over time.",
+      "Start here: navigation on the left, accounts and period on top. The cards follow that period — 30 days, 3 months, year, or all time. They show Win Rate, P&L, average R, and Profit Factor. The Equity Curve uses the same window.",
     overviewMeaning:
-      "Win Rate is the share of wins. Average R is the result in risk units. Profit Factor is wins versus losses. The curve shows whether the book is growing.",
+      "Win Rate is wins ÷ (wins + losses). Breakeven under 0.5R is not in the rate. Overview uses the period on top. Journal shows the whole account unless you filter there.",
     profileTitle: "Profile and accounts",
     profileLead:
       "Set capital and risk per trade on Profile. Personal, Prop, and Backtesting are three separate books — switch them at the top.",
@@ -478,9 +478,9 @@ export const copyEn = {
       "Manual notes are for review. Import fills history. A broker import does not overwrite trades you already have.",
     journalTitle: "Journal and review",
     journalLead:
-      "History, filters, and the calendar. On a trade you add a screenshot, a note, emotion, mistakes, and whether you followed the plan.",
+      "Full history for this account, filters, and the calendar. These stats ignore the period on top. On a trade you add a screenshot, a note, emotion, mistakes, and whether you followed the plan.",
     journalMeaning:
-      "Review turns a fill into statistics. Without emotion, mistakes, and the plan, Analytics cannot show where you leak.",
+      "Review turns a fill into statistics. Without emotion, mistakes, and the plan, Analytics cannot show where you leak. If Overview and Journal Win Rate differ, check the period on top.",
     playbookTitle: "Playbook",
     playbookLead:
       "Write the strategy and setup once. Link each trade to them, then the Journal scores which setup works.",
@@ -954,9 +954,9 @@ export const copyCs: Copy = {
     sampleSafe: "Ukázka nepřepíše tvoje skutečné obchody.",
     overviewTitle: "Přehled",
     overviewLead:
-      "Tady začíná Journal: menu vlevo, nahoře účty. Karty ukazují Win Rate, P&L, průměrné R a Profit Factor. Equity Curve je vývoj účtu.",
+      "Tady začíná Journal: menu vlevo, nahoře účty a období. Karty berou právě to období — 30 dní, 3 měsíce, rok nebo vše. Ukazují Win Rate, P&L, průměrné R a Profit Factor. Equity Curve je vývoj za stejné okno.",
     overviewMeaning:
-      "Win Rate je podíl výher. Průměrné R je výsledek v jednotkách rizika. Profit Factor je součet výher ku ztrátám. Křivka ukáže, jestli účet roste.",
+      "Win Rate je výhry ÷ (výhry + prohry). BE pod 0,5R se do něj nepočítá. Přehled bere období nahoře. Deník ukazuje celý účet, dokud tam nic nefiltruješ.",
     profileTitle: "Profil a účty",
     profileLead:
       "V Profilu nastavíš kapitál a riziko na obchod. Osobní, Prop a Backtesting jsou tři oddělené knihy — nahoře je přepneš.",
@@ -969,9 +969,9 @@ export const copyCs: Copy = {
       "Ruční zápis je na review. Import doplní historii. Existující obchody se při importu z reportu nemění.",
     journalTitle: "Deník a review",
     journalLead:
-      "Historie, filtry a kalendář. U obchodu doplníš screenshot, poznámku, emoci, chyby a jestli jsi dodržel plán.",
+      "Historie celého účtu, filtry a kalendář. Tyto statistiky nahoře období neberou. U obchodu doplníš screenshot, poznámku, emoci, chyby a jestli jsi dodržel plán.",
     journalMeaning:
-      "Review z obchodu dělá statistiku. Bez emocí, chyb a plánu Analýzy neuvidí, kde ztrácíš.",
+      "Review z obchodu dělá statistiku. Bez emocí, chyb a plánu Analýzy neuvidí, kde ztrácíš. Když se Win Rate na Přehledu a v Deníku neshoduje, je to kvůli období nahoře.",
     playbookTitle: "Playbook",
     playbookLead:
       "Strategii a setup napíšeš jednou. Obchod na ně napojíš a Journal pak spočítá, který setup funguje.",
@@ -1443,9 +1443,9 @@ export const copySk: Copy = {
     sampleSafe: "Ukážka neprepíše tvoje skutočné obchody.",
     overviewTitle: "Prehľad",
     overviewLead:
-      "Tu začína Journal: menu vľavo, hore účty. Karty ukazujú Win Rate, P&L, priemerné R a Profit Factor. Equity Curve je vývoj účtu.",
+      "Tu začína Journal: menu vľavo, hore účty a obdobie. Karty berú práve to obdobie — 30 dní, 3 mesiace, rok alebo všetko. Ukazujú Win Rate, P&L, priemerné R a Profit Factor. Equity Curve je vývoj za rovnaké okno.",
     overviewMeaning:
-      "Win Rate je podiel výhier. Priemerné R je výsledok v jednotkách rizika. Profit Factor je súčet výhier ku stratám. Krivka ukáže, či účet rastie.",
+      "Win Rate je výhry ÷ (výhry + prehry). BE pod 0,5R sa doň nepočíta. Prehľad berie obdobie hore. Denník ukazuje celý účet, kým tam nič nefiltruješ.",
     profileTitle: "Profil a účty",
     profileLead:
       "V Profile nastavíš kapitál a riziko na obchod. Osobný, Prop a Backtesting sú tri oddelené knihy — hore ich prepneš.",
@@ -1458,9 +1458,9 @@ export const copySk: Copy = {
       "Ručný zápis je na review. Import doplní históriu. Existujúce obchody sa pri importe z reportu nemenia.",
     journalTitle: "Denník a review",
     journalLead:
-      "História, filtre a kalendár. Pri obchode doplníš screenshot, poznámku, emóciu, chyby a či si dodržal plán.",
+      "História celého účtu, filtre a kalendár. Tieto štatistiky hore obdobie neberú. Pri obchode doplníš screenshot, poznámku, emóciu, chyby a či si dodržal plán.",
     journalMeaning:
-      "Review z obchodu robí štatistiku. Bez emócií, chýb a plánu Analýzy neuvidia, kde strácaš.",
+      "Review z obchodu robí štatistiku. Bez emócií, chýb a plánu Analýzy neuvidia, kde strácaš. Keď sa Win Rate na Prehľade a v Denníku nezhoduje, je to kvôli obdobiu hore.",
     playbookTitle: "Playbook",
     playbookLead:
       "Stratégiu a setup napíšeš raz. Obchod na ne napojíš a Journal potom spočíta, ktorý setup funguje.",
