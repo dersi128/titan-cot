@@ -150,7 +150,7 @@
   --secondary: #1b1b1f;
   --secondary-foreground: #f4f4f5;
   --muted: #1b1b1f;
-  --muted-foreground: #9a9aa6;
+  --muted-foreground: #c5c5d0;
   --accent: #1b1b1f;
   --accent-foreground: #f4f4f5;
   --destructive: #ff5a78;
@@ -477,6 +477,38 @@ html[data-density="large"] {
     border-bottom: 1px solid var(--sidebar-border);
     background: color-mix(in srgb, var(--sidebar) 72%, transparent);
     backdrop-filter: blur(16px);
+  }
+
+  .titan-action-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--elevated) 94%, var(--background));
+    padding: 0.35rem 0.45rem;
+    box-shadow: 0 10px 28px color-mix(in srgb, var(--background) 42%, transparent);
+    backdrop-filter: blur(18px);
+  }
+
+  .titan-danger {
+    border: 1px solid color-mix(in srgb, var(--destructive) 45%, transparent);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--elevated) 90%, var(--destructive));
+    padding: 1.25rem;
+    box-shadow: 0 12px 32px color-mix(in srgb, var(--background) 45%, transparent);
+    backdrop-filter: blur(18px);
+  }
+
+  html[data-theme="light"] .titan-action-bar {
+    background: color-mix(in srgb, var(--elevated) 96%, #fff);
+    box-shadow: 0 8px 20px rgba(28, 36, 48, 0.12);
+  }
+
+  html[data-theme="light"] .titan-danger {
+    background: color-mix(in srgb, #fff 86%, #f4cfd4);
+    box-shadow: 0 8px 20px rgba(28, 36, 48, 0.1);
   }
 
   .titan-seg {
@@ -853,7 +885,7 @@ html[data-density="large"] {
 
   html[data-theme="cyberpunk"] .titan-glass,
   html[data-theme="cyberpunk"] .titan-kpi {
-    background: color-mix(in srgb, var(--surface) 76%, transparent);
+    background: color-mix(in srgb, var(--surface) 90%, #05030a);
     border-color: rgba(255, 47, 185, 0.28);
     box-shadow:
       0 10px 32px rgba(8, 0, 18, 0.5),
@@ -862,7 +894,7 @@ html[data-density="large"] {
   }
 
   html[data-theme="cyberpunk"] .titan-topbar {
-    background: color-mix(in srgb, var(--sidebar) 70%, transparent);
+    background: color-mix(in srgb, var(--sidebar) 88%, #05030a);
     border-bottom-color: rgba(0, 232, 255, 0.22);
   }
 
@@ -873,17 +905,17 @@ html[data-density="large"] {
 
   html[data-theme="dark"] .titan-glass,
   html[data-theme="dark"] .titan-kpi {
-    background: color-mix(in srgb, var(--surface) 78%, transparent);
-    border-color: rgba(75, 188, 255, 0.32);
+    background: color-mix(in srgb, var(--surface) 92%, #050505);
+    border-color: rgba(255, 45, 58, 0.32);
     box-shadow:
-      0 10px 28px rgba(0, 6, 18, 0.48),
-      0 0 0 1px rgba(75, 188, 255, 0.08),
-      inset 0 1px 0 rgba(160, 220, 255, 0.14);
+      0 12px 32px rgba(0, 0, 0, 0.55),
+      0 0 0 1px rgba(255, 45, 58, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
   }
 
   html[data-theme="dark"] .titan-topbar {
-    background: color-mix(in srgb, var(--sidebar) 70%, transparent);
-    border-color: rgba(75, 188, 255, 0.2);
+    background: color-mix(in srgb, var(--sidebar) 88%, #050505);
+    border-color: rgba(255, 45, 58, 0.22);
   }
 
   html[data-theme="dark"] .titan-sidebar {
@@ -897,7 +929,7 @@ html[data-density="large"] {
 
   html[data-theme="gold"] .titan-glass,
   html[data-theme="gold"] .titan-kpi {
-    background: color-mix(in srgb, var(--surface) 78%, transparent);
+    background: color-mix(in srgb, var(--surface) 90%, #070b14);
     border-color: rgba(224, 188, 106, 0.38);
     box-shadow:
       0 10px 28px rgba(0, 4, 16, 0.48),
@@ -906,7 +938,7 @@ html[data-density="large"] {
   }
 
   html[data-theme="gold"] .titan-topbar {
-    background: color-mix(in srgb, var(--sidebar) 70%, transparent);
+    background: color-mix(in srgb, var(--sidebar) 88%, #070b14);
     border-bottom-color: rgba(224, 188, 106, 0.26);
   }
 

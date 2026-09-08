@@ -45,10 +45,10 @@ function BackupSection() {
       <h2 className="text-sm font-semibold">{copy.settings.backup}</h2>
       <p className="text-[12px] text-muted-foreground">{copy.settings.backupHint}</p>
       <div className="flex flex-wrap gap-2">
-        <Button type="button" variant="outline" size="sm" onClick={exportJournal}>
+        <Button type="button" variant="outline" size="sm" className="bg-elevated" onClick={exportJournal}>
           {copy.settings.exportJournal}
         </Button>
-        <Button type="button" variant="outline" size="sm" onClick={importer.pick}>
+        <Button type="button" variant="outline" size="sm" className="bg-elevated" onClick={importer.pick}>
           {copy.settings.importJournal}
         </Button>
         {importer.fileInput}

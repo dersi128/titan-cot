@@ -45,7 +45,7 @@ export function EmptyJournal() {
         <Button asChild>
           <Link href="/new-trade">{copy.emptyStart.cta}</Link>
         </Button>
-        <Button type="button" variant="outline" onClick={importer.pick}>
+        <Button type="button" variant="outline" className="bg-elevated" onClick={importer.pick}>
           {copy.journal.importReport}
         </Button>
         {importer.fileInput}
@@ -70,11 +70,11 @@ export function SampleBanner() {
   if (!isSampleJournal(trades)) return null
 
   return (
-    <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-[8px] border border-primary/30 bg-primary/8 px-3 py-2 text-[12px]">
-      <p className="text-foreground/90">{copy.emptyStart.sampleBanner}</p>
+    <div className="titan-action-bar mb-3 w-full justify-between px-3 py-2 text-[12px]">
+      <p className="text-foreground">{copy.emptyStart.sampleBanner}</p>
       <Button
         type="button"
-        variant="ghost"
+        variant="outline"
         size="sm"
         className="h-7 text-[12px]"
         onClick={() => replaceAll([])}

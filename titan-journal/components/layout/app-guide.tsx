@@ -183,7 +183,7 @@ export function AppGuide({
                       {copy.emptyStart.cta}
                     </Link>
                   </Button>
-                  <Button type="button" variant="outline" onClick={importer.pick}>
+                  <Button type="button" variant="outline" className="bg-elevated" onClick={importer.pick}>
                     {copy.journal.importReport}
                   </Button>
                   {importer.fileInput}
