@@ -437,8 +437,7 @@ export const copyEn = {
     riskMoneyHint: "1R in money",
     riskPercent: "Risk %",
     riskHint: "1R per trade",
-    riskWhy:
-      "If you sometimes move SL to BE, R is recalculated from PnL using this account's capital and risk.",
+    riskWhy: "If you use BE, PnL is converted to R from capital and risk.",
     markets: "Markets I trade",
     save: "Save Profile",
   },
@@ -948,8 +947,7 @@ export const copyCs: Copy = {
     riskMoneyHint: "1R v penězích",
     riskPercent: "Riziko %",
     riskHint: "1R na obchod",
-    riskWhy:
-      "Pokud dáváš SL někdy na BE, R se přepočítá z PnL podle kapitálu a rizika na účtu.",
+    riskWhy: "Pokud používáš BE, PnL se počítá na R podle kapitálu a rizika.",
     markets: "Trhy, které obchoduji",
     save: "Uložit profil",
   },
@@ -1457,8 +1455,7 @@ export const copySk: Copy = {
     riskMoneyHint: "1R v peniazoch",
     riskPercent: "Riziko %",
     riskHint: "1R na obchod",
-    riskWhy:
-      "Ak dávaš SL niekedy na BE, R sa prepočíta z PnL podľa kapitálu a rizika na účte.",
+    riskWhy: "Ak používaš BE, PnL sa počíta na R podľa kapitálu a rizika.",
     markets: "Trhy, ktoré obchodujem",
     save: "Uložiť profil",
   },
