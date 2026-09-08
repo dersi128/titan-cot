@@ -95,7 +95,7 @@ export function EquityCurve({
   const dataKey: EquityMetric = metric
 
   return (
-    <Card size="sm" className="h-full min-h-[260px] gap-0 py-0">
+    <Card size="sm" className="gap-0 py-0">
       <CardHeader className="shrink-0 border-b border-border py-2">
         <div className="flex flex-wrap items-center justify-between gap-1.5">
           <CardTitle>{copy.dashboard.equityCurve}</CardTitle>
@@ -109,14 +109,14 @@ export function EquityCurve({
           />
         </div>
       </CardHeader>
-      <CardContent className="flex min-h-0 flex-1 flex-col pt-2 pb-2">
-        <div className="min-h-[220px] flex-1">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={chart} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
+      <CardContent className="pt-2 pb-2">
+        <div className="h-[220px] w-full">
+          <ResponsiveContainer width="100%" height={220}>
+            <AreaChart data={chart} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="equityFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.28} />
-                  <stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0} />
+                  <stop offset="0%" stopColor="var(--bull)" stopOpacity={0.35} />
+                  <stop offset="100%" stopColor="var(--bull)" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid stroke="var(--border)" vertical={false} />
@@ -140,17 +140,18 @@ export function EquityCurve({
                 }}
               />
               <Tooltip
-                cursor={{ stroke: "var(--chart-1)", strokeWidth: 1 }}
+                cursor={{ stroke: "var(--bull)", strokeWidth: 1 }}
                 content={<EquityTooltip metric={metric} />}
               />
               <Area
                 type="monotone"
                 dataKey={dataKey}
-                stroke="var(--chart-1)"
+                stroke="var(--bull)"
                 fill="url(#equityFill)"
-                strokeWidth={1.75}
+                strokeWidth={2.5}
                 dot={false}
-                activeDot={{ r: 3, fill: "var(--chart-1)", strokeWidth: 0 }}
+                activeDot={{ r: 4, fill: "var(--bull)", strokeWidth: 0 }}
+                isAnimationActive={false}
               />
             </AreaChart>
           </ResponsiveContainer>
