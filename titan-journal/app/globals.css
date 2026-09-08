@@ -132,6 +132,20 @@
   }
 }
 
+@keyframes titan-clear-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--titan-clear) 28%, transparent),
+      0 8px 18px color-mix(in srgb, var(--background) 35%, transparent);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--titan-clear) 70%, transparent),
+      0 0 16px 1px color-mix(in srgb, var(--titan-clear) 38%, transparent);
+  }
+}
+
 @keyframes titan-save-glow {
   0%,
   100% {
@@ -197,6 +211,7 @@
   --sidebar-ring: #ff2d3a;
   --bull: #3aefab;
   --bear: #ff6b7d;
+  --titan-clear: #ff2d3a;
   --asset-forex: #ff2d3a;
   --asset-stock: #9aa8b8;
   --asset-commodity: #3f8f6e;
@@ -254,6 +269,7 @@
   --sidebar-ring: #2d64a0;
   --bull: #1b8a52;
   --bear: #c53648;
+  --titan-clear: #2d64a0;
   --asset-forex: #2d64a0;
   --asset-stock: #5a7a9a;
   --asset-commodity: #1b8a52;
@@ -311,6 +327,7 @@
   --sidebar-ring: #00e8ff;
   --bull: #39ff88;
   --bear: #ff2d6a;
+  --titan-clear: #00e8ff;
   --bg-glow: rgba(255, 47, 185, 0.2);
   --nav-hover: rgba(0, 232, 255, 0.1);
   --nav-active: rgba(255, 47, 185, 0.22);
@@ -361,6 +378,7 @@
   --sidebar-ring: #e0bc6a;
   --bull: #45d18a;
   --bear: #ef6b6b;
+  --titan-clear: #e0bc6a;
   --asset-forex: #e0bc6a;
   --asset-stock: #8eb4d4;
   --asset-commodity: #3f8f6e;
@@ -1021,9 +1039,49 @@ html[data-density="large"] {
     animation: titan-save-flash 0.9s ease-out;
   }
 
+  .titan-clear {
+    border: 1px solid color-mix(in srgb, var(--titan-clear) 55%, transparent);
+    background: color-mix(in srgb, var(--elevated) 82%, var(--titan-clear));
+    color: var(--foreground);
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--titan-clear) 28%, transparent),
+      0 8px 18px color-mix(in srgb, var(--background) 35%, transparent);
+    animation: titan-clear-pulse 2.6s ease-in-out infinite;
+  }
+
+  .titan-clear:hover {
+    background: color-mix(in srgb, var(--elevated) 70%, var(--titan-clear));
+    border-color: color-mix(in srgb, var(--titan-clear) 80%, transparent);
+    color: var(--foreground);
+  }
+
+  html[data-theme="light"] .titan-clear {
+    background: color-mix(in srgb, #fff 88%, var(--titan-clear));
+    color: #1c2430;
+    box-shadow:
+      0 0 0 1px rgba(45, 100, 160, 0.28),
+      0 8px 18px rgba(28, 36, 48, 0.12);
+  }
+
+  html[data-theme="dark"] .titan-clear {
+    background: color-mix(in srgb, #1b1b1f 78%, #ff2d3a);
+    color: #ffe8ea;
+  }
+
+  html[data-theme="gold"] .titan-clear {
+    background: color-mix(in srgb, #0b1220 78%, #e0bc6a);
+    color: #f8e7bc;
+  }
+
+  html[data-theme="cyberpunk"] .titan-clear {
+    background: color-mix(in srgb, #12051c 76%, #00e8ff);
+    color: #d9fbff;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .titan-save--dirty,
-    .titan-save--flash {
+    .titan-save--flash,
+    .titan-clear {
       animation: none;
     }
 
