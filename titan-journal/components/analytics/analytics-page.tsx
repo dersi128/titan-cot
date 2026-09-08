@@ -26,8 +26,6 @@ import {
   accountEdge,
   cappedGroups,
   changePct,
-  statsByEmotion,
-  statsByPlanFollowed,
   statsByPlaybookFields,
   type GroupStats,
 } from "@/lib/analytics"
@@ -296,8 +294,7 @@ function MarketTable({ rows }: { rows: GroupStats[] }) {
 }
 
 export function AnalyticsPage() {
-  const { copy, PLAN_FOLLOWED_LABELS, EMOTION_LABELS, YES_NO_LABELS } =
-    useLabels()
+  const { copy, YES_NO_LABELS } = useLabels()
   const { playbooks } = useWorkspace()
   const { custom } = useWorkspaceChrome()
   const { trades, accountTrades, range, capital, profile } =
@@ -335,8 +332,6 @@ export function AnalyticsPage() {
       ),
     [copy.analytics.others, trades]
   )
-  const planRows = useMemo(() => statsByPlanFollowed(trades), [trades])
-  const emotionRows = useMemo(() => statsByEmotion(trades), [trades])
   const fieldBreakdowns = useMemo(
     () => statsByPlaybookFields(trades, playbooks),
     [playbooks, trades]
@@ -463,31 +458,7 @@ export function AnalyticsPage() {
           <MarketTable rows={marketRows} />
         </div>
 
-        <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
-          <BreakdownTable
-            title={copy.analytics.byPlan}
-            empty={copy.analytics.noReviewBreakdown}
-            column={copy.analytics.plan}
-            rows={planRows}
-            names={PLAN_FOLLOWED_LABELS}
-          />
-          <BreakdownTable
-            title={copy.analytics.byEmotion}
-            empty={copy.analytics.noReviewBreakdown}
-            column={copy.analytics.emotion}
-            rows={emotionRows}
-            names={EMOTION_LABELS}
-          />
-        </div>
-
-        {fieldBreakdowns.length === 0 ? (
-          <BreakdownTable
-            title={copy.analytics.byFields}
-            empty={copy.analytics.noFieldBreakdown}
-            column={copy.analytics.value}
-            rows={[]}
-          />
-        ) : (
+        {fieldBreakdowns.length > 0 ? (
           <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
             {fieldBreakdowns.map((item) => (
               <BreakdownTable
@@ -503,7 +474,7 @@ export function AnalyticsPage() {
               />
             ))}
           </div>
-        )}
+        ) : null}
       </div>
       )}
     </PageFrame>
