@@ -532,7 +532,7 @@ EURUSD,1,40,Closed,6/10/2026 2:37:36 PM,Trade Sell Out,0.5,1.1538,-4.5
       date: "2026-06-10",
       entry: 1.1539,
       pnl: -4.5,
-      resultR: 0,
+      resultR: -0.04,
     })
   })
 
@@ -574,5 +574,23 @@ describe("tradeFromBrokerFill", () => {
     expect(trade.resultR).toBe(2)
     expect(trade.plannedRRR).toBeNull()
     expect(trade.riskPercent).toBe(1)
+  })
+
+  it("sizes R from a large prop account 1R", () => {
+    const trade = tradeFromBrokerFill(
+      {
+        date: "2026-09-04",
+        symbol: "COTTON.C",
+        direction: "SHORT",
+        entry: 90.05,
+        stopLoss: 90.05,
+        takeProfit: 82.47,
+        pnl: 1851.94,
+        resultR: null,
+        notes: "",
+      },
+      { ...DEFAULT_IMPORT_CONTEXT, capital: 1_000_000, riskPercent: 1 }
+    )
+    expect(trade.resultR).toBe(0.19)
   })
 })

@@ -1,10 +1,9 @@
-import { dollarsPerR } from "@/lib/account-scope"
+import { rFromPnl } from "@/lib/account-scope"
 import { parseJournalBackup, type JournalBackup } from "@/lib/journal-backup"
 import { classifyMarket, cotFieldsForClassification } from "@/lib/market-classification"
 import { isPdfBytes, pdfToRows } from "@/lib/pdf-import"
 import { DEMO_PLAYBOOK_NAME, TITAN_SWING_PLAYBOOK_ID } from "@/lib/playbooks"
 import { calculatePlannedRRR } from "@/lib/trade-calculations"
-import { tradeOutcome } from "@/lib/trade-outcome"
 import { isXlsxZip, xlsxSheetsToRows } from "@/lib/xlsx-import"
 import {
   DEFAULT_STRATEGY,
@@ -361,13 +360,9 @@ export function tradeFromBrokerFill(
     stopLoss,
     takeProfit,
   })
-  const riskUsd = dollarsPerR(context.capital, context.riskPercent)
   const pnl = input.pnl
-  const resultR =
-    input.resultR ??
-    (pnl != null && riskUsd > 0 ? Math.round((pnl / riskUsd) * 100) / 100 : null)
+  const resultR = input.resultR ?? rFromPnl(pnl, context.capital, context.riskPercent)
   const closed = resultR != null || pnl != null
-  const outcomeR = tradeOutcome({ resultR, pnl }) === "BE" ? 0 : resultR
 
   return {
     date: input.date,
@@ -403,7 +398,7 @@ export function tradeFromBrokerFill(
     takeProfit,
     riskPercent: context.riskPercent,
     plannedRRR,
-    resultR: closed ? (outcomeR ?? 0) : null,
+    resultR: closed ? (resultR ?? 0) : null,
     pnl: closed ? (pnl ?? 0) : null,
     notes: input.notes,
     screenshot: null,

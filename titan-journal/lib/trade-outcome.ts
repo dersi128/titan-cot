@@ -1,6 +1,6 @@
 export type TradeOutcome = "WIN" | "LOSS" | "BE"
 
-export const BREAKEVEN_R = 0.5
+export const BREAKEVEN_R = 0.05
 
 type OutcomeInput = {
   resultR?: number | null
@@ -25,6 +25,5 @@ export function statsResultR(trade: OutcomeInput): number {
 
 export function displayResultR(trade: OutcomeInput): number | null {
   if (trade.resultR == null && trade.pnl == null) return null
-  if (tradeOutcome(trade) === "BE") return 0
   return trade.resultR ?? null
 }

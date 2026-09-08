@@ -6,9 +6,11 @@ import {
   percentFromRiskMoney,
   filterTradesByAccount,
   filterTradesByScope,
+  rFromPnl,
   realizedResultFromInputs,
   riskForAccount,
   suggestedPnl,
+  withPnlR,
 } from "@/lib/account-scope"
 import { MOCK_TRADES } from "@/lib/mock-data"
 import { DEFAULT_PROFILE } from "@/lib/workspace-storage"
@@ -48,6 +50,10 @@ describe("account scope", () => {
     expect(
       capitalForAccount(DEFAULT_PROFILE.capital, "Backtesting")
     ).toBe(100_000)
+    expect(rFromPnl(200, 10_000, 1)).toBe(2)
+    expect(rFromPnl(-4.5, 10_000, 1)).toBe(-0.04)
+    expect(rFromPnl(1851.94, 1_000_000, 1)).toBe(0.19)
+    expect(withPnlR({ pnl: 1851.94, resultR: 0 }, 1_000_000, 1).resultR).toBe(0.19)
   })
 
   it("reads risk per account and falls back to the old global percent", () => {

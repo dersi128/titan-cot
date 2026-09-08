@@ -24,6 +24,26 @@ export function dollarsPerR(capital: number, riskPercent: number): number {
   return Math.round(capital * (riskPercent / 100) * 100) / 100
 }
 
+export function rFromPnl(
+  pnl: number | null | undefined,
+  capital: number,
+  riskPercent: number
+): number | null {
+  const oneR = dollarsPerR(capital, riskPercent)
+  if (pnl == null || !Number.isFinite(pnl) || oneR <= 0) return null
+  return Math.round((pnl / oneR) * 100) / 100
+}
+
+export function withPnlR<T extends { pnl?: number | null; resultR?: number | null }>(
+  trade: T,
+  capital: number,
+  riskPercent: number
+): T {
+  const next = rFromPnl(trade.pnl, capital, riskPercent)
+  if (next == null) return trade
+  return { ...trade, resultR: next }
+}
+
 export function percentFromRiskMoney(capital: number, money: number): number {
   if (!Number.isFinite(capital) || capital <= 0 || !Number.isFinite(money) || money < 0) {
     return 0

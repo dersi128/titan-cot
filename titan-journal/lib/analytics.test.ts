@@ -176,11 +176,11 @@ describe("strategy edge", () => {
     expect(stats.be).toBe(0)
   })
 
-  it("treats |R| under 0.5 as BE and keeps it out of win rate", () => {
+  it("treats |R| under 0.05 as BE and keeps it out of win rate", () => {
     const stats = accountEdge([
       trade({ id: "w", resultR: 2, pnl: 260 }),
       trade({ id: "l", resultR: -1, pnl: -200 }),
-      trade({ id: "be", resultR: 0.4, pnl: 51 }),
+      trade({ id: "be", resultR: 0.04, pnl: 51 }),
     ])
     expect(stats.trades).toBe(3)
     expect(stats.wins).toBe(1)
