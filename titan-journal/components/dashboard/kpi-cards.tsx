@@ -65,7 +65,7 @@ export function KpiCards({
   return (
     <div className="space-y-2">
       <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-        <article className="titan-kpi flex items-center justify-between gap-3 rounded-[10px] px-3 py-2.5">
+        <article className="titan-kpi flex items-center justify-between gap-3 overflow-visible rounded-[10px] px-3 py-2.5">
           <div className="min-w-0">
             <p className="text-[11px] font-medium tracking-wide text-muted-foreground">
               {copy.dashboard.winRate}
@@ -104,7 +104,7 @@ export function KpiCards({
           />
         </article>
 
-        <article className="titan-kpi flex items-center justify-between gap-3 rounded-[10px] px-3 py-2.5">
+        <article className="titan-kpi flex items-center justify-between gap-3 overflow-visible rounded-[10px] px-3 py-2.5">
           <div className="min-w-0">
             <p className="text-[11px] font-medium tracking-wide text-muted-foreground">
               {copy.dashboard.averageR}
