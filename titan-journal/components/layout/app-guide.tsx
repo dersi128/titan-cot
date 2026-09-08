@@ -432,7 +432,6 @@ export function AppGuide({
                     type="button"
                     variant="outline"
                     size="sm"
-                    className="bg-elevated"
                     onClick={importer.pick}
                   >
                     {copy.journal.importReport}
@@ -441,7 +440,7 @@ export function AppGuide({
                   {empty ? (
                     <Button
                       type="button"
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
                       onClick={() => {
                         replaceAll(sortTrades(MOCK_TRADES))

@@ -211,7 +211,7 @@ function DayPanel({
           <div className="flex shrink-0 items-center gap-0.5">
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               size="icon-xs"
               aria-label={copy.calendar.previousDay}
               disabled={!canPrev}
@@ -221,7 +221,7 @@ function DayPanel({
             </Button>
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               size="icon-xs"
               aria-label={copy.calendar.nextDay}
               disabled={!canNext}
@@ -294,7 +294,7 @@ function DayPanel({
                         {copy.detail.result} {formatValue(metric, result, pnl, currency)}
                       </p>
                     </div>
-                    <Button asChild variant="outline" size="sm" className="mt-3 w-full bg-elevated">
+                    <Button asChild variant="outline" size="sm" className="mt-3 w-full">
                       <Link href={`/journal/${trade.id}`}>
                         {copy.calendar.openDetail}
                         <ChevronRight />
@@ -397,7 +397,7 @@ export function CalendarPage() {
           <div className="flex items-center justify-center gap-1">
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               size="icon-sm"
               aria-label={copy.calendar.previousMonth}
               onClick={() => setCursor(shiftMonth(cursor, -1))}
@@ -414,7 +414,7 @@ export function CalendarPage() {
             </button>
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               size="icon-sm"
               aria-label={copy.calendar.nextMonth}
               onClick={() => setCursor(shiftMonth(cursor, 1))}
