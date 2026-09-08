@@ -30,53 +30,36 @@ export function ClearJournal() {
 
   return (
     <section className="titan-danger">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-destructive">
-        {copy.journal.dangerZone}
-      </p>
-      <h2 className="mt-1 text-sm font-semibold text-foreground">{copy.journal.clearAll}</h2>
-      <p className="mt-1 max-w-xl text-[13px] leading-relaxed text-foreground/80">
-        {copy.journal.clearAllHint}
-      </p>
+      <p className="titan-danger-kicker">{copy.journal.dangerZone}</p>
+      <h2 className="titan-danger-title">{copy.journal.clearAll}</h2>
+      <p className="titan-danger-hint">{copy.journal.clearAllHint}</p>
       {!open ? (
-        <Button
-          type="button"
-          size="sm"
-          className="mt-3 bg-destructive text-white hover:bg-destructive/90"
-          onClick={() => setOpen(true)}
-        >
+        <button type="button" className="titan-danger-btn" onClick={() => setOpen(true)}>
           {copy.journal.clearAll}
-        </Button>
+        </button>
       ) : (
-        <div className="mt-3 max-w-sm space-y-3">
+        <div className="titan-danger-confirm">
           <Input
             value={typed}
             onChange={(event) => setTyped(event.target.value)}
             placeholder={JOURNAL_WIPE_CONFIRM}
             autoFocus
-            className="h-8 text-[12px]"
+            className="titan-danger-input h-8 text-[12px]"
             onKeyDown={(event) => {
               if (event.key === "Enter") wipe()
               if (event.key === "Escape") reset()
             }}
           />
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
+          <div className="titan-danger-row">
+            <button
               type="button"
-              variant="destructive"
-              size="sm"
-              className="h-7 text-[12px]"
+              className="titan-danger-btn"
               disabled={!ready}
               onClick={wipe}
             >
               {copy.journal.clearAllConfirm}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="h-7 text-[12px]"
-              onClick={reset}
-            >
+            </button>
+            <Button type="button" variant="secondary" size="sm" onClick={reset}>
               {copy.detail.cancel}
             </Button>
           </div>
