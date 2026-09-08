@@ -3,6 +3,7 @@
 import { useRef, useState } from "react"
 
 import { Button } from "@/components/ui/button"
+import { useWorkspaceChrome } from "@/components/layout/workspace-chrome"
 import { useWorkspace } from "@/components/layout/workspace-provider"
 import { useTrades } from "@/components/trades/trades-provider"
 import {
@@ -84,14 +85,15 @@ export function useJournalImport() {
   const { copy, ACCOUNT_LABELS } = useLabels()
   const { trades, replaceAll } = useTrades()
   const { profile, preferences, playbooks, replaceWorkspace } = useWorkspace()
+  const { account } = useWorkspaceChrome()
   const inputRef = useRef<HTMLInputElement>(null)
   const [status, setStatus] = useState<ImportStatus>("idle")
   const [addedCount, setAddedCount] = useState(0)
 
   const importContext: ImportContext = {
-    account: preferences.defaultAccount,
-    riskPercent: riskForAccount(profile, preferences.defaultAccount),
-    capital: profile.capital[preferences.defaultAccount] ?? 0,
+    account,
+    riskPercent: riskForAccount(profile, account),
+    capital: profile.capital[account] ?? 0,
     playbookId: preferences.defaultPlaybookId,
     playbookName:
       playbooks.find((item) => item.id === preferences.defaultPlaybookId)?.name ??

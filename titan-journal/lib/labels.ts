@@ -192,7 +192,7 @@ export const copyEn = {
     dangerZone: "Danger zone",
     importReport: "Import report",
     importHint:
-      "JSON backup, CSV, HTML, Excel, or PDF from cTrader / MT5 / IC Markets.",
+      "JSON backup, CSV, HTML, Excel, or PDF from cTrader / MT5 / IC Markets / FTMO.",
   },
 
   detail: {
@@ -402,10 +402,11 @@ export const copyEn = {
     trading: "Trading",
     defaultAccount: "Default Account",
     defaultPlaybook: "Default Playbook",
-    riskOnProfile: "Risk % is set per account on Profile.",
+    riskOnProfile:
+      "Set 1R per account on Profile. Import turns PnL into R from that, because the report SL may already be at BE.",
     backup: "Backup",
     backupHint:
-      "JSON backup replaces this browser's journal. A cTrader / MT5 / IC Markets CSV, HTML, Excel, or PDF adds closed trades.",
+      "JSON backup replaces this browser's journal. A cTrader / MT5 / IC Markets / FTMO CSV, HTML, Excel, or PDF adds closed trades.",
     exportJournal: "Export",
     importJournal: "Import",
     importReplace: "Import replaces the journal on this device.",
@@ -435,7 +436,9 @@ export const copyEn = {
     riskMoney: "Risk / trade",
     riskMoneyHint: "1R in money",
     riskPercent: "Risk %",
-    riskHint: "per trade",
+    riskHint: "1R per trade",
+    riskWhy:
+      "A report often has SL at BE after 1:1, so R is PnL ÷ 1R. Set 1R on each account here.",
     markets: "Markets I trade",
     save: "Save Profile",
   },
@@ -700,7 +703,7 @@ export const copyCs: Copy = {
     dangerZone: "Nebezpečná zóna",
     importReport: "Nahrát report",
     importHint:
-      "JSON záloha, CSV, HTML, Excel nebo PDF z cTrader / MT5 / IC Markets.",
+      "JSON záloha, CSV, HTML, Excel nebo PDF z cTrader / MT5 / IC Markets / FTMO.",
   },
 
   detail: {
@@ -910,10 +913,11 @@ export const copyCs: Copy = {
     trading: "Obchodování",
     defaultAccount: "Výchozí účet",
     defaultPlaybook: "Výchozí playbook",
-    riskOnProfile: "Riziko % se nastavuje u každého účtu v Profilu.",
+    riskOnProfile:
+      "1R se nastavuje u každého účtu v Profilu. Import z něj počítá R z PnL, protože SL v reportu může být už na BE.",
     backup: "Záloha",
     backupHint:
-      "JSON záloha nahradí deník v tomto prohlížeči. CSV, HTML, Excel nebo PDF z cTrader / MT5 / IC Markets obchody přidá.",
+      "JSON záloha nahradí deník v tomto prohlížeči. CSV, HTML, Excel nebo PDF z cTrader / MT5 / IC Markets / FTMO obchody přidá.",
     exportJournal: "Export",
     importJournal: "Import",
     importReplace: "Import nahradí deník na tomto zařízení.",
@@ -943,7 +947,9 @@ export const copyCs: Copy = {
     riskMoney: "Riziko na obchod",
     riskMoneyHint: "1R v penězích",
     riskPercent: "Riziko %",
-    riskHint: "na obchod",
+    riskHint: "1R na obchod",
+    riskWhy:
+      "V reportu bývá SL po 1:1 na BE, takže R z něj nejde. R se počítá z PnL a 1R. 1R nastav u každého účtu tady.",
     markets: "Trhy, které obchoduji",
     save: "Uložit profil",
   },
@@ -1206,7 +1212,7 @@ export const copySk: Copy = {
     dangerZone: "Nebezpečná zóna",
     importReport: "Nahrať report",
     importHint:
-      "JSON záloha, CSV, HTML, Excel alebo PDF z cTrader / MT5 / IC Markets.",
+      "JSON záloha, CSV, HTML, Excel alebo PDF z cTrader / MT5 / IC Markets / FTMO.",
   },
 
   detail: {
@@ -1416,10 +1422,11 @@ export const copySk: Copy = {
     trading: "Obchodovanie",
     defaultAccount: "Predvolený účet",
     defaultPlaybook: "Predvolený playbook",
-    riskOnProfile: "Riziko % sa nastavuje pri každom účte v Profile.",
+    riskOnProfile:
+      "1R sa nastavuje pri každom účte v Profile. Import z neho počíta R z PnL, pretože SL v reporte môže byť už na BE.",
     backup: "Záloha",
     backupHint:
-      "JSON záloha nahradí denník v tomto prehliadači. CSV, HTML, Excel alebo PDF z cTrader / MT5 / IC Markets obchody pridá.",
+      "JSON záloha nahradí denník v tomto prehliadači. CSV, HTML, Excel alebo PDF z cTrader / MT5 / IC Markets / FTMO obchody pridá.",
     exportJournal: "Export",
     importJournal: "Import",
     importReplace: "Import nahradí denník na tomto zariadení.",
@@ -1449,7 +1456,9 @@ export const copySk: Copy = {
     riskMoney: "Riziko na obchod",
     riskMoneyHint: "1R v peniazoch",
     riskPercent: "Riziko %",
-    riskHint: "na obchod",
+    riskHint: "1R na obchod",
+    riskWhy:
+      "V reporte býva SL po 1:1 na BE, takže R z neho nejde. R sa počíta z PnL a 1R. 1R nastav pri každom účte tu.",
     markets: "Trhy, ktoré obchodujem",
     save: "Uložiť profil",
   },

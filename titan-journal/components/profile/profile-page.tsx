@@ -190,6 +190,7 @@ export function ProfilePage() {
               </div>
             ))}
           </div>
+          <p className="text-[12px] text-muted-foreground">{copy.profile.riskWhy}</p>
           <Field label={copy.profile.markets}>
             <MultiPills
               value={draft.markets}

@@ -46,8 +46,12 @@ function stripBom(text: string): string {
   return text.replace(/^\uFEFF/, "")
 }
 
+function foldDiacritics(value: string): string {
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+}
+
 function normalizeHeader(value: string): string {
-  return value
+  return foldDiacritics(value)
     .toLowerCase()
     .replace(/\(.*?\)/g, " ")
     .replace(/[_/]+/g, " ")
@@ -195,10 +199,10 @@ function headerLooksLikeTrades(headers: string[]): boolean {
     ["symbol", "item", "pair", "instrument", "market"].includes(h)
   )
   const hasSide = headers.some((h) =>
-    ["direction", "opening direction", "type", "side"].includes(h)
+    ["direction", "opening direction", "type", "typ", "side"].includes(h)
   )
   const hasPnl = headers.some((h) =>
-    ["profit", "net", "net usd", "net profit", "pnl", "p l", "gross"].includes(h)
+    ["profit", "zisk", "net", "net usd", "net profit", "pnl", "p l", "gross"].includes(h)
   )
   return hasSymbol && (hasSide || hasPnl)
 }
@@ -555,22 +559,26 @@ function parseBrokerRows(
 
     const symbol = pick(row, ["symbol", "item", "pair", "instrument", "market"])?.trim()
     const direction = parseDirection(
-      pick(row, ["opening direction", "side", "type", "direction"])
+      pick(row, ["opening direction", "side", "type", "typ", "direction"])
     )
     const date = parseBrokerDate(
       pick(row, [
         "closing time",
         "close time",
         "closing deal time",
+        "uzavreni",
+        "uzavretie",
         "open time",
         "opening time",
+        "otevreni",
+        "otvorenie",
         "time",
         "date",
       ])
     )
     const entry =
       parseLocaleNumber(
-        pick(row, ["entry price", "open price", "opening price", "price"])
+        pick(row, ["entry price", "open price", "opening price", "price", "cena"])
       ) ?? parseLocaleNumber(pick(row, ["closing price", "close price"]))
     const stopLoss = parseLocaleNumber(
       pick(row, ["stop loss", "s l", "sl", "stoploss"])
@@ -582,16 +590,20 @@ function parseBrokerRows(
       pick(row, ["net usd", "net", "net profit", "net pnl"])
     )
     const profit = parseLocaleNumber(
-      pick(row, ["profit", "pnl", "p l", "gross", "gross usd", "gross profit"])
+      pick(row, ["profit", "zisk", "pnl", "p l", "gross", "gross usd", "gross profit"])
     )
-    const commission = parseLocaleNumber(pick(row, ["commission"])) ?? 0
+    const commission =
+      parseLocaleNumber(pick(row, ["commission", "komise", "komisia"])) ?? 0
     const swap = parseLocaleNumber(pick(row, ["swap"])) ?? 0
     const taxes = parseLocaleNumber(pick(row, ["taxes", "tax"])) ?? 0
-    const pnl = net ?? (profit != null ? profit + commission + swap + taxes : null)
+    const combined =
+      net ?? (profit != null ? profit + commission + swap + taxes : null)
+    const pnl = combined == null ? null : Math.round(combined * 100) / 100
     const resultR = parseLocaleNumber(pick(row, ["result r", "r", "rr"]))
     const ticket = pick(row, [
       "deal",
       "ticket",
+      "pokyn",
       "id",
       "order id",
       "position id",
