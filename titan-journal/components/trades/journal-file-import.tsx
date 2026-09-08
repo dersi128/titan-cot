@@ -186,7 +186,7 @@ export function JournalImportButton() {
   const { pick, fileInput, message } = useJournalImport()
 
   return (
-    <div className="flex flex-col items-end gap-1">
+    <div className="flex flex-col items-end gap-1" data-guide="import-report">
       <Button
         type="button"
         onClick={pick}

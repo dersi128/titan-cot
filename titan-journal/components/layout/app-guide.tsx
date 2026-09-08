@@ -4,35 +4,42 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import {
   BookOpen,
+  CalendarDays,
   ChartNoAxesCombined,
   LayoutDashboard,
   NotebookTabs,
   PlusCircle,
+  Sparkles,
+  Target,
+  Upload,
   User,
   type LucideIcon,
 } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react"
 
 import { Button } from "@/components/ui/button"
 import { useJournalImport } from "@/components/trades/journal-file-import"
-import { useTrades } from "@/components/trades/trades-provider"
-import { SUPPORT_EMAIL } from "@/lib/guide-storage"
 import type { Copy } from "@/lib/labels"
-import { isSampleJournal, MOCK_TRADES, sortTrades } from "@/lib/mock-data"
 import { useLabels } from "@/lib/use-labels"
 import { cn } from "@/lib/utils"
 
 const STEPS = [
   {
+    id: "welcome",
+    href: "/dashboard",
+    targets: [],
+    icon: Sparkles,
+  },
+  {
     id: "overview",
     href: "/dashboard",
-    targets: ["range", "overview", "equity", "overview-head", "overview-nav"],
+    targets: ["overview-stats", "range", "overview", "overview-head"],
     icon: LayoutDashboard,
   },
   {
     id: "profile",
     href: "/profile",
-    targets: ["profile-risk", "accounts", "profile-nav"],
+    targets: ["profile-risk", "profile-nav"],
     icon: User,
   },
   {
@@ -42,22 +49,40 @@ const STEPS = [
     icon: PlusCircle,
   },
   {
+    id: "import",
+    href: "/journal",
+    targets: ["import-report"],
+    icon: Upload,
+  },
+  {
     id: "journal",
     href: "/journal",
-    targets: ["journal", "journal-nav", "calendar"],
+    targets: ["journal-list", "journal", "journal-nav"],
     icon: BookOpen,
+  },
+  {
+    id: "calendar",
+    href: "/calendar",
+    targets: ["calendar-board", "calendar"],
+    icon: CalendarDays,
   },
   {
     id: "playbook",
     href: "/playbook",
-    targets: ["playbook", "playbook-nav"],
+    targets: ["playbook-board", "playbook", "playbook-nav"],
     icon: NotebookTabs,
   },
   {
     id: "analytics",
     href: "/analytics",
-    targets: ["analytics", "analytics-nav"],
+    targets: ["analytics-board", "analytics", "analytics-nav"],
     icon: ChartNoAxesCombined,
+  },
+  {
+    id: "edge",
+    href: "/analytics",
+    targets: [],
+    icon: Target,
   },
 ] as const
 
@@ -65,210 +90,264 @@ type GuideStepId = (typeof STEPS)[number]["id"]
 
 type Spot = { top: number; left: number; width: number; height: number }
 
-function reportText(copy: Copy): string {
-  if (SUPPORT_EMAIL) return copy.guide.report.replace("{email}", SUPPORT_EMAIL)
-  return copy.guide.reportSoon
+function splitFlow(value: string): string[] {
+  return value.split("→").map((part) => part.trim()).filter(Boolean)
 }
 
-function copyFor(
-  copy: Copy,
-  id: GuideStepId
-): { title: string; lead: string; meaning: string } {
+function copyFor(copy: Copy, id: GuideStepId): { title: string; paragraphs: string[] } {
+  if (id === "welcome") {
+    return {
+      title: copy.guide.welcomeTitle,
+      paragraphs: [
+        copy.guide.welcomeLead,
+        copy.guide.welcomeBody,
+        copy.guide.welcomeAccounts,
+        copy.guide.welcomeGoal,
+      ],
+    }
+  }
   if (id === "overview") {
     return {
       title: copy.guide.overviewTitle,
-      lead: copy.guide.overviewLead,
-      meaning: copy.guide.overviewMeaning,
+      paragraphs: [copy.guide.overviewLead, copy.guide.overviewBody],
     }
   }
   if (id === "profile") {
     return {
       title: copy.guide.profileTitle,
-      lead: copy.guide.profileLead,
-      meaning: copy.guide.profileMeaning,
+      paragraphs: [copy.guide.profileLead, copy.guide.profileBody],
     }
   }
   if (id === "trade") {
     return {
       title: copy.guide.tradeTitle,
-      lead: copy.guide.tradeLead,
-      meaning: copy.guide.tradeMeaning,
+      paragraphs: [copy.guide.tradeLead, copy.guide.tradeBody],
+    }
+  }
+  if (id === "import") {
+    return {
+      title: copy.guide.importTitle,
+      paragraphs: [copy.guide.importLead, copy.guide.importBody, copy.guide.importFormats],
     }
   }
   if (id === "journal") {
     return {
       title: copy.guide.journalTitle,
-      lead: copy.guide.journalLead,
-      meaning: copy.guide.journalMeaning,
+      paragraphs: [copy.guide.journalLead, copy.guide.journalBody],
+    }
+  }
+  if (id === "calendar") {
+    return {
+      title: copy.guide.calendarTitle,
+      paragraphs: [copy.guide.calendarLead, copy.guide.calendarBody],
     }
   }
   if (id === "playbook") {
     return {
       title: copy.guide.playbookTitle,
-      lead: copy.guide.playbookLead,
-      meaning: copy.guide.playbookMeaning,
+      paragraphs: [copy.guide.playbookLead, copy.guide.playbookBody],
+    }
+  }
+  if (id === "analytics") {
+    return {
+      title: copy.guide.analyticsTitle,
+      paragraphs: [copy.guide.analyticsLead, copy.guide.analyticsBody],
     }
   }
   return {
-    title: copy.guide.analyticsTitle,
-    lead: copy.guide.analyticsLead,
-    meaning: copy.guide.analyticsMeaning,
+    title: copy.guide.edgeTitle,
+    paragraphs: [copy.guide.edgeLead, copy.guide.edgeBody],
   }
+}
+
+function guideNodes(targets: readonly string[]): HTMLElement[] {
+  const nodes: HTMLElement[] = []
+  for (const target of targets) {
+    document.querySelectorAll(`[data-guide="${target}"]`).forEach((node) => {
+      if (!(node instanceof HTMLElement)) return
+      if (node.closest("[data-guide-ui]")) return
+      if (node.getBoundingClientRect().width <= 8) return
+      nodes.push(node)
+    })
+  }
+  return nodes
 }
 
 function measureSpot(targets: readonly string[]): Spot | null {
-  for (const target of targets) {
-    const nodes = document.querySelectorAll(`[data-guide="${target}"]`)
-    for (const node of nodes) {
-      if (!(node instanceof HTMLElement)) continue
-      if (node.closest("[data-guide-ui]")) continue
-      const rect = node.getBoundingClientRect()
-      if (rect.width <= 8 || rect.height <= 8) continue
-      const pad = 8
-      const width = Math.min(rect.width + pad * 2, window.innerWidth - 16)
-      const height = Math.min(rect.height + pad * 2, window.innerHeight * 0.42)
-      const left = Math.max(8, Math.min(rect.left - pad, window.innerWidth - width - 8))
-      const top = Math.max(8, Math.min(rect.top - pad, window.innerHeight - height - 8))
-      return { top, left, width, height }
-    }
+  if (targets.length === 0) return null
+  const nodes = guideNodes(targets)
+  if (nodes.length === 0) return null
+  const pad = 8
+  let top = Infinity
+  let left = Infinity
+  let right = -Infinity
+  let bottom = -Infinity
+  for (const node of nodes) {
+    const rect = node.getBoundingClientRect()
+    if (rect.height <= 8) continue
+    top = Math.min(top, rect.top)
+    left = Math.min(left, rect.left)
+    right = Math.max(right, rect.right)
+    bottom = Math.max(bottom, rect.bottom)
   }
-  return null
+  if (!Number.isFinite(top) || right <= left) return null
+
+  const vh = window.innerHeight
+  const vw = window.innerWidth
+  const compact = vw < 640
+  top = Math.max(8, top - pad)
+  left = Math.max(8, left - pad)
+  right = Math.min(vw - 8, right + pad)
+  bottom = Math.min(vh - 8, bottom + pad)
+  const maxBottom = compact ? vh * 0.46 : vh * 0.72
+  if (bottom > maxBottom) bottom = Math.max(top + 72, maxBottom)
+  return {
+    top,
+    left,
+    width: Math.max(48, right - left),
+    height: Math.max(40, bottom - top),
+  }
 }
 
-function GuideMiniVisual({ step }: { step: GuideStepId }) {
+function scrollTargetIntoView(targets: readonly string[], behavior: ScrollBehavior) {
+  const node = guideNodes(targets)[0]
+  if (!node) return
+  node.scrollIntoView({ block: "center", inline: "nearest", behavior })
+}
+
+function FlowRow({ items }: { items: string[] }) {
+  return (
+    <div className="flex flex-wrap items-center gap-1">
+      {items.map((item, index) => (
+        <span key={`${item}-${index}`} className="flex items-center gap-1">
+          <span className="rounded-md border border-primary/20 bg-primary/10 px-2 py-1 text-[11px] font-medium text-foreground">
+            {item}
+          </span>
+          {index < items.length - 1 ? (
+            <span className="text-[11px] text-muted-foreground" aria-hidden>
+              →
+            </span>
+          ) : null}
+        </span>
+      ))}
+    </div>
+  )
+}
+
+function GuideMiniVisual({
+  step,
+  copy,
+  chips,
+}: {
+  step: GuideStepId
+  copy: Copy
+  chips: string[]
+}) {
+  if (step === "welcome") return <FlowRow items={splitFlow(copy.guide.welcomeFlow)} />
   if (step === "overview") {
     return (
-      <div className="grid grid-cols-4 gap-1.5">
-        <div className="col-span-4 flex justify-end gap-1">
-          {["30D", "3M", "ALL"].map((label, index) => (
-            <span
-              key={label}
-              className={cn(
-                "rounded-md px-1.5 py-0.5 text-[9px] font-semibold",
-                index === 0
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted/70 text-muted-foreground"
-              )}
-            >
-              {label}
-            </span>
-          ))}
-        </div>
-        {["WR", "P&L", "R", "PF"].map((label) => (
-          <div key={label} className="rounded-lg bg-muted/60 px-1 py-2 text-center">
-            <div className="mx-auto h-7 w-7 rounded-full border border-primary/40" />
-            <p className="mt-1 text-[9px] font-semibold text-muted-foreground">{label}</p>
-          </div>
-        ))}
-        <div className="col-span-4 h-9 rounded-lg bg-muted/60 px-2 py-1.5">
-          <svg viewBox="0 0 100 24" className="h-full w-full" aria-hidden>
-            <polyline
-              fill="none"
-              stroke="var(--color-bull)"
-              strokeWidth="2"
-              points="0,18 18,16 36,17 54,10 72,12 100,4"
-            />
-          </svg>
-        </div>
-      </div>
-    )
-  }
-  if (step === "profile") {
-    return (
-      <div className="flex flex-wrap gap-1.5">
-        {["Personal", "Prop", "BT"].map((label, index) => (
+      <div className="flex flex-wrap justify-end gap-1">
+        {chips.map((label, index) => (
           <span
             key={label}
             className={cn(
-              "rounded-full px-2.5 py-1 text-[11px] font-medium",
+              "rounded-md px-1.5 py-0.5 text-[9px] font-semibold",
               index === 0
                 ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground"
+                : "bg-muted/70 text-muted-foreground"
             )}
           >
             {label}
           </span>
         ))}
-        <div className="mt-1 grid w-full grid-cols-2 gap-1.5">
-          <div className="rounded-lg bg-muted/60 px-2 py-1.5">
-            <p className="text-[9px] text-muted-foreground">1R</p>
-            <p className="font-mono text-[12px]">2 %</p>
-          </div>
-          <div className="rounded-lg bg-muted/60 px-2 py-1.5">
-            <p className="text-[9px] text-muted-foreground">Cap</p>
-            <p className="font-mono text-[12px]">10k</p>
-          </div>
-        </div>
       </div>
     )
   }
-  if (step === "trade") {
+  if (step === "trade") return <FlowRow items={splitFlow(copy.guide.tradeFlow)} />
+  if (step === "calendar") {
+    const tones = [
+      "bg-bull/45",
+      "bg-muted/70",
+      "bg-bear/45",
+      "bg-bull/35",
+      "bg-muted/70",
+      "bg-bear/40",
+      "bg-bull/50",
+    ]
     return (
-      <div className="grid grid-cols-2 gap-1.5">
-        <div className="rounded-lg border border-primary/35 bg-primary/10 px-2 py-2 text-[11px] font-medium">
-          Manual
-        </div>
-        <div className="rounded-lg bg-muted/60 px-2 py-2 text-[11px] font-medium text-muted-foreground">
-          Import
-        </div>
-        <div className="col-span-2 h-8 rounded-lg bg-muted/60" />
+      <div className="grid grid-cols-7 gap-0.5">
+        {Array.from({ length: 14 }, (_, index) => (
+          <span
+            key={index}
+            className={cn("h-4 rounded-[4px]", tones[index % tones.length])}
+          />
+        ))}
       </div>
     )
   }
-  if (step === "journal") {
-    return (
-      <div className="space-y-1.5">
-        <div className="grid grid-cols-7 gap-0.5">
-          {Array.from({ length: 14 }, (_, index) => (
-            <span
-              key={index}
-              className={cn(
-                "h-4 rounded-[4px]",
-                index === 8
-                  ? "bg-bull/40"
-                  : index === 10
-                    ? "bg-bear/40"
-                    : "bg-muted/70"
-              )}
-            />
-          ))}
-        </div>
-        <div className="flex flex-wrap gap-1">
-          {["Note", "Emotion", "Plan"].map((chip) => (
-            <span
-              key={chip}
-              className="rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground"
-            >
-              {chip}
-            </span>
-          ))}
-        </div>
-      </div>
-    )
+  if (step === "edge") return <FlowRow items={splitFlow(copy.guide.edgeLoop)} />
+  return null
+}
+
+function placePanel(
+  spot: Spot | null,
+  panel: { width: number; height: number },
+  vw: number,
+  vh: number
+): CSSProperties {
+  const gap = 12
+  const width = Math.min(panel.width, vw - 24)
+  const height = Math.min(panel.height, vh * 0.52)
+
+  if (vw < 640) {
+    return { left: 12, right: 12, bottom: 12, maxWidth: "none" }
   }
-  if (step === "playbook") {
-    return (
-      <div className="rounded-lg border border-border bg-muted/50 px-3 py-2">
-        <p className="text-[12px] font-semibold">Setup A</p>
-        <p className="mt-1 text-[10px] text-muted-foreground">Rule → trade → edge</p>
-        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
-          <div className="h-full w-2/3 rounded-full bg-bull" />
-        </div>
-      </div>
-    )
+
+  if (!spot) {
+    return { right: 24, bottom: 24, width }
   }
-  return (
-    <div className="space-y-1.5">
-      {[72, 48, 28].map((width) => (
-        <div key={width} className="flex items-center gap-2">
-          <span className="w-10 text-[10px] text-muted-foreground">Edge</span>
-          <div className="h-1.5 flex-1 rounded-full bg-muted">
-            <div className="h-1.5 rounded-full bg-primary" style={{ width: `${width}%` }} />
-          </div>
-        </div>
-      ))}
-    </div>
-  )
+
+  const below = vh - (spot.top + spot.height) - gap
+  const above = spot.top - gap
+  const room = Math.min(height, 240)
+  const clampLeft = (value: number) =>
+    Math.max(12, Math.min(value, vw - width - 12))
+
+  if (below >= room) {
+    return {
+      top: spot.top + spot.height + gap,
+      left: clampLeft(spot.left),
+      width,
+    }
+  }
+  if (above >= room) {
+    return {
+      top: Math.max(12, spot.top - height - gap),
+      left: clampLeft(spot.left),
+      width,
+    }
+  }
+  if (vw - (spot.left + spot.width) - gap >= width + 8) {
+    return {
+      top: Math.max(12, Math.min(spot.top, vh - height - 12)),
+      left: spot.left + spot.width + gap,
+      width,
+    }
+  }
+  if (spot.left - gap >= width + 8) {
+    return {
+      top: Math.max(12, Math.min(spot.top, vh - height - 12)),
+      left: Math.max(12, spot.left - width - gap),
+      width,
+    }
+  }
+  return { right: 24, bottom: 24, width }
+}
+
+function isGuideUi(target: EventTarget | null): boolean {
+  if (!(target instanceof Node)) return false
+  const el = target instanceof Element ? target : target.parentElement
+  return Boolean(el?.closest("[data-guide-ui]"))
 }
 
 export function AppGuide({
@@ -278,31 +357,36 @@ export function AppGuide({
   open: boolean
   onDismiss: () => void
 }) {
-  const { copy } = useLabels()
-  const { trades, replaceAll } = useTrades()
+  const { copy, DATE_RANGE_LABELS } = useLabels()
   const importer = useJournalImport()
   const router = useRouter()
   const pathname = usePathname()
+  const panelRef = useRef<HTMLDivElement>(null)
   const [step, setStep] = useState(0)
-  const [meaningOpen, setMeaningOpen] = useState(false)
   const [spot, setSpot] = useState<Spot | null>(null)
+  const [panelSize, setPanelSize] = useState({ width: 448, height: 320 })
   const current = STEPS[step] ?? STEPS[0]
   const text = copyFor(copy, current.id)
   const Icon: LucideIcon = current.icon
   const last = step === STEPS.length - 1
-  const empty = trades.length === 0 || isSampleJournal(trades)
+  const first = step === 0
   const progress = ((step + 1) / STEPS.length) * 100
+  const ready = pathname === current.href
+  const rangeChips = ["30D", "3M", "6M", "YTD", "ALL"].map(
+    (key) => DATE_RANGE_LABELS[key as "30D" | "3M" | "6M" | "YTD" | "ALL"]
+  )
+  const panelStyle = placePanel(
+    spot,
+    panelSize,
+    typeof window === "undefined" ? 1200 : window.innerWidth,
+    typeof window === "undefined" ? 800 : window.innerHeight
+  )
 
   useEffect(() => {
     if (open) {
       setStep(0)
-      setMeaningOpen(false)
     }
   }, [open])
-
-  useEffect(() => {
-    setMeaningOpen(false)
-  }, [step])
 
   useEffect(() => {
     if (!open) return
@@ -314,45 +398,87 @@ export function AppGuide({
       setSpot(null)
       return
     }
+    if (!ready) return
+
     let cancelled = false
-    const scrollTarget = () => {
-      for (const target of current.targets) {
-        const nodes = document.querySelectorAll(`[data-guide="${target}"]`)
-        for (const node of nodes) {
-          if (!(node instanceof HTMLElement) || node.closest("[data-guide-ui]")) continue
-          if (node.getBoundingClientRect().width <= 8) continue
-          node.scrollIntoView({ block: "center", inline: "nearest" })
-          return
-        }
-      }
-    }
     const measure = () => {
       if (cancelled) return
       setSpot(measureSpot(current.targets))
     }
-    scrollTarget()
+    scrollTargetIntoView(current.targets, "smooth")
     measure()
-    const first = window.setTimeout(measure, 380)
-    const second = window.setTimeout(measure, 800)
+    const firstTimer = window.setTimeout(() => {
+      scrollTargetIntoView(current.targets, "auto")
+      measure()
+    }, 380)
+    const secondTimer = window.setTimeout(measure, 900)
     window.addEventListener("resize", measure)
     window.addEventListener("scroll", measure, true)
     return () => {
       cancelled = true
-      window.clearTimeout(first)
-      window.clearTimeout(second)
+      window.clearTimeout(firstTimer)
+      window.clearTimeout(secondTimer)
       window.removeEventListener("resize", measure)
       window.removeEventListener("scroll", measure, true)
     }
-  }, [open, step, pathname, current.targets])
+  }, [open, step, ready, current.targets])
 
   useEffect(() => {
     if (!open) return
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onDismiss()
+
+    const block = (event: Event) => {
+      if (isGuideUi(event.target)) return
+      event.preventDefault()
     }
-    window.addEventListener("keydown", onKey)
-    return () => window.removeEventListener("keydown", onKey)
-  }, [open, onDismiss])
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onDismiss()
+        return
+      }
+      if (
+        ["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "].includes(
+          event.key
+        ) &&
+        !isGuideUi(event.target)
+      ) {
+        event.preventDefault()
+      }
+    }
+    const keep = () => {
+      const node = guideNodes(current.targets)[0]
+      if (!node) return
+      const rect = node.getBoundingClientRect()
+      const margin = 28
+      if (rect.top < margin || rect.bottom > window.innerHeight - margin) {
+        node.scrollIntoView({ block: "center", inline: "nearest", behavior: "auto" })
+      }
+    }
+
+    window.addEventListener("wheel", block, { passive: false, capture: true })
+    window.addEventListener("touchmove", block, { passive: false, capture: true })
+    window.addEventListener("keydown", onKey, true)
+    window.addEventListener("scroll", keep, true)
+    return () => {
+      window.removeEventListener("wheel", block, true)
+      window.removeEventListener("touchmove", block, true)
+      window.removeEventListener("keydown", onKey, true)
+      window.removeEventListener("scroll", keep, true)
+    }
+  }, [open, current.targets, onDismiss])
+
+  useLayoutEffect(() => {
+    const node = panelRef.current
+    if (!node || typeof ResizeObserver === "undefined") return
+    const observer = new ResizeObserver(() => {
+      const rect = node.getBoundingClientRect()
+      setPanelSize({
+        width: Math.max(280, rect.width),
+        height: Math.max(180, rect.height),
+      })
+    })
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [open, step, text.title])
 
   if (!open) return null
 
@@ -360,7 +486,7 @@ export function AppGuide({
     <div className="fixed inset-0 z-[80]">
       {spot ? (
         <div
-          className="titan-guide-spot pointer-events-none absolute"
+          className="titan-guide-spot pointer-events-none fixed"
           style={{
             top: spot.top,
             left: spot.left,
@@ -376,11 +502,13 @@ export function AppGuide({
       <div className="absolute inset-0" />
 
       <div
+        ref={panelRef}
         data-guide-ui="true"
         role="dialog"
         aria-modal="true"
         aria-labelledby="titan-guide-title"
-        className="titan-glass pointer-events-auto absolute inset-x-3 bottom-3 z-10 flex max-h-[min(52vh,560px)] w-auto flex-col overflow-hidden rounded-[14px] sm:inset-x-auto sm:right-6 sm:bottom-6 sm:max-h-[min(72vh,640px)] sm:w-full sm:max-w-md"
+        style={panelStyle}
+        className="titan-glass pointer-events-auto absolute z-10 flex max-h-[min(52vh,560px)] w-auto flex-col overflow-hidden rounded-[14px] sm:max-h-[min(72vh,640px)] sm:max-w-md"
       >
         <div className="h-1 w-full bg-muted/70">
           <div
@@ -411,29 +539,20 @@ export function AppGuide({
             >
               {text.title}
             </h2>
-            <p
-              className="titan-guide-in mt-1.5 text-[13px] leading-relaxed text-foreground"
-              style={{ animationDelay: "60ms" }}
-            >
-              {text.lead}
-            </p>
-            <div className="titan-guide-in mt-3" style={{ animationDelay: "110ms" }}>
-              <GuideMiniVisual step={current.id} />
+            <div className="mt-1.5 space-y-2">
+              {text.paragraphs.map((paragraph, index) => (
+                <p
+                  key={`${current.id}-${index}`}
+                  className="titan-guide-in text-[13px] leading-relaxed text-foreground"
+                  style={{ animationDelay: `${60 + index * 40}ms` }}
+                >
+                  {paragraph}
+                </p>
+              ))}
             </div>
-            <button
-              type="button"
-              className="titan-guide-in mt-3 text-left text-[12px] font-medium text-primary"
-              style={{ animationDelay: "140ms" }}
-              aria-expanded={meaningOpen}
-              onClick={() => setMeaningOpen((openMeaning) => !openMeaning)}
-            >
-              {copy.guide.meaning}
-            </button>
-            {meaningOpen ? (
-              <p className="titan-guide-in mt-2 rounded-[10px] border border-border/80 bg-elevated/70 px-3 py-2 text-[12px] leading-relaxed text-muted-foreground">
-                {text.meaning}
-              </p>
-            ) : null}
+            <div className="titan-guide-in mt-3" style={{ animationDelay: "140ms" }}>
+              <GuideMiniVisual step={current.id} copy={copy} chips={rangeChips} />
+            </div>
 
             {last ? (
               <div className="titan-guide-in mt-4 space-y-3" style={{ animationDelay: "160ms" }}>
@@ -443,36 +562,12 @@ export function AppGuide({
                       {copy.emptyStart.cta}
                     </Link>
                   </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={importer.pick}
-                  >
+                  <Button type="button" variant="outline" size="sm" onClick={importer.pick}>
                     {copy.journal.importReport}
                   </Button>
                   {importer.fileInput}
-                  {empty ? (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        replaceAll(sortTrades(MOCK_TRADES))
-                        onDismiss()
-                      }}
-                    >
-                      {copy.emptyStart.sample}
-                    </Button>
-                  ) : null}
                 </div>
                 {importer.message ? <div>{importer.message}</div> : null}
-                <p className="text-[12px] leading-relaxed text-muted-foreground">
-                  {copy.guide.sampleSafe}
-                </p>
-                <p className="text-[12px] leading-relaxed text-muted-foreground">
-                  {reportText(copy)}
-                </p>
               </div>
             ) : null}
           </div>
@@ -503,7 +598,7 @@ export function AppGuide({
                 size="sm"
                 onClick={() => setStep((currentStep) => currentStep + 1)}
               >
-                {copy.guide.next}
+                {first ? copy.guide.start : copy.guide.next}
               </Button>
             )}
           </div>

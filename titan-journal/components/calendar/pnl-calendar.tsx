@@ -46,7 +46,7 @@ export function PnlCalendar({
   }
 
   return (
-    <Card size="sm" className="flex h-full min-h-0 flex-col gap-0 py-0">
+    <Card size="sm" className="flex h-full min-h-0 flex-col gap-0 py-0" data-guide="calendar-board">
       <CardContent className="flex min-h-0 flex-1 flex-col px-3 pt-3 pb-3">
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[10px] border border-border bg-background">
           <div className="grid grid-cols-7 border-b border-border">

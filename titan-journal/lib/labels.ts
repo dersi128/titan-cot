@@ -457,40 +457,55 @@ export const copyEn = {
     next: "Next",
     back: "Back",
     done: "Done",
+    start: "Start the guide",
     beta: "Beta",
     stepOf: "{current} of {total}",
-    meaning: "What does this mean?",
-    sampleSafe: "Sample data does not change your real trades.",
-    overviewTitle: "Overview",
+    welcomeTitle: "Welcome to TITAN JOURNAL",
+    welcomeLead: "Your complete trading journal in one place.",
+    welcomeBody:
+      "Here you will find performance, all trades, the calendar, detailed stats, Playbook, R, Profit Factor, Win Rate, the Equity Curve, and the data that shows what actually works.",
+    welcomeAccounts:
+      "The journal is split into Personal capital, Prop, and Backtesting, so each book stays separate.",
+    welcomeGoal: "The loop is simple: log → analyze → find the edge → improve.",
+    welcomeFlow: "Trade → Journal → Data → Edge",
+    overviewTitle: "Performance overview",
     overviewLead:
-      "Start here: navigation on the left, accounts and period on top. The cards follow that period — 30 days, 3 months, year, or all time. They show Win Rate, P&L, average R, and Profit Factor. The Equity Curve uses the same window.",
-    overviewMeaning:
-      "Win Rate is wins ÷ (wins + losses). Breakeven under 0.5R is not in the rate. Overview uses the period on top. Journal shows the whole account unless you filter there.",
+      "These are the numbers that matter — Win Rate, Profit Factor, Average R, Total PnL, and how the account moves.",
+    overviewBody:
+      "Switch Personal capital, Prop, and Backtesting at the top, and change the period at the same time.",
     profileTitle: "Profile and accounts",
-    profileLead:
-      "Set capital and risk per trade on Profile. Personal, Prop, and Backtesting are three separate books — switch them at the top.",
-    profileMeaning:
-      "Each account keeps its own capital, risk, and stats. Backtesting is practice. Prop is the funded book. Personal is your own money.",
-    tradeTitle: "Add a trade",
+    profileLead: "Set starting capital and the standard risk per trade.",
+    profileBody:
+      "Personal capital, Prop, and Backtesting are three separate books. You also pick the markets you trade.",
+    tradeTitle: "Log your trade",
     tradeLead:
-      "Log a trade by hand: plan, entry, result. Import a broker report from the Journal — CSV, HTML, Excel, or PDF.",
-    tradeMeaning:
-      "Manual notes are for review. Import fills history. A broker import does not overwrite trades you already have.",
+      "Pick the account, LONG/SHORT, and a Playbook. Then add Entry, Stop Loss, Take Profit, risk, RRR, and the result.",
+    tradeBody: "The journal turns that into statistics automatically.",
+    tradeFlow: "Plan → Entry → Result → Stats",
+    importTitle: "Do you want to skip typing?",
+    importLead: "Upload a broker report and the journal can load the trades for you.",
+    importBody: "Use a file the journal already understands.",
+    importFormats: "CSV, HTML, Excel (.xlsx), and PDF.",
     journalTitle: "Journal and review",
-    journalLead:
-      "Full history for this account, filters, and the calendar. These stats ignore the period on top. On a trade you add a screenshot, a note, emotion, mistakes, and whether you followed the plan.",
-    journalMeaning:
-      "Review turns a fill into statistics. Without emotion, mistakes, and the plan, Analytics cannot show where you leak. If Overview and Journal Win Rate differ, check the period on top.",
-    playbookTitle: "Playbook",
-    playbookLead:
-      "Write the strategy and setup once. Link each trade to them, then the Journal scores which setup works.",
-    playbookMeaning:
-      "The playbook is the rules. Analytics by setup shows the edge and the leaks.",
-    analyticsTitle: "Analytics and start",
-    analyticsLead:
-      "Find the best setups, common mistakes, and your edge. Then log the first trade, import a report, or open a sample journal.",
-    analyticsMeaning:
-      "Sample data never overwrites real trades. It only appears when the journal is empty, or you already have the sample open.",
+    journalLead: "This is the full history of your trades.",
+    journalBody:
+      "Filter by period, symbol, direction, or Playbook. On a trade you can add a note, screenshot, emotion, mistake, and whether you followed the plan.",
+    calendarTitle: "Performance over time",
+    calendarLead: "The calendar shows when you were in form — and when you were not.",
+    calendarBody: "Spot winning and losing days, then look for the pattern that repeats.",
+    playbookTitle: "Find your best setups",
+    playbookLead: "Playbook is for strategies and repeatable setups.",
+    playbookBody:
+      "Tag each trade with a setup. The journal then scores Win Rate, Average R, Profit Factor, trade count, and cumulative performance. You do not need dozens of setups — you need the ones with a real Edge.",
+    analyticsTitle: "Know your trading from the data",
+    analyticsLead: "Analytics shows where the results come from.",
+    analyticsBody:
+      "Watch Win Rate, Profit Factor, average win, average loss, Edge, and performance over time. Compare by period, market, direction, or Playbook.",
+    edgeTitle: "Now the real journal starts",
+    edgeLead: "Logging trades is not enough.",
+    edgeBody:
+      "Come back to the data: which setups pay, where you leak, when you are sharp, what RRR you actually get, and whether you follow the plan.",
+    edgeLoop: "Log → Review → Adjust → Repeat",
     report:
       "This is a Beta. If you find a bug or something that does not add up, email {email}.",
     reportSoon:
@@ -572,7 +587,7 @@ export const copyCs: Copy = {
     totalR: "Celkové R",
     winRate: "Win Rate",
     profitFactor: "Profit Factor",
-    averageR: "Avg R",
+    averageR: "Průměrné R",
     totalTrades: "Obchody",
     maxDrawdown: "Max Drawdown",
     hello: "Ahoj, {name}",
@@ -948,42 +963,57 @@ export const copyCs: Copy = {
     next: "Další",
     back: "Zpět",
     done: "Hotovo",
+    start: "Začít průvodce",
     beta: "Beta",
     stepOf: "{current} z {total}",
-    meaning: "Co to znamená?",
-    sampleSafe: "Ukázka nepřepíše tvoje skutečné obchody.",
-    overviewTitle: "Přehled",
+    welcomeTitle: "Vítej v TITAN JOURNAL",
+    welcomeLead: "Tvůj kompletní tradingový Journal na jednom místě.",
+    welcomeBody:
+      "Najdeš zde přehled výkonu, všechny své obchody, kalendář, detailní statistiky, Playbook, práci s R, Profit Factor, Win Rate, Křivku equity a další data, která ti pomohou zjistit, co ve tvém tradingu skutečně funguje.",
+    welcomeAccounts:
+      "Journal je rozdělený na Osobní kapitál, Prop a Backtesting, takže můžeš každý typ tradingu sledovat samostatně.",
+    welcomeGoal: "Cíl je jednoduchý: zapisovat → analyzovat → najít edge → zlepšovat se.",
+    welcomeFlow: "Trade → Journal → Data → Edge",
+    overviewTitle: "Přehled výkonu",
     overviewLead:
-      "Tady začíná Journal: menu vlevo, nahoře účty a období. Karty berou právě to období — 30 dní, 3 měsíce, rok nebo vše. Ukazují Win Rate, P&L, průměrné R a Profit Factor. Equity Curve je vývoj za stejné okno.",
-    overviewMeaning:
-      "Win Rate je výhry ÷ (výhry + prohry). BE pod 0,5R se do něj nepočítá. Přehled bere období nahoře. Deník ukazuje celý účet, dokud tam nic nefiltruješ.",
+      "Tady vidíš nejdůležitější čísla svého tradingu — Win Rate, Profit Factor, Průměrné R, Celkové PnL a vývoj účtu.",
+    overviewBody:
+      "Nahoře můžeš přepínat mezi Osobním kapitálem, Prop a Backtestingem a zároveň měnit sledované období.",
     profileTitle: "Profil a účty",
-    profileLead:
-      "V Profilu nastavíš kapitál a riziko na obchod. Osobní, Prop a Backtesting jsou tři oddělené knihy — nahoře je přepneš.",
-    profileMeaning:
-      "Každý účet má vlastní kapitál, riziko i statistiky. Backtesting je nácvik. Prop je funded. Osobní jsou tvoje peníze.",
-    tradeTitle: "Přidání obchodu",
+    profileLead: "Zde nastavíš počáteční kapitál a standardní riziko na obchod.",
+    profileBody:
+      "Osobní kapitál, Prop a Backtesting fungují jako tři oddělené knihy, takže jejich výsledky se nemíchají. Nastavíš tu i trhy, které obchoduješ.",
+    tradeTitle: "Zapiš svůj obchod",
     tradeLead:
-      "Obchod zapíšeš ručně: plán, vstup, výsledek. Report z brokeru nahraješ v Deníku — CSV, HTML, Excel nebo PDF.",
-    tradeMeaning:
-      "Ruční zápis je na review. Import doplní historii. Existující obchody se při importu z reportu nemění.",
+      "Vyber účet, směr LONG/SHORT a Playbook. Potom můžeš doplnit Entry, Stop Loss, Take Profit, riziko, RRR a výsledek.",
+    tradeBody: "Journal z těchto dat automaticky vytvoří statistiky.",
+    tradeFlow: "Plán → Vstup → Výsledek → Statistiky",
+    importTitle: "Nechceš zapisovat obchody ručně?",
+    importLead: "Nahraj report od brokera a Journal z něj může načíst obchody automaticky.",
+    importBody: "Použij formát, který Journal už umí.",
+    importFormats: "CSV, HTML, Excel (.xlsx) a PDF.",
     journalTitle: "Deník a review",
-    journalLead:
-      "Historie celého účtu, filtry a kalendář. Tyto statistiky nahoře období neberou. U obchodu doplníš screenshot, poznámku, emoci, chyby a jestli jsi dodržel plán.",
-    journalMeaning:
-      "Review z obchodu dělá statistiku. Bez emocí, chyb a plánu Analýzy neuvidí, kde ztrácíš. Když se Win Rate na Přehledu a v Deníku neshoduje, je to kvůli období nahoře.",
-    playbookTitle: "Playbook",
-    playbookLead:
-      "Strategii a setup napíšeš jednou. Obchod na ně napojíš a Journal pak spočítá, který setup funguje.",
-    playbookMeaning:
-      "Playbook jsou pravidla. Analýzy podle setupu ukážou edge i úniky.",
-    analyticsTitle: "Analýzy a začátek",
-    analyticsLead:
-      "Tady najdeš nejlepší setupy, časté chyby a vlastní edge. Pak zapiš první obchod, nahraj report, nebo si prohlédni ukázku.",
-    analyticsMeaning:
-      "Ukázkový Journal nepřepíše tvoje skutečné obchody. Ukáže se jen když je deník prázdný, nebo už ukázku máš.",
-    report:
-      "Teď běží Beta. Nesrovnalost nebo chybu napiš na {email}.",
+    journalLead: "Tady najdeš historii všech obchodů.",
+    journalBody:
+      "Pomocí filtrů můžeš hledat konkrétní období, symbol, směr nebo Playbook. U obchodu doplníš poznámku, screenshot, emoci, chybu nebo dodržení plánu.",
+    calendarTitle: "Výkon v čase",
+    calendarLead: "Kalendář ti ukáže, kdy se ti dařilo a kdy ne.",
+    calendarBody:
+      "Na první pohled uvidíš ziskové a ztrátové dny a můžeš hledat opakující se vzorce.",
+    playbookTitle: "Najdi své nejlepší setupy",
+    playbookLead: "Playbook je místo pro tvoje strategie a opakovatelné setupy.",
+    playbookBody:
+      "Každý obchod přiřadíš ke setupu. Journal spočítá Win Rate, Průměrné R, Profit Factor, počet obchodů a kumulativní výkon. Cílem není desítky setupů, ale zjistit, které mají skutečný Edge.",
+    analyticsTitle: "Poznej svůj trading podle dat",
+    analyticsLead: "Analýzy ti pomohou zjistit, odkud přichází tvé výsledky.",
+    analyticsBody:
+      "Sleduj Win Rate, Profit Factor, průměrný zisk, průměrnou ztrátu, Edge a výkon v čase. Data můžeš porovnávat podle období, trhu, směru nebo Playbooku.",
+    edgeTitle: "Teď začíná skutečný Journal",
+    edgeLead: "Samotné zapisování obchodů nestačí.",
+    edgeBody:
+      "Pravidelně se vracej k datům: které setupy vydělávají, kde nejčastěji chybuješ, kdy máš nejlepší výsledky, jaké RRR skutečně dosahuješ a zda dodržuješ plán.",
+    edgeLoop: "Zapisuj → Vyhodnocuj → Upravuj → Opakuj",
+    report: "Teď běží Beta. Nesrovnalost nebo chybu napiš na {email}.",
     reportSoon:
       "Teď běží Beta. Nesrovnalost nebo chybu můžeš nahlásit e-mailem — adresu brzy doplníme.",
   },
@@ -1061,7 +1091,7 @@ export const copySk: Copy = {
     totalR: "Celkové R",
     winRate: "Win Rate",
     profitFactor: "Profit Factor",
-    averageR: "Avg R",
+    averageR: "Priemerné R",
     totalTrades: "Obchody",
     maxDrawdown: "Max Drawdown",
     hello: "Ahoj, {name}",
@@ -1437,42 +1467,57 @@ export const copySk: Copy = {
     next: "Ďalej",
     back: "Späť",
     done: "Hotovo",
+    start: "Začať sprievodcu",
     beta: "Beta",
     stepOf: "{current} z {total}",
-    meaning: "Čo to znamená?",
-    sampleSafe: "Ukážka neprepíše tvoje skutočné obchody.",
-    overviewTitle: "Prehľad",
+    welcomeTitle: "Vitaj v TITAN JOURNAL",
+    welcomeLead: "Tvoj kompletný tradingový Journal na jednom mieste.",
+    welcomeBody:
+      "Nájdeš tu prehľad výkonu, všetky svoje obchody, kalendár, detailné štatistiky, Playbook, prácu s R, Profit Factor, Win Rate, krivku equity a ďalšie dáta, ktoré ti pomôžu zistiť, čo v tradingu skutočne funguje.",
+    welcomeAccounts:
+      "Journal je rozdelený na Osobný kapitál, Prop a Backtesting, takže každý typ tradingu sleduješ samostatne.",
+    welcomeGoal: "Cieľ je jednoduchý: zapisovať → analyzovať → nájsť edge → zlepšovať sa.",
+    welcomeFlow: "Trade → Journal → Data → Edge",
+    overviewTitle: "Prehľad výkonu",
     overviewLead:
-      "Tu začína Journal: menu vľavo, hore účty a obdobie. Karty berú práve to obdobie — 30 dní, 3 mesiace, rok alebo všetko. Ukazujú Win Rate, P&L, priemerné R a Profit Factor. Equity Curve je vývoj za rovnaké okno.",
-    overviewMeaning:
-      "Win Rate je výhry ÷ (výhry + prehry). BE pod 0,5R sa doň nepočíta. Prehľad berie obdobie hore. Denník ukazuje celý účet, kým tam nič nefiltruješ.",
+      "Tu vidíš najdôležitejšie čísla tradingu — Win Rate, Profit Factor, Priemerné R, Celkové PnL a vývoj účtu.",
+    overviewBody:
+      "Hore môžeš prepínať medzi Osobným kapitálom, Prop a Backtestingom a zároveň meniť sledované obdobie.",
     profileTitle: "Profil a účty",
-    profileLead:
-      "V Profile nastavíš kapitál a riziko na obchod. Osobný, Prop a Backtesting sú tri oddelené knihy — hore ich prepneš.",
-    profileMeaning:
-      "Každý účet má vlastný kapitál, riziko aj štatistiky. Backtesting je nácvik. Prop je funded. Osobný sú tvoje peniaze.",
-    tradeTitle: "Pridanie obchodu",
+    profileLead: "Tu nastavíš počiatočný kapitál a štandardné riziko na obchod.",
+    profileBody:
+      "Osobný kapitál, Prop a Backtesting fungujú ako tri oddelené knihy, takže sa výsledky nemiešajú. Nastavíš tu aj trhy, ktoré obchoduješ.",
+    tradeTitle: "Zapíš svoj obchod",
     tradeLead:
-      "Obchod zapíšeš ručne: plán, vstup, výsledok. Report z brokera nahráš v Denníku — CSV, HTML, Excel alebo PDF.",
-    tradeMeaning:
-      "Ručný zápis je na review. Import doplní históriu. Existujúce obchody sa pri importe z reportu nemenia.",
+      "Vyber účet, smer LONG/SHORT a Playbook. Potom môžeš doplniť Entry, Stop Loss, Take Profit, riziko, RRR a výsledok.",
+    tradeBody: "Journal z týchto dát automaticky vytvorí štatistiky.",
+    tradeFlow: "Plán → Vstup → Výsledok → Štatistiky",
+    importTitle: "Nechceš zapisovať obchody ručne?",
+    importLead: "Nahraj report od brokera a Journal z neho môže načítať obchody automaticky.",
+    importBody: "Použi formát, ktorý Journal už vie.",
+    importFormats: "CSV, HTML, Excel (.xlsx) a PDF.",
     journalTitle: "Denník a review",
-    journalLead:
-      "História celého účtu, filtre a kalendár. Tieto štatistiky hore obdobie neberú. Pri obchode doplníš screenshot, poznámku, emóciu, chyby a či si dodržal plán.",
-    journalMeaning:
-      "Review z obchodu robí štatistiku. Bez emócií, chýb a plánu Analýzy neuvidia, kde strácaš. Keď sa Win Rate na Prehľade a v Denníku nezhoduje, je to kvôli obdobiu hore.",
-    playbookTitle: "Playbook",
-    playbookLead:
-      "Stratégiu a setup napíšeš raz. Obchod na ne napojíš a Journal potom spočíta, ktorý setup funguje.",
-    playbookMeaning:
-      "Playbook sú pravidlá. Analýzy podľa setupu ukážu edge aj úniky.",
-    analyticsTitle: "Analýzy a začiatok",
-    analyticsLead:
-      "Tu nájdeš najlepšie setupy, časté chyby a vlastný edge. Potom zapíš prvý obchod, nahraj report, alebo si pozri ukážku.",
-    analyticsMeaning:
-      "Ukážkový Journal neprepíše tvoje skutočné obchody. Ukáže sa len keď je denník prázdny, alebo už ukážku máš.",
-    report:
-      "Teraz beží Beta. Nesúlad alebo chybu napíš na {email}.",
+    journalLead: "Tu nájdeš históriu všetkých obchodov.",
+    journalBody:
+      "Filtrom hľadáš obdobie, symbol, smer alebo Playbook. Pri obchode doplníš poznámku, screenshot, emóciu, chybu alebo dodržanie plánu.",
+    calendarTitle: "Výkon v čase",
+    calendarLead: "Kalendár ti ukáže, kedy sa ti darilo a kedy nie.",
+    calendarBody:
+      "Na prvý pohľad uvidíš ziskové a stratové dni a môžeš hľadať opakujúce sa vzorce.",
+    playbookTitle: "Nájdi svoje najlepšie setupy",
+    playbookLead: "Playbook je miesto pre tvoje stratégie a opakovateľné setupy.",
+    playbookBody:
+      "Každý obchod priradíš k setupu. Journal spočíta Win Rate, Priemerné R, Profit Factor, počet obchodov a kumulatívny výkon. Cieľom nie sú desiatky setupov, ale zistiť, ktoré majú skutočný Edge.",
+    analyticsTitle: "Spoznaj svoj trading podľa dát",
+    analyticsLead: "Analýzy ti pomôžu zistiť, odkiaľ prichádzajú tvoje výsledky.",
+    analyticsBody:
+      "Sleduj Win Rate, Profit Factor, priemerný zisk, priemernú stratu, Edge a výkon v čase. Dáta môžeš porovnávať podľa obdobia, trhu, smeru alebo Playbooku.",
+    edgeTitle: "Teraz začína skutočný Journal",
+    edgeLead: "Samotné zapisovanie obchodov nestačí.",
+    edgeBody:
+      "Pravidelne sa vracaj k dátam: ktoré setupy zarábajú, kde najčastejšie chybuješ, kedy máš najlepšie výsledky, aké RRR skutočne dosahuješ a či dodržiavaš plán.",
+    edgeLoop: "Zapisuj → Vyhodnocuj → Upravuj → Opakuj",
+    report: "Teraz beží Beta. Nesúlad alebo chybu napíš na {email}.",
     reportSoon:
       "Teraz beží Beta. Nesúlad alebo chybu môžeš nahlásiť e-mailom — adresu čoskoro doplníme.",
   },
