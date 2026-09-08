@@ -8,6 +8,7 @@ import {
   parseImportFile,
   parseImportText,
   parseLocaleNumber,
+  tradeFromBrokerFill,
 } from "@/lib/trade-import"
 
 const encoder = new TextEncoder()
@@ -551,5 +552,27 @@ EURUSD,1,40,Closed,6/10/2026 2:37:36 PM,Trade Sell Out,0.5,1.1538,-4.5
       entry: 97.84,
       pnl: -307.2,
     })
+  })
+})
+
+describe("tradeFromBrokerFill", () => {
+  it("sizes R from profile 1R when the report SL is already at BE", () => {
+    const trade = tradeFromBrokerFill(
+      {
+        date: "2026-09-04",
+        symbol: "EURUSD",
+        direction: "LONG",
+        entry: 1.1,
+        stopLoss: 1.1,
+        takeProfit: 1.2,
+        pnl: 200,
+        resultR: null,
+        notes: "",
+      },
+      { ...DEFAULT_IMPORT_CONTEXT, capital: 10_000, riskPercent: 1 }
+    )
+    expect(trade.resultR).toBe(2)
+    expect(trade.plannedRRR).toBeNull()
+    expect(trade.riskPercent).toBe(1)
   })
 })
