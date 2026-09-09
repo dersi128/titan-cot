@@ -11,7 +11,7 @@
 
   html {
     scroll-behavior: auto;
-    font-size: 15px;
+    font-size: 12.75px;
   }
   body {
     @apply bg-titan-black font-sans text-titan-text antialiased;
@@ -724,7 +724,7 @@
   .titan-home-hero-v2__title {
     margin: 3px 0 0;
     font-family: Outfit, system-ui, sans-serif;
-    font-size: 18px;
+    font-size: 15px;
     font-weight: 700;
     letter-spacing: 0.12em;
     line-height: 1.1;
@@ -735,7 +735,7 @@
 
   @media (min-width: 1280px) {
     .titan-home-hero-v2__title {
-      font-size: 22px;
+      font-size: 19px;
     }
   }
 
@@ -1105,7 +1105,7 @@
   .titan-cmd-card.titan-cmd-watch--bull,
   .titan-cmd-card.titan-cmd-watch--bear {
     overflow: hidden;
-    min-height: 156px;
+    min-height: 132px;
   }
 
   .titan-cmd-watch > .titan-cmd-watch__art {
@@ -3013,8 +3013,8 @@
 }
 
 .titan-score-ring-100 {
-  width: 72px;
-  height: 72px;
+  width: 61px;
+  height: 61px;
 }
 
 .titan-cmd {
@@ -3055,8 +3055,8 @@
   align-items: center;
   gap: 8px;
   min-height: 0;
-  height: 28px;
-  max-height: 28px;
+  height: 24px;
+  max-height: 24px;
   padding: 0 8px !important;
   background:
     linear-gradient(180deg, rgba(8, 16, 26, 0.52), rgba(2, 7, 13, 0.38)),
@@ -3082,7 +3082,7 @@
   align-items: center;
   gap: 6px;
   margin: 0;
-  height: 22px;
+  height: 18px;
   overflow-x: auto;
 }
 
@@ -3094,8 +3094,8 @@
   flex-wrap: nowrap;
   align-items: center;
   gap: 4px;
-  height: 22px;
-  max-height: 22px;
+  height: 18px;
+  max-height: 18px;
   border: 1px solid rgba(125, 211, 252, 0.22);
   border-radius: 4px;
   background: rgba(4, 12, 20, 0.22);
@@ -3391,10 +3391,10 @@
   align-items: center;
   gap: 16px;
   width: 100%;
-  min-height: 132px;
+  min-height: 112px;
   height: 100%;
   margin: 0;
-  padding: 12px 16px;
+  padding: 10px 14px;
   overflow: hidden;
   appearance: none;
   -webkit-appearance: none;
@@ -3499,15 +3499,13 @@
 }
 
 .titan-usd-macro__ring {
-  width: 72px;
-  height: 72px;
+  width: 61px;
+  height: 61px;
   filter: drop-shadow(0 0 8px color-mix(in srgb, var(--usd-accent) 35%, transparent));
 }
 
 .titan-usd-macro__ring figcaption span:first-child {
-  font-size: 22px;
-  line-height: 1;
-  color: #f4f7fb;
+  font-size: 19px;
 }
 
 .titan-usd-macro__ring figcaption span:last-child {
@@ -3530,12 +3528,12 @@
 }
 
 .titan-dme-v2 .titan-usd-macro {
-  min-height: 140px;
+  min-height: 119px;
 }
 
 .titan-dme-v2 .titan-usd-macro__ring {
-  width: 80px;
-  height: 80px;
+  width: 68px;
+  height: 68px;
 }
 
 @media (min-width: 1100px) {
