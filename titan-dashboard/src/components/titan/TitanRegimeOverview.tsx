@@ -1,13 +1,6 @@
 import type { RegimeOverviewCard } from "../../lib/titanHomeOverview";
-import type { MarketRegimeId } from "../../lib/titanCommercialIndex";
+import { regimeCardAccent } from "../../lib/titanRegimeTone";
 import { useTitanI18n } from "../../i18n";
-
-function regimeCardAccent(regime: MarketRegimeId): string {
-  if (regime === "accumulation" || regime === "trending") return "titan-regime-card--bull";
-  if (regime === "distribution") return "titan-regime-card--bear";
-  if (regime === "exhaustion" || regime === "transition") return "titan-regime-card--warn";
-  return "titan-regime-card--neutral";
-}
 
 function MicroSparkline({ values }: { values: number[] }) {
   const max = Math.max(...values, 0.01);
