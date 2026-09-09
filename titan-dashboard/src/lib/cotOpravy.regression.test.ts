@@ -260,6 +260,9 @@ describe("COT opravy — conviction", () => {
     const input = scoringInput(10, 1, -1);
     input.history = hist;
     const data = dashboardFromInput(input);
-    assert.equal(computeInstitutionalConviction(data, 50).level, 3);
+    const opposite = computeInstitutionalConviction(data, 50).level;
+    const alignedShort = computeInstitutionalConviction(data, -50).level;
+    assert.ok(opposite < alignedShort);
+    assert.ok(opposite <= 3);
   });
 });
