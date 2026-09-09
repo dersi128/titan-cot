@@ -29,6 +29,8 @@ import {
   DEFAULT_COT_INDEX_ZONE_THRESHOLDS,
   formatCommercialIndex,
 } from "../../../lib/titanCotIndexSettings";
+import { usdPulseFromBundle } from "../../../lib/homeUsdPulse";
+import { UsdMacroBanner } from "../home/UsdMacroBanner";
 import { GlassCard } from "../ui/titanCmdShared";
 import { TitanPageHeader } from "../ui/TitanPageHeader";
 
@@ -189,6 +191,7 @@ function alignmentKind(id: MacroAlignmentId): "bull" | "bear" | "neutral" | "mix
 export function TitanDmePage({ bundle, onSelectMarket }: TitanDmePageProps) {
   const { t } = useTitanI18n();
   const dme = useMemo(() => buildDmeOverview(bundle), [bundle]);
+  const usdPulse = useMemo(() => usdPulseFromBundle(bundle), [bundle]);
   const [rates, setRates] = useState<MacroRatesResponse | null>(null);
   const [chartMode, setChartMode] = useState<DmeChartMode>("index26w");
   const zones = DEFAULT_COT_INDEX_ZONE_THRESHOLDS;
@@ -297,6 +300,8 @@ export function TitanDmePage({ bundle, onSelectMarket }: TitanDmePageProps) {
           </button>
         }
       />
+
+      <UsdMacroBanner score100={usdPulse.score100} bias={usdPulse.bias} onClick={openDxy} />
 
       {/* Hero */}
       <GlassCard className="p-4 md:p-5">

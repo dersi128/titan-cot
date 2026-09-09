@@ -1,50 +1,19 @@
 import { useEffect, useMemo, useState } from "react";
 import type { CotDashboardData } from "../../../types";
 import type { AppSection, NavigateSectionOptions } from "../../../lib/titanAppRoute";
-import { usdPulseFromBundle, type UsdBiasLabel } from "../../../lib/homeUsdPulse";
+import { usdPulseFromBundle } from "../../../lib/homeUsdPulse";
 import {
   scanSeasonalOpportunities,
   currentPresidentialCyclePhase,
   type SeasonalityOpportunity,
 } from "../../../seasonality/utils/scanBestSeasonalityLong";
 import { useTitanI18n } from "../../../i18n";
-import { TitanScoreRing100 } from "../ui/TitanPrimitives";
-import bullArt from "../../../assets/sentiment/bull.png";
-import bearArt from "../../../assets/sentiment/bear.png";
+import { UsdMacroBanner } from "./UsdMacroBanner";
 
 type HomePulseCardsProps = {
   bundle: Record<string, CotDashboardData>;
   onNavigate: (section: AppSection, options?: NavigateSectionOptions) => void;
 };
-
-function biasTone(bias: string): string {
-  if (bias === "BULLISH") return "text-emerald-400";
-  if (bias === "BEARISH") return "text-rose-400";
-  return "text-amber-300";
-}
-
-function biasGlow(bias: UsdBiasLabel): string {
-  if (bias === "BULLISH") return "titan-cmd-card--glow-bull";
-  if (bias === "BEARISH") return "titan-cmd-card--glow-bear";
-  return "titan-cmd-card--glow-gold";
-}
-
-function UsdBiasMascot({ bias }: { bias: UsdBiasLabel }) {
-  if (bias === "NEUTRAL") return null;
-  const src = bias === "BULLISH" ? bullArt : bearArt;
-  const alt = bias === "BULLISH" ? "Bull" : "Bear";
-  return (
-    <img
-      src={src}
-      alt={alt}
-      width={120}
-      height={90}
-      decoding="async"
-      className="pointer-events-none h-14 w-auto max-w-[5.5rem] shrink-0 object-contain object-right opacity-95 -scale-x-100 sm:h-16 sm:max-w-[6.5rem]"
-      aria-hidden
-    />
-  );
-}
 
 function OpportunityRows({
   rows,
@@ -211,33 +180,8 @@ export function HomePulseCards({ bundle, onNavigate }: HomePulseCardsProps) {
   );
 
   return (
-    <section
-      className="grid gap-2 lg:grid-cols-[minmax(15rem,0.95fr)_minmax(0,1.4fr)]"
-      aria-label={t("home.pulseTitle")}
-    >
-      <button
-        type="button"
-        onClick={() => onNavigate("dme")}
-        className={`titan-cmd-card titan-cmd-card--pulse w-full text-left ${biasGlow(usd.bias)}`}
-      >
-        <div className="flex h-full items-center gap-2.5 px-2 py-1.5 sm:gap-3 sm:px-2.5 sm:py-2">
-          <TitanScoreRing100 score={usd.score100} label="USD" />
-          <div className="min-w-0 flex-1">
-            <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-titan-gold/90">
-              {t("home.pulseDmeTitle")}
-            </p>
-            <p className={`mt-0.5 font-display text-lg font-semibold tracking-wide ${biasTone(usd.bias)}`}>
-              {t(`home.pulseUsdBias.${usd.bias}`)}
-            </p>
-            <p className="mt-0.5 text-[11px] text-stone-500">
-              {usd.score100 === null
-                ? t("home.pulseDmeUnavailable")
-                : t("home.pulseDmeSub", { score: String(usd.score100) })}
-            </p>
-          </div>
-          <UsdBiasMascot bias={usd.bias} />
-        </div>
-      </button>
+    <section className="space-y-2" aria-label={t("home.pulseTitle")}>
+      <UsdMacroBanner score100={usd.score100} bias={usd.bias} onClick={() => onNavigate("dme")} />
 
       <div className="min-w-0 space-y-1.5">
         <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 px-0.5">
