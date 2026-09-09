@@ -1015,22 +1015,54 @@
   .titan-cmd-card.titan-cmd-watch--bull,
   .titan-cmd-card.titan-cmd-watch--bear {
     overflow: hidden;
+    min-height: 220px;
+    padding: 12px;
   }
 
-  .titan-cmd-watch--bull::after,
-  .titan-cmd-watch--bear::after {
-    content: "";
+  .titan-cmd-card.titan-cmd-watch--bull {
+    background: rgba(6, 16, 14, 0.55);
+  }
+
+  .titan-cmd-card.titan-cmd-watch--bear {
+    background: rgba(16, 7, 12, 0.55);
+  }
+
+  .titan-cmd-watch > .titan-cmd-watch__art {
     position: absolute;
     inset: 0;
     z-index: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 78% center;
     pointer-events: none;
-    background-image: var(--watch-photo);
-    background-repeat: no-repeat;
-    background-position: 78% center;
-    background-size: cover;
-    opacity: 0.5;
-    mask-image: linear-gradient(to left, #000 0%, #000 34%, transparent 78%);
-    -webkit-mask-image: linear-gradient(to left, #000 0%, #000 34%, transparent 78%);
+    opacity: 0.92;
+  }
+
+  .titan-cmd-card.titan-cmd-watch--bull::after,
+  .titan-cmd-card.titan-cmd-watch--bear::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(
+      90deg,
+      rgba(5, 11, 18, 0.88) 0%,
+      rgba(5, 11, 18, 0.7) 42%,
+      rgba(5, 11, 18, 0.28) 68%,
+      rgba(5, 11, 18, 0.08) 100%
+    );
+  }
+
+  .titan-cmd-watch > .titan-cmd-kicker,
+  .titan-cmd-watch > .titan-cmd-watch__list {
+    position: relative;
+    z-index: 2;
+  }
+
+  .titan-cmd-watch > .titan-cmd-watch__list {
+    padding-right: 26%;
   }
 
   .titan-cmd-watch--bull .titan-cmd-kicker {
@@ -1041,15 +1073,26 @@
     color: #ff4567;
   }
 
-  .titan-cmd-watch .titan-conviction-stars {
-    filter: drop-shadow(0 0 6px rgba(0, 174, 239, 0.35));
+  .titan-conviction-stars__on {
+    color: #f5b942;
   }
 
-  .titan-cmd-watch--bull .titan-conviction-stars {
+  .titan-conviction-stars__off {
+    color: #3f4a55;
+  }
+
+  .titan-cmd-conviction .titan-conviction-stars__on {
+    color: #38bdf8;
+    filter: drop-shadow(0 0 6px rgba(0, 174, 239, 0.4));
+  }
+
+  .titan-cmd-watch--bull .titan-conviction-stars__on {
+    color: #19e6a2;
     filter: drop-shadow(0 0 6px rgba(16, 217, 154, 0.45));
   }
 
-  .titan-cmd-watch--bear .titan-conviction-stars {
+  .titan-cmd-watch--bear .titan-conviction-stars__on {
+    color: #ff4567;
     filter: drop-shadow(0 0 6px rgba(255, 69, 103, 0.45));
   }
 
@@ -3247,13 +3290,19 @@
 
 @media (min-width: 1280px) {
   .titan-home-row--watch {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1.35fr) minmax(0, 1fr) minmax(0, 1fr);
   }
 }
 
 @media (max-width: 1099px) {
   .titan-cmd-flow {
     grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .titan-cmd-watch > .titan-cmd-watch__list {
+    padding-right: 16%;
   }
 }
 

@@ -70,7 +70,10 @@ export function ConvictionMini({ level }: { level: number }) {
   return (
     <span className="titan-conviction-stars shrink-0 text-[10px]" aria-hidden>
       {Array.from({ length: CONVICTION_MAX }).map((_, i) => (
-        <span key={i} className={i < level ? "text-titan-gold/85" : "text-stone-700"}>
+        <span
+          key={i}
+          className={i < level ? "titan-conviction-stars__on" : "titan-conviction-stars__off"}
+        >
           {i < level ? "★" : "☆"}
         </span>
       ))}
@@ -94,11 +97,8 @@ export function WatchlistPanel({
   const glow = tone === "bull" ? "bull" : "bear";
   const photo = tone === "bull" ? TITAN_PANEL_LONGS_SRC : TITAN_PANEL_SHORTS_SRC;
   return (
-    <GlassCard
-      glow={glow}
-      className={`titan-cmd-watch titan-cmd-watch--${tone} p-3`}
-      style={photo ? ({ ["--watch-photo"]: `url("${photo}")` } as CSSProperties) : undefined}
-    >
+    <GlassCard glow={glow} className={`titan-cmd-watch titan-cmd-watch--${tone}`}>
+      {photo ? <img src={photo} alt="" className="titan-cmd-watch__art" /> : null}
       <h3 className="titan-cmd-kicker">{title}</h3>
       <ul className="titan-cmd-watch__list">
         {entries.length === 0 ? (
@@ -111,9 +111,7 @@ export function WatchlistPanel({
                 onClick={() => onSelect(e.market)}
                 className="titan-cmd-watch__row"
               >
-                <span className="titan-cmd-watch__name">
-                  {e.market.shortLabel}
-                </span>
+                <span className="titan-cmd-watch__name">{e.market.shortLabel}</span>
                 <ConvictionMini level={e.conviction} />
                 <span className={`titan-cmd-watch__score ${scoreHeatClass(e.score)}`}>
                   {e.score > 0 ? `+${e.score}` : e.score}
