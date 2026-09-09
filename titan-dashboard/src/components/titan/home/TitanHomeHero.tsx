@@ -11,25 +11,7 @@ type TitanHomeHeroProps = {
   refreshLabel: string;
 };
 
-function sectionEyebrowKey(section: AppSection): string {
-  switch (section) {
-    case "home":
-      return "nav.home";
-    case "scanner":
-      return "nav.scanner";
-    case "seasonality":
-      return "nav.seasonality";
-    case "dme":
-      return "nav.dme";
-  }
-}
-
-export function TitanHomeHero({
-  section,
-  liveCount,
-  refreshSec,
-  refreshLabel,
-}: TitanHomeHeroProps) {
+export function TitanHomeHero({ liveCount, refreshSec, refreshLabel }: TitanHomeHeroProps) {
   const { t } = useTitanI18n();
 
   return (
@@ -37,7 +19,7 @@ export function TitanHomeHero({
       <div className="titan-home-hero-v2__brand">
         <TitanLogo className="titan-home-hero-v2__logo" showWordmark={false} />
         <div className="titan-home-hero-v2__titles">
-          <p className="titan-home-hero-v2__eyebrow">{t(sectionEyebrowKey(section))}</p>
+          <p className="titan-home-hero-v2__brand-name">{t("brand.name")}</p>
           <h1 className="titan-home-hero-v2__title">{t("header.institutionalCot")}</h1>
           <p className="titan-home-hero-v2__sub">{t("home.heroSubtitleLine")}</p>
         </div>

@@ -5,6 +5,7 @@ export const enMessages = {
     en: "English",
   },
   brand: {
+    name: "TITAN FUSION",
     tagline: "COT Intelligence",
     disclaimerShort: "Bias only, not execution",
     footer: "TITAN COT — Bias only, not execution",

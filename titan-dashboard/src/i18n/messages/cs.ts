@@ -7,6 +7,7 @@ export const csMessages: Messages = {
     en: "English",
   },
   brand: {
+    name: "TITAN FUSION",
     tagline: "COT Intelligence",
     disclaimerShort: "Bias only, not execution",
     footer: "TITAN COT — pouze bias, ne exekuce",
