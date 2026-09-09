@@ -645,60 +645,61 @@
     flex-shrink: 0;
     display: grid;
     place-items: center;
+    width: 5.4rem;
+    height: 5.4rem;
+    overflow: hidden;
   }
 
   .titan-home-hero-v2__logo-wrap::before {
     content: "";
     position: absolute;
-    inset: 10% 8%;
-    z-index: -1;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(0, 174, 239, 0.55), transparent 68%);
-    filter: blur(12px);
-    animation: titan-logo-pulse 2.6s ease-in-out infinite;
-  }
-
-  .titan-home-hero-v2__logo-wrap::after {
-    content: "";
-    position: absolute;
     inset: 6%;
-    z-index: -1;
+    z-index: 0;
     border-radius: 50%;
-    background: conic-gradient(
-      from 90deg,
-      transparent 0 62%,
-      rgba(186, 230, 253, 0.95) 72%,
-      transparent 82%
-    );
-    mask-image: radial-gradient(circle, transparent 54%, #000 56%, #000 64%, transparent 66%);
-    -webkit-mask-image: radial-gradient(circle, transparent 54%, #000 56%, #000 64%, transparent 66%);
-    animation: titan-logo-orbit 5.5s linear infinite;
-    pointer-events: none;
+    background: radial-gradient(circle, rgba(0, 174, 239, 0.42), transparent 70%);
+    filter: blur(10px);
+    animation: titan-logo-pulse 3.2s ease-in-out infinite;
   }
 
   .titan-home-hero-v2__logo,
   .titan-home-hero-v2 .titan-brand-logo,
   .titan-home-hero-v2__logo-wrap svg {
+    position: relative;
+    z-index: 1;
     display: block;
-    height: 5.5rem !important;
+    height: 158% !important;
     width: auto !important;
-    max-height: 5.5rem !important;
-    max-width: 12.5rem !important;
+    max-height: none !important;
+    max-width: none !important;
     object-fit: contain;
-    object-position: center;
+    object-position: center 4%;
     background: transparent;
-    mix-blend-mode: lighten;
-    filter: drop-shadow(0 0 16px rgba(0, 174, 239, 0.4));
-    animation: titan-logo-breathe 3.2s ease-in-out infinite;
+    mix-blend-mode: normal;
+    filter: drop-shadow(0 0 14px rgba(0, 174, 239, 0.38));
+  }
+
+  .titan-home-hero-v2__logo-shine {
+    position: absolute;
+    inset: -20%;
+    z-index: 2;
+    pointer-events: none;
+    background: linear-gradient(
+      115deg,
+      transparent 32%,
+      rgba(186, 230, 253, 0.05) 44%,
+      rgba(255, 255, 255, 0.45) 50%,
+      rgba(56, 189, 248, 0.18) 56%,
+      transparent 68%
+    );
+    transform: translateX(-130%);
+    mix-blend-mode: screen;
+    animation: titan-logo-shine 5.2s ease-in-out infinite;
   }
 
   @media (min-width: 1280px) {
-    .titan-home-hero-v2__logo,
-    .titan-home-hero-v2 .titan-brand-logo,
-    .titan-home-hero-v2__logo-wrap svg {
-      height: 6.75rem !important;
-      max-height: 6.75rem !important;
-      max-width: 15rem !important;
+    .titan-home-hero-v2__logo-wrap {
+      width: 6.25rem;
+      height: 6.25rem;
     }
   }
 
@@ -1398,19 +1399,16 @@
     }
   }
 
-  @keyframes titan-logo-orbit {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  @keyframes titan-logo-breathe {
+  @keyframes titan-logo-shine {
     0%,
-    100% {
-      filter: drop-shadow(0 0 12px rgba(0, 174, 239, 0.32));
+    58% {
+      transform: translateX(-130%);
     }
-    50% {
-      filter: drop-shadow(0 0 26px rgba(0, 174, 239, 0.78));
+    78% {
+      transform: translateX(130%);
+    }
+    100% {
+      transform: translateX(130%);
     }
   }
 
@@ -2887,9 +2885,7 @@
   .titan-auth-panel,
   .titan-app-nav__item--active,
   .titan-home-hero-v2__logo-wrap::before,
-  .titan-home-hero-v2__logo-wrap::after,
-  .titan-home-hero-v2__logo,
-  .titan-home-hero-v2 .titan-brand-logo,
+  .titan-home-hero-v2__logo-shine,
   .titan-home-hero-v2__led,
   .titan-home-hero-v2__refresh {
     animation: none !important;
@@ -2922,6 +2918,8 @@
 
 .titan-auth-logo {
   filter: drop-shadow(0 0 18px rgba(46, 168, 255, 0.28));
+  background: transparent;
+  mix-blend-mode: normal;
 }
 
 .titan-auth-brand__title {
@@ -3585,12 +3583,9 @@
     overflow-y: auto;
   }
 
-  .titan-page-bg--home-fit .titan-home-hero-v2__logo,
-  .titan-page-bg--home-fit .titan-home-hero-v2 .titan-brand-logo,
-  .titan-page-bg--home-fit .titan-home-hero-v2__logo-wrap svg {
-    height: 4.6rem !important;
-    max-height: 4.6rem !important;
-    max-width: 11rem !important;
+  .titan-page-bg--home-fit .titan-home-hero-v2__logo-wrap {
+    width: 4.7rem;
+    height: 4.7rem;
   }
 
   .titan-page-bg--home-fit .titan-home-hero-v2__title {
