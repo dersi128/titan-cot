@@ -3037,7 +3037,12 @@
 }
 
 .titan-cmd-card.titan-cmd-flow-card {
-  padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 10px 12px;
+  padding: 5px 10px;
   background:
     linear-gradient(180deg, rgba(8, 16, 26, 0.52), rgba(2, 7, 13, 0.38)),
     rgba(5, 11, 18, 0.28);
@@ -3047,27 +3052,33 @@
 }
 
 .titan-cmd-flow-card .titan-cmd-kicker {
+  flex-shrink: 0;
+  margin: 0;
   color: #e8eef5;
   letter-spacing: 0.18em;
 }
 
 .titan-cmd-flow {
   display: grid;
+  flex: 1 1 auto;
+  min-width: 0;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 8px;
-  margin-top: 8px;
+  gap: 6px;
+  margin: 0;
 }
 
 .titan-cmd-flow__cell {
   display: flex;
   min-width: 0;
-  flex-direction: column;
-  gap: 5px;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 6px;
   border: 1px solid rgba(125, 211, 252, 0.22);
   border-radius: 6px;
   background: rgba(4, 12, 20, 0.22);
   box-shadow: inset 0 1px 0 rgba(125, 211, 252, 0.06);
-  padding: 8px 10px;
+  padding: 4px 8px;
 }
 
 .titan-cmd-flow__class {
@@ -3084,19 +3095,26 @@
 .titan-cmd-flow__badge {
   display: inline-flex;
   width: fit-content;
-  max-width: 100%;
+  max-width: 42%;
   align-items: center;
-  padding: 2px 6px;
+  margin-left: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 1px 6px;
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  line-height: 1.2;
 }
 
 .titan-cmd-flow__dir {
+  flex-shrink: 0;
   font-size: 10px;
   font-weight: 650;
   letter-spacing: 0.08em;
+  line-height: 1.2;
   text-transform: uppercase;
 }
 
@@ -3525,9 +3543,16 @@
   .titan-home-main--fit .titan-cmd--home {
     flex: 1 1 auto;
     min-height: 0;
-    gap: 10px;
+    gap: 8px;
     display: grid;
-    grid-template-rows: auto minmax(0, 1.12fr) minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1.2fr) minmax(0, 1.15fr);
+  }
+
+  .titan-home-main--fit .titan-cmd-flow-wrap,
+  .titan-home-main--fit .titan-cmd-flow-card {
+    flex-shrink: 0;
+    min-height: 0;
+    height: auto;
   }
 
   .titan-home-main--fit .titan-home-row--pulse,
@@ -3590,14 +3615,19 @@
 }
 
 @media (max-width: 1099px) {
+  .titan-cmd-card.titan-cmd-flow-card {
+    flex-wrap: wrap;
+  }
+
   .titan-cmd-flow {
+    flex: 1 1 100%;
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 900px) {
   .titan-cmd-flow {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .titan-usd-macro__copy {
