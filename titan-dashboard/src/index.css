@@ -1015,6 +1015,32 @@
   .titan-cmd-card.titan-cmd-watch--bull,
   .titan-cmd-card.titan-cmd-watch--bear {
     overflow: hidden;
+    min-height: 208px;
+  }
+
+  .titan-cmd-watch > .titan-cmd-watch__art {
+    position: absolute;
+    right: -10%;
+    bottom: -22%;
+    z-index: 0;
+    width: 78%;
+    height: 118%;
+    object-fit: contain;
+    object-position: right bottom;
+    pointer-events: none;
+    opacity: 0.92;
+    mask-image: linear-gradient(to left, #000 42%, transparent 88%);
+    -webkit-mask-image: linear-gradient(to left, #000 42%, transparent 88%);
+  }
+
+  .titan-cmd-watch > .titan-cmd-kicker,
+  .titan-cmd-watch > .titan-cmd-watch__list {
+    position: relative;
+    z-index: 2;
+  }
+
+  .titan-cmd-watch > .titan-cmd-watch__list {
+    max-width: 74%;
   }
 
   .titan-cmd-watch--bull .titan-cmd-kicker {

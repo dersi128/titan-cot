@@ -5,6 +5,7 @@ import type { WatchlistEntry } from "../../../lib/titanHomeOverview";
 import type { FlowDirection } from "../../../lib/titanHomeMock";
 import { FLOW_MAP_CLASSES, type FlowMapClassId } from "../../../lib/titanHomeMock";
 import type { InstitutionalMarket } from "../../../config/institutionalMarkets";
+import { TITAN_PANEL_LONGS_SRC, TITAN_PANEL_SHORTS_SRC } from "../../../lib/brandAssets";
 import type { ScannerRowModel } from "../GlobalCotScanner";
 
 export function GlassCard({
@@ -93,8 +94,10 @@ export function WatchlistPanel({
   onSelect: (m: InstitutionalMarket) => void;
 }) {
   const glow = tone === "bull" ? "bull" : "bear";
+  const photo = tone === "bull" ? TITAN_PANEL_LONGS_SRC : TITAN_PANEL_SHORTS_SRC;
   return (
     <GlassCard glow={glow} className={`titan-cmd-watch titan-cmd-watch--${tone} p-3`}>
+      {photo ? <img src={photo} alt="" className="titan-cmd-watch__art" /> : null}
       <h3 className="titan-cmd-kicker">{title}</h3>
       <ul className="titan-cmd-watch__list">
         {entries.length === 0 ? (
