@@ -3216,6 +3216,13 @@
   background-size: 100% 100%;
 }
 
+.titan-cmd-shifts .titan-cmd-kicker,
+.titan-cmd-conviction .titan-cmd-kicker {
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+}
+
 .titan-cmd-shifts__list {
   margin-top: 6px;
   display: flex;
@@ -3223,52 +3230,30 @@
   gap: 1px;
 }
 
-.titan-cmd-shift {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  border: none;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  padding: 5px 2px;
-  text-align: left;
-  transition: background 0.15s ease;
-}
-
-.titan-cmd-shift:hover {
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.titan-cmd-shift--extreme {
-  box-shadow: inset 2px 0 0 rgba(245, 185, 66, 0.75);
-}
-
-.titan-cmd-shift__name {
-  margin: 0;
-  flex: 0 0 4.5rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #f4f7fb;
-}
-
 .titan-cmd-shift__path {
   margin: 0;
   min-width: 0;
-  flex: 1;
+  flex: 0 1 auto;
+  max-width: 70%;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: flex-end;
-  gap: 4px;
-  font-size: 10px;
-  color: #7c8998;
+  gap: 6px;
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  color: #9aa8b5;
+  white-space: nowrap;
+}
+
+.titan-cmd-shift__path > span {
+  min-width: 0;
+}
+
+.titan-cmd-shift__arrow {
+  flex-shrink: 0;
 }
 
 .titan-cmd-shift__arrow--bull {

@@ -137,10 +137,10 @@ export function TitanHomePage({ rows, bundle, onSelectMarket, onNavigate }: Tita
                     <button
                       type="button"
                       onClick={() => onSelectMarket(s.market)}
-                      className={`titan-cmd-shift ${extreme ? "titan-cmd-shift--extreme" : ""}`}
+                      className="titan-cmd-watch__row titan-cmd-shift"
                     >
-                      <p className="titan-cmd-shift__name">{s.market.shortLabel}</p>
-                      <p className="titan-cmd-shift__path">
+                      <span className="titan-cmd-watch__name">{s.market.shortLabel}</span>
+                      <span className="titan-cmd-shift__path">
                         <span>{t(`positioning.zones.${s.from}`)}</span>
                         <span
                           className={`titan-cmd-shift__arrow titan-cmd-shift__arrow--${s.tone}`}
@@ -151,7 +151,7 @@ export function TitanHomePage({ rows, bundle, onSelectMarket, onNavigate }: Tita
                         <span className={extreme ? "titan-cmd-shift__to--extreme" : undefined}>
                           {t(`positioning.zones.${s.to}`)}
                         </span>
-                      </p>
+                      </span>
                     </button>
                   </li>
                 );
