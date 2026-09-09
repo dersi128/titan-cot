@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import { TITAN_WORLD_MAP_CANDIDATES } from "../lib/brandAssets";
 
-/** Cinematic institutional background — world map photo + gold atmosphere. */
+/** Atmospheric institutional background — globe, flow, horizon. No data. */
 export function TitanInstitutionalBackdrop() {
   const [mapIndex, setMapIndex] = useState(0);
   const mapSrc = TITAN_WORLD_MAP_CANDIDATES[mapIndex];
@@ -14,6 +14,7 @@ export function TitanInstitutionalBackdrop() {
 
   return (
     <div className="titan-institutional-backdrop pointer-events-none fixed inset-0 z-0" aria-hidden>
+      <div className="titan-institutional-backdrop__base" />
       <div
         className={`titan-institutional-backdrop__map ${showSvgFallback ? "" : "titan-institutional-backdrop__map--hidden"}`}
       />
@@ -27,9 +28,10 @@ export function TitanInstitutionalBackdrop() {
           onError={onMapError}
         />
       ) : null}
+      <div className="titan-institutional-backdrop__charts" />
       <div className="titan-institutional-backdrop__mesh" />
-      <div className="titan-institutional-backdrop__rays" />
-      <div className="titan-institutional-backdrop__particles" />
+      <div className="titan-institutional-backdrop__glow" />
+      <div className="titan-institutional-backdrop__horizon" />
       <div className="titan-institutional-backdrop__veil" />
     </div>
   );
