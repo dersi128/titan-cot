@@ -27,6 +27,12 @@ const CHART_TOOLTIP_STYLE = {
   boxShadow: "0 12px 40px rgba(0,0,0,0.5)",
 };
 
+const SERIES_STROKE = {
+  commercial: "#2ea8ff",
+  nonCommercial: "#f5c542",
+  retail: "#f472b6",
+} as const;
+
 type SeriesDef = {
   dataKey: keyof CotHistoryChartPoint;
   name: string;
@@ -79,19 +85,19 @@ export function CotHistoryChartPanel({
   const series: SeriesDef[] =
     chartMode === "index26w"
       ? [
-          { dataKey: "commercialIndex", name: t("detail.chartCommercialIndex"), stroke: "#2ea8ff", strokeWidth: 2.25 },
-          { dataKey: "retailIndex", name: t("detail.chartRetailIndex"), stroke: "#f472b6", strokeWidth: 1.75 },
+          { dataKey: "commercialIndex", name: t("detail.chartCommercialIndex"), stroke: SERIES_STROKE.commercial, strokeWidth: 2.25 },
+          { dataKey: "retailIndex", name: t("detail.chartRetailIndex"), stroke: SERIES_STROKE.retail, strokeWidth: 1.75 },
         ]
       : chartMode === "delta1w"
         ? [
-            { dataKey: "commercialDelta", name: t("detail.chartCommercialDelta"), stroke: "#2ea8ff", strokeWidth: 2.25 },
-            { dataKey: "nonCommercialDelta", name: t("detail.chartNonCommercialDelta"), stroke: "#38bdf8", strokeWidth: 1.75 },
-            { dataKey: "retailDelta", name: t("detail.chartRetailDelta"), stroke: "#f472b6", strokeWidth: 1.75 },
+            { dataKey: "commercialDelta", name: t("detail.chartCommercialDelta"), stroke: SERIES_STROKE.commercial, strokeWidth: 2.25 },
+            { dataKey: "nonCommercialDelta", name: t("detail.chartNonCommercialDelta"), stroke: SERIES_STROKE.nonCommercial, strokeWidth: 1.75 },
+            { dataKey: "retailDelta", name: t("detail.chartRetailDelta"), stroke: SERIES_STROKE.retail, strokeWidth: 1.75 },
           ]
         : [
-            { dataKey: "commercialNet", name: t("detail.chartCommercial"), stroke: "#2ea8ff", strokeWidth: 2.25 },
-            { dataKey: "nonCommercialNet", name: t("detail.chartNonCommercial"), stroke: "#38bdf8", strokeWidth: 1.75 },
-            { dataKey: "retailNet", name: t("detail.chartRetail"), stroke: "#f472b6", strokeWidth: 1.75 },
+            { dataKey: "commercialNet", name: t("detail.chartCommercial"), stroke: SERIES_STROKE.commercial, strokeWidth: 2.25 },
+            { dataKey: "nonCommercialNet", name: t("detail.chartNonCommercial"), stroke: SERIES_STROKE.nonCommercial, strokeWidth: 1.75 },
+            { dataKey: "retailNet", name: t("detail.chartRetail"), stroke: SERIES_STROKE.retail, strokeWidth: 1.75 },
           ];
 
   const modes: Array<{ id: CotChartMode; label: string }> = [
