@@ -3,9 +3,9 @@ import type { CotDashboardData } from "../../../types";
 import type { InstitutionalMarket } from "../../../config/institutionalMarkets";
 import { INSTITUTIONAL_MARKETS } from "../../../config/institutionalMarkets";
 import type { AppSection, NavigateSectionOptions } from "../../../lib/titanAppRoute";
-import { buildHomeOverviewStats } from "../../../lib/titanHomeOverview";
+import { buildHomeOverviewStats, selectHighestConviction } from "../../../lib/titanHomeOverview";
 import { FLOW_MAP_CLASSES } from "../../../lib/titanHomeMock";
-import { convictionRankScore, CONVICTION_MAX } from "../../../lib/titanConviction";
+import { CONVICTION_MAX } from "../../../lib/titanConviction";
 import { useTitanI18n } from "../../../i18n";
 import type { ScannerRowModel } from "../GlobalCotScanner";
 import { HomePulseCards } from "../home/HomePulseCards";
@@ -46,18 +46,7 @@ export function TitanHomePage({ rows, bundle, onSelectMarket, onNavigate }: Tita
     [bundle, homeRows],
   );
 
-  const highestConviction = useMemo(() => {
-    return rows
-      .filter((r) => r.status === "live")
-      .map((r) => ({
-        market: r.market,
-        score: r.score,
-        conviction: r.conviction,
-        rank: convictionRankScore(r.score, r.conviction, r.persistenceWeeks),
-      }))
-      .sort((a, b) => b.rank - a.rank)
-      .slice(0, 4);
-  }, [rows]);
+  const highestConviction = useMemo(() => selectHighestConviction(rows), [rows]);
 
   const flowMap = useMemo(() => buildFlowMapFromRows(rows), [rows]);
 
@@ -80,7 +69,7 @@ export function TitanHomePage({ rows, bundle, onSelectMarket, onNavigate }: Tita
                   {cell ? (
                     <>
                       <span
-                        className={`titan-regime-pill inline-flex max-w-full items-center justify-center px-1.5 py-0.5 text-[8px] font-bold uppercase ${regimePillClass(cell.regime)}`}
+                        className={`titan-regime-pill inline-flex max-w-full items-center justify-center px-1.5 py-0.5 text-[8px] font-bold uppercase ${regimePillClass(cell.regime, cell.score)}`}
                       >
                         {t(`positioning.regime.${cell.regime}`)}
                       </span>

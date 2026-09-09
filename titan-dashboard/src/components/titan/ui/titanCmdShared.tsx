@@ -113,12 +113,7 @@ export function WatchlistPanel({
   );
 }
 
-export function regimePillClass(regime: MarketRegimeId): string {
-  if (regime === "accumulation" || regime === "trending") return "titan-regime-pill--bull";
-  if (regime === "distribution") return "titan-regime-pill--bear";
-  if (regime === "exhaustion" || regime === "transition") return "titan-regime-pill--warn";
-  return "titan-regime-pill--neutral";
-}
+export { regimePillClass } from "../../../lib/titanRegimeTone";
 
 export function flowToneClass(dir: FlowDirection): string {
   if (dir === "inflow") return "text-emerald-400/90";
@@ -128,9 +123,12 @@ export function flowToneClass(dir: FlowDirection): string {
 
 export function buildFlowMapFromRows(rows: ScannerRowModel[]): Record<
   FlowMapClassId,
-  { regime: MarketRegimeId; direction: FlowDirection; conviction: number } | null
+  { regime: MarketRegimeId; direction: FlowDirection; conviction: number; score: number } | null
 > {
-  const out = {} as Record<FlowMapClassId, { regime: MarketRegimeId; direction: FlowDirection; conviction: number } | null>;
+  const out = {} as Record<
+    FlowMapClassId,
+    { regime: MarketRegimeId; direction: FlowDirection; conviction: number; score: number } | null
+  >;
   for (const cls of FLOW_MAP_CLASSES) {
     const live = rows.filter((r) => r.status === "live" && r.market.category === cls);
     if (live.length === 0) {
@@ -159,6 +157,7 @@ export function buildFlowMapFromRows(rows: ScannerRowModel[]): Record<
       regime: dominant,
       direction,
       conviction: Math.round(convSum / live.length),
+      score: avg,
     };
   }
   return out;

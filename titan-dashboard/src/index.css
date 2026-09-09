@@ -525,6 +525,14 @@
     @apply border-b border-white/10 bg-[#0a0a0d] px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-stone-300;
   }
 
+  .titan-scanner-sort {
+    @apply inline-flex max-w-full items-center gap-1.5 bg-transparent p-0 text-left text-[11px] font-semibold uppercase tracking-[0.14em] text-inherit;
+  }
+
+  .titan-scanner-sort--end {
+    @apply w-full justify-end text-right;
+  }
+
   .titan-scanner-table tbody td {
     color: #e7e5e4;
   }

@@ -6,7 +6,9 @@ import {
   type CommercialZoneId,
   type MarketRegimeId,
 } from "./titanCommercialIndex";
+import type { ScannerRowModel } from "./cotScannerRows";
 import { convictionRankScore } from "./titanConviction";
+import { SCORE_NEUTRAL_ABS } from "./titanRegimeTone";
 
 export type HomeScannerRow = {
   market: InstitutionalMarket;
@@ -303,7 +305,7 @@ export function buildHomeOverviewStats(
     .filter((e) => e.row.status === "live");
 
   const strongestLongs = enriched
-    .filter((e) => e.row.score > 0)
+    .filter((e) => e.row.score >= SCORE_NEUTRAL_ABS)
     .sort((a, b) => b.rank - a.rank)
     .slice(0, 5)
     .map((e, i) => ({
@@ -315,7 +317,7 @@ export function buildHomeOverviewStats(
     }));
 
   const strongestShorts = enriched
-    .filter((e) => e.row.score < 0)
+    .filter((e) => e.row.score <= -SCORE_NEUTRAL_ABS)
     .sort((a, b) => b.rank - a.rank)
     .slice(0, 5)
     .map((e, i) => ({
@@ -339,4 +341,23 @@ export function buildHomeOverviewStats(
     breadth: buildBreadthSnapshot(liveRows),
     regimeShifts: buildRegimeShifts(liveRows, bundle),
   };
+}
+
+export function selectHighestConviction(rows: readonly ScannerRowModel[], limit = 4) {
+  return rows
+    .filter((row) => row.status === "live")
+    .map((row) => ({
+      market: row.market,
+      score: row.score,
+      conviction: row.conviction,
+      rank: convictionRankScore(row.score, row.conviction, row.persistenceWeeks),
+    }))
+    .sort((a, b) => {
+      if (b.conviction !== a.conviction) return b.conviction - a.conviction;
+      if (b.rank !== a.rank) return b.rank - a.rank;
+      return a.market.shortLabel.localeCompare(b.market.shortLabel, undefined, {
+        sensitivity: "base",
+      });
+    })
+    .slice(0, limit);
 }
