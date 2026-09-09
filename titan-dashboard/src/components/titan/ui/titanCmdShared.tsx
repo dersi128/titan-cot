@@ -96,8 +96,9 @@ export function WatchlistPanel({
   const glow = tone === "bull" ? "bull" : "bear";
   const photo = tone === "bull" ? TITAN_PANEL_LONGS_SRC : TITAN_PANEL_SHORTS_SRC;
   return (
-    <GlassCard glow={glow} className={`titan-cmd-watch titan-cmd-watch--${tone} p-3`}>
+    <GlassCard glow={glow} className={`titan-cmd-watch titan-cmd-watch--${tone} p-2`}>
       {photo ? <img src={photo} alt="" className="titan-cmd-watch__art" /> : null}
+      <span className="titan-cmd-watch__veil" aria-hidden />
       <h3 className="titan-cmd-kicker">{title}</h3>
       <ul className="titan-cmd-watch__list">
         {entries.length === 0 ? (

@@ -244,19 +244,19 @@ export function GlobalCotScanner({ rows, selectedMarket, onSelectMarket }: Globa
                   } ${row.status === "error" ? "titan-scanner-row--error" : ""} ${active ? "titan-scanner-row-active" : ""}`}
                   onClick={() => !invalid && onSelectMarket(row.market)}
                 >
-                  <td className="px-5 py-3.5">
+                  <td className="px-3 py-2">
                     <div className="flex items-center gap-3">
-                      <div className="titan-scanner-icon-slot flex h-11 w-11 shrink-0 items-center justify-center">
+                      <div className="titan-scanner-icon-slot flex h-9 w-9 shrink-0 items-center justify-center">
                         <TitanMarketIcon
                           market={row.market}
                           score={row.status === "live" ? row.score : undefined}
                         />
                       </div>
                       <div className="min-w-0">
-                        <span className="font-display text-[15px] font-semibold tracking-wide text-white">
+                        <span className="font-display text-[13px] font-semibold tracking-wide text-white">
                           {row.market.shortLabel}
                         </span>
-                        <p className="mt-0.5 text-[12px] text-stone-300">
+                        <p className="mt-0.5 text-[11px] text-stone-300">
                           {messages.category[row.market.category]} · {row.market.subtitle}
                         </p>
                         {row.status === "error" ? (
@@ -269,28 +269,28 @@ export function GlobalCotScanner({ rows, selectedMarket, onSelectMarket }: Globa
                     </div>
                   </td>
                   <td
-                    className={`px-4 py-3.5 text-right font-mono text-[1.65rem] font-bold leading-none tabular-nums ${row.status === "live" ? scoreHeatClass(row.score) : "text-titan-muted"}`}
+                    className={`px-3 py-2 text-right font-mono text-[1.3rem] font-bold leading-none tabular-nums ${row.status === "live" ? scoreHeatClass(row.score) : "text-titan-muted"}`}
                   >
                     {row.status === "live" ? row.score : "—"}
                   </td>
-                  <td className="hidden w-44 px-4 py-3.5 md:table-cell">
+                  <td className="hidden w-44 px-3 py-2 md:table-cell">
                     {row.status === "live" ? <TitanScoreBar score={row.score} /> : "—"}
                   </td>
                   <td
-                    className={`max-w-[200px] px-4 py-3.5 text-[10px] font-semibold uppercase leading-snug tracking-wide ${row.status === "live" ? verdictAccentClass(row.verdict) : "text-titan-muted"}`}
+                    className={`max-w-[200px] px-3 py-2 text-[10px] font-semibold uppercase leading-snug tracking-wide ${row.status === "live" ? verdictAccentClass(row.verdict) : "text-titan-muted"}`}
                   >
                     {row.status === "live" ? row.verdict : "—"}
                   </td>
-                  <td className="px-4 py-3.5 text-right font-mono text-sm font-medium tabular-nums text-stone-200">
+                  <td className="px-3 py-2 text-right font-mono text-sm font-medium tabular-nums text-stone-200">
                     {row.comm26 !== null ? row.comm26.toFixed(0) : "—"}
                   </td>
-                  <td className="px-4 py-3.5 text-right font-mono text-sm font-medium tabular-nums text-stone-200">
+                  <td className="px-3 py-2 text-right font-mono text-sm font-medium tabular-nums text-stone-200">
                     {row.retail26 !== null ? row.retail26.toFixed(0) : "—"}
                   </td>
-                  <td className="px-4 py-3.5 align-middle">
+                  <td className="px-3 py-2 align-middle">
                     {row.status === "live" ? (
                       <span
-                        className={`titan-regime-pill inline-flex min-h-[1.625rem] min-w-[6.75rem] items-center justify-center px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em] ${regimePillClass(row.regime, row.score)}`}
+                        className={`titan-regime-pill inline-flex min-h-[1.25rem] min-w-[5.5rem] items-center justify-center px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em] ${regimePillClass(row.regime, row.score)}`}
                       >
                         {t(`positioning.regime.${row.regime}`)}
                       </span>
@@ -298,7 +298,7 @@ export function GlobalCotScanner({ rows, selectedMarket, onSelectMarket }: Globa
                       <span className="text-titan-muted">—</span>
                     )}
                   </td>
-                  <td className="px-5 py-3.5 text-right align-middle">
+                  <td className="px-3 py-2 text-right align-middle">
                     {row.status === "live" ? (
                       <div className="inline-flex flex-col items-end gap-0.5">
                         <span className="font-mono text-[11px] font-medium tabular-nums text-stone-400">
