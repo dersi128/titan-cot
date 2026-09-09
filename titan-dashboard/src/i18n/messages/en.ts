@@ -6,6 +6,9 @@ export const enMessages = {
   },
   brand: {
     name: "TITAN FUSION",
+    wordmarkLead: "TITAN",
+    wordmarkTail: "FUSION",
+    slogan: "Markets reveal. We clarify.",
     tagline: "COT Intelligence",
     disclaimerShort: "Bias only, not execution",
     footer: "TITAN COT — Bias only, not execution",
@@ -14,7 +17,7 @@ export const enMessages = {
     backMarkets: "Back to all markets",
     marketDetail: "Market detail",
     institutionalCot: "INSTITUTIONAL COT",
-    heroBadge: "Live · CFTC legacy",
+    heroBadge: "LIVE • CFTC LEGACY",
     cftcTv: "CFTC legacy futures",
     marketsLive: "{{count}} markets live",
     report: "Report",

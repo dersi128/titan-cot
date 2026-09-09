@@ -8,6 +8,9 @@ export const csMessages: Messages = {
   },
   brand: {
     name: "TITAN FUSION",
+    wordmarkLead: "TITAN",
+    wordmarkTail: "FUSION",
+    slogan: "Markets reveal. We clarify.",
     tagline: "COT Intelligence",
     disclaimerShort: "Bias only, not execution",
     footer: "TITAN COT — pouze bias, ne exekuce",
@@ -16,7 +19,7 @@ export const csMessages: Messages = {
     backMarkets: "Zpět na všechny trhy",
     marketDetail: "Detail trhu",
     institutionalCot: "INSTITUTIONAL COT",
-    heroBadge: "Live · CFTC legacy",
+    heroBadge: "LIVE • CFTC LEGACY",
     cftcTv: "CFTC legacy futures",
     marketsLive: "{{count}} trhů live",
     report: "Report",
