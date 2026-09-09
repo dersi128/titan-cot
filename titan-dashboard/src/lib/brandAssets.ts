@@ -26,5 +26,9 @@ export const TITAN_LOGO_SRC =
   titanLogoUrl || assetUrl("titan-logo.png", "titan-logo.png.png") || "";
 
 export const TITAN_WORLD_MAP_CANDIDATES = [
+  assetUrl("dashboard-bg.png"),
   assetUrl("world-map.png", "world-map.png.png", "world-map.jpg"),
 ].filter((u): u is string => Boolean(u));
+
+export const TITAN_PANEL_LONGS_SRC = assetUrl("panel-longs.png") ?? "";
+export const TITAN_PANEL_SHORTS_SRC = assetUrl("panel-shorts.png") ?? "";
