@@ -5,19 +5,18 @@ export default {
     extend: {
       colors: {
         titan: {
-          black: "#02040a",
-          void: "#060a12",
-          panel: "#0a1018",
-          elevated: "#101826",
-          line: "rgba(255,255,255,0.06)",
-          /* Legacy class names (`titan-gold*`) → neon blue accent */
-          gold: "#2ea8ff",
-          goldBright: "#7dd3fc",
-          goldDim: "#2a6a9e",
-          bull: "#00d084",
-          bear: "#ff4d6d",
-          text: "#e8eef4",
-          muted: "#8a96a8",
+          black: "#02070D",
+          void: "#050B12",
+          panel: "#07111C",
+          elevated: "#0A1622",
+          line: "rgba(40,150,210,0.18)",
+          gold: "#00AEEF",
+          goldBright: "#38BDF8",
+          goldDim: "#1A6A8A",
+          bull: "#10D99A",
+          bear: "#FF4567",
+          text: "#F4F7FB",
+          muted: "#7C8998",
         },
       },
       fontFamily: {

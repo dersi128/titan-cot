@@ -149,9 +149,11 @@ export function TitanScoreGauge({ score }: { score: number }) {
 export function TitanScoreRing100({
   score,
   label = "USD",
+  className = "",
 }: {
   score: number | null;
   label?: string;
+  className?: string;
 }) {
   const clamped = score === null ? null : Math.max(0, Math.min(100, Math.round(score)));
   const pct = clamped === null ? 0 : clamped / 100;
@@ -167,7 +169,7 @@ export function TitanScoreRing100({
           : "#2ea8ff";
 
   return (
-    <figure className="relative m-0 h-[100px] w-[100px] shrink-0">
+    <figure className={`titan-score-ring-100 relative m-0 shrink-0 ${className}`}>
       <svg viewBox="0 0 96 96" className="h-full w-full -rotate-90" aria-hidden>
         <circle cx="48" cy="48" r="42" fill="none" stroke="#1c1c22" strokeWidth="6" />
         <circle
@@ -180,7 +182,7 @@ export function TitanScoreRing100({
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
-          className="transition-all duration-700 ease-out"
+          className="titan-score-ring-100__arc transition-all duration-700 ease-out"
         />
       </svg>
       <figcaption className="absolute inset-0 flex flex-col items-center justify-center">

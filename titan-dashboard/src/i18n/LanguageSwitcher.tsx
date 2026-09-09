@@ -10,7 +10,7 @@ export function LanguageSwitcher() {
 
   return (
     <div
-      className="flex items-center gap-1 rounded-xl border border-titan-gold/15 bg-titan-panel/80 p-1 backdrop-blur-md"
+      className="titan-lang-switch"
       role="group"
       aria-label={t("lang.label")}
     >
@@ -22,11 +22,7 @@ export function LanguageSwitcher() {
             type="button"
             onClick={() => setLocale(opt.id)}
             aria-pressed={active}
-            className={`rounded-lg px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-wider transition-all ${
-              active
-                ? "bg-titan-gold/20 text-titan-goldBright shadow-insetGold"
-                : "text-stone-500 hover:text-stone-300"
-            }`}
+            className={`titan-lang-switch__btn ${active ? "titan-lang-switch__btn--active" : ""}`}
           >
             {opt.label}
           </button>
