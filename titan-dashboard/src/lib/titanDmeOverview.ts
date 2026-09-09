@@ -131,16 +131,17 @@ function cotVerdictFromZone(zone: CommercialZoneId | null, score: number | null)
   return "neutral";
 }
 
-function breadthFromCounts(usdFavoring: number, live: number): FxBreadthId {
+export function breadthFromCounts(usdFavoring: number, fxFavoring: number, live: number): FxBreadthId {
   if (live === 0) return "mixed";
-  const pct = usdFavoring / live;
-  if (pct >= 0.67) return "wide_usd";
-  if (pct >= 0.5) return "narrow_usd";
-  if (pct <= 0.33) return "wide_fx";
+  const usdPct = usdFavoring / live;
+  const fxPct = fxFavoring / live;
+  if (usdPct >= 0.67) return "wide_usd";
+  if (usdPct >= 0.5 && usdFavoring > fxFavoring) return "narrow_usd";
+  if (fxPct >= 0.67) return "wide_fx";
   return "mixed";
 }
 
-function breadthLeanFromId(id: FxBreadthId): BreadthLeanId {
+export function breadthLeanFromId(id: FxBreadthId): BreadthLeanId {
   if (id === "wide_usd" || id === "narrow_usd") return "usd_favoring";
   if (id === "wide_fx") return "fx_favoring";
   return "mixed";
@@ -230,7 +231,8 @@ export function buildDmeOverview(bundle: Record<string, CotDashboardData>): DmeO
   const fxExtremeCount = livePanels.filter((p) => Math.abs(p.score) >= 40).length;
   const usdBiasPct =
     livePanels.length > 0 ? Math.round((usdFavoringCount / livePanels.length) * 100) : 0;
-  const fxBreadth = breadthFromCounts(usdFavoringCount, livePanels.length);
+  const fxFavoringCount = livePanels.filter((p) => p.stance === "usd_minus").length;
+  const fxBreadth = breadthFromCounts(usdFavoringCount, fxFavoringCount, livePanels.length);
 
   return {
     dxyAvailable,

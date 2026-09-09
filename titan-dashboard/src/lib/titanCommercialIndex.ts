@@ -3,17 +3,12 @@
  */
 
 import type { CotDashboardData, CotHistoryPoint } from "../types";
-import { calculateCotIndex } from "./titanCotScoringCore";
+import { calculateCotIndex, computeUnifiedCotScore, IDX_HI, IDX_LO } from "./titanCotScoringCore";
 import {
   commercialIndexBand,
   getCotIndexZoneThresholds,
   type CotIndexBandId,
 } from "./titanCotIndexSettings";
-import {
-  horizonDeltas,
-  horizonFlowTone,
-  horizonPanelTrend,
-} from "../components/titan/deltaFlowHorizon";
 
 export const THR_HIGH = 75;
 export const THR_LOW = 25;
@@ -194,8 +189,9 @@ export function evaluateInstitutionalDivergence(data: CotDashboardData): Diverge
   const w1 = c.weeklyChange;
   const d4 = c.delta4w;
 
+  const netTolerance = Math.max((maxNet - minNet) * 0.02, 1);
   const structuralBear =
-    currNet >= maxNet * 0.98 && currIdx < prevIdx - 3 && c.index26w >= 52;
+    currNet >= maxNet - netTolerance && currIdx < prevIdx - 3 && c.index26w >= 52;
 
   const ncChasingLong =
     ncIdx26 >= 62 &&
@@ -209,7 +205,7 @@ export function evaluateInstitutionalDivergence(data: CotDashboardData): Diverge
     (commAddsShort && ncIdx26 >= 58 && (ncD4 >= 0 || ncW1 > 0));
 
   const structuralBull =
-    currNet <= minNet * 1.02 && currIdx > prevIdx + 3 && c.index26w <= 48;
+    currNet <= minNet + netTolerance && currIdx > prevIdx + 3 && c.index26w <= 48;
 
   const ncStaysBearish = ncIdx26 <= 42 && ncW1 <= 0 && ncD4 <= 0;
 
@@ -240,11 +236,17 @@ export function netRange26w(history: CotHistoryPoint[], key: "commercialNet" | "
   };
 }
 
+/** Consecutive 80/20 extremes on the SAME side; independent of display bands. */
 export function weeksInExtremeZone(indexSeries: number[]): number {
+  const latest = indexSeries[indexSeries.length - 1];
+  if (!Number.isFinite(latest)) return 0;
+  const side = latest > IDX_HI ? 1 : latest < IDX_LO ? -1 : 0;
+  if (side === 0) return 0;
   let count = 0;
   for (let i = indexSeries.length - 1; i >= 0; i--) {
-    const z = commercialIndexZone(indexSeries[i]!);
-    if (z === "extreme_short" || z === "extreme_long") count++;
+    const idx = indexSeries[i]!;
+    if (!Number.isFinite(idx)) break;
+    if (side === 1 ? idx > IDX_HI : idx < IDX_LO) count++;
     else break;
   }
   return count;
@@ -310,85 +312,30 @@ export function retailPositioningLabel(zone: CommercialZoneId): string {
 /**
  * Institutional environment from commercial bias, persistence, crowd, flow, and divergence.
  */
+/** API and UI both use the score engine's regime. Legacy parameters preserve callers. */
 export function evaluatePositioningMarketRegime(
   data: CotDashboardData,
-  commercialZone: CommercialZoneId,
-  retailZone: CommercialZoneId,
-  commercialPersistenceWeeks: number,
-  divergence: DivergenceStateId,
+  _commercialZone: CommercialZoneId,
+  _retailZone: CommercialZoneId,
+  _commercialPersistenceWeeks: number,
+  _divergence: DivergenceStateId,
 ): MarketRegimeId {
   const c = data.commercials;
+  const nc = data.nonCommercials;
   const r = data.retail;
-  const w1 = c.weeklyChange;
-  const d4 = c.delta4w;
-  const idx = clampIndex(c.index26w);
-  const retailIdx = clampIndex(r.index26w);
-
-  const { w1: f1, w4: f4, w13: f13 } = horizonDeltas(buildDeltaFlow(data));
-  const tone = horizonFlowTone(f1, f4, f13);
-  const panelTrend = horizonPanelTrend(f1, f4, f13);
-  const flowBull = tone === "bull";
-  const flowBear = tone === "bear";
-  const flowMixed = tone === "mixed";
-
-  const commExtremeLong = commercialZone === "extreme_long" || commercialZone === "strong_long";
-  const commExtremeShort = commercialZone === "extreme_short" || commercialZone === "strong_short";
-  const persist = commercialPersistenceWeeks;
-
-  const retailLongCrowd =
-    retailIdx >= 58 ||
-    retailZone === "extreme_long" ||
-    retailZone === "strong_long" ||
-    (retailZone === "bullish" && retailIdx >= 52);
-
-  const retailShortCrowd =
-    retailIdx <= 42 ||
-    retailZone === "extreme_short" ||
-    retailZone === "strong_short" ||
-    (retailZone === "bearish" && retailIdx <= 48);
-
-  if (commExtremeLong && persist >= 2 && flowBull && retailShortCrowd) {
-    return "accumulation";
-  }
-  if (commExtremeShort && persist >= 2 && flowBear && retailLongCrowd) {
-    return "distribution";
-  }
-
-  const weakeningFlow = panelTrend === "weakening_bear" || panelTrend === "weakening_bull";
-  const divStress = divergence === "bearish" || divergence === "bullish";
-  if (
-    (commercialZone === "extreme_long" || commercialZone === "extreme_short") &&
-    persist >= 3 &&
-    (weakeningFlow || (divStress && flowMixed))
-  ) {
-    return "exhaustion";
-  }
-
-  if ((w1 > 0 && d4 < 0) || (w1 < 0 && d4 > 0)) {
-    return "transition";
-  }
-  if ((divergence === "bearish" || divergence === "bullish") && flowMixed && persist <= 2) {
-    return "transition";
-  }
-
-  const dirFlowAligned =
-    (idx >= 52 && flowBull && !flowMixed) || (idx <= 48 && flowBear && !flowMixed);
-  if (dirFlowAligned && divergence === "aligned" && Math.abs(idx - 50) >= 12) {
-    return "trending";
-  }
-
-  if (flowMixed && persist < 5 && Math.abs(idx - 50) <= 28) {
-    return "rotation";
-  }
-
-  if (Math.abs(idx - 50) <= 16 && flowMixed) {
-    return "neutral";
-  }
-
-  if (flowBear && idx >= 55) return "transition";
-  if (flowBull && idx <= 45) return "transition";
-
-  return "neutral";
+  const bias = c.index26w > IDX_HI ? "bullish" : c.index26w < IDX_LO ? "bearish" : "neutral";
+  // Rebuild these labels from the same inputs/rules as cotLogicEngine.
+  const divergence = c.weeklyChange > 0 && nc.weeklyChange < 0 ? "bullish"
+    : c.weeklyChange < 0 && nc.weeklyChange > 0 ? "bearish" : "none";
+  const contrarianSignal = bias === "bullish" && r.index26w < IDX_LO ? "bullish"
+    : bias === "bearish" && r.index26w > IDX_HI ? "bearish" : "none";
+  const result = computeUnifiedCotScore({
+    commercials: { ...c, bias },
+    nonCommercials: { weeklyChange: nc.weeklyChange, divergence },
+    retail: { index26w: r.index26w, index52w: r.index52w, contrarianSignal },
+    history: data.history,
+  });
+  return result.market_regime.toLowerCase() as MarketRegimeId;
 }
 
 /** Single source of truth for market regime (scanner + detail). */

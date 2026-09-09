@@ -118,8 +118,8 @@ export type StructuralBulletId =
   | "persistence_elevated"
   | "moderate_bias";
 
-const IDX_HI = 80;
-const IDX_LO = 20;
+export const IDX_HI = 80;
+export const IDX_LO = 20;
 const BIAS_DISCLAIMER = "Bias only, not execution.";
 
 export function calculateCotIndex(priorNets: number[], currentNet: number): number {
@@ -193,10 +193,10 @@ export function activeCommercialPersistenceStreak(
   const bullStreak = countCommercialExtremePersistence(history, "bull");
   const bearStreak = countCommercialExtremePersistence(history, "bear");
 
-  if (c.bias === "bullish" || (c.index26w > IDX_HI && c.index26w >= c.index52w - 10)) {
+  if (c.index26w > IDX_HI) {
     return { weeks: bullStreak, side: "bull" };
   }
-  if (c.bias === "bearish" || c.index26w < IDX_LO) {
+  if (c.index26w < IDX_LO) {
     return { weeks: bearStreak, side: "bear" };
   }
   return { weeks: 0, side: "none" };
@@ -316,7 +316,7 @@ function driverPersistence(
     points,
     explanation:
       ap.side === "none" || w === 0
-        ? "No multi-week streak in the commercial index extreme (rolling 26W percentile)."
+        ? "No multi-week streak in the commercial index extreme (rolling 26W min-max index)."
         : ap.side === "bear"
           ? `${w} consecutive week(s) with commercial index in bearish extreme (<${IDX_LO}) — supports bearish persistence.`
           : `${w} consecutive week(s) with commercial index in bullish extreme (>${IDX_HI}) — supports bullish persistence.`,
@@ -335,11 +335,11 @@ function driverNcDivergence(
   let points = 0;
   const triggers: string[] = [`nc_divergence=${nc.divergence}`, `commercial_index_26w=${c.index26w}`];
   if (commBear && nc.divergence === "bullish") {
-    points = -10;
-    triggers.push("commercial_bearish_nc_bullish_bearish_confirmation");
-  } else if (commBull && nc.divergence === "bearish") {
     points = 10;
-    triggers.push("commercial_bullish_nc_bearish_bullish_confirmation");
+    triggers.push("bullish_flow_divergence_against_low_commercial_index");
+  } else if (commBull && nc.divergence === "bearish") {
+    points = -10;
+    triggers.push("bearish_flow_divergence_against_high_commercial_index");
   } else {
     triggers.push("no_divergence_confirmation");
   }
@@ -351,9 +351,9 @@ function driverNcDivergence(
     points,
     explanation:
       points < 0
-        ? "Non-commercial weekly flow leans opposite to commercial bearish lean — historically aligns with bearish confirmation in this rule set."
+        ? "Commercial net decreases while non-commercial net increases against a high commercial index — bearish flow divergence."
         : points > 0
-          ? "Non-commercial weekly flow leans opposite to commercial bullish lean — historically aligns with bullish confirmation in this rule set."
+          ? "Commercial net increases while non-commercial net decreases against a low commercial index — bullish flow divergence."
           : "No qualifying commercial vs non-commercial divergence pattern under deterministic rules.",
     trigger_conditions: triggers,
   };
