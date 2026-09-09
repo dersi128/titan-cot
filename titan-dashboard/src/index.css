@@ -636,44 +636,55 @@
     display: flex;
     min-width: 0;
     align-items: center;
-    gap: 12px;
+    gap: 18px;
   }
 
   .titan-home-hero-v2__logo,
   .titan-home-hero-v2 .titan-brand-logo,
   .titan-home-hero-v2 svg {
     display: block;
-    height: 48px !important;
+    height: 5.5rem !important;
     width: auto !important;
-    max-height: 48px !important;
-    max-width: 56px !important;
+    max-height: 5.5rem !important;
+    max-width: 12.5rem !important;
     object-fit: contain;
     object-position: center;
     background: transparent;
     mix-blend-mode: lighten;
-    filter: drop-shadow(0 0 8px rgba(0, 174, 239, 0.22));
+    filter: drop-shadow(0 0 16px rgba(0, 174, 239, 0.35));
+  }
+
+  @media (min-width: 1280px) {
+    .titan-home-hero-v2__logo,
+    .titan-home-hero-v2 .titan-brand-logo,
+    .titan-home-hero-v2 svg {
+      height: 6.75rem !important;
+      max-height: 6.75rem !important;
+      max-width: 15rem !important;
+    }
   }
 
   .titan-home-hero-v2__titles {
     min-width: 0;
   }
 
-  .titan-home-hero-v2__eyebrow {
+  .titan-home-hero-v2__brand-name {
     margin: 0;
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.16em;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
-    color: #7c8998;
+    color: #7dd3fc;
+    text-shadow: 0 0 14px rgba(0, 174, 239, 0.4);
   }
 
   .titan-home-hero-v2__title {
-    margin: 2px 0 0;
+    margin: 4px 0 0;
     font-family: Outfit, system-ui, sans-serif;
-    font-size: 22px;
+    font-size: 26px;
     font-weight: 700;
-    letter-spacing: 0.08em;
-    line-height: 1.15;
+    letter-spacing: 0.12em;
+    line-height: 1.1;
     text-transform: uppercase;
     color: #f4f7fb;
     text-shadow: 0 0 22px rgba(0, 174, 239, 0.32);
@@ -681,7 +692,7 @@
 
   @media (min-width: 1280px) {
     .titan-home-hero-v2__title {
-      font-size: 26px;
+      font-size: 34px;
     }
   }
 
@@ -826,8 +837,7 @@
   }
 
   /*
-   * Neon glass — shared by GlassCard (.titan-cmd-card), Scanner,
-   * and Seasonality panels. Scene shows through; rim glow lights the UI.
+   * Neon glass — readable panels over the scene: denser fill, lighter blur.
    */
   .titan-neon-glass,
   .titan-cmd-card,
@@ -842,16 +852,16 @@
     position: relative;
     isolation: isolate;
     border-radius: 8px;
-    border: 1px solid rgba(0, 174, 239, 0.48);
+    border: 1px solid rgba(0, 174, 239, 0.4);
     background:
-      linear-gradient(180deg, rgba(7, 17, 28, 0.72), rgba(2, 7, 13, 0.78)),
-      rgba(5, 11, 18, 0.62);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+      linear-gradient(180deg, rgba(6, 14, 22, 0.9), rgba(2, 7, 13, 0.92)),
+      rgba(5, 11, 18, 0.88);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     box-shadow:
-      inset 0 1px 0 rgba(125, 211, 252, 0.2),
-      0 0 0 1px rgba(0, 174, 239, 0.1),
-      0 0 28px -6px rgba(0, 174, 239, 0.42),
+      inset 0 1px 0 rgba(125, 211, 252, 0.14),
+      0 0 0 1px rgba(0, 174, 239, 0.08),
+      0 0 22px -8px rgba(0, 174, 239, 0.32),
       0 12px 28px -18px rgba(0, 0, 0, 0.72);
     transition:
       border-color 0.2s ease,
@@ -873,7 +883,7 @@
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    background: radial-gradient(ellipse 85% 50% at 50% -8%, rgba(0, 174, 239, 0.16), transparent 65%);
+    background: radial-gradient(ellipse 85% 50% at 50% -8%, rgba(0, 174, 239, 0.1), transparent 65%);
     z-index: 0;
   }
 
@@ -934,34 +944,34 @@
   }
 
   .titan-cmd-card--glow-cyan {
-    border-color: rgba(0, 174, 239, 0.58);
+    border-color: rgba(0, 174, 239, 0.5);
     box-shadow:
-      inset 0 1px 0 rgba(125, 211, 252, 0.22),
-      0 0 0 1px rgba(0, 174, 239, 0.14),
-      0 0 32px -4px rgba(0, 174, 239, 0.48),
+      inset 0 1px 0 rgba(125, 211, 252, 0.16),
+      0 0 0 1px rgba(0, 174, 239, 0.1),
+      0 0 24px -8px rgba(0, 174, 239, 0.38),
       0 12px 28px -18px rgba(0, 0, 0, 0.72);
   }
 
   .titan-cmd-card--glow-cyan::before {
-    background: radial-gradient(ellipse 85% 50% at 50% -8%, rgba(0, 174, 239, 0.18), transparent 65%);
+    background: radial-gradient(ellipse 85% 50% at 50% -8%, rgba(0, 174, 239, 0.12), transparent 65%);
   }
 
   .titan-cmd-card--glow-bull,
   .titan-neon-glass--glow-bull {
-    border-color: rgba(16, 217, 154, 0.55);
+    border-color: rgba(16, 217, 154, 0.48);
     background:
-      linear-gradient(180deg, rgba(8, 28, 22, 0.7), rgba(2, 7, 13, 0.78)),
-      rgba(5, 16, 14, 0.62);
+      linear-gradient(180deg, rgba(6, 22, 18, 0.9), rgba(2, 7, 13, 0.92)),
+      rgba(5, 16, 14, 0.88);
     box-shadow:
-      inset 0 1px 0 rgba(16, 217, 154, 0.22),
-      0 0 0 1px rgba(16, 217, 154, 0.12),
-      0 0 32px -4px rgba(16, 217, 154, 0.46),
+      inset 0 1px 0 rgba(16, 217, 154, 0.16),
+      0 0 0 1px rgba(16, 217, 154, 0.1),
+      0 0 24px -8px rgba(16, 217, 154, 0.36),
       0 12px 28px -18px rgba(0, 0, 0, 0.72);
   }
 
   .titan-cmd-card--glow-bull::before,
   .titan-neon-glass--glow-bull::before {
-    background: radial-gradient(ellipse 85% 50% at 50% -8%, rgba(16, 217, 154, 0.16), transparent 65%);
+    background: radial-gradient(ellipse 85% 50% at 50% -8%, rgba(16, 217, 154, 0.1), transparent 65%);
   }
 
   .titan-cmd-card--glow-bull:hover,
@@ -976,20 +986,20 @@
 
   .titan-cmd-card--glow-bear,
   .titan-neon-glass--glow-bear {
-    border-color: rgba(255, 69, 103, 0.55);
+    border-color: rgba(255, 69, 103, 0.48);
     background:
-      linear-gradient(180deg, rgba(28, 10, 16, 0.7), rgba(2, 7, 13, 0.78)),
-      rgba(16, 7, 12, 0.62);
+      linear-gradient(180deg, rgba(24, 8, 12, 0.9), rgba(2, 7, 13, 0.92)),
+      rgba(16, 7, 12, 0.88);
     box-shadow:
-      inset 0 1px 0 rgba(255, 69, 103, 0.22),
-      0 0 0 1px rgba(255, 69, 103, 0.12),
-      0 0 32px -4px rgba(255, 69, 103, 0.46),
+      inset 0 1px 0 rgba(255, 69, 103, 0.16),
+      0 0 0 1px rgba(255, 69, 103, 0.1),
+      0 0 24px -8px rgba(255, 69, 103, 0.36),
       0 12px 28px -18px rgba(0, 0, 0, 0.72);
   }
 
   .titan-cmd-card--glow-bear::before,
   .titan-neon-glass--glow-bear::before {
-    background: radial-gradient(ellipse 85% 50% at 50% -8%, rgba(255, 69, 103, 0.16), transparent 65%);
+    background: radial-gradient(ellipse 85% 50% at 50% -8%, rgba(255, 69, 103, 0.1), transparent 65%);
   }
 
   .titan-cmd-card--glow-bear:hover,
@@ -1011,23 +1021,16 @@
   .titan-cmd-watch--bear::after {
     content: "";
     position: absolute;
-    right: -6%;
-    bottom: -18%;
+    inset: 0;
     z-index: 0;
-    width: 64%;
-    height: 88%;
     pointer-events: none;
     background-image: var(--watch-photo);
     background-repeat: no-repeat;
-    background-position: right bottom;
-    background-size: contain;
-    opacity: 0.42;
-    mask-image: linear-gradient(to left, #000 32%, transparent 88%),
-      linear-gradient(to top, #000 38%, transparent 92%);
-    mask-composite: intersect;
-    -webkit-mask-image: linear-gradient(to left, #000 32%, transparent 88%),
-      linear-gradient(to top, #000 38%, transparent 92%);
-    -webkit-mask-composite: destination-in;
+    background-position: 78% center;
+    background-size: cover;
+    opacity: 0.5;
+    mask-image: linear-gradient(to left, #000 0%, #000 34%, transparent 78%);
+    -webkit-mask-image: linear-gradient(to left, #000 0%, #000 34%, transparent 78%);
   }
 
   .titan-cmd-watch--bull .titan-cmd-kicker {
@@ -1062,7 +1065,7 @@
     gap: 8px;
     border: 1px solid transparent;
     border-radius: 8px;
-    background: rgba(2, 7, 13, 0.28);
+    background: rgba(2, 7, 13, 0.45);
     padding: 6px 8px;
     text-align: left;
     transition:
@@ -2818,7 +2821,7 @@
   gap: 4px;
   border: 1px solid rgba(0, 174, 239, 0.28);
   border-radius: 8px;
-  background: rgba(2, 7, 13, 0.28);
+  background: rgba(2, 7, 13, 0.42);
   box-shadow: inset 0 1px 0 rgba(125, 211, 252, 0.08);
   padding: 8px;
 }
@@ -3012,8 +3015,9 @@
   align-items: center;
   gap: 8px;
   border-radius: 8px;
-  padding: 6px 4px;
+  padding: 6px 8px;
   text-align: left;
+  background: rgba(2, 7, 13, 0.35);
 }
 
 .titan-season-row:hover {
@@ -3094,58 +3098,46 @@
   color: inherit;
   cursor: pointer;
   border-radius: 8px;
-  border: 1px solid color-mix(in srgb, var(--usd-accent) 62%, transparent);
-  background: transparent;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid color-mix(in srgb, var(--usd-accent) 58%, transparent);
+  background: rgba(5, 11, 18, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   box-shadow:
-    inset 0 1px 0 color-mix(in srgb, var(--usd-accent) 28%, transparent),
-    0 0 0 1px color-mix(in srgb, var(--usd-accent) 16%, transparent),
-    0 0 32px -4px color-mix(in srgb, var(--usd-accent) 48%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--usd-accent) 22%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--usd-accent) 12%, transparent),
+    0 0 24px -6px color-mix(in srgb, var(--usd-accent) 38%, transparent),
     0 12px 28px -18px rgba(0, 0, 0, 0.72);
 }
 
 .titan-usd-macro--bullish {
   --usd-accent: #10d99a;
-  background:
-    linear-gradient(115deg, rgba(6, 22, 18, 0.72) 0%, rgba(5, 11, 18, 0.58) 46%, rgba(7, 24, 18, 0.42) 100%);
+  background: rgba(6, 16, 14, 0.72);
 }
 
 .titan-usd-macro--bearish {
   --usd-accent: #ff4567;
-  background:
-    linear-gradient(115deg, rgba(24, 8, 12, 0.72) 0%, rgba(5, 11, 18, 0.58) 46%, rgba(22, 8, 12, 0.42) 100%);
+  background: rgba(16, 7, 12, 0.72);
 }
 
 .titan-usd-macro--neutral {
   --usd-accent: #38bdf8;
-  background: linear-gradient(135deg, rgba(7, 17, 28, 0.72), rgba(2, 7, 13, 0.62));
+  background: rgba(7, 17, 28, 0.88);
 }
 
 .titan-usd-macro__chart {
-  position: absolute;
-  right: 6%;
-  bottom: 10%;
-  z-index: 0;
-  width: 42%;
-  height: 58%;
-  opacity: 0.16;
-  pointer-events: none;
+  display: none;
 }
 
 .titan-usd-macro__art {
   position: absolute;
-  top: auto;
-  right: -2%;
-  bottom: -8%;
+  inset: 0;
   z-index: 0;
-  width: 28%;
-  height: 92%;
-  object-fit: contain;
-  object-position: right bottom;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 68% center;
   pointer-events: none;
-  opacity: 0.88;
-  mask-image: linear-gradient(to left, #000 55%, transparent 100%);
+  opacity: 0.9;
 }
 
 .titan-usd-macro::after {
@@ -3156,10 +3148,10 @@
   pointer-events: none;
   background: linear-gradient(
     90deg,
-    rgba(5, 11, 18, 0.55) 0%,
-    rgba(5, 11, 18, 0.28) 42%,
-    rgba(5, 11, 18, 0.08) 68%,
-    transparent 100%
+    rgba(5, 11, 18, 0.88) 0%,
+    rgba(5, 11, 18, 0.62) 36%,
+    rgba(5, 11, 18, 0.22) 62%,
+    rgba(5, 11, 18, 0.08) 100%
   );
 }
 
@@ -3176,7 +3168,7 @@
 
 .titan-usd-macro__kicker {
   margin: 0;
-  color: #38bdf8;
+  color: var(--usd-accent);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.18em;
@@ -3275,7 +3267,6 @@
   }
 
   .titan-usd-macro__art {
-    width: 24%;
-    opacity: 0.55;
+    object-position: 80% center;
   }
 }

@@ -15,40 +15,6 @@ const ART: Partial<Record<UsdBiasLabel, string>> = {
   BEARISH: bearArt,
 };
 
-function DecorChart({ bias }: { bias: UsdBiasLabel }) {
-  if (bias === "NEUTRAL") return null;
-  const up = bias === "BULLISH";
-  const stroke = up ? "#10D99A" : "#FF4567";
-  const line = up ? "8,78 48,62 88,54 128,36 168,28 212,12" : "8,14 48,28 88,36 128,54 168,66 212,80";
-  const bars = up
-    ? [
-        [18, 58, 22],
-        [48, 46, 18],
-        [78, 40, 20],
-        [108, 32, 16],
-        [138, 24, 18],
-        [168, 18, 14],
-        [198, 12, 16],
-      ]
-    : [
-        [18, 16, 16],
-        [48, 22, 18],
-        [78, 30, 16],
-        [108, 40, 20],
-        [138, 48, 18],
-        [168, 58, 16],
-        [198, 66, 18],
-      ];
-  return (
-    <svg className="titan-usd-macro__chart" viewBox="0 0 220 90" aria-hidden>
-      {bars.map(([x, y, h], i) => (
-        <rect key={i} x={x} y={y} width="7" height={h} rx="1" fill={stroke} />
-      ))}
-      <polyline fill="none" stroke={stroke} strokeWidth="1.6" points={line} />
-    </svg>
-  );
-}
-
 export function UsdMacroBanner({ score100, bias, onClick }: UsdMacroBannerProps) {
   const { t } = useTitanI18n();
   const art = ART[bias];
@@ -57,7 +23,6 @@ export function UsdMacroBanner({ score100, bias, onClick }: UsdMacroBannerProps)
 
   const body = (
     <>
-      <DecorChart bias={bias} />
       {art ? <img src={art} alt="" className="titan-usd-macro__art" /> : null}
       <TitanScoreRing100 score={score100} label="USD" className="titan-usd-macro__ring" />
       <div className="titan-usd-macro__copy">
