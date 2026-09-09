@@ -51,7 +51,7 @@ export function TitanHomePage({ rows, bundle, onSelectMarket, onNavigate }: Tita
   const flowMap = useMemo(() => buildFlowMapFromRows(rows), [rows]);
 
   return (
-    <div className="titan-cmd">
+    <div className="titan-cmd titan-cmd--home">
       <section className="titan-cmd-flow-wrap" aria-label={t("home.cmdFlowMap")}>
         <GlassCard className="titan-cmd-flow-card">
           <h3 className="titan-cmd-kicker">{t("home.cmdFlowMap")}</h3>
