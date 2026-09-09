@@ -3,6 +3,7 @@
  * Local: public/brand/ → npm run brand:sync
  */
 import titanLogoUrl from "../assets/brand/titan-logo.png?url";
+import dashboardBgUrl from "../assets/brand/dashboard-bg.png?url";
 
 const assets = import.meta.glob<string>("../assets/brand/*.{png,jpg,jpeg,webp}", {
   eager: true,
@@ -25,10 +26,13 @@ function assetUrl(...filenames: string[]): string | undefined {
 export const TITAN_LOGO_SRC =
   titanLogoUrl || assetUrl("titan-logo.png", "titan-logo.png.png") || "";
 
-export const TITAN_WORLD_MAP_CANDIDATES = [
-  assetUrl("dashboard-bg.png"),
-  assetUrl("world-map.png", "world-map.png.png", "world-map.jpg"),
-].filter((u): u is string => Boolean(u));
+export const TITAN_WORLD_MAP_CANDIDATES = Array.from(
+  new Set(
+    [dashboardBgUrl, assetUrl("world-map.png", "world-map.png.png", "world-map.jpg")].filter(
+      (u): u is string => Boolean(u),
+    ),
+  ),
+);
 
 export const TITAN_PANEL_LONGS_SRC = assetUrl("panel-longs.png") ?? "";
 export const TITAN_PANEL_SHORTS_SRC = assetUrl("panel-shorts.png") ?? "";
