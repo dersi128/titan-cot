@@ -1017,40 +1017,32 @@
     overflow: hidden;
   }
 
-  .titan-cmd-watch--bull::after,
-  .titan-cmd-watch--bear::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    background-image: var(--watch-photo);
-    background-repeat: no-repeat;
-    background-position: 78% center;
-    background-size: cover;
-    opacity: 0.5;
-    mask-image: linear-gradient(to left, #000 0%, #000 34%, transparent 78%);
-    -webkit-mask-image: linear-gradient(to left, #000 0%, #000 34%, transparent 78%);
-  }
-
   .titan-cmd-watch--bull .titan-cmd-kicker {
     color: #19e6a2;
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-shadow: 0 0 12px rgba(16, 217, 154, 0.45);
   }
 
   .titan-cmd-watch--bear .titan-cmd-kicker {
     color: #ff4567;
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-shadow: 0 0 12px rgba(255, 69, 103, 0.45);
   }
 
-  .titan-cmd-watch .titan-conviction-stars {
-    filter: drop-shadow(0 0 6px rgba(0, 174, 239, 0.35));
+  .titan-conviction-stars {
+    letter-spacing: 0.04em;
+    font-size: 12px;
   }
 
-  .titan-cmd-watch--bull .titan-conviction-stars {
-    filter: drop-shadow(0 0 6px rgba(16, 217, 154, 0.45));
+  .titan-conviction-stars__on {
+    color: #38bdf8;
+    filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.55));
   }
 
-  .titan-cmd-watch--bear .titan-conviction-stars {
-    filter: drop-shadow(0 0 6px rgba(255, 69, 103, 0.45));
+  .titan-conviction-stars__off {
+    color: #3f4a55;
   }
 
   .titan-cmd-card--pulse {
@@ -1062,30 +1054,25 @@
     display: flex;
     width: 100%;
     align-items: center;
-    gap: 8px;
-    border: 1px solid transparent;
-    border-radius: 8px;
-    background: rgba(2, 7, 13, 0.45);
-    padding: 6px 8px;
+    gap: 10px;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    padding: 7px 2px;
     text-align: left;
-    transition:
-      background 0.15s ease,
-      border-color 0.15s ease;
+    transition: background 0.15s ease;
   }
 
   .titan-cmd-watch__row:hover {
-    background: rgba(46, 168, 255, 0.06);
-    border-color: rgba(46, 168, 255, 0.12);
+    background: rgba(255, 255, 255, 0.04);
   }
 
   .titan-cmd-card--glow-bull .titan-cmd-watch__row:hover {
-    background: rgba(0, 208, 132, 0.07);
-    border-color: rgba(0, 208, 132, 0.14);
+    background: rgba(0, 208, 132, 0.06);
   }
 
   .titan-cmd-card--glow-bear .titan-cmd-watch__row:hover {
-    background: rgba(255, 77, 109, 0.07);
-    border-color: rgba(255, 77, 109, 0.14);
+    background: rgba(255, 69, 103, 0.06);
   }
 
   .titan-cmd-dme-btn {
@@ -2864,10 +2851,10 @@
 .titan-cmd-watch__list {
   position: relative;
   z-index: 1;
-  margin-top: 8px;
+  margin-top: 10px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .titan-cmd-watch__name {
@@ -2877,7 +2864,9 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 13px;
-  font-weight: 650;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: #f4f7fb;
 }
 
@@ -2888,6 +2877,14 @@
   font-size: 13px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+}
+
+.titan-cmd-watch--bull .titan-cmd-watch__score {
+  color: #19e6a2;
+}
+
+.titan-cmd-watch--bear .titan-cmd-watch__score {
+  color: #ff4567;
 }
 
 .titan-cmd-watch__empty {
