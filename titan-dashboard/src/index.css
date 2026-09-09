@@ -1020,17 +1020,24 @@
 
   .titan-cmd-watch > .titan-cmd-watch__art {
     position: absolute;
-    right: -10%;
-    bottom: -22%;
+    inset: 0 0 0 auto;
     z-index: 0;
-    width: 78%;
-    height: 118%;
-    object-fit: contain;
-    object-position: right bottom;
+    width: 64%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 66% 48%;
     pointer-events: none;
-    opacity: 0.92;
-    mask-image: linear-gradient(to left, #000 42%, transparent 88%);
-    -webkit-mask-image: linear-gradient(to left, #000 42%, transparent 88%);
+    opacity: 0.8;
+    mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.28) 34%, #000 68%);
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.28) 34%, #000 68%);
+  }
+
+  .titan-cmd-watch--bull > .titan-cmd-watch__art {
+    object-position: 64% 46%;
+  }
+
+  .titan-cmd-watch--bear > .titan-cmd-watch__art {
+    object-position: 58% 50%;
   }
 
   .titan-cmd-watch > .titan-cmd-kicker,
