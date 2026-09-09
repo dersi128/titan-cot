@@ -60,7 +60,7 @@ function AuthLoading() {
   return (
     <AuthShell>
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-4">
-        <TitanLogo className="titan-auth-logo h-16 w-auto opacity-90" showWordmark={false} />
+        <TitanLogo className="titan-auth-logo h-24 w-auto opacity-90" showWordmark={false} />
         <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-stone-500">
           {t("auth.loading")}
         </p>
@@ -320,7 +320,7 @@ function AuthLanding() {
       <div className="mx-auto grid min-h-screen w-full max-w-[1120px] items-center gap-10 px-5 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 lg:px-8 lg:py-10">
         <section className="titan-auth-brand mx-auto max-w-lg text-center lg:mx-0 lg:text-left">
           <div className="titan-auth-brand__logo-wrap mx-auto lg:mx-0">
-            <TitanLogo className="titan-auth-logo h-[4.5rem] w-auto sm:h-20" showWordmark={false} />
+            <TitanLogo className="titan-auth-logo h-24 w-auto sm:h-28" showWordmark={false} />
           </div>
           <p className="mt-7 font-display text-[11px] font-semibold uppercase tracking-[0.22em] text-titan-gold/90">
             {t("auth.eyebrow")}

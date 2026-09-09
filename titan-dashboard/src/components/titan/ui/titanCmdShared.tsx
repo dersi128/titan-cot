@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import type { MarketRegimeId } from "../../../lib/titanCommercialIndex";
 import { CONVICTION_MAX } from "../../../lib/titanConviction";
 import { scoreHeatClass } from "../../../lib/titanCotScore";
@@ -6,16 +6,19 @@ import type { WatchlistEntry } from "../../../lib/titanHomeOverview";
 import type { FlowDirection } from "../../../lib/titanHomeMock";
 import { FLOW_MAP_CLASSES, type FlowMapClassId } from "../../../lib/titanHomeMock";
 import type { InstitutionalMarket } from "../../../config/institutionalMarkets";
+import { TITAN_PANEL_LONGS_SRC, TITAN_PANEL_SHORTS_SRC } from "../../../lib/brandAssets";
 import type { ScannerRowModel } from "../GlobalCotScanner";
 
 export function GlassCard({
   children,
   className = "",
   glow,
+  style,
 }: {
   children: ReactNode;
   className?: string;
   glow?: "gold" | "bull" | "bear" | "neutral";
+  style?: CSSProperties;
 }) {
   const glowClass =
     glow === "bull"
@@ -25,7 +28,11 @@ export function GlassCard({
         : glow === "gold"
           ? "titan-cmd-card--glow-gold"
           : "";
-  return <article className={`titan-cmd-card ${glowClass} ${className}`}>{children}</article>;
+  return (
+    <article className={`titan-cmd-card ${glowClass} ${className}`} style={style}>
+      {children}
+    </article>
+  );
 }
 
 export function MiniCurve({
@@ -83,12 +90,17 @@ export function WatchlistPanel({
   onSelect: (m: InstitutionalMarket) => void;
 }) {
   const glow = tone === "bull" ? "bull" : "bear";
+  const photo = tone === "bull" ? TITAN_PANEL_LONGS_SRC : TITAN_PANEL_SHORTS_SRC;
   return (
-    <GlassCard glow={glow} className="titan-cmd-watch p-3">
+    <GlassCard
+      glow={glow}
+      className={`titan-cmd-watch titan-cmd-watch--${tone} p-3`}
+      style={photo ? ({ ["--watch-photo"]: `url("${photo}")` } as CSSProperties) : undefined}
+    >
       <h3 className="titan-cmd-kicker">{title}</h3>
       <ul className="mt-2.5 space-y-0.5">
         {entries.length === 0 ? (
-          <li className="py-3 text-[11px] text-stone-600">{emptyLabel}</li>
+          <li className="py-3 text-[11px] text-stone-300/80">{emptyLabel}</li>
         ) : (
           entries.map((e) => (
             <li key={e.market.id}>

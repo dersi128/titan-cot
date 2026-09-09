@@ -388,30 +388,30 @@
   .titan-brand-logo {
     display: block;
     height: 6.5rem;
-    width: 6.5rem;
-    max-width: min(42vw, 7.5rem);
+    width: auto;
+    max-width: min(42vw, 8.5rem);
     object-fit: contain;
     object-position: center;
     background: transparent;
-    border-radius: 50%;
-    /* Knock out any residual black canvas on dark UI */
+    border-radius: 0;
+    /* Knock out residual black canvas on dark UI */
     mix-blend-mode: lighten;
-    filter: drop-shadow(0 4px 18px rgba(46, 168, 255, 0.22));
+    filter: drop-shadow(0 4px 18px rgba(46, 168, 255, 0.28));
   }
 
   @media (min-width: 768px) {
     .titan-brand-logo {
-      height: 7.5rem;
-      width: 7.5rem;
-      max-width: 7.5rem;
+    height: 7.75rem;
+    width: auto;
+    max-width: 8.5rem;
     }
   }
 
   @media (min-width: 1280px) {
     .titan-brand-logo {
-      height: 8.5rem;
-      width: 8.5rem;
-      max-width: 8.5rem;
+    height: 9rem;
+    width: auto;
+    max-width: 9.5rem;
     }
   }
 
@@ -421,9 +421,9 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center 45%;
-    opacity: 0.92;
-    filter: saturate(1.05) contrast(1.05) brightness(0.88);
+    object-position: center 42%;
+    opacity: 0.8;
+    filter: saturate(1.08) contrast(1.06) brightness(0.58);
   }
 
   .titan-institutional-backdrop__map {
@@ -479,8 +479,8 @@
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(ellipse 90% 70% at 50% 40%, transparent 0%, rgba(5, 5, 8, 0.12) 52%, rgba(5, 5, 8, 0.62) 100%),
-      linear-gradient(180deg, rgba(5, 5, 8, 0.28) 0%, rgba(5, 5, 8, 0.1) 42%, rgba(5, 5, 8, 0.58) 100%);
+      radial-gradient(ellipse 88% 72% at 50% 40%, rgba(4, 8, 14, 0.28) 0%, rgba(4, 8, 14, 0.52) 55%, rgba(4, 8, 14, 0.84) 100%),
+      linear-gradient(180deg, rgba(4, 8, 14, 0.48) 0%, rgba(4, 8, 14, 0.22) 40%, rgba(4, 8, 14, 0.82) 100%);
   }
 
   .titan-content-layer {
@@ -652,8 +652,8 @@
     border: none;
     background: transparent;
     box-shadow: none;
-    width: 5.75rem;
-    height: 5.75rem;
+    width: 6.75rem;
+    height: 6.75rem;
   }
 
   .titan-home-hero-v2__logo-ring .titan-home-hero-v2__logo,
@@ -663,27 +663,26 @@
     height: 100% !important;
     width: 100% !important;
     max-width: none !important;
-    object-fit: cover;
+    object-fit: contain;
     object-position: center;
     background: transparent;
-    /* Clip to metallic badge — not the full square canvas */
-    -webkit-mask-image: radial-gradient(circle closest-side, #000 79%, transparent 80.5%);
-    mask-image: radial-gradient(circle closest-side, #000 79%, transparent 80.5%);
+    -webkit-mask-image: none;
+    mask-image: none;
     mix-blend-mode: lighten;
-    filter: drop-shadow(0 0 14px rgba(46, 168, 255, 0.4));
+    filter: drop-shadow(0 0 16px rgba(46, 168, 255, 0.45));
   }
 
   @media (min-width: 768px) {
     .titan-home-hero-v2__logo-ring {
-      width: 7rem;
-      height: 7rem;
+      width: 8rem;
+      height: 8rem;
     }
   }
 
   @media (min-width: 1280px) {
     .titan-home-hero-v2__logo-ring {
-      width: 8rem;
-      height: 8rem;
+      width: 9rem;
+      height: 9rem;
     }
   }
 
@@ -911,13 +910,52 @@
       0 16px 34px -20px rgba(0, 0, 0, 0.94);
   }
 
+  .titan-cmd-card.titan-cmd-watch--bull,
+  .titan-cmd-card.titan-cmd-watch--bear {
+    overflow: hidden;
+    background-color: #05080c;
+    background-image:
+      linear-gradient(165deg, rgba(2, 8, 10, 0.82) 0%, rgba(0, 0, 0, 0.74) 48%, rgba(0, 0, 0, 0.58) 100%),
+      var(--watch-photo);
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
+
+  .titan-cmd-card.titan-cmd-watch--bull {
+    background-position: center, 82% 46%;
+  }
+
+  .titan-cmd-card.titan-cmd-watch--bear {
+    background-position: center, 86% 68%;
+  }
+
+  .titan-cmd-watch--bull .titan-cmd-kicker,
+  .titan-cmd-watch--bear .titan-cmd-kicker {
+    text-shadow:
+      0 1px 8px rgba(0, 0, 0, 0.95),
+      0 0 12px rgba(0, 0, 0, 0.7);
+  }
+
+  .titan-cmd-watch--bull .titan-cmd-kicker {
+    color: #bbf7d0;
+  }
+
+  .titan-cmd-watch--bear .titan-cmd-kicker {
+    color: #fecdd3;
+  }
+
+  .titan-cmd-watch .titan-conviction-stars {
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.95));
+  }
+
   .titan-cmd-card--pulse {
     min-height: 100%;
   }
 
   .titan-cmd-watch__row {
-    border: 1px solid transparent;
+    border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 0.35rem;
+    background: rgba(0, 0, 0, 0.5);
     transition:
       background 0.15s ease,
       border-color 0.15s ease;
