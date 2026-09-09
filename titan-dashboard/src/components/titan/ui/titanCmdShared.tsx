@@ -17,7 +17,7 @@ export function GlassCard({
 }: {
   children: ReactNode;
   className?: string;
-  glow?: "gold" | "bull" | "bear" | "neutral";
+  glow?: "gold" | "bull" | "bear" | "neutral" | "cyan";
   style?: CSSProperties;
 }) {
   const glowClass =
@@ -27,7 +27,9 @@ export function GlassCard({
         ? "titan-cmd-card--glow-bear"
         : glow === "gold"
           ? "titan-cmd-card--glow-gold"
-          : "";
+          : glow === "cyan"
+            ? "titan-cmd-card--glow-cyan"
+            : "";
   return (
     <article className={`titan-cmd-card ${glowClass} ${className}`} style={style}>
       {children}
@@ -98,22 +100,22 @@ export function WatchlistPanel({
       style={photo ? ({ ["--watch-photo"]: `url("${photo}")` } as CSSProperties) : undefined}
     >
       <h3 className="titan-cmd-kicker">{title}</h3>
-      <ul className="mt-2.5 space-y-0.5">
+      <ul className="titan-cmd-watch__list">
         {entries.length === 0 ? (
-          <li className="py-3 text-[11px] text-stone-300/80">{emptyLabel}</li>
+          <li className="titan-cmd-watch__empty">{emptyLabel}</li>
         ) : (
           entries.map((e) => (
             <li key={e.market.id}>
               <button
                 type="button"
                 onClick={() => onSelect(e.market)}
-                className="titan-cmd-watch__row flex w-full items-center gap-2 rounded px-1.5 py-1.5 text-left"
+                className="titan-cmd-watch__row"
               >
-                <span className="min-w-0 flex-1 truncate font-display text-[11px] font-semibold tracking-wide text-stone-200">
+                <span className="titan-cmd-watch__name">
                   {e.market.shortLabel}
                 </span>
                 <ConvictionMini level={e.conviction} />
-                <span className={`shrink-0 font-mono text-xs font-semibold tabular-nums ${scoreHeatClass(e.score)}`}>
+                <span className={`titan-cmd-watch__score ${scoreHeatClass(e.score)}`}>
                   {e.score > 0 ? `+${e.score}` : e.score}
                 </span>
               </button>

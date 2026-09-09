@@ -51,34 +51,29 @@ export function TitanHomePage({ rows, bundle, onSelectMarket, onNavigate }: Tita
   const flowMap = useMemo(() => buildFlowMapFromRows(rows), [rows]);
 
   return (
-    <div className="titan-cmd space-y-3 md:space-y-4">
-      <section aria-label={t("home.cmdFlowMap")}>
-        <GlassCard className="p-3">
+    <div className="titan-cmd">
+      <section className="titan-cmd-flow-wrap" aria-label={t("home.cmdFlowMap")}>
+        <GlassCard className="titan-cmd-flow-card">
           <h3 className="titan-cmd-kicker">{t("home.cmdFlowMap")}</h3>
-          <ul className="mt-3 grid gap-1.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          <ul className="titan-cmd-flow">
             {FLOW_MAP_CLASSES.map((cls) => {
               const cell = flowMap[cls];
               return (
-                <li
-                  key={cls}
-                  className="titan-cmd-flow-row grid grid-cols-[4.5rem_1fr_auto] items-center gap-2 rounded border border-white/[0.04] px-2 py-1.5"
-                >
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">
-                    {t(`home.cmdFlowClass.${cls}`)}
-                  </span>
+                <li key={cls} className="titan-cmd-flow__cell">
+                  <span className="titan-cmd-flow__class">{t(`home.cmdFlowClass.${cls}`)}</span>
                   {cell ? (
                     <>
                       <span
-                        className={`titan-regime-pill inline-flex max-w-full items-center justify-center px-1.5 py-0.5 text-[8px] font-bold uppercase ${regimePillClass(cell.regime, cell.score)}`}
+                        className={`titan-regime-pill titan-cmd-flow__badge ${regimePillClass(cell.regime, cell.score)}`}
                       >
                         {t(`positioning.regime.${cell.regime}`)}
                       </span>
-                      <span className={`text-right font-mono text-[10px] font-semibold uppercase ${flowToneClass(cell.direction)}`}>
+                      <span className={`titan-cmd-flow__dir ${flowToneClass(cell.direction)}`}>
                         {t(`home.cmdFlowDir.${cell.direction}`)}
                       </span>
                     </>
                   ) : (
-                    <span className="col-span-2 text-[10px] text-stone-600">—</span>
+                    <span className="titan-cmd-flow__empty">—</span>
                   )}
                 </li>
               );
@@ -89,7 +84,7 @@ export function TitanHomePage({ rows, bundle, onSelectMarket, onNavigate }: Tita
 
       <HomePulseCards bundle={bundle} onNavigate={onNavigate} />
 
-      <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4" aria-label={t("home.cmdConvictionStrip")}>
+      <section className="titan-home-row titan-home-row--watch" aria-label={t("home.cmdConvictionStrip")}>
         <WatchlistPanel
           title={t("home.strongestLongs")}
           entries={stats.strongestLongs}
@@ -104,23 +99,21 @@ export function TitanHomePage({ rows, bundle, onSelectMarket, onNavigate }: Tita
           emptyLabel={t("home.noActiveExtremes")}
           onSelect={onSelectMarket}
         />
-        <GlassCard glow="gold" className="p-3">
+        <GlassCard glow="cyan" className="titan-cmd-conviction p-3">
           <h3 className="titan-cmd-kicker">{t("home.cmdHighestConviction")}</h3>
-          <ul className="mt-2.5 space-y-0.5">
+          <ul className="titan-cmd-watch__list">
             {highestConviction.length === 0 ? (
-              <li className="py-3 text-[11px] text-stone-600">{t("home.noActiveExtremes")}</li>
+              <li className="titan-cmd-watch__empty">{t("home.noActiveExtremes")}</li>
             ) : (
               highestConviction.map((e) => (
                 <li key={e.market.id}>
                   <button
                     type="button"
                     onClick={() => onSelectMarket(e.market)}
-                    className="titan-cmd-watch__row flex w-full items-center gap-2 rounded px-1.5 py-1.5 text-left"
+                    className="titan-cmd-watch__row"
                   >
-                    <span className="min-w-0 flex-1 truncate font-display text-[11px] font-semibold text-stone-200">
-                      {e.market.shortLabel}
-                    </span>
-                    <span className="font-mono text-[10px] text-titan-gold/90">
+                    <span className="titan-cmd-watch__name">{e.market.shortLabel}</span>
+                    <span className="titan-cmd-watch__conv">
                       {e.conviction}/{CONVICTION_MAX}
                     </span>
                     <ConvictionMini level={e.conviction} />
@@ -130,40 +123,39 @@ export function TitanHomePage({ rows, bundle, onSelectMarket, onNavigate }: Tita
             )}
           </ul>
         </GlassCard>
-        <GlassCard glow="gold" className="p-3">
+        <GlassCard className="titan-cmd-shifts p-3">
           <h3 className="titan-cmd-kicker">{t("home.cmdRegimeShifts")}</h3>
-          <ul className="mt-2.5 space-y-2">
+          <ul className="titan-cmd-shifts__list">
             {stats.regimeShifts.length === 0 ? (
-              <li className="py-3 text-[11px] text-stone-600">{t("home.noRegimeShifts")}</li>
+              <li className="titan-cmd-watch__empty">{t("home.noRegimeShifts")}</li>
             ) : (
-              stats.regimeShifts.map((s) => (
-                <li key={s.market.id}>
-                  <button
-                    type="button"
-                    onClick={() => onSelectMarket(s.market)}
-                    className="w-full rounded border border-white/[0.05] bg-black/25 px-2 py-1.5 text-left transition hover:border-white/10"
-                  >
-                    <p className="font-display text-[11px] font-semibold tracking-wide text-stone-200">
-                      {s.market.shortLabel}
-                    </p>
-                    <p className="mt-0.5 text-[10px] text-stone-500">
-                      <span className="text-stone-600">{t(`positioning.zones.${s.from}`)}</span>
-                      <span className="mx-1 text-titan-gold/60">→</span>
-                      <span
-                        className={
-                          s.tone === "bull"
-                            ? "text-emerald-400/90"
-                            : s.tone === "bear"
-                              ? "text-rose-400/90"
-                              : "text-amber-300/90"
-                        }
-                      >
-                        {t(`positioning.zones.${s.to}`)}
-                      </span>
-                    </p>
-                  </button>
-                </li>
-              ))
+              stats.regimeShifts.map((s) => {
+                const extreme = s.to === "extreme_short" || s.to === "extreme_long";
+                const arrow = s.tone === "bull" ? "↑" : s.tone === "bear" ? "↓" : "→";
+                return (
+                  <li key={s.market.id}>
+                    <button
+                      type="button"
+                      onClick={() => onSelectMarket(s.market)}
+                      className={`titan-cmd-shift ${extreme ? "titan-cmd-shift--extreme" : ""}`}
+                    >
+                      <p className="titan-cmd-shift__name">{s.market.shortLabel}</p>
+                      <p className="titan-cmd-shift__path">
+                        <span>{t(`positioning.zones.${s.from}`)}</span>
+                        <span
+                          className={`titan-cmd-shift__arrow titan-cmd-shift__arrow--${s.tone}`}
+                          aria-hidden
+                        >
+                          {arrow}
+                        </span>
+                        <span className={extreme ? "titan-cmd-shift__to--extreme" : undefined}>
+                          {t(`positioning.zones.${s.to}`)}
+                        </span>
+                      </p>
+                    </button>
+                  </li>
+                );
+              })
             )}
           </ul>
         </GlassCard>

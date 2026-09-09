@@ -326,7 +326,7 @@ export function TitanCotDashboard() {
 
         <header className={`titan-header-bar sticky top-0 z-30 shrink-0 ${showShell ? "titan-header-bar--home" : ""}`}>
 
-          <div className={`mx-auto max-w-[1680px] px-4 md:px-6 ${isMarketView ? "py-5" : "py-2 md:py-3"}`}>
+          <div className={`mx-auto max-w-[1680px] px-4 md:px-6 ${isMarketView ? "py-4" : "py-2"}`}>
 
             {isMarketView ? (
 
@@ -417,11 +417,7 @@ export function TitanCotDashboard() {
                   refreshLabel={refreshLabel}
                 />
 
-                <div className="mx-auto max-w-[1680px]">
-
-                  <TitanAppNav active={section} onNavigate={navigateSection} />
-
-                </div>
+                <TitanAppNav active={section} onNavigate={navigateSection} />
 
               </>
 
@@ -451,7 +447,7 @@ export function TitanCotDashboard() {
 
         {showShell ? (
 
-          <main className="titan-home-main mx-auto w-full max-w-[1680px] px-4 py-4 md:px-6 md:py-5">
+          <main className="titan-home-main mx-auto w-full max-w-[1680px] px-4 py-3 md:px-6 md:py-4">
 
             {section === "home" ? (
 
