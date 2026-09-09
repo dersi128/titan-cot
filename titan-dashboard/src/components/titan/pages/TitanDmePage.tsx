@@ -289,7 +289,7 @@ export function TitanDmePage({ bundle, onSelectMarket }: TitanDmePageProps) {
   ];
 
   return (
-    <div className="titan-page-module titan-dme-v2 animate-fade-up space-y-4 md:space-y-5">
+    <div className="titan-page-module titan-dme-v2 animate-fade-up space-y-3 md:space-y-4">
       <TitanPageHeader
         eyebrow={t("pages.dme.eyebrow")}
         title={t("pages.dme.titleHero")}
@@ -304,7 +304,7 @@ export function TitanDmePage({ bundle, onSelectMarket }: TitanDmePageProps) {
       <UsdMacroBanner score100={usdPulse.score100} bias={usdPulse.bias} onClick={openDxy} />
 
       {/* Hero */}
-      <GlassCard className="p-4 md:p-5">
+      <GlassCard className="p-3">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-wrap gap-2.5">
             <HeroPill
@@ -344,7 +344,7 @@ export function TitanDmePage({ bundle, onSelectMarket }: TitanDmePageProps) {
       {/* Three columns */}
       <div className="grid gap-3 lg:grid-cols-3 lg:gap-4">
         {/* DXY COT */}
-        <GlassCard glow={posKind === "bull" ? "bull" : posKind === "bear" ? "bear" : undefined} className="flex flex-col p-4 md:p-5">
+        <GlassCard glow={posKind === "bull" ? "bull" : posKind === "bear" ? "bear" : undefined} className="flex flex-col p-3">
           <p className="titan-cmd-kicker">{t("pages.dme.panels.dxyCot")}</p>
           <div className="mt-3 flex-1">
             <MetricRow
@@ -389,9 +389,9 @@ export function TitanDmePage({ bundle, onSelectMarket }: TitanDmePageProps) {
         </GlassCard>
 
         {/* USD Breadth */}
-        <GlassCard className="flex flex-col p-4 md:p-5">
+        <GlassCard className="flex flex-col p-3">
           <p className="titan-cmd-kicker">{t("pages.dme.panels.breadth")}</p>
-          <p className={`mt-3 font-display text-2xl font-semibold tracking-tight ${tonePos(dme.breadthLean)}`}>
+          <p className={`mt-2 font-display text-xl font-semibold tracking-tight ${tonePos(dme.breadthLean)}`}>
             {dme.usdFavoringCount} / {dme.fxLiveCount || 7} {t("pages.dme.breadthHeadline")}
           </p>
           <p className="mt-1 text-[11px] text-stone-500">{t("pages.dme.breadthCaption")}</p>
@@ -448,7 +448,7 @@ export function TitanDmePage({ bundle, onSelectMarket }: TitanDmePageProps) {
         </GlassCard>
 
         {/* US Rates */}
-        <GlassCard className="flex flex-col p-4 md:p-5">
+        <GlassCard className="flex flex-col p-3">
           <p className="titan-cmd-kicker">{t("pages.dme.panels.rates")}</p>
           <div className="mt-3 flex-1">
             <div className="border-b border-white/[0.04] py-2.5">
@@ -478,7 +478,7 @@ export function TitanDmePage({ bundle, onSelectMarket }: TitanDmePageProps) {
       </div>
 
       {/* Positioning agreement */}
-      <GlassCard className="p-4 md:p-5">
+      <GlassCard className="p-3">
         <p className="titan-cmd-kicker">{t("pages.dme.panels.agreement")}</p>
         <div className="mt-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="grid flex-1 gap-2 sm:grid-cols-3">
@@ -524,7 +524,7 @@ Final alignment: ${t(`pages.dme.alignment.${alignment}`)}`}
       </GlassCard>
 
       {/* History chart */}
-      <GlassCard className="p-4 md:p-5">
+      <GlassCard className="p-3">
         <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="titan-cmd-kicker">{t("pages.dme.chartTitle")}</p>

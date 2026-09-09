@@ -69,14 +69,14 @@ export function SeasonalityDashboard({ result, comparison, currentMonth }: Props
   })();
 
   return (
-    <section className="titan-seasonality-panel px-4 py-4 sm:px-5">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+    <section className="titan-seasonality-panel px-3 py-3 sm:px-4">
+      <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="titan-cmd-kicker">{t("seasonality.dash.biasTitle")}</p>
-          <p className={`mt-1 font-display text-2xl font-semibold tracking-wide sm:text-3xl ${tone(headline)}`}>
+          <p className={`mt-1 font-display text-xl font-semibold tracking-wide sm:text-2xl ${tone(headline)}`}>
             {headline}
             {isActive && we ? (
-              <span className="ml-2 font-mono text-xl text-stone-400">{we.score}/100</span>
+              <span className="ml-2 font-mono text-lg text-stone-400">{we.score}/100</span>
             ) : null}
           </p>
           <p className="mt-1 max-w-xl text-[12px] text-stone-500">{detailLine}</p>

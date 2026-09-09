@@ -65,21 +65,21 @@ export function SeasonalityTraderSnapshot({ result, currentMonth }: SeasonalityT
     <section className={`overflow-hidden ${biasGlow(displayBias)}`}>
       <div className="grid gap-0 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
         {/* 5-second hero verdict */}
-        <div className="border-b border-white/[0.06] p-5 lg:border-b-0 lg:border-r lg:border-white/[0.06]">
+        <div className="border-b border-white/[0.06] p-3 lg:border-b-0 lg:border-r lg:border-white/[0.06]">
           <p className="font-display text-[10px] font-semibold uppercase tracking-[0.14em] text-titan-gold/80">
             {t("seasonality.snap.now")}
           </p>
-          <p className={`mt-2 font-display text-2xl font-semibold tracking-wide sm:text-3xl ${biasTone(displayBias)}`}>
+          <p className={`mt-1.5 font-display text-xl font-semibold tracking-wide sm:text-2xl ${biasTone(displayBias)}`}>
             {statusLabel}
           </p>
           <p className="mt-2 text-[13px] leading-snug text-stone-400">{statusDetail}</p>
         </div>
 
         {/* This month historically */}
-        <div className="border-b border-white/[0.06] p-5 lg:border-b-0 lg:border-r lg:border-white/[0.06]">
+        <div className="border-b border-white/[0.06] p-3 lg:border-b-0 lg:border-r lg:border-white/[0.06]">
           <p className="titan-cmd-kicker">{t("seasonality.snap.thisMonth")}</p>
           <p
-            className={`mt-2 font-mono text-3xl font-semibold ${
+            className={`mt-1.5 font-mono text-2xl font-semibold ${
               month && month.avgReturn >= 0 ? "text-emerald-400" : "text-rose-400"
             }`}
           >
@@ -95,17 +95,17 @@ export function SeasonalityTraderSnapshot({ result, currentMonth }: SeasonalityT
         </div>
 
         {/* Price vs seasonal path */}
-        <div className="border-b border-white/[0.06] p-5 lg:border-b-0 lg:border-r lg:border-white/[0.06]">
+        <div className="border-b border-white/[0.06] p-3 lg:border-b-0 lg:border-r lg:border-white/[0.06]">
           <p className="titan-cmd-kicker">{t("seasonality.snap.vsSeason")}</p>
-          <p className={`mt-2 font-display text-2xl font-semibold ${alignmentTone(alignment)}`}>
+          <p className={`mt-1.5 font-display text-xl font-semibold ${alignmentTone(alignment)}`}>
             {t(`seasonality.snap.align.${alignment}`)}
           </p>
         </div>
 
         {/* Next best month hint */}
-        <div className="p-5">
+        <div className="p-3">
           <p className="titan-cmd-kicker">{t("seasonality.snap.nextBest")}</p>
-          <p className="mt-2 font-display text-2xl font-semibold text-titan-goldBright">
+          <p className="mt-1.5 font-display text-xl font-semibold text-titan-goldBright">
             {nextBest?.monthLabel ?? "—"}
           </p>
           <p className="mt-1 text-[12px] text-stone-500">

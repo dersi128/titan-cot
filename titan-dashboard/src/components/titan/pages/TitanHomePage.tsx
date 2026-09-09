@@ -99,7 +99,7 @@ export function TitanHomePage({ rows, bundle, onSelectMarket, onNavigate }: Tita
           emptyLabel={t("home.noActiveExtremes")}
           onSelect={onSelectMarket}
         />
-        <GlassCard glow="cyan" className="titan-cmd-conviction p-3">
+        <GlassCard glow="cyan" className="titan-cmd-conviction p-2">
           <h3 className="titan-cmd-kicker">{t("home.cmdHighestConviction")}</h3>
           <ul className="titan-cmd-watch__list">
             {highestConviction.length === 0 ? (
@@ -123,7 +123,7 @@ export function TitanHomePage({ rows, bundle, onSelectMarket, onNavigate }: Tita
             )}
           </ul>
         </GlassCard>
-        <GlassCard className="titan-cmd-shifts p-3">
+        <GlassCard className="titan-cmd-shifts p-2">
           <h3 className="titan-cmd-kicker">{t("home.cmdRegimeShifts")}</h3>
           <ul className="titan-cmd-shifts__list">
             {stats.regimeShifts.length === 0 ? (

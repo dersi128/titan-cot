@@ -447,7 +447,7 @@ export function TitanCotDashboard() {
 
         {showShell ? (
 
-          <main className="titan-home-main mx-auto w-full max-w-[1680px] px-4 py-3 md:px-6 md:py-4">
+          <main className="titan-home-main mx-auto w-full max-w-[1680px] px-4 py-2 md:px-6 md:py-3">
 
             {section === "home" ? (
 
@@ -519,7 +519,7 @@ export function TitanCotDashboard() {
 
 
 
-        <footer className="border-t border-white/[0.06] py-6 text-center" hidden={!showShell} aria-hidden={!showShell}>
+        <footer className="border-t border-white/[0.06] py-4 text-center" hidden={!showShell} aria-hidden={!showShell}>
 
           <p className="text-[10px] tracking-wide text-stone-600">{t("footerNote")}</p>
 
