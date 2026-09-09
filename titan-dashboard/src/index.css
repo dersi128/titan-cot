@@ -3014,11 +3014,6 @@
   min-height: 0;
 }
 
-.titan-footer--home {
-  padding: 4px 0;
-  flex-shrink: 0;
-}
-
 .titan-home-row {
   display: grid;
   gap: 16px;
@@ -3512,99 +3507,6 @@
 
   .titan-home-row--watch {
     grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  .titan-page-bg--home-fit,
-  .titan-content-layer--home-fit {
-    height: 100dvh;
-    max-height: 100dvh;
-    overflow: hidden;
-  }
-
-  .titan-content-layer--home-fit {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .titan-page-bg--home-fit .titan-header-bar {
-    flex-shrink: 0;
-  }
-
-  .titan-home-main--fit {
-    display: flex;
-    flex: 1 1 auto;
-    flex-direction: column;
-    min-height: 0;
-    overflow: hidden;
-    padding-top: 8px;
-    padding-bottom: 8px;
-  }
-
-  .titan-home-main--fit .titan-cmd--home {
-    flex: 1 1 auto;
-    min-height: 0;
-    gap: 8px;
-    display: grid;
-    grid-template-rows: auto minmax(0, 1.2fr) minmax(0, 1.15fr);
-  }
-
-  .titan-home-main--fit .titan-cmd-flow-wrap,
-  .titan-home-main--fit .titan-cmd-flow-card {
-    flex-shrink: 0;
-    min-height: 0;
-    height: auto;
-  }
-
-  .titan-home-main--fit .titan-home-row--pulse,
-  .titan-home-main--fit .titan-home-row--watch {
-    min-height: 0;
-    gap: 10px;
-  }
-
-  .titan-home-main--fit .titan-cmd-card.titan-cmd-watch--bull,
-  .titan-home-main--fit .titan-cmd-card.titan-cmd-watch--bear {
-    min-height: 0;
-  }
-
-  .titan-home-main--fit .titan-usd-macro {
-    min-height: 0;
-  }
-
-  .titan-home-main--fit .titan-cmd-card--pulse,
-  .titan-home-main--fit .titan-cmd-watch,
-  .titan-home-main--fit .titan-cmd-conviction,
-  .titan-home-main--fit .titan-cmd-shifts {
-    display: flex;
-    min-height: 0;
-    height: 100%;
-    flex-direction: column;
-  }
-
-  .titan-home-main--fit .titan-season-panel {
-    flex: 1 1 auto;
-    min-height: 0;
-  }
-
-  .titan-home-main--fit .titan-season-list,
-  .titan-home-main--fit .titan-cmd-watch__list,
-  .titan-home-main--fit .titan-cmd-shifts__list {
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow-y: auto;
-  }
-
-  .titan-page-bg--home-fit .titan-home-hero-v2__logo-wrap {
-    width: 6.75rem;
-    height: 6.75rem;
-  }
-
-  .titan-page-bg--home-fit .titan-home-hero-v2__title {
-    font-size: 24px;
-  }
-
-  .titan-page-bg--home-fit .titan-app-nav {
-    margin-top: 6px;
-    padding-top: 6px;
   }
 }
 
