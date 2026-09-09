@@ -3,6 +3,8 @@ import {
   buildPlainEnglishExplanation,
   calculateCotIndexAgainstPrior,
   computeUnifiedCotScore,
+  IDX_HI,
+  IDX_LO,
   type CommercialBias,
   type InstitutionalDivergence,
   type RetailContrarian,
@@ -10,9 +12,6 @@ import {
 
 /** Visible CFTC weeks in the market-detail time machine. */
 export const TIME_MACHINE_WEEKS = 13;
-
-const IDX_HI = 80;
-const IDX_LO = 20;
 
 export type CotWeekSnapshotRow = {
   reportDate: string;
