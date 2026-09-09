@@ -608,12 +608,13 @@
   }
 
   .titan-header-bar--home {
-    @apply border-b py-0;
-    border-color: rgba(0, 174, 239, 0.18);
-    background: linear-gradient(180deg, rgba(2, 7, 13, 0.18), rgba(2, 7, 13, 0.04));
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    box-shadow: 0 1px 0 rgba(0, 174, 239, 0.08);
+    @apply border-b-0 bg-transparent py-0 shadow-none backdrop-blur-none;
+    border-color: transparent;
+    background: transparent !important;
+    background-image: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none;
   }
 
   .titan-home-hero-v2 {
@@ -641,22 +642,22 @@
 
   .titan-home-hero-v2__logo-wrap {
     position: relative;
-    isolation: isolate;
     flex-shrink: 0;
     display: grid;
     place-items: center;
-    width: 5.75rem;
-    height: 5.75rem;
-    overflow: hidden;
+    width: 7rem;
+    height: 7rem;
+    overflow: visible;
+    mix-blend-mode: lighten;
   }
 
   .titan-home-hero-v2__logo-wrap::before {
     content: "";
     position: absolute;
-    inset: 4%;
+    inset: 8%;
     z-index: 0;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(0, 174, 239, 0.38), transparent 72%);
+    background: radial-gradient(circle, rgba(0, 174, 239, 0.32), transparent 72%);
     filter: blur(10px);
     animation: titan-logo-pulse 3.2s ease-in-out infinite;
   }
@@ -667,20 +668,20 @@
     position: relative;
     z-index: 1;
     display: block;
-    width: 168% !important;
-    height: 168% !important;
+    width: 100% !important;
+    height: 100% !important;
     max-width: none !important;
     max-height: none !important;
-    object-fit: cover;
-    object-position: 50% 12%;
+    object-fit: contain;
+    object-position: center;
     background: transparent;
-    mix-blend-mode: lighten;
+    mix-blend-mode: normal;
     filter: drop-shadow(0 0 12px rgba(0, 174, 239, 0.32));
   }
 
   .titan-home-hero-v2__logo-shine {
     position: absolute;
-    inset: -20%;
+    inset: -8%;
     z-index: 2;
     pointer-events: none;
     background: linear-gradient(
@@ -698,36 +699,9 @@
 
   @media (min-width: 1280px) {
     .titan-home-hero-v2__logo-wrap {
-      width: 6.5rem;
-      height: 6.5rem;
+      width: 8rem;
+      height: 8rem;
     }
-  }
-
-  .titan-home-hero-v2__lockup {
-    display: flex;
-    flex-direction: column;
-    margin: 0;
-    line-height: 0.92;
-  }
-
-  .titan-home-hero-v2__lockup-titan {
-    font-family: Outfit, system-ui, sans-serif;
-    font-size: 18px;
-    font-weight: 800;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: #f4f7fb;
-    text-shadow: 0 0 16px rgba(0, 174, 239, 0.28);
-  }
-
-  .titan-home-hero-v2__lockup-fusion {
-    margin-top: 3px;
-    font-size: 11px;
-    font-weight: 650;
-    letter-spacing: 0.34em;
-    text-transform: uppercase;
-    color: #7dd3fc;
-    text-shadow: 0 0 12px rgba(0, 174, 239, 0.45);
   }
 
   .titan-home-hero-v2__titles {
@@ -3595,8 +3569,8 @@
   }
 
   .titan-page-bg--home-fit .titan-home-hero-v2__logo-wrap {
-    width: 5.25rem;
-    height: 5.25rem;
+    width: 6.75rem;
+    height: 6.75rem;
   }
 
   .titan-page-bg--home-fit .titan-home-hero-v2__title {

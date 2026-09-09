@@ -38,10 +38,6 @@ export function TitanHomeHero({
           <TitanLogo className="titan-home-hero-v2__logo" showWordmark={false} />
           <span className="titan-home-hero-v2__logo-shine" aria-hidden />
         </div>
-        <p className="titan-home-hero-v2__lockup" aria-label={t("brand.name")}>
-          <span className="titan-home-hero-v2__lockup-titan">{t("brand.wordmarkLead")}</span>
-          <span className="titan-home-hero-v2__lockup-fusion">{t("brand.wordmarkTail")}</span>
-        </p>
         <div className="titan-home-hero-v2__titles">
           <p className="titan-home-hero-v2__eyebrow">{sectionEyebrow(section, t)}</p>
           <h1 className="titan-home-hero-v2__title">{t("header.institutionalCot")}</h1>
