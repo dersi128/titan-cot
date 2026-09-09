@@ -313,17 +313,16 @@ export function TitanCotDashboard() {
   const isMarketView = view === "market";
 
   const showShell = !isMarketView;
-  const homeFit = showShell && section === "home";
 
 
 
   return (
 
-    <div className={`titan-page-bg ${homeFit ? "titan-page-bg--home-fit" : "min-h-screen"}`}>
+    <div className="titan-page-bg min-h-screen">
 
       <TitanInstitutionalBackdrop />
 
-      <div className={`titan-content-layer ${homeFit ? "titan-content-layer--home-fit" : "min-h-screen"}`}>
+      <div className="titan-content-layer min-h-screen">
 
         <header className={`titan-header-bar sticky top-0 z-30 shrink-0 ${showShell ? "titan-header-bar--home" : ""}`}>
 
@@ -448,7 +447,7 @@ export function TitanCotDashboard() {
 
         {showShell ? (
 
-          <main className={`titan-home-main mx-auto w-full max-w-[1680px] px-4 py-3 md:px-6 md:py-4${homeFit ? " titan-home-main--fit" : ""}`}>
+          <main className="titan-home-main mx-auto w-full max-w-[1680px] px-4 py-3 md:px-6 md:py-4">
 
             {section === "home" ? (
 
@@ -520,7 +519,7 @@ export function TitanCotDashboard() {
 
 
 
-        <footer className={`border-t border-white/[0.06] text-center ${homeFit ? "titan-footer--home" : "py-6"}`} hidden={!showShell} aria-hidden={!showShell}>
+        <footer className="border-t border-white/[0.06] py-6 text-center" hidden={!showShell} aria-hidden={!showShell}>
 
           <p className="text-[10px] tracking-wide text-stone-600">{t("footerNote")}</p>
 
