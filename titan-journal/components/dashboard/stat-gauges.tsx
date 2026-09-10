@@ -1,6 +1,10 @@
 "use client"
 
-import { pfScaleMarkerLeft } from "@/lib/pf-scale"
+import {
+  avgRScaleFill,
+  avgRScaleMarkerLeft,
+  pfScaleMarkerLeft,
+} from "@/lib/pf-scale"
 import { useLabels } from "@/lib/use-labels"
 import { cn } from "@/lib/utils"
 
@@ -239,8 +243,8 @@ export function FactorScale({ value }: { value: number | null }) {
     <div className="w-full" aria-hidden>
       <div className="relative h-2">
         <div className="flex h-full overflow-hidden rounded-sm border border-foreground/40">
-          <span className="h-full w-1/2 bg-bull/75" />
           <span className="h-full w-1/2 bg-bear/75" />
+          <span className="h-full w-1/2 bg-bull/75" />
         </div>
         <span className="absolute -top-0.5 -bottom-0.5 left-1/2 z-10 w-0.5 -translate-x-1/2 bg-foreground" />
         {n != null ? (
@@ -254,8 +258,9 @@ export function FactorScale({ value }: { value: number | null }) {
         ) : null}
       </div>
       <div className="relative mt-1 h-4 text-[9px] font-semibold tabular-nums text-foreground">
-        <span className="absolute left-0">2+</span>
+        <span className="absolute left-0">0</span>
         <span className="absolute left-1/2 -translate-x-1/2">{one}</span>
+        <span className="absolute right-0">2+</span>
       </div>
     </div>
   )
@@ -263,23 +268,21 @@ export function FactorScale({ value }: { value: number | null }) {
 
 export function ZeroBar({ value }: { value: number | null }) {
   const n = value != null && Number.isFinite(value) ? value : null
-  const span = n == null || n === 0 ? 0 : Math.min(50, (Math.abs(n) / 2) * 50)
-  const left =
-    n == null || n === 0 ? "50%" : n > 0 ? `calc(50% - ${span}%)` : `calc(50% + ${span}%)`
+  const span = n == null ? 0 : avgRScaleFill(n)
 
   return (
     <div className="w-full" aria-hidden>
       <div className="relative h-2">
         <div className="relative h-full overflow-hidden rounded-sm border border-foreground/40 bg-muted">
-          {n != null && n > 0 ? (
+          {n != null && n < 0 ? (
             <span
-              className="absolute inset-y-0 bg-bull"
+              className="absolute inset-y-0 bg-bear"
               style={{ right: "50%", width: `max(0.375rem, ${span}%)` }}
             />
           ) : null}
-          {n != null && n < 0 ? (
+          {n != null && n > 0 ? (
             <span
-              className="absolute inset-y-0 left-1/2 bg-bear"
+              className="absolute inset-y-0 left-1/2 bg-bull"
               style={{ width: `max(0.375rem, ${span}%)` }}
             />
           ) : null}
@@ -291,13 +294,15 @@ export function ZeroBar({ value }: { value: number | null }) {
               "absolute top-1/2 z-20 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-[0_0_0_1.5px_var(--elevated),0_0_0_2.5px_var(--foreground)]",
               n > 0 ? "bg-bull" : n < 0 ? "bg-bear" : "bg-foreground"
             )}
-            style={{ left }}
+            style={{ left: avgRScaleMarkerLeft(n) }}
           />
         ) : null}
       </div>
-      <p className="mt-1 text-center text-[9px] font-semibold tabular-nums text-foreground">
-        0
-      </p>
+      <div className="relative mt-1 h-4 text-[9px] font-semibold tabular-nums text-foreground">
+        <span className="absolute left-0">-2+</span>
+        <span className="absolute left-1/2 -translate-x-1/2">0</span>
+        <span className="absolute right-0">2+</span>
+      </div>
     </div>
   )
 }
