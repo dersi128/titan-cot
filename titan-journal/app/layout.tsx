@@ -1,6 +1,9 @@
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 
+import { CloudGate } from "@/components/cloud/cloud-gate"
+import { stagingCloudConfig } from "@/lib/cloud/config"
+
 import { Providers } from "@/components/layout/providers"
 import { THEME_BOOT_SCRIPT } from "@/lib/workspace-storage"
 import "./globals.css"
@@ -24,6 +27,7 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
+  const cloud = stagingCloudConfig(process.env)
   return (
     <html
       lang="en"
@@ -39,7 +43,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         />
       </head>
       <body className="min-h-full bg-background font-sans text-foreground">
-        <Providers>{children}</Providers>
+        <CloudGate config={cloud}><Providers>{children}</Providers></CloudGate>
       </body>
     </html>
   )

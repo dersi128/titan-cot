@@ -1,3 +1,4 @@
+import { readPersisted, writePersisted, subscribePersisted } from "@/lib/cloud/persistence"
 import { DEFAULT_CURRENCY, resolveCurrency } from "@/lib/currency"
 import {
   createDemoPlaybook,
@@ -65,7 +66,7 @@ function canUseLocalStorage(): boolean {
 function readRaw(key: string): string | null {
   if (!canUseLocalStorage()) return null
   try {
-    return window.localStorage.getItem(key)
+    return readPersisted(key)
   } catch {
     return null
   }
@@ -84,7 +85,7 @@ function readJson(key: string): unknown {
 function writeJson(key: string, value: unknown) {
   if (!canUseLocalStorage()) return
   try {
-    window.localStorage.setItem(key, JSON.stringify(value))
+    writePersisted(key, JSON.stringify(value))
   } catch {
     // Private mode / quota must not crash the tree.
   }
@@ -298,7 +299,7 @@ function createStore<T>(key: string, read: () => T, fallback: T) {
   function snapshot(): T {
     if (!canUseLocalStorage()) return fallback
     const raw = readRaw(key)
-    if (raw == null) return fallback
+    if (raw == null) { cachedRaw = raw; cached = fallback; return fallback }
     if (raw === cachedRaw) return cached
     cachedRaw = raw
     cached = read()
@@ -324,14 +325,10 @@ function createStore<T>(key: string, read: () => T, fallback: T) {
       seed()
       snapshot()
       listeners.add(listener)
-      if (typeof window !== "undefined") {
-        window.addEventListener("storage", listener)
-      }
+      const unsubscribe = subscribePersisted(listener)
       return () => {
         listeners.delete(listener)
-        if (typeof window !== "undefined") {
-          window.removeEventListener("storage", listener)
-        }
+        unsubscribe()
       }
     },
   }

@@ -1,3 +1,4 @@
+import { readPersisted, writePersisted, subscribePersisted } from "@/lib/cloud/persistence"
 import { sortTrades } from "@/lib/mock-data"
 import { hydrateTrades, isLegacyTradeShape } from "@/lib/trade-hydration"
 import type { Trade } from "@/types/trade"
@@ -24,7 +25,7 @@ function canUseLocalStorage(): boolean {
 function readRaw(): string | null {
   if (!canUseLocalStorage()) return null
   try {
-    return window.localStorage.getItem(TRADES_STORAGE_KEY)
+    return readPersisted(TRADES_STORAGE_KEY)
   } catch {
     return null
   }
@@ -52,7 +53,7 @@ function looksLegacy(raw: string | null): boolean {
 function writeLocal(trades: Trade[]): void {
   if (!canUseLocalStorage()) return
   try {
-    window.localStorage.setItem(TRADES_STORAGE_KEY, JSON.stringify(trades))
+    writePersisted(TRADES_STORAGE_KEY, JSON.stringify(trades))
   } catch {
     // Private mode / quota must not crash the tree.
   }
@@ -132,14 +133,10 @@ export function createLocalStorageRepository(): TradeRepository {
     subscribe(listener: () => void) {
       seedIfEmpty()
       listeners.add(listener)
-      if (typeof window !== "undefined") {
-        window.addEventListener("storage", listener)
-      }
+      const unsubscribe = subscribePersisted(listener)
       return () => {
         listeners.delete(listener)
-        if (typeof window !== "undefined") {
-          window.removeEventListener("storage", listener)
-        }
+        unsubscribe()
       }
     },
   }
