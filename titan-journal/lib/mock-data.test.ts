@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { MOCK_TRADES, isSampleJournal, withoutSampleTrades } from "@/lib/mock-data"
-import { filterTrades } from "@/lib/trade-filters"
+import { EMPTY_TRADE_FILTERS, filterTrades } from "@/lib/trade-filters"
 
 describe("mock journal seed", () => {
   it("contains a mixed sample journal across several months", () => {
@@ -77,12 +77,9 @@ describe("mock journal seed", () => {
 describe("filterTrades", () => {
   it("filters by symbol and direction", () => {
     const result = filterTrades(MOCK_TRADES, {
+      ...EMPTY_TRADE_FILTERS,
       query: "aud",
-      playbookId: "ALL",
       direction: "SHORT",
-      result: "ALL",
-      dateFrom: "",
-      dateTo: "",
     })
 
     expect(result.every((trade) => trade.symbol.includes("AUD"))).toBe(true)

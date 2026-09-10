@@ -1,9 +1,8 @@
 "use client"
 
-import { useMemo, useState, type ReactNode } from "react"
+import { useEffect, useMemo, useState, type ReactNode } from "react"
 import Link from "next/link"
-import { X } from "lucide-react"
-import { Hash, Percent, Scale, Sigma, Trash2 } from "lucide-react"
+import { ChevronRight, Hash, Percent, Scale, Sigma, Trash2, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -28,7 +27,6 @@ import { TableSkeleton } from "@/components/layout/loading-state"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
 import { useScopedTrades } from "@/components/layout/use-scoped-trades"
 import { useWorkspace } from "@/components/layout/workspace-provider"
-import { ClearJournal } from "@/components/trades/clear-journal"
 import { JournalImportButton } from "@/components/trades/journal-file-import"
 import { ResultR } from "@/components/trades/result-r"
 import { TradePanel } from "@/components/trades/trade-panel"
@@ -47,18 +45,21 @@ import {
   formatSignedUsd,
   signedClassName,
 } from "@/lib/format"
+import { JOURNAL_MARKET_FILTERS } from "@/lib/market-classification"
 import { formatRRR } from "@/lib/trade-calculations"
 import { useLabels } from "@/lib/use-labels"
 import { cn } from "@/lib/utils"
 import {
   EMPTY_TRADE_FILTERS,
   filterTrades,
+  type MarketFilter,
   type ResultFilter,
   type TradeFilters,
 } from "@/lib/trade-filters"
 import { TRADE_DIRECTIONS, type Trade } from "@/types/trade"
 
 const PAGE_SIZE_OPTIONS = [15, 25, 50, 100]
+const filterControlClass = "h-8 w-full text-[12px] lg:w-36"
 
 function avgPlannedRrr(trades: Trade[]): number | null {
   const values = trades
@@ -74,6 +75,7 @@ function filtersActive(filters: TradeFilters) {
     filters.playbookId !== "ALL" ||
     filters.direction !== "ALL" ||
     filters.result !== "ALL" ||
+    filters.market !== "ALL" ||
     filters.dateFrom !== "" ||
     filters.dateTo !== ""
   )
@@ -145,8 +147,8 @@ function Pagination({
   }, [page, totalPages])
 
   return (
-    <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-[12px]">
-      <div className="flex items-center gap-2 text-muted-foreground">
+    <div className="mt-3 flex flex-col gap-3 text-[12px] sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+      <div className="flex flex-wrap items-center gap-2 text-muted-foreground">
         <span>{copy.journal.showing}</span>
         <Select
           value={String(pageSize)}
@@ -172,7 +174,7 @@ function Pagination({
           {from}–{to} {copy.journal.of} {total}
         </span>
       </div>
-      <div className="flex items-center gap-1">
+      <div className="flex flex-wrap items-center gap-1">
         <Button
           variant="secondary"
           size="sm"
@@ -213,9 +215,44 @@ function Pagination({
   )
 }
 
+function TradeDetailPane({
+  trade,
+  playbookNames,
+  onClose,
+}: {
+  trade: Trade
+  playbookNames: Record<string, string>
+  onClose: () => void
+}) {
+  const { copy } = useLabels()
+
+  return (
+    <div className="titan-glass rounded-[10px] p-4">
+      <div className="mb-3 flex items-center justify-between">
+        <div>
+          <p className="text-[11px] text-muted-foreground">{trade.symbol}</p>
+          <p className="text-[11px] text-muted-foreground">
+            {trade.date}
+            {" · "}ID: #{trade.id.slice(0, 12)}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onClose}
+          className="text-muted-foreground hover:text-foreground"
+          aria-label={copy.close}
+        >
+          <X className="size-4" />
+        </button>
+      </div>
+      <TradePanel trade={trade} playbookNames={playbookNames} />
+    </div>
+  )
+}
+
 export function JournalPage() {
   const { copy } = useLabels()
-  const { accountTrades, isReady } = useScopedTrades()
+  const { trades, accountTrades, isReady } = useScopedTrades()
   const { playbooks } = useWorkspace()
   const [filters, setFilters] = useState<TradeFilters>(EMPTY_TRADE_FILTERS)
   const [page, setPage] = useState(1)
@@ -223,8 +260,8 @@ export function JournalPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
 
   const visible = useMemo(
-    () => filterTrades(accountTrades, filters),
-    [accountTrades, filters]
+    () => filterTrades(trades, filters),
+    [trades, filters]
   )
   const stats = useMemo(() => accountEdge(visible), [visible])
   const planned = useMemo(() => avgPlannedRrr(visible), [visible])
@@ -241,10 +278,32 @@ export function JournalPage() {
     ? accountTrades.find((trade) => trade.id === selectedId) ?? null
     : null
 
+  useEffect(() => {
+    if (!selectedId) return
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") setSelectedId(null)
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [selectedId])
+
   function handleFilter(update: Partial<TradeFilters>) {
     setFilters((current) => ({ ...current, ...update }))
     setPage(1)
     setSelectedId(null)
+  }
+
+  function toggleTrade(id: string) {
+    setSelectedId((current) => (current === id ? null : id))
+  }
+
+  const marketLabels: Record<MarketFilter, string> = {
+    ALL: copy.journal.allMarkets,
+    MAJOR: copy.journal.majors,
+    CROSS: copy.journal.crosses,
+    STOCK: copy.journal.stocks,
+    COMMODITY: copy.journal.commodities,
+    METAL: copy.journal.metals,
   }
 
   return (
@@ -307,38 +366,57 @@ export function JournalPage() {
           label={copy.journal.averageRrr}
           value={planned == null ? "—" : formatRRR(planned)}
           icon={<Scale className="size-3.5 text-muted-foreground" />}
+          why={copy.journal.averageRrrWhy}
         />
       </div>
 
       <div data-guide="journal-list">
-      <div className="mb-4 flex flex-wrap items-center gap-2" data-guide="journal-filters">
+      <div
+        className="mb-4 grid grid-cols-1 gap-2 lg:flex lg:flex-wrap lg:items-center"
+        data-guide="journal-filters"
+      >
         <Input
           type="date"
           value={filters.dateFrom}
           onChange={(event) => handleFilter({ dateFrom: event.target.value })}
           aria-label={copy.journal.dateFrom}
-          className="h-8 w-36 text-[12px]"
+          className={filterControlClass}
         />
         <Input
           type="date"
           value={filters.dateTo}
           onChange={(event) => handleFilter({ dateTo: event.target.value })}
           aria-label={copy.journal.dateTo}
-          className="h-8 w-36 text-[12px]"
+          className={filterControlClass}
         />
         <Input
           placeholder={copy.journal.searchSymbol}
           value={filters.query}
           onChange={(event) => handleFilter({ query: event.target.value })}
-          className="h-8 min-w-[140px] text-[12px]"
+          className="h-8 w-full min-w-0 text-[12px] lg:min-w-[140px] lg:w-auto"
         />
+        <Select
+          value={filters.market}
+          onValueChange={(value) => handleFilter({ market: value as MarketFilter })}
+        >
+          <SelectTrigger className={filterControlClass} aria-label={copy.journal.market}>
+            <SelectValue placeholder={copy.journal.market} />
+          </SelectTrigger>
+          <SelectContent position="popper">
+            {JOURNAL_MARKET_FILTERS.map((market) => (
+              <SelectItem key={market} value={market}>
+                {marketLabels[market]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Select
           value={filters.direction}
           onValueChange={(value) =>
             handleFilter({ direction: value as TradeFilters["direction"] })
           }
         >
-          <SelectTrigger className="h-8 w-32 text-[12px]">
+          <SelectTrigger className={cn(filterControlClass, "lg:w-32")} aria-label={copy.journal.direction}>
             <SelectValue placeholder={copy.journal.direction} />
           </SelectTrigger>
           <SelectContent position="popper">
@@ -354,7 +432,7 @@ export function JournalPage() {
           value={filters.playbookId}
           onValueChange={(value) => handleFilter({ playbookId: value })}
         >
-          <SelectTrigger className="h-8 w-36 text-[12px]">
+          <SelectTrigger className={filterControlClass} aria-label={copy.journal.playbook}>
             <SelectValue placeholder={copy.journal.playbook} />
           </SelectTrigger>
           <SelectContent position="popper">
@@ -372,14 +450,14 @@ export function JournalPage() {
             handleFilter({ result: value as ResultFilter })
           }
         >
-          <SelectTrigger className="h-8 w-28 text-[12px]">
+          <SelectTrigger className={cn(filterControlClass, "lg:w-28")} aria-label={copy.journal.result}>
             <SelectValue placeholder={copy.journal.result} />
           </SelectTrigger>
           <SelectContent position="popper">
             <SelectItem value="ALL">{copy.journal.allResults}</SelectItem>
-            <SelectItem value="WIN">{copy.outcome.win}</SelectItem>
-            <SelectItem value="LOSS">{copy.outcome.loss}</SelectItem>
-            <SelectItem value="BE">{copy.outcome.be}</SelectItem>
+            <SelectItem value="WIN">WIN</SelectItem>
+            <SelectItem value="BE">BE</SelectItem>
+            <SelectItem value="LOSS">LOSS</SelectItem>
           </SelectContent>
         </Select>
         {filtersActive(filters) ? (
@@ -387,6 +465,7 @@ export function JournalPage() {
             type="button"
             variant="outline"
             size="sm"
+            className="w-full lg:w-auto"
             onClick={() => {
               setFilters(EMPTY_TRADE_FILTERS)
               setPage(1)
@@ -401,7 +480,8 @@ export function JournalPage() {
 
       <div className={cn("flex min-h-0 gap-3", selectedTrade ? "items-start" : "")}>
         <div className={cn("min-w-0 flex-1", selectedTrade ? "lg:max-w-[calc(100%-360px)]" : "")}>
-              <div className="titan-glass overflow-hidden rounded-[10px]">
+              <div className="hidden overflow-hidden rounded-[10px] lg:block">
+                <div className="titan-glass">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -413,13 +493,16 @@ export function JournalPage() {
                       <TableHead>{copy.journal.r}</TableHead>
                       <TableHead>{copy.journal.pnl}</TableHead>
                       <TableHead>{copy.journal.status}</TableHead>
+                      <TableHead className="w-8">
+                        <span className="sr-only">{copy.calendar.openDetail}</span>
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {paginated.length === 0 ? (
                       <TableRow>
                         <TableCell
-                          colSpan={8}
+                          colSpan={9}
                           className="h-24 text-center text-muted-foreground"
                         >
                           {copy.journal.empty}
@@ -429,13 +512,9 @@ export function JournalPage() {
                       paginated.map((trade) => (
                         <TableRow
                           key={trade.id}
-                          onClick={() =>
-                            setSelectedId((current) =>
-                              current === trade.id ? null : trade.id
-                            )
-                          }
+                          onClick={() => toggleTrade(trade.id)}
                           className={cn(
-                            "cursor-pointer select-none",
+                            "group cursor-pointer select-none hover:bg-foreground/6",
                             selectedId === trade.id && "bg-primary/8"
                           )}
                         >
@@ -461,11 +540,73 @@ export function JournalPage() {
                           <TableCell>
                             <StatusBadge status={trade.status} />
                           </TableCell>
+                          <TableCell className="w-8 text-muted-foreground">
+                            <ChevronRight
+                              className="size-4 opacity-55 transition-transform group-hover:translate-x-0.5 group-hover:opacity-100"
+                              aria-hidden
+                            />
+                          </TableCell>
                         </TableRow>
                       ))
                     )}
                   </TableBody>
                 </Table>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2 lg:hidden">
+                {paginated.length === 0 ? (
+                  <p className="titan-glass rounded-[10px] px-4 py-8 text-center text-[13px] text-muted-foreground">
+                    {copy.journal.empty}
+                  </p>
+                ) : (
+                  paginated.map((trade) => (
+                    <button
+                      key={trade.id}
+                      type="button"
+                      onClick={() => toggleTrade(trade.id)}
+                      className={cn(
+                        "titan-glass cursor-pointer rounded-[10px] px-3 py-3 text-left transition-colors hover:bg-foreground/6",
+                        selectedId === trade.id && "bg-primary/8"
+                      )}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <p className="font-medium">{trade.symbol}</p>
+                          <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
+                            {formatDate(trade.date)}
+                            {" · "}
+                            {playbookNames[trade.playbookId] ?? trade.strategy}
+                          </p>
+                        </div>
+                        <ChevronRight
+                          className="mt-0.5 size-4 shrink-0 text-muted-foreground opacity-70"
+                          aria-hidden
+                        />
+                      </div>
+                      <div className="mt-2 flex items-end justify-between gap-2">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <DirectionBadge direction={trade.direction} />
+                          <OutcomeBadge resultR={trade.resultR} pnl={trade.pnl} />
+                          <StatusBadge status={trade.status} />
+                        </div>
+                        <div className="text-right">
+                          <p className="font-mono text-[13px] font-medium tabular-nums">
+                            <ResultR value={displayResultR(trade)} />
+                          </p>
+                          <p
+                            className={cn(
+                              "font-mono text-[11px] tabular-nums",
+                              signedClassName(trade.pnl)
+                            )}
+                          >
+                            {formatSignedUsd(trade.pnl)}
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                  ))
+                )}
               </div>
               <Pagination
                 total={visible.length}
@@ -478,35 +619,35 @@ export function JournalPage() {
 
         {selectedTrade ? (
           <aside className="hidden w-[340px] shrink-0 lg:block">
-            <div className="titan-glass sticky top-4 rounded-[10px] p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <div>
-                  <p className="text-[11px] text-muted-foreground">
-                    {selectedTrade.symbol}
-                  </p>
-                  <p className="text-[11px] text-muted-foreground">
-                    {selectedTrade.date}
-                    {" · "}ID: #{selectedTrade.id.slice(0, 12)}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setSelectedId(null)}
-                  className="text-muted-foreground hover:text-foreground"
-                  aria-label={copy.close}
-                >
-                  <X className="size-4" />
-                </button>
-              </div>
-              <TradePanel trade={selectedTrade} playbookNames={playbookNames} />
+            <div className="sticky top-4">
+              <TradeDetailPane
+                trade={selectedTrade}
+                playbookNames={playbookNames}
+                onClose={() => setSelectedId(null)}
+              />
             </div>
           </aside>
         ) : null}
       </div>
       </div>
-      <div className="mt-8">
-        <ClearJournal />
-      </div>
+
+      {selectedTrade ? (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <button
+            type="button"
+            className="absolute inset-0 bg-background/70"
+            aria-label={copy.close}
+            onClick={() => setSelectedId(null)}
+          />
+          <div className="absolute inset-x-0 bottom-0 top-8 overflow-y-auto rounded-t-[16px] border-t border-border bg-background shadow-lg">
+            <TradeDetailPane
+              trade={selectedTrade}
+              playbookNames={playbookNames}
+              onClose={() => setSelectedId(null)}
+            />
+          </div>
+        </div>
+      ) : null}
         </>
       )}
     </PageFrame>

@@ -4,6 +4,7 @@ import {
   classifyMarket,
   cotFieldsForClassification,
   formatMarketLabel,
+  matchesJournalMarket,
   normalizeSymbol,
   shouldDisplayCot,
 } from "@/lib/market-classification"
@@ -141,6 +142,20 @@ describe("classifyMarket", () => {
       marketType: "Unknown",
       cotEnabled: false,
     })
+  })
+})
+
+describe("matchesJournalMarket", () => {
+  it("splits symbols with the shared classifyMarket mapping", () => {
+    expect(matchesJournalMarket("EURUSD", "MAJOR")).toBe(true)
+    expect(matchesJournalMarket("EURAUD", "CROSS")).toBe(true)
+    expect(matchesJournalMarket("AAPL", "STOCK")).toBe(true)
+    expect(matchesJournalMarket("COFFEE", "COMMODITY")).toBe(true)
+    expect(matchesJournalMarket("XAUUSD", "METAL")).toBe(true)
+    expect(matchesJournalMarket("GOLD", "METAL")).toBe(true)
+    expect(matchesJournalMarket("BTCUSD", "STOCK")).toBe(false)
+    expect(matchesJournalMarket("US30", "MAJOR")).toBe(false)
+    expect(matchesJournalMarket("EURUSD", "ALL")).toBe(true)
   })
 })
 

@@ -1,6 +1,12 @@
 "use client"
 
-import { ArcGauge, OutcomeDots, SplitBar } from "@/components/dashboard/stat-gauges"
+import {
+  ArcGauge,
+  FactorScale,
+  OutcomeDots,
+  SplitBar,
+  ZeroBar,
+} from "@/components/dashboard/stat-gauges"
 import { MetricLabel } from "@/components/layout/metric-info"
 import {
   formatNumber,
@@ -16,7 +22,6 @@ import { cn } from "@/lib/utils"
 const titleClass =
   "text-[11px] font-medium tracking-wide text-muted-foreground"
 const valueClass = "mt-1 font-mono text-[22px] font-semibold tabular-nums"
-const captionClass = "mt-2 text-[11px] leading-snug text-muted-foreground"
 
 function compactPercent(value: number | null | undefined): string {
   if (value == null || !Number.isFinite(value)) return "—"
@@ -68,7 +73,9 @@ export function KpiCards({
         >
           {formatNumber(pf)}
         </p>
-        <p className={captionClass}>{copy.dashboard.profitFactorCaption}</p>
+        <div className="mt-3">
+          <FactorScale value={pf} />
+        </div>
       </article>
 
       <article className="titan-kpi titan-kpi--avg rounded-[12px] px-4 py-3">
@@ -81,7 +88,9 @@ export function KpiCards({
         <p className={cn(valueClass, signedClassName(avg))}>
           {formatSignedR(avg)}
         </p>
-        <p className={captionClass}>{copy.dashboard.averageRCaption}</p>
+        <div className="mt-3">
+          <ZeroBar value={avg} />
+        </div>
       </article>
 
       <article className="titan-kpi rounded-[12px] px-4 py-3">
