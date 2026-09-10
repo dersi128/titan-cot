@@ -232,7 +232,7 @@ export function FactorScale({ value }: { value: number | null }) {
   const { language } = useLabels()
   const n = value != null && Number.isFinite(value) ? value : null
   const capped = n == null ? 1 : Math.min(2, Math.max(0, n))
-  const left = `${(capped / 2) * 100}%`
+  const left = `${((2 - capped) / 2) * 100}%`
   const over = n != null && n >= 1
   const one = language === "en" ? "1.0" : "1,0"
 
@@ -240,8 +240,8 @@ export function FactorScale({ value }: { value: number | null }) {
     <div className="w-full" aria-hidden>
       <div className="relative h-2">
         <div className="flex h-full overflow-hidden rounded-sm border border-foreground/40">
-          <span className="h-full w-1/2 bg-bear/75" />
           <span className="h-full w-1/2 bg-bull/75" />
+          <span className="h-full w-1/2 bg-bear/75" />
         </div>
         <span className="absolute -top-0.5 -bottom-0.5 left-1/2 z-10 w-0.5 -translate-x-1/2 bg-foreground" />
         {n != null ? (
@@ -265,7 +265,7 @@ export function ZeroBar({ value }: { value: number | null }) {
   const n = value != null && Number.isFinite(value) ? value : null
   const span = n == null || n === 0 ? 0 : Math.min(50, (Math.abs(n) / 2) * 50)
   const left =
-    n == null || n === 0 ? "50%" : n > 0 ? `calc(50% + ${span}%)` : `calc(50% - ${span}%)`
+    n == null || n === 0 ? "50%" : n > 0 ? `calc(50% - ${span}%)` : `calc(50% + ${span}%)`
 
   return (
     <div className="w-full" aria-hidden>
@@ -273,14 +273,14 @@ export function ZeroBar({ value }: { value: number | null }) {
         <div className="relative h-full overflow-hidden rounded-sm border border-foreground/40 bg-muted">
           {n != null && n > 0 ? (
             <span
-              className="absolute inset-y-0 left-1/2 bg-bull"
-              style={{ width: `max(0.375rem, ${span}%)` }}
+              className="absolute inset-y-0 bg-bull"
+              style={{ right: "50%", width: `max(0.375rem, ${span}%)` }}
             />
           ) : null}
           {n != null && n < 0 ? (
             <span
-              className="absolute inset-y-0 bg-bear"
-              style={{ right: "50%", width: `max(0.375rem, ${span}%)` }}
+              className="absolute inset-y-0 left-1/2 bg-bear"
+              style={{ width: `max(0.375rem, ${span}%)` }}
             />
           ) : null}
         </div>
