@@ -108,7 +108,7 @@ export function DashboardPage() {
               <KpiCards stats={stats} currency={profile.currency} />
             </div>
             <EquityCurve data={equity} />
-            <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+            <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
               <PerformanceBars trades={trades} currency={profile.currency} />
               <MarketDistribution trades={trades} currency={profile.currency} />
             </div>
