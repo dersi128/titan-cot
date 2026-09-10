@@ -59,11 +59,11 @@ export function isFiniteNumber(
 }
 
 export function monetaryKpis(trades: Trade[]) {
-  const amounts = trades
-    .filter(
-      (trade) => isRealizedTradeStatus(trade.status) && isFiniteNumber(trade.pnl)
-    )
-    .map((trade) => trade.pnl)
+  const amounts: number[] = []
+  for (const trade of trades) {
+    if (!isRealizedTradeStatus(trade.status) || !isFiniteNumber(trade.pnl)) continue
+    amounts.push(trade.pnl)
+  }
   const netPnl = amounts.reduce((sum, value) => sum + value, 0)
   const grossProfit = amounts
     .filter((value) => value > 0)
