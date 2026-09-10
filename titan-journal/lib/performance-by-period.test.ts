@@ -152,10 +152,23 @@ describe("getPerformanceByPeriod", () => {
     )
   })
 
-  it("builds buckets from the mock journal", () => {
+  it("builds monthly buckets from the mock journal across the first trade year", () => {
     const result = getPerformanceByPeriod(MOCK_TRADES, "ALL", NOW)
     expect(result.aggregation).toBe("month")
-    expect(result.buckets.length).toBeGreaterThan(0)
+    expect(result.buckets[0]?.key).toBe("2026-01")
     expect(result.totals.trades).toBeGreaterThan(0)
+  })
+
+  it("on ALL shows months from January of the first trade year, not only the newest month", () => {
+    const trades = [
+      trade({ id: "new", date: "2026-09-01", resultR: 1, pnl: 325 }),
+      trade({ id: "old", date: "2026-03-15", resultR: -1, pnl: -100 }),
+    ]
+    const result = getPerformanceByPeriod(trades, "ALL", NOW)
+    expect(result.aggregation).toBe("month")
+    expect(result.buckets[0]?.key).toBe("2026-01")
+    expect(result.buckets.some((bucket) => bucket.key === "2026-03")).toBe(true)
+    expect(result.buckets.some((bucket) => bucket.key === "2026-09")).toBe(true)
+    expect(result.buckets.map((bucket) => bucket.key)).toContain("2026-05")
   })
 })

@@ -210,6 +210,18 @@ function bucketWindows(
   return windows
 }
 
+function earliestIso(trades: Trade[]): string | null {
+  let min: string | null = null
+  for (const trade of trades) {
+    if (!min || trade.date < min) min = trade.date
+  }
+  return min
+}
+
+function yearStart(iso: string): string {
+  return `${iso.slice(0, 4)}-01-01`
+}
+
 export function getPerformanceByPeriod(
   trades: Trade[],
   dateRange: DateRange,
@@ -220,7 +232,9 @@ export function getPerformanceByPeriod(
   const today = isoDateLocal(now)
   const closed = realizedInRange(trades, bounds.start, bounds.end)
   const end = bounds.end
-  const start = bounds.start ?? closed[0]?.date ?? end
+  const first = earliestIso(closed)
+  const start =
+    bounds.start ?? (first ? yearStart(first) : end)
   const aggregation = aggregationForRange(dateRange, start, end)
   if (closed.length === 0 && dateRange === "ALL") {
     return {
