@@ -1,13 +1,19 @@
+import {
+  matchesJournalMarket,
+  type JournalMarketFilter,
+} from "@/lib/market-classification"
 import { tradeOutcome } from "@/lib/trade-outcome"
 import type { Trade, TradeDirection } from "@/types/trade"
 
 export type ResultFilter = "ALL" | "WIN" | "LOSS" | "BE"
+export type MarketFilter = JournalMarketFilter
 
 export type TradeFilters = {
   query: string
   playbookId: string | "ALL"
   direction: TradeDirection | "ALL"
   result: ResultFilter
+  market: MarketFilter
   dateFrom: string
   dateTo: string
 }
@@ -17,6 +23,7 @@ export const EMPTY_TRADE_FILTERS: TradeFilters = {
   playbookId: "ALL",
   direction: "ALL",
   result: "ALL",
+  market: "ALL",
   dateFrom: "",
   dateTo: "",
 }
@@ -37,6 +44,9 @@ export function filterTrades(trades: Trade[], filters: TradeFilters): Trade[] {
       return false
     }
     if (filters.result !== "ALL" && tradeOutcome(trade) !== filters.result) {
+      return false
+    }
+    if (filters.market !== "ALL" && !matchesJournalMarket(trade.symbol, filters.market)) {
       return false
     }
     if (filters.dateFrom && trade.date < filters.dateFrom) return false

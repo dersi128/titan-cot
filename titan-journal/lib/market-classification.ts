@@ -87,6 +87,30 @@ function withCot(classification: MarketClassification): MarketClassification {
   }
 }
 
+export const JOURNAL_MARKET_FILTERS = [
+  "ALL",
+  "MAJOR",
+  "CROSS",
+  "STOCK",
+  "COMMODITY",
+  "METAL",
+] as const
+export type JournalMarketFilter = (typeof JOURNAL_MARKET_FILTERS)[number]
+
+export function matchesJournalMarket(
+  symbol: string,
+  filter: JournalMarketFilter
+): boolean {
+  if (filter === "ALL") return true
+  const { assetClass, marketType } = classifyMarket(symbol)
+  if (filter === "MAJOR") return marketType === "Major"
+  if (filter === "CROSS") return marketType === "Cross"
+  if (filter === "STOCK") return assetClass === "Stock"
+  if (filter === "COMMODITY") return assetClass === "Commodity"
+  if (filter === "METAL") return assetClass === "Metal"
+  return false
+}
+
 export function classifyMarket(rawSymbol: string): MarketClassification {
   const symbol = normalizeSymbol(rawSymbol)
   if (!symbol) {

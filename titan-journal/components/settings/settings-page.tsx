@@ -6,8 +6,9 @@ import { PageFrame, PageHeader } from "@/components/layout/page-header"
 import { useGuide } from "@/components/layout/guide-provider"
 import { useWorkspace } from "@/components/layout/workspace-provider"
 import { SelectField } from "@/components/forms/select-field"
-import { useTrades } from "@/components/trades/trades-provider"
+import { ClearJournal } from "@/components/trades/clear-journal"
 import { useJournalImport } from "@/components/trades/journal-file-import"
+import { useTrades } from "@/components/trades/trades-provider"
 import { Button } from "@/components/ui/button"
 import {
   backupFilename,
@@ -59,6 +60,19 @@ function BackupSection() {
   )
 }
 
+function DataPrivacySection() {
+  const { copy } = useLabels()
+  const { trades } = useTrades()
+  if (trades.length === 0) return null
+
+  return (
+    <section className="space-y-3">
+      <h2 className="text-sm font-semibold">{copy.settings.dataPrivacy}</h2>
+      <ClearJournal />
+    </section>
+  )
+}
+
 export function SettingsPage() {
   const { preferences, updatePreferences, playbooks } = useWorkspace()
   const { copy, ACCOUNT_LABELS } = useLabels()
@@ -99,6 +113,8 @@ export function SettingsPage() {
         </section>
 
         <BackupSection />
+
+        <DataPrivacySection />
 
         <section className="titan-glass rounded-[10px] p-4 space-y-3">
           <h2 className="text-sm font-semibold">{copy.settings.appearance}</h2>
