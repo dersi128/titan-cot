@@ -1330,85 +1330,86 @@ html[data-density="large"] {
 
   .titan-calendar-grid {
     min-height: 0;
+    grid-auto-rows: 64px;
   }
 
   .titan-calendar-day {
-    min-height: 3.4rem;
+    min-height: 64px;
   }
 
   .titan-calendar-day:hover {
     z-index: 1;
   }
 
-  @media (max-width: 639px) {
-    .titan-calendar-day {
-      min-height: 3.1rem;
-      padding-inline: 0.35rem;
-      padding-block: 0.45rem;
-    }
+  .titan-calendar-day--selected {
+    z-index: 1;
+    box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--primary) 70%, transparent);
   }
-}
 
-@layer components {
-  /* Light calendar: clear white surface with restrained result colors. */
+  /* Light calendar: white cells, thin blue-gray lines, no gray slabs. */
   html[data-theme="light"] .titan-calendar [data-slot="card-content"] {
     background: #ffffff;
+  }
+
+  html[data-theme="light"] .titan-calendar-board {
+    background: #ffffff;
+    border: 1px solid #d5e0ea;
+  }
+
+  html[data-theme="light"] .titan-calendar-weekdays {
+    background: #f4f6f8;
+    border-bottom: 1px solid #d5e0ea;
+  }
+
+  html[data-theme="light"] .titan-calendar-weekday--edge {
+    border-right: 1px solid #d5e0ea;
   }
 
   html[data-theme="light"] .titan-calendar-grid {
     background: #ffffff;
   }
 
-  html[data-theme="light"] .titan-calendar-grid > button {
-    background: #ffffff;
-    border-color: #e3eaf1;
-  }
-
-  html[data-theme="light"] .titan-calendar-grid > button.bg-background\/55 {
+  html[data-theme="light"] .titan-calendar-day {
     background: #ffffff;
   }
 
-  html[data-theme="light"] .titan-calendar-grid > button.bg-muted\/20 {
-    background: #fbfcfe;
+  html[data-theme="light"] .titan-calendar-day--edge {
+    border-right: 1px solid #d5e0ea;
   }
 
-  html[data-theme="light"] .titan-calendar-grid > button.bg-bull\/12 {
-    background: rgba(40, 169, 113, 0.14);
+  html[data-theme="light"] .titan-calendar-day--row {
+    border-bottom: 1px solid #d5e0ea;
   }
 
-  html[data-theme="light"] .titan-calendar-grid > button.bg-bear\/12 {
-    background: rgba(211, 72, 88, 0.12);
-  }
-
-  html[data-theme="light"] .titan-calendar-grid > button.bg-muted\/40 {
-    background: #f8fafc;
-  }
-
-  html[data-theme="light"] .titan-calendar-grid > button:hover {
-    background: #f5f8fb;
-  }
-
-  html[data-theme="light"] .titan-calendar-grid > button.bg-bull\/12:hover {
-    background: rgba(40, 169, 113, 0.2);
-  }
-
-  html[data-theme="light"] .titan-calendar-grid > button.bg-bear\/12:hover {
-    background: rgba(211, 72, 88, 0.18);
-  }
-
-  html[data-theme="light"] .titan-calendar-grid > button.shadow-\[inset_0_0_0_2px_var\(--primary\)\] {
+  html[data-theme="light"] .titan-calendar-day--outside,
+  html[data-theme="light"] .titan-calendar-day--empty,
+  html[data-theme="light"] .titan-calendar-day--flat {
     background: #ffffff;
   }
-}
 
-@layer components {
-  .titan-calendar-grid {
-    grid-auto-rows: minmax(4rem, auto);
+  html[data-theme="light"] .titan-calendar-day--empty:hover,
+  html[data-theme="light"] .titan-calendar-day--flat:hover,
+  html[data-theme="light"] .titan-calendar-day--outside:hover {
+    background: #fafcfd;
   }
 
-  @media (max-width: 639px) {
-    .titan-calendar-grid {
-      grid-auto-rows: minmax(3.6rem, auto);
-    }
+  html[data-theme="light"] .titan-calendar-day--win {
+    background: rgba(40, 169, 113, 0.12);
+  }
+
+  html[data-theme="light"] .titan-calendar-day--loss {
+    background: rgba(211, 72, 88, 0.1);
+  }
+
+  html[data-theme="light"] .titan-calendar-day--win:hover {
+    background: rgba(40, 169, 113, 0.18);
+  }
+
+  html[data-theme="light"] .titan-calendar-day--loss:hover {
+    background: rgba(211, 72, 88, 0.16);
+  }
+
+  html[data-theme="light"] .titan-calendar-day--selected {
+    box-shadow: inset 0 0 0 1.5px #4f7eae;
   }
 }

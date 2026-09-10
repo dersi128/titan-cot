@@ -54,14 +54,14 @@ export function PnlCalendar({
   return (
     <Card size="sm" className="titan-calendar flex min-h-0 flex-col gap-0 py-0" data-guide="calendar-board">
       <CardContent className="flex min-h-0 flex-none flex-col px-3 pt-3 pb-3">
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[10px] border border-border bg-background">
-          <div className="grid grid-cols-7 border-b border-border bg-[#f8fafc]">
+        <div className="titan-calendar-board flex min-h-0 flex-1 flex-col overflow-hidden rounded-[10px]">
+          <div className="titan-calendar-weekdays grid grid-cols-7">
             {copy.calendar.weekdays.map((label, index) => (
               <p
                 key={label}
                 className={cn(
-                  "py-1.5 text-center text-[11px] font-medium tracking-wide text-muted-foreground",
-                  index < 6 && "border-r border-border"
+                  "titan-calendar-weekday py-1.5 text-center text-[11px] font-medium tracking-wide text-muted-foreground",
+                  index < 6 && "titan-calendar-weekday--edge"
                 )}
               >
                 {label}
@@ -83,27 +83,14 @@ export function PnlCalendar({
                   onClick={() => day.inMonth && pickDay(day.date, true)}
                   className={cn(
                     "titan-calendar-day relative flex min-h-[64px] flex-col items-stretch px-1.5 py-1.5 text-left transition-colors",
-                    col < 6 && "border-r border-border",
-                    !lastRow && "border-b border-border",
-                    !day.inMonth && "bg-muted/20",
-                    day.inMonth && !selected && !traded && "bg-background/55 hover:bg-muted/25",
-                    day.inMonth &&
-                      !selected &&
-                      traded &&
-                      value > 0 &&
-                      "bg-bull/12 hover:bg-bull/18",
-                    day.inMonth &&
-                      !selected &&
-                      traded &&
-                      value < 0 &&
-                      "bg-bear/12 hover:bg-bear/18",
-                    day.inMonth &&
-                      !selected &&
-                      traded &&
-                      value === 0 &&
-                      "bg-muted/40 hover:bg-muted/55",
-                    selected &&
-                      "z-[1] bg-background shadow-[inset_0_0_0_2px_var(--primary)]"
+                    col < 6 && "titan-calendar-day--edge",
+                    !lastRow && "titan-calendar-day--row",
+                    !day.inMonth && "titan-calendar-day--outside",
+                    day.inMonth && !traded && "titan-calendar-day--empty",
+                    day.inMonth && traded && value > 0 && "titan-calendar-day--win",
+                    day.inMonth && traded && value < 0 && "titan-calendar-day--loss",
+                    day.inMonth && traded && value === 0 && "titan-calendar-day--flat",
+                    selected && "titan-calendar-day--selected"
                   )}
                 >
                   <span
