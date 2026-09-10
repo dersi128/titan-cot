@@ -225,6 +225,56 @@ export function SplitBar({
   )
 }
 
+export function FactorScale({ value }: { value: number | null }) {
+  const n = value != null && Number.isFinite(value) ? value : null
+  const capped = n == null ? 1 : Math.min(2, Math.max(0, n))
+  const left = `${(capped / 2) * 100}%`
+  const over = n != null && n >= 1
+
+  return (
+    <div className="relative h-4 w-full" aria-hidden>
+      <div className="absolute inset-x-0 top-1/2 flex h-1 -translate-y-1/2 overflow-hidden rounded-full">
+        <span className="h-full w-1/2 bg-bear/20" />
+        <span className="h-full w-1/2 bg-bull/20" />
+      </div>
+      <span className="absolute top-1/2 left-1/2 h-3.5 w-px -translate-x-1/2 -translate-y-1/2 bg-foreground/55" />
+      {n != null ? (
+        <span
+          className={
+            over
+              ? "absolute top-0 size-1.5 -translate-x-1/2 rounded-full bg-bull"
+              : "absolute bottom-0 size-1.5 -translate-x-1/2 rounded-full bg-bear"
+          }
+          style={{ left }}
+        />
+      ) : null}
+    </div>
+  )
+}
+
+export function ZeroBar({ value }: { value: number | null }) {
+  const n = value != null && Number.isFinite(value) ? value : null
+  const span = n == null || n === 0 ? 0 : Math.min(50, (Math.abs(n) / 2) * 50)
+
+  return (
+    <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-muted/80" aria-hidden>
+      <span className="absolute inset-y-0 left-1/2 z-10 w-px bg-foreground/45" />
+      {n != null && n > 0 ? (
+        <span
+          className="absolute inset-y-0 left-1/2 rounded-r-full bg-bull"
+          style={{ width: `max(0.25rem, ${span}%)` }}
+        />
+      ) : null}
+      {n != null && n < 0 ? (
+        <span
+          className="absolute inset-y-0 rounded-l-full bg-bear"
+          style={{ right: "50%", width: `max(0.25rem, ${span}%)` }}
+        />
+      ) : null}
+    </div>
+  )
+}
+
 export function OutcomeDots({
   wins,
   be,

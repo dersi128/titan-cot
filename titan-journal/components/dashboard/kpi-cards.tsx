@@ -1,6 +1,12 @@
 "use client"
 
-import { ArcGauge, OutcomeDots, SplitBar } from "@/components/dashboard/stat-gauges"
+import {
+  ArcGauge,
+  FactorScale,
+  OutcomeDots,
+  SplitBar,
+  ZeroBar,
+} from "@/components/dashboard/stat-gauges"
 import { MetricLabel } from "@/components/layout/metric-info"
 import {
   formatNumber,
@@ -67,6 +73,9 @@ export function KpiCards({
         >
           {formatNumber(pf)}
         </p>
+        <div className="mt-3">
+          <FactorScale value={pf} />
+        </div>
       </article>
 
       <article className="titan-kpi titan-kpi--avg rounded-[12px] px-4 py-3">
@@ -79,6 +88,9 @@ export function KpiCards({
         <p className={cn(valueClass, signedClassName(avg))}>
           {formatSignedR(avg)}
         </p>
+        <div className="mt-3">
+          <ZeroBar value={avg} />
+        </div>
       </article>
 
       <article className="titan-kpi rounded-[12px] px-4 py-3">
