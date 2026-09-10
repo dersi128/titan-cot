@@ -144,21 +144,23 @@ function WeekBars({
                 {formatCalendarRange(week.start, week.end, language)}
               </p>
             </div>
-            <div className="h-1.5 min-w-0 rounded-full bg-muted">
-              <div
-                className={cn(
-                  "h-1.5 rounded-full",
-                  empty
-                    ? "bg-muted-foreground/25"
-                    : value > 0
-                      ? "bg-bull"
-                      : value < 0
-                        ? "bg-bear"
-                        : "bg-muted-foreground/40"
+            {empty ? (
+              <div className="h-1.5 min-w-0" aria-hidden />
+            ) : (
+              <div className="flex h-1.5 min-w-0 items-center rounded-full bg-muted">
+                {value === 0 ? (
+                  <span className="h-1.5 w-2 shrink-0 rounded-full bg-muted-foreground/50" />
+                ) : (
+                  <span
+                    className={cn(
+                      "h-1.5 rounded-full",
+                      value > 0 ? "bg-bull" : "bg-bear"
+                    )}
+                    style={{ width }}
+                  />
                 )}
-                style={{ width: empty ? "18%" : width }}
-              />
-            </div>
+              </div>
+            )}
             <span
               className={cn(
                 "w-[4.75rem] text-right font-mono text-[11px] tabular-nums",

@@ -1412,4 +1412,22 @@ html[data-density="large"] {
   html[data-theme="light"] .titan-calendar-day--selected {
     box-shadow: inset 0 0 0 1.5px #4f7eae;
   }
+
+  /* Dark / Navy Gold / Cyberpunk: quiet day grid in the active theme line color. */
+  html:not([data-theme="light"]) .titan-calendar-board {
+    border: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+  }
+
+  html:not([data-theme="light"]) .titan-calendar-weekdays {
+    border-bottom: 1px solid color-mix(in srgb, var(--border) 58%, transparent);
+  }
+
+  html:not([data-theme="light"]) .titan-calendar-weekday--edge,
+  html:not([data-theme="light"]) .titan-calendar-day--edge {
+    border-right: 1px solid color-mix(in srgb, var(--border) 58%, transparent);
+  }
+
+  html:not([data-theme="light"]) .titan-calendar-day--row {
+    border-bottom: 1px solid color-mix(in srgb, var(--border) 58%, transparent);
+  }
 }
