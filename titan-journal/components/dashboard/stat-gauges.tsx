@@ -235,7 +235,7 @@ export function OutcomeDots({
   losses: number
 }) {
   return (
-    <div className="mt-2 flex items-center gap-1.5">
+    <div className="flex items-center gap-1.5">
       <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-bull/15 px-1.5 text-[10px] font-mono tabular-nums text-bull">
         {wins}
       </span>

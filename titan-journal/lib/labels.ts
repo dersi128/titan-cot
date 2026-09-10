@@ -87,6 +87,8 @@ export const copyEn = {
     profitFactorWhy:
       "Gross profit of winning trades ÷ gross loss of losing trades. Above 1 is a net plus. No losses → —.",
     averageRWhy: "Avg R of closed wins and losses. BE is not included.",
+    profitFactorCaption: "Above 1 = gross profit exceeds gross loss.",
+    averageRCaption: "Average of closed wins and losses. BE is not included.",
     metricInfo: "About {metric}",
     totalTrades: "Trades",
     maxDrawdown: "Max Drawdown",
@@ -603,6 +605,8 @@ export const copyCs: Copy = {
     profitFactorWhy:
       "Hrubý zisk ziskových obchodů ÷ hrubá ztráta ztrátových. Nad 1 je plus. Bez ztráty se ukáže —.",
     averageRWhy: "Průměrné R uzavřených zisků a ztrát. BE se nepočítá.",
+    profitFactorCaption: "Nad 1 = hrubý zisk převyšuje hrubou ztrátu.",
+    averageRCaption: "Průměr uzavřených zisků a ztrát. BE se nepočítá.",
     metricInfo: "Co je {metric}",
     totalTrades: "Obchody",
     maxDrawdown: "Max Drawdown",
@@ -1117,6 +1121,8 @@ export const copySk: Copy = {
     profitFactorWhy:
       "Hrubý zisk ziskových obchodov ÷ hrubá strata stratových. Nad 1 je plus. Bez straty sa ukáže —.",
     averageRWhy: "Priemerné R uzavretých ziskov a strát. BE sa nepočíta.",
+    profitFactorCaption: "Nad 1 = hrubý zisk prevyšuje hrubú stratu.",
+    averageRCaption: "Priemer uzavretých ziskov a strát. BE sa nepočíta.",
     metricInfo: "Čo je {metric}",
     totalTrades: "Obchody",
     maxDrawdown: "Max Drawdown",
