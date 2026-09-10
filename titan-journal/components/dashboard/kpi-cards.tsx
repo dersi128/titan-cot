@@ -33,7 +33,7 @@ export function KpiCards({
 
   return (
     <div className="grid grid-cols-2 gap-2 lg:grid-cols-4" data-guide="overview">
-      <article className="titan-kpi flex items-center justify-between gap-3 overflow-visible rounded-[10px] px-3 py-2.5">
+      <article title="Podíl ziskových obchodů ze všech uzavřených obchodů." className="titan-kpi titan-kpi--win flex items-center justify-between gap-3 overflow-visible rounded-[10px] px-3 py-2.5">
         <div className="min-w-0">
           <p className="text-[11px] font-medium tracking-wide text-muted-foreground">
             {copy.dashboard.winRate}
@@ -46,7 +46,7 @@ export function KpiCards({
         <ArcGauge progress={wr} wins={stats.wins} be={stats.be} losses={stats.losses} />
       </article>
 
-      <article className="titan-kpi flex items-center justify-between gap-3 rounded-[10px] px-3 py-2.5">
+      <article title="Hrubý zisk dělený hrubou ztrátou. Hodnota nad 1 znamená kladný výsledek." className="titan-kpi titan-kpi--pf flex items-center justify-between gap-3 rounded-[10px] px-3 py-2.5">
         <div className="min-w-0">
           <p className="text-[11px] font-medium tracking-wide text-muted-foreground">
             {copy.dashboard.profitFactor}
@@ -59,7 +59,6 @@ export function KpiCards({
           >
             {formatNumber(pf)}
           </p>
-          <OutcomeDots wins={stats.wins} be={stats.be} losses={stats.losses} />
         </div>
         <RingGauge
           progress={pf == null ? null : pf / 2}
@@ -69,7 +68,7 @@ export function KpiCards({
         />
       </article>
 
-      <article className="titan-kpi flex items-center justify-between gap-3 overflow-visible rounded-[10px] px-3 py-2.5">
+      <article title="Průměrný výsledek jednoho obchodu vyjádřený v násobcích rizika." className="titan-kpi titan-kpi--avg flex items-center justify-between gap-3 overflow-visible rounded-[10px] px-3 py-2.5">
         <div className="min-w-0">
           <p className="text-[11px] font-medium tracking-wide text-muted-foreground">
             {copy.dashboard.averageR}
@@ -82,7 +81,6 @@ export function KpiCards({
           >
             {formatSignedR(avg)}
           </p>
-          <OutcomeDots wins={stats.wins} be={stats.be} losses={stats.losses} />
         </div>
         <ArcGauge
           progress={avg == null ? null : (avg + 2) / 4}
@@ -92,7 +90,7 @@ export function KpiCards({
         />
       </article>
 
-      <article className="titan-kpi rounded-[10px] px-3 py-2.5">
+      <article title="Čistý výsledek po odečtení ztrát." className="titan-kpi rounded-[10px] px-3 py-2.5">
         <p className="text-[11px] font-medium tracking-wide text-muted-foreground">
           {copy.dashboard.netPnl}
         </p>
