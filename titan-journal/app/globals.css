@@ -1278,7 +1278,7 @@ html[data-density="large"] {
   }
 
   .titan-kpi {
-    min-height: 7rem;
+    min-height: 6.75rem;
     transition: border-color 160ms ease, background-color 160ms ease, transform 160ms ease;
   }
 
@@ -1308,12 +1308,12 @@ html[data-density="large"] {
 
   html[data-theme="light"] .titan-glass,
   html[data-theme="light"] .titan-kpi {
-    box-shadow: 0 5px 16px rgba(28, 36, 48, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 14px rgba(28, 36, 48, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.9);
   }
 
   @media (max-width: 639px) {
     .titan-kpi {
-      min-height: 6.5rem;
+      min-height: 6.25rem;
     }
 
     .titan-kpi svg {
