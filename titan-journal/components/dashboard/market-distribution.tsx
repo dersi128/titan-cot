@@ -71,7 +71,7 @@ export function MarketDistribution({
   }
 
   return (
-    <Card size="sm" className="h-full min-h-[260px] gap-0 py-0">
+    <Card size="sm" className="h-full min-h-[280px] gap-0 py-0">
       <CardHeader className="shrink-0 border-b border-border py-2">
         <div className="flex flex-wrap items-center justify-between gap-1.5">
           <CardTitle>{copy.dashboard.marketDistribution}</CardTitle>
