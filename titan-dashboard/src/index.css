@@ -11,7 +11,7 @@
 
   html {
     scroll-behavior: auto;
-    font-size: 12.75px;
+    font-size: 15px;
   }
   body {
     @apply bg-titan-black font-sans text-titan-text antialiased;
@@ -646,8 +646,8 @@
     flex-shrink: 0;
     display: grid;
     place-items: center;
-    width: 5rem;
-    height: 5rem;
+    width: 5.75rem;
+    height: 5.75rem;
     overflow: visible;
     mix-blend-mode: lighten;
   }
@@ -700,8 +700,8 @@
 
   @media (min-width: 1280px) {
     .titan-home-hero-v2__logo-wrap {
-      width: 5.75rem;
-      height: 5.75rem;
+      width: 6.5rem;
+      height: 6.5rem;
     }
   }
 
@@ -724,7 +724,7 @@
   .titan-home-hero-v2__title {
     margin: 3px 0 0;
     font-family: Outfit, system-ui, sans-serif;
-    font-size: 15px;
+    font-size: 18px;
     font-weight: 700;
     letter-spacing: 0.12em;
     line-height: 1.1;
@@ -735,7 +735,7 @@
 
   @media (min-width: 1280px) {
     .titan-home-hero-v2__title {
-      font-size: 19px;
+      font-size: 22px;
     }
   }
 
@@ -1105,7 +1105,7 @@
   .titan-cmd-card.titan-cmd-watch--bull,
   .titan-cmd-card.titan-cmd-watch--bear {
     overflow: hidden;
-    min-height: 132px;
+    min-height: 156px;
   }
 
   .titan-cmd-watch > .titan-cmd-watch__art {
@@ -3013,8 +3013,8 @@
 }
 
 .titan-score-ring-100 {
-  width: 61px;
-  height: 61px;
+  width: 72px;
+  height: 72px;
 }
 
 .titan-cmd {
@@ -3025,6 +3025,11 @@
 
 .titan-cmd--home {
   min-height: 0;
+}
+
+.titan-footer--home {
+  padding: 4px 0;
+  flex-shrink: 0;
 }
 
 .titan-home-row {
@@ -3055,8 +3060,8 @@
   align-items: center;
   gap: 8px;
   min-height: 0;
-  height: 24px;
-  max-height: 24px;
+  height: 28px;
+  max-height: 28px;
   padding: 0 8px !important;
   background:
     linear-gradient(180deg, rgba(8, 16, 26, 0.52), rgba(2, 7, 13, 0.38)),
@@ -3082,7 +3087,7 @@
   align-items: center;
   gap: 6px;
   margin: 0;
-  height: 18px;
+  height: 22px;
   overflow-x: auto;
 }
 
@@ -3094,8 +3099,8 @@
   flex-wrap: nowrap;
   align-items: center;
   gap: 4px;
-  height: 18px;
-  max-height: 18px;
+  height: 22px;
+  max-height: 22px;
   border: 1px solid rgba(125, 211, 252, 0.22);
   border-radius: 4px;
   background: rgba(4, 12, 20, 0.22);
@@ -3211,6 +3216,13 @@
   background-size: 100% 100%;
 }
 
+.titan-cmd-shifts .titan-cmd-kicker,
+.titan-cmd-conviction .titan-cmd-kicker {
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+}
+
 .titan-cmd-shifts__list {
   margin-top: 6px;
   display: flex;
@@ -3218,52 +3230,30 @@
   gap: 1px;
 }
 
-.titan-cmd-shift {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  border: none;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  padding: 5px 2px;
-  text-align: left;
-  transition: background 0.15s ease;
-}
-
-.titan-cmd-shift:hover {
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.titan-cmd-shift--extreme {
-  box-shadow: inset 2px 0 0 rgba(245, 185, 66, 0.75);
-}
-
-.titan-cmd-shift__name {
-  margin: 0;
-  flex: 0 0 4.5rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #f4f7fb;
-}
-
 .titan-cmd-shift__path {
   margin: 0;
   min-width: 0;
-  flex: 1;
+  flex: 0 1 auto;
+  max-width: 70%;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: flex-end;
-  gap: 4px;
-  font-size: 10px;
-  color: #7c8998;
+  gap: 6px;
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  color: #9aa8b5;
+  white-space: nowrap;
+}
+
+.titan-cmd-shift__path > span {
+  min-width: 0;
+}
+
+.titan-cmd-shift__arrow {
+  flex-shrink: 0;
 }
 
 .titan-cmd-shift__arrow--bull {
@@ -3391,10 +3381,10 @@
   align-items: center;
   gap: 16px;
   width: 100%;
-  min-height: 112px;
+  min-height: 132px;
   height: 100%;
   margin: 0;
-  padding: 10px 14px;
+  padding: 12px 16px;
   overflow: hidden;
   appearance: none;
   -webkit-appearance: none;
@@ -3499,13 +3489,15 @@
 }
 
 .titan-usd-macro__ring {
-  width: 61px;
-  height: 61px;
+  width: 72px;
+  height: 72px;
   filter: drop-shadow(0 0 8px color-mix(in srgb, var(--usd-accent) 35%, transparent));
 }
 
 .titan-usd-macro__ring figcaption span:first-child {
-  font-size: 19px;
+  font-size: 22px;
+  line-height: 1;
+  color: #f4f7fb;
 }
 
 .titan-usd-macro__ring figcaption span:last-child {
@@ -3528,12 +3520,12 @@
 }
 
 .titan-dme-v2 .titan-usd-macro {
-  min-height: 119px;
+  min-height: 140px;
 }
 
 .titan-dme-v2 .titan-usd-macro__ring {
-  width: 68px;
-  height: 68px;
+  width: 80px;
+  height: 80px;
 }
 
 @media (min-width: 1100px) {
@@ -3543,6 +3535,85 @@
 
   .titan-home-row--watch {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .titan-page-bg--home-fit,
+  .titan-content-layer--home-fit {
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+  }
+
+  .titan-content-layer--home-fit {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .titan-page-bg--home-fit .titan-header-bar {
+    flex-shrink: 0;
+  }
+
+  .titan-home-main--fit {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  .titan-home-main--fit .titan-cmd--home {
+    flex: 1 1 auto;
+    min-height: 0;
+    gap: 8px;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1.2fr) minmax(0, 1.15fr);
+  }
+
+  .titan-home-main--fit .titan-cmd-flow-wrap,
+  .titan-home-main--fit .titan-cmd-flow-card {
+    flex-shrink: 0;
+    min-height: 0;
+    height: auto;
+  }
+
+  .titan-home-main--fit .titan-home-row--pulse,
+  .titan-home-main--fit .titan-home-row--watch {
+    min-height: 0;
+    gap: 10px;
+  }
+
+  .titan-home-main--fit .titan-cmd-card.titan-cmd-watch--bull,
+  .titan-home-main--fit .titan-cmd-card.titan-cmd-watch--bear {
+    min-height: 0;
+  }
+
+  .titan-home-main--fit .titan-usd-macro {
+    min-height: 0;
+  }
+
+  .titan-home-main--fit .titan-cmd-card--pulse,
+  .titan-home-main--fit .titan-cmd-watch,
+  .titan-home-main--fit .titan-cmd-conviction,
+  .titan-home-main--fit .titan-cmd-shifts {
+    display: flex;
+    min-height: 0;
+    height: 100%;
+    flex-direction: column;
+  }
+
+  .titan-home-main--fit .titan-season-panel {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  .titan-home-main--fit .titan-season-list,
+  .titan-home-main--fit .titan-cmd-watch__list,
+  .titan-home-main--fit .titan-cmd-shifts__list {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
   }
 }
 
