@@ -55,6 +55,11 @@ describe("CZ/SK/EN dictionaries", () => {
     expect(labelsFor("en").copy.analytics.byFields).toBe("By playbook fields")
     expect(labelsFor("cs").copy.analytics.value).toBe("Hodnota")
     expect(labelsFor("cs").copy.journal.clearFilters).toBe("Vymazat filtry")
+    expect(labelsFor("cs").copy.journal.empty).toBe(
+      "Žádné obchody neodpovídají vybraným filtrům."
+    )
+    expect(labelsFor("cs").copy.journal.averageRrrWhy).toContain("1:2")
+    expect(labelsFor("cs").copy.settings.dataPrivacy).toBe("Data a soukromí")
     expect(labelsFor("en").copy.journal.clearAllHint).toContain("DELETE")
     expect(labelsFor("cs").copy.playbook.active).toBe("Aktivní")
     expect(labelsFor("cs").copy.playbook.updated).toBe("Aktualizováno")
@@ -80,10 +85,10 @@ describe("CZ/SK/EN dictionaries", () => {
     expect(labelsFor("cs").copy.guide.welcomeBody).toMatch(/Křivk/i)
     expect(labelsFor("cs").copy.guide.welcomeBody).not.toMatch(/Křivka Curve/i)
     expect(labelsFor("cs").copy.journal.empty).toBe(
-      "Pro tento výběr nejsou žádné obchody."
+      "Žádné obchody neodpovídají vybraným filtrům."
     )
     expect(labelsFor("en").copy.journal.empty).toBe(
-      "There are no trades for this selection."
+      "No trades match the selected filters."
     )
     expect(labelsFor("en").copy.dashboard.averageR).toBe("Avg R")
     expect(labelsFor("en").copy.analytics.profitFactor).toBe("Profit Factor")
