@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 
+import { DateField } from "@/components/forms/date-field"
 import { Field, OptionPills } from "@/components/forms/field"
 import { CotSnapshotCard } from "@/components/forms/cot-snapshot-card"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
@@ -437,11 +438,7 @@ export function TradeForm({ trade }: { trade?: Trade }) {
               <p className="text-sm font-medium">{copy.form.basics}</p>
               <div className="grid gap-3 sm:grid-cols-2">
                 <Field label={copy.form.date}>
-                  <Input
-                    type="date"
-                    value={date}
-                    onChange={(event) => setDate(event.target.value)}
-                  />
+                  <DateField value={date} onChange={setDate} />
                 </Field>
                 <Field label={copy.form.symbol}>
                   <Input

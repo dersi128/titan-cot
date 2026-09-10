@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react"
 import Link from "next/link"
 import { ChevronRight, Hash, Percent, Scale, Sigma, Trash2, X } from "lucide-react"
 
+import { DateField } from "@/components/forms/date-field"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -375,17 +376,15 @@ export function JournalPage() {
         className="mb-4 grid grid-cols-1 gap-2 lg:flex lg:flex-wrap lg:items-center"
         data-guide="journal-filters"
       >
-        <Input
-          type="date"
+        <DateField
           value={filters.dateFrom}
-          onChange={(event) => handleFilter({ dateFrom: event.target.value })}
+          onChange={(dateFrom) => handleFilter({ dateFrom })}
           aria-label={copy.journal.dateFrom}
           className={filterControlClass}
         />
-        <Input
-          type="date"
+        <DateField
           value={filters.dateTo}
-          onChange={(event) => handleFilter({ dateTo: event.target.value })}
+          onChange={(dateTo) => handleFilter({ dateTo })}
           aria-label={copy.journal.dateTo}
           className={filterControlClass}
         />

@@ -11,8 +11,8 @@ import {
   useWorkspaceChrome,
 } from "@/components/layout/workspace-chrome"
 import { useWorkspace } from "@/components/layout/workspace-provider"
+import { DateField } from "@/components/forms/date-field"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
   Sheet,
   SheetContent,
@@ -77,25 +77,23 @@ function TopBar({ onOpenNav }: { onOpenNav: () => void }) {
           />
           {range === "CUSTOM" ? (
             <div className="flex items-center gap-1.5">
-              <Input
-                type="date"
+              <DateField
                 value={custom?.start ?? ""}
-                onChange={(event) =>
+                onChange={(start) =>
                   setCustom({
-                    start: event.target.value,
-                    end: custom?.end ?? event.target.value,
+                    start,
+                    end: custom?.end ?? start,
                   })
                 }
                 aria-label={copy.journal.dateFrom}
                 className="h-8 w-[9.5rem] px-2 text-[12px]"
               />
-              <Input
-                type="date"
+              <DateField
                 value={custom?.end ?? ""}
-                onChange={(event) =>
+                onChange={(end) =>
                   setCustom({
-                    start: custom?.start ?? event.target.value,
-                    end: event.target.value,
+                    start: custom?.start ?? end,
+                    end,
                   })
                 }
                 aria-label={copy.journal.dateTo}

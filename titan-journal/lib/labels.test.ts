@@ -71,6 +71,7 @@ describe("CZ/SK/EN dictionaries", () => {
     expect(labelsFor("sk").DATE_RANGE_LABELS.ALL).toBe("Všetko")
     expect(labelsFor("sk").copy.playbook.delete).toBe("Zmazať")
     expect(labelsFor("cs").copy.form.templates).toBe("Šablony obchodů")
+    expect(labelsFor("cs").copy.form.pickDate).toBe("Vybrat datum")
     expect(labelsFor("en").copy.form.preview).toBe("Preview")
     expect(labelsFor("cs").copy.form.screenshotUrl).toBe("URL obrázku")
     expect(labelsFor("en").copy.form.screenshotHint).toContain("paste")
