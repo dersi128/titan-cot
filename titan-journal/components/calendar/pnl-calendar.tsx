@@ -36,6 +36,12 @@ export function PnlCalendar({
 }) {
   const { copy } = useLabels()
   const today = todayIsoDate()
+  const lastInMonthIndex = calendar.days.reduce(
+    (last, day, index) => (day.inMonth ? index : last),
+    -1
+  )
+  const visibleCellCount = Math.ceil((lastInMonthIndex + 1) / 7) * 7
+  const visibleDays = calendar.days.slice(0, visibleCellCount)
 
   function pickDay(date: string, inMonth: boolean) {
     const parsed = parseIsoDate(date)
@@ -46,10 +52,10 @@ export function PnlCalendar({
   }
 
   return (
-    <Card size="sm" className="flex h-full min-h-0 flex-col gap-0 py-0" data-guide="calendar-board">
-      <CardContent className="flex min-h-0 flex-1 flex-col px-3 pt-3 pb-3">
+    <Card size="sm" className="titan-calendar flex min-h-0 flex-col gap-0 py-0" data-guide="calendar-board">
+      <CardContent className="flex min-h-0 flex-none flex-col px-3 pt-3 pb-3">
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[10px] border border-border bg-background">
-          <div className="grid grid-cols-7 border-b border-border">
+          <div className="grid grid-cols-7 border-b border-border bg-[#f8fafc]">
             {copy.calendar.weekdays.map((label, index) => (
               <p
                 key={label}
@@ -62,25 +68,25 @@ export function PnlCalendar({
               </p>
             ))}
           </div>
-          <div className="grid flex-1 grid-cols-7 grid-rows-6">
-            {calendar.days.map((day, index) => {
+          <div className="titan-calendar-grid grid grid-cols-7">
+            {visibleDays.map((day, index) => {
               const selected = day.date === selectedDate
               const isToday = day.date === today
               const value = metric === "r" ? day.totalR : day.pnl
               const traded = day.trades > 0
               const col = index % 7
-              const lastRow = index >= 35
+              const lastRow = index >= visibleDays.length - 7
               return (
                 <button
                   key={day.date}
                   type="button"
-                  onClick={() => pickDay(day.date, day.inMonth)}
+                  onClick={() => day.inMonth && pickDay(day.date, true)}
                   className={cn(
-                    "relative flex min-h-[64px] flex-col items-stretch px-1.5 py-1.5 text-left transition-colors",
+                    "titan-calendar-day relative flex min-h-[64px] flex-col items-stretch px-1.5 py-1.5 text-left transition-colors",
                     col < 6 && "border-r border-border",
                     !lastRow && "border-b border-border",
-                    !day.inMonth && "bg-muted/15",
-                    day.inMonth && !selected && !traded && "bg-background hover:bg-muted/25",
+                    !day.inMonth && "bg-muted/20",
+                    day.inMonth && !selected && !traded && "bg-background/55 hover:bg-muted/25",
                     day.inMonth &&
                       !selected &&
                       traded &&
@@ -108,7 +114,7 @@ export function PnlCalendar({
                       day.inMonth && (!isToday || selected) && "text-muted-foreground"
                     )}
                   >
-                    {day.day}
+                    {day.inMonth ? day.day : null}
                   </span>
                   {traded ? (
                     <span className="mt-auto min-w-0">
