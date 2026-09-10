@@ -3,7 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card"
 import {
   formatCompactSigned,
-  formatSignedR,
+  formatCompactSignedR,
   signedClassName,
 } from "@/lib/format"
 import { todayIsoDate } from "@/lib/locale"
@@ -82,7 +82,7 @@ export function PnlCalendar({
                   type="button"
                   onClick={() => day.inMonth && pickDay(day.date, true)}
                   className={cn(
-                    "titan-calendar-day relative flex min-h-[64px] flex-col items-stretch px-1.5 py-1.5 text-left transition-colors",
+                    "titan-calendar-day relative flex min-h-[64px] flex-col items-stretch px-1 py-1.5 text-left transition-colors",
                     col < 6 && "titan-calendar-day--edge",
                     !lastRow && "titan-calendar-day--row",
                     !day.inMonth && "titan-calendar-day--outside",
@@ -107,12 +107,12 @@ export function PnlCalendar({
                     <span className="mt-auto min-w-0">
                       <span
                         className={cn(
-                          "block truncate font-mono text-[12px] font-semibold leading-tight tabular-nums",
+                          "block whitespace-nowrap font-mono text-[12px] font-semibold leading-tight tabular-nums",
                           signedClassName(value)
                         )}
                       >
                         {metric === "r"
-                          ? formatSignedR(value)
+                          ? formatCompactSignedR(value)
                           : formatCompactSigned(value)}
                       </span>
                       <span className="mt-0.5 block truncate text-[10px] leading-tight text-muted-foreground">
