@@ -176,7 +176,7 @@ function Pagination({
         <Button
           variant="secondary"
           size="sm"
-          className="h-7 px-2 text-[12px]"
+          className="px-2"
           disabled={page === 1}
           onClick={() => onPage(page - 1)}
         >
@@ -192,7 +192,7 @@ function Pagination({
               key={p}
               variant={p === page ? "default" : "secondary"}
               size="sm"
-              className="h-7 w-7 p-0 text-[12px]"
+              className="w-8 px-0"
               onClick={() => onPage(p)}
             >
               {p}
@@ -202,7 +202,7 @@ function Pagination({
         <Button
           variant="secondary"
           size="sm"
-          className="h-7 px-2 text-[12px]"
+          className="px-2"
           disabled={page === totalPages}
           onClick={() => onPage(page + 1)}
         >
@@ -387,7 +387,6 @@ export function JournalPage() {
             type="button"
             variant="outline"
             size="sm"
-            className="h-8 text-[12px]"
             onClick={() => {
               setFilters(EMPTY_TRADE_FILTERS)
               setPage(1)

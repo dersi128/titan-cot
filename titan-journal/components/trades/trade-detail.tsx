@@ -119,7 +119,7 @@ export function TradeDetail({ trade }: { trade: Trade }) {
             </>
           ) : (
             <Button
-              variant="ghost"
+              variant="destructive"
               size="sm"
               type="button"
               onClick={() => setConfirmDelete(true)}

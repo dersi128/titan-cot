@@ -656,7 +656,6 @@ export function TradeForm({ trade }: { trade?: Trade }) {
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="h-7 text-[12px]"
                       onClick={() => {
                         setScreenshot(null)
                         setScreenshotUrl("")
