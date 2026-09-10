@@ -1322,3 +1322,93 @@ html[data-density="large"] {
     }
   }
 }
+
+@layer components {
+  .titan-calendar {
+    align-self: start;
+  }
+
+  .titan-calendar-grid {
+    min-height: 0;
+  }
+
+  .titan-calendar-day {
+    min-height: 3.4rem;
+  }
+
+  .titan-calendar-day:hover {
+    z-index: 1;
+  }
+
+  @media (max-width: 639px) {
+    .titan-calendar-day {
+      min-height: 3.1rem;
+      padding-inline: 0.35rem;
+      padding-block: 0.45rem;
+    }
+  }
+}
+
+@layer components {
+  /* Light calendar: clear white surface with restrained result colors. */
+  html[data-theme="light"] .titan-calendar [data-slot="card-content"] {
+    background: #ffffff;
+  }
+
+  html[data-theme="light"] .titan-calendar-grid {
+    background: #ffffff;
+  }
+
+  html[data-theme="light"] .titan-calendar-grid > button {
+    background: #ffffff;
+    border-color: #e3eaf1;
+  }
+
+  html[data-theme="light"] .titan-calendar-grid > button.bg-background\/55 {
+    background: #ffffff;
+  }
+
+  html[data-theme="light"] .titan-calendar-grid > button.bg-muted\/20 {
+    background: #fbfcfe;
+  }
+
+  html[data-theme="light"] .titan-calendar-grid > button.bg-bull\/12 {
+    background: rgba(40, 169, 113, 0.14);
+  }
+
+  html[data-theme="light"] .titan-calendar-grid > button.bg-bear\/12 {
+    background: rgba(211, 72, 88, 0.12);
+  }
+
+  html[data-theme="light"] .titan-calendar-grid > button.bg-muted\/40 {
+    background: #f8fafc;
+  }
+
+  html[data-theme="light"] .titan-calendar-grid > button:hover {
+    background: #f5f8fb;
+  }
+
+  html[data-theme="light"] .titan-calendar-grid > button.bg-bull\/12:hover {
+    background: rgba(40, 169, 113, 0.2);
+  }
+
+  html[data-theme="light"] .titan-calendar-grid > button.bg-bear\/12:hover {
+    background: rgba(211, 72, 88, 0.18);
+  }
+
+  html[data-theme="light"] .titan-calendar-grid > button.shadow-\[inset_0_0_0_2px_var\(--primary\)\] {
+    background: #ffffff;
+  }
+}
+
+@layer components {
+  .titan-calendar-grid {
+    grid-auto-rows: minmax(4rem, auto);
+  }
+
+  @media (max-width: 639px) {
+    .titan-calendar-grid {
+      grid-auto-rows: minmax(3.6rem, auto);
+    }
+  }
+}
