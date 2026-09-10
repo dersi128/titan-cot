@@ -34,7 +34,7 @@ describe("CZ/SK/EN dictionaries", () => {
     expect(labelsFor("cs").copy.nav.hints.journal).toBe("Všechny obchody")
     expect(labelsFor("en").copy.sidebar.motto).toBe("Discipline creates freedom.")
     expect(labelsFor("cs").copy.sidebar.themes.gold).toBe("Modro-zlatý")
-    expect(labelsFor("cs").copy.calendar.openTrade).toBe("Otevřít obchod")
+    expect(labelsFor("cs").copy.calendar.openTrade).toBe("Otevřený obchod")
     expect(labelsFor("cs").copy.calendar.today).toBe("Dnes")
     expect(labelsFor("cs").copy.calendar.openDetail).toBe("Otevřít detail")
     expect(labelsFor("cs").copy.calendar.totalResult).toBe("Výsledek")
@@ -79,6 +79,16 @@ describe("CZ/SK/EN dictionaries", () => {
     expect(labelsFor("cs").copy.guide.importFormats).toContain("CSV")
     expect(labelsFor("cs").copy.guide.welcomeBody).toMatch(/Křivk/i)
     expect(labelsFor("cs").copy.guide.welcomeBody).not.toMatch(/Křivka Curve/i)
+    expect(labelsFor("cs").copy.journal.empty).toBe(
+      "Pro tento výběr nejsou žádné obchody."
+    )
+    expect(labelsFor("en").copy.journal.empty).toBe(
+      "There are no trades for this selection."
+    )
+    expect(labelsFor("en").copy.dashboard.averageR).toBe("Avg R")
+    expect(labelsFor("en").copy.analytics.profitFactor).toBe("Profit Factor")
+    expect(labelsFor("cs").copy.dashboard.winRateWhy).toContain("BE")
+    expect(labelsFor("en").copy.guide.overviewLead).toContain("Avg R")
     expect(labelsFor("cs").copy.guide.playbookLead.toLowerCase()).toContain("setup")
     expect(labelsFor("cs").copy.settings.guideOpen).toBe("Otevřít průvodce")
     expect(labelsFor("cs").copy.profile.riskMoney).toBe("Riziko na obchod")

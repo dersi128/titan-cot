@@ -16,6 +16,7 @@ import {
 } from "recharts"
 
 import { EdgeBadge } from "@/components/analytics/edge-badge"
+import { MetricLabel } from "@/components/layout/metric-info"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
 import { useScopedTrades } from "@/components/layout/use-scoped-trades"
 import { useWorkspace } from "@/components/layout/workspace-provider"
@@ -83,14 +84,18 @@ function Metric({
   label,
   value,
   className,
+  why,
 }: {
   label: string
   value: string
   className?: string
+  why?: string
 }) {
   return (
     <article className="titan-kpi rounded-[10px] px-3 py-2.5">
-      <p className="text-[11px] text-muted-foreground">{label}</p>
+      <p className="text-[11px] text-muted-foreground">
+        <MetricLabel label={label} why={why} />
+      </p>
       <p className={cn("mt-1 font-mono text-[15px] font-medium tabular-nums", className)}>
         {value}
       </p>
@@ -527,15 +532,18 @@ export function PlaybookListPage() {
                   <Metric
                     label={copy.dashboard.winRate}
                     value={formatPercent(selectedStats.winRate)}
+                    why={copy.dashboard.winRateWhy}
                   />
                   <Metric
-                    label={copy.analytics.expectancy}
+                    label={copy.dashboard.averageR}
                     value={formatSignedR(selectedStats.averageR)}
                     className={signedClassName(selectedStats.averageR)}
+                    why={copy.dashboard.averageRWhy}
                   />
                   <Metric
                     label={copy.dashboard.profitFactor}
                     value={formatNumber(selectedStats.profitFactor)}
+                    why={copy.dashboard.profitFactorWhy}
                   />
                   <Metric
                     label={copy.dashboard.totalR}

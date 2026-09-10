@@ -53,7 +53,7 @@ export function StrategySnapshot({
                 signedClassName(item.row?.averageR)
               )}
             >
-              {formatSignedR(item.row?.averageR ?? null)} {copy.dashboard.expectancy}
+              {formatSignedR(item.row?.averageR ?? null)}
               {item.row ? (
                 <>
                   {" · "}
