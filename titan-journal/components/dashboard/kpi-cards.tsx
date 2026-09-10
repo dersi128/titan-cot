@@ -16,7 +16,6 @@ import { cn } from "@/lib/utils"
 const titleClass =
   "text-[11px] font-medium tracking-wide text-muted-foreground"
 const valueClass = "mt-1 font-mono text-[22px] font-semibold tabular-nums"
-const captionClass = "mt-2 text-[11px] leading-snug text-muted-foreground"
 
 function compactPercent(value: number | null | undefined): string {
   if (value == null || !Number.isFinite(value)) return "—"
@@ -68,7 +67,6 @@ export function KpiCards({
         >
           {formatNumber(pf)}
         </p>
-        <p className={captionClass}>{copy.dashboard.profitFactorCaption}</p>
       </article>
 
       <article className="titan-kpi titan-kpi--avg rounded-[12px] px-4 py-3">
@@ -81,7 +79,6 @@ export function KpiCards({
         <p className={cn(valueClass, signedClassName(avg))}>
           {formatSignedR(avg)}
         </p>
-        <p className={captionClass}>{copy.dashboard.averageRCaption}</p>
       </article>
 
       <article className="titan-kpi rounded-[12px] px-4 py-3">
