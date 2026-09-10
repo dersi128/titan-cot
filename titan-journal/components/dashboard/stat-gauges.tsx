@@ -239,8 +239,8 @@ export function FactorScale({ value }: { value: number | null }) {
     <div className="w-full" aria-hidden>
       <div className="relative h-2">
         <div className="flex h-full overflow-hidden rounded-sm border border-foreground/40">
-          <span className="h-full w-1/2 bg-bear/75" />
           <span className="h-full w-1/2 bg-bull/75" />
+          <span className="h-full w-1/2 bg-bear/75" />
         </div>
         <span className="absolute -top-0.5 -bottom-0.5 left-1/2 z-10 w-0.5 -translate-x-1/2 bg-foreground" />
         {n != null ? (
@@ -254,8 +254,8 @@ export function FactorScale({ value }: { value: number | null }) {
         ) : null}
       </div>
       <div className="relative mt-1 h-4 text-[9px] font-semibold tabular-nums text-foreground">
+        <span className="absolute left-0">2+</span>
         <span className="absolute left-1/2 -translate-x-1/2">{one}</span>
-        <span className="absolute right-0">2+</span>
       </div>
     </div>
   )
