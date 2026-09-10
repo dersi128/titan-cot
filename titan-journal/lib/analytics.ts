@@ -3,7 +3,7 @@ import {
   isDiscretePlaybookField,
   sortedFields,
 } from "@/lib/playbooks"
-import { isRealizedTradeStatus } from "@/lib/trade-calculations"
+import { isFiniteNumber, isRealizedTradeStatus, monetaryKpis } from "@/lib/trade-calculations"
 import { statsResultR, tradeOutcome } from "@/lib/trade-outcome"
 import type { Playbook, PlaybookField } from "@/types/playbook"
 import type { Trade } from "@/types/trade"
@@ -43,16 +43,13 @@ export function edgeVerdict(
 }
 
 function statsFor(key: string, list: Trade[]): GroupStats {
-  const winners = list.filter((trade) => tradeOutcome(trade) === "WIN")
-  const losers = list.filter((trade) => tradeOutcome(trade) === "LOSS")
-  const be = list.filter((trade) => tradeOutcome(trade) === "BE").length
+  const closedForR = list.filter((trade) => isFiniteNumber(trade.resultR))
+  const winners = closedForR.filter((trade) => tradeOutcome(trade) === "WIN")
+  const losers = closedForR.filter((trade) => tradeOutcome(trade) === "LOSS")
+  const be = closedForR.filter((trade) => tradeOutcome(trade) === "BE").length
   const decided = winners.length + losers.length
-  const totalR = list.reduce((sum, trade) => sum + statsResultR(trade), 0)
-  const netPnl = list.reduce((sum, trade) => sum + (trade.pnl ?? 0), 0)
-  const grossProfit = winners.reduce((sum, trade) => sum + (trade.pnl ?? 0), 0)
-  const grossLoss = Math.abs(
-    losers.reduce((sum, trade) => sum + (trade.pnl ?? 0), 0)
-  )
+  const totalR = closedForR.reduce((sum, trade) => sum + statsResultR(trade), 0)
+  const money = monetaryKpis(list)
   const winR = winners.reduce((sum, trade) => sum + statsResultR(trade), 0)
   const lossR = losers.reduce((sum, trade) => sum + statsResultR(trade), 0)
   const avgWinR = winners.length > 0 ? winR / winners.length : null
@@ -66,15 +63,16 @@ function statsFor(key: string, list: Trade[]): GroupStats {
   return {
     key,
     trades: list.length,
-    netPnl: round2(netPnl),
+    netPnl: round2(money.netPnl),
     totalR: round2(totalR),
     winRate: decided > 0 ? winsRate(winners.length, decided) : null,
     averageR: expectancyR,
-    profitFactor: grossLoss > 0 ? round2(grossProfit / grossLoss) : null,
+    profitFactor:
+      money.profitFactor == null ? null : round2(money.profitFactor),
     avgWinR: avgWinR == null ? null : round2(avgWinR),
     avgLossR: avgLossR == null ? null : round2(avgLossR),
     payoff: payoff == null ? null : round2(payoff),
-    maxDrawdownR: rDrawdown(list),
+    maxDrawdownR: rDrawdown(closedForR),
     wins: winners.length,
     losses: losers.length,
     be,
@@ -105,9 +103,7 @@ function winsRate(wins: number, decided: number): number {
 }
 
 function realized(trades: Trade[]): Trade[] {
-  return trades.filter(
-    (trade) => isRealizedTradeStatus(trade.status) && trade.resultR != null
-  )
+  return trades.filter((trade) => isRealizedTradeStatus(trade.status))
 }
 
 function groupStats(trades: Trade[], keyOf: (trade: Trade) => string): GroupStats[] {

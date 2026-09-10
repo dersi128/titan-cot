@@ -52,6 +52,33 @@ export function parseOptionalNumber(value: string): number | null {
   return Number.isFinite(parsed) ? parsed : null
 }
 
+export function isFiniteNumber(
+  value: number | null | undefined
+): value is number {
+  return typeof value === "number" && Number.isFinite(value)
+}
+
+export function monetaryKpis(trades: Trade[]) {
+  const amounts: number[] = []
+  for (const trade of trades) {
+    if (!isRealizedTradeStatus(trade.status) || !isFiniteNumber(trade.pnl)) continue
+    amounts.push(trade.pnl)
+  }
+  const netPnl = amounts.reduce((sum, value) => sum + value, 0)
+  const grossProfit = amounts
+    .filter((value) => value > 0)
+    .reduce((sum, value) => sum + value, 0)
+  const grossLoss = Math.abs(
+    amounts.filter((value) => value < 0).reduce((sum, value) => sum + value, 0)
+  )
+  return {
+    netPnl,
+    grossProfit,
+    grossLoss,
+    profitFactor: grossLoss > 0 ? grossProfit / grossLoss : null,
+  }
+}
+
 export type DashboardStats = {
   netPnl: number
   totalR: number
@@ -68,39 +95,31 @@ export type DashboardStats = {
 }
 
 export function computeDashboardStats(trades: Trade[]): DashboardStats {
-  const closed = trades.filter(
-    (trade) => isRealizedTradeStatus(trade.status) && trade.resultR != null
+  const closedForR = trades.filter(
+    (trade) =>
+      isRealizedTradeStatus(trade.status) && isFiniteNumber(trade.resultR)
   )
+  const money = monetaryKpis(trades)
 
-  const totalR = closed.reduce((sum, trade) => sum + statsResultR(trade), 0)
-  const netPnl = closed.reduce((sum, trade) => sum + (trade.pnl ?? 0), 0)
-
-  const winners = closed.filter((trade) => tradeOutcome(trade) === "WIN")
-  const losers = closed.filter((trade) => tradeOutcome(trade) === "LOSS")
-  const be = closed.filter((trade) => tradeOutcome(trade) === "BE").length
+  const totalR = closedForR.reduce((sum, trade) => sum + statsResultR(trade), 0)
+  const winners = closedForR.filter((trade) => tradeOutcome(trade) === "WIN")
+  const losers = closedForR.filter((trade) => tradeOutcome(trade) === "LOSS")
+  const be = closedForR.filter((trade) => tradeOutcome(trade) === "BE").length
   const decided = winners.length + losers.length
 
-  const grossProfit = winners.reduce(
-    (sum, trade) => sum + (trade.pnl ?? 0),
-    0
-  )
-  const grossLoss = Math.abs(
-    losers.reduce((sum, trade) => sum + (trade.pnl ?? 0), 0)
-  )
-
   return {
-    netPnl,
+    netPnl: money.netPnl,
     totalR,
     winRate: decided > 0 ? winners.length / decided : null,
-    profitFactor: grossLoss > 0 ? grossProfit / grossLoss : null,
+    profitFactor: money.profitFactor,
     averageR: decided > 0 ? totalR / decided : null,
     totalTrades: trades.length,
-    closedTrades: closed.length,
+    closedTrades: closedForR.length,
     wins: winners.length,
     losses: losers.length,
     be,
-    grossProfit: Math.round(grossProfit * 100) / 100,
-    grossLoss: Math.round(grossLoss * 100) / 100,
+    grossProfit: Math.round(money.grossProfit * 100) / 100,
+    grossLoss: Math.round(money.grossLoss * 100) / 100,
   }
 }
 
