@@ -85,7 +85,7 @@ export const copyEn = {
     averageR: "Avg R",
     winRateWhy: "Winning trades ÷ (wins + losses). BE is not included.",
     profitFactorWhy:
-      "Positive PnL ÷ |negative PnL|. Includes BE money. Zero PnL is ignored. No losses → —.",
+      "Positive PnL ÷ |negative PnL|. BE (|R| < 0.05) is not included. Zero PnL is ignored. No losses → —.",
     averageRWhy: "Avg R of closed wins and losses. BE is not included.",
     profitFactorCaption: "Above 1 = gross profit exceeds gross loss.",
     averageRCaption: "Average of closed wins and losses. BE is not included.",
@@ -321,7 +321,7 @@ export const copyEn = {
     profitFactor: "Profit Factor",
     expectedPerTrade: "Expected profit per trade",
     profitFactorHint:
-      "Positive PnL ÷ |negative PnL|. Includes BE money. No losses → —.",
+      "Positive PnL ÷ |negative PnL|. BE (|R| < 0.05) is not included. No losses → —.",
     tradeCount: "Trade count",
     winningTrades: "Winning trades",
     losingTrades: "Losing trades",
@@ -603,7 +603,7 @@ export const copyCs: Copy = {
     averageR: "Průměrné R",
     winRateWhy: "Ziskové obchody ÷ (zisky + ztráty). BE se nepočítá.",
     profitFactorWhy:
-      "Kladné PnL ÷ |záporné PnL|. Zahrnuje i peněžní BE. Nulové PnL se nepočítá. Bez ztráty se ukáže —.",
+      "Kladné PnL ÷ |záporné PnL|. BE při |R| < 0,05 se nepočítá. Nulové PnL se nepočítá. Bez ztráty se ukáže —.",
     averageRWhy: "Průměrné R uzavřených zisků a ztrát. BE se nepočítá.",
     profitFactorCaption: "Nad 1 = hrubý zisk převyšuje hrubou ztrátu.",
     averageRCaption: "Průměr uzavřených zisků a ztrát. BE se nepočítá.",
@@ -839,7 +839,7 @@ export const copyCs: Copy = {
     profitFactor: "Profit Factor",
     expectedPerTrade: "Očekávaný zisk na obchod",
     profitFactorHint:
-      "Kladné PnL ÷ |záporné PnL|. Zahrnuje i peněžní BE. Bez ztráty se ukáže —.",
+      "Kladné PnL ÷ |záporné PnL|. BE při |R| < 0,05 se nepočítá. Bez ztráty se ukáže —.",
     tradeCount: "Počet obchodů",
     winningTrades: "Ziskové obchody",
     losingTrades: "Ztrátové obchody",
@@ -1119,7 +1119,7 @@ export const copySk: Copy = {
     averageR: "Priemerné R",
     winRateWhy: "Ziskové obchody ÷ (zisky + straty). BE sa nepočíta.",
     profitFactorWhy:
-      "Kladné PnL ÷ |záporné PnL|. Zahŕňa aj peňažné BE. Nulové PnL sa nepočíta. Bez straty sa ukáže —.",
+      "Kladné PnL ÷ |záporné PnL|. BE pri |R| < 0,05 sa nepočíta. Nulové PnL sa nepočíta. Bez straty sa ukáže —.",
     averageRWhy: "Priemerné R uzavretých ziskov a strát. BE sa nepočíta.",
     profitFactorCaption: "Nad 1 = hrubý zisk prevyšuje hrubú stratu.",
     averageRCaption: "Priemer uzavretých ziskov a strát. BE sa nepočíta.",
@@ -1355,7 +1355,7 @@ export const copySk: Copy = {
     profitFactor: "Profit Factor",
     expectedPerTrade: "Očakávaný zisk na obchod",
     profitFactorHint:
-      "Kladné PnL ÷ |záporné PnL|. Zahŕňa aj peňažné BE. Bez straty sa ukáže —.",
+      "Kladné PnL ÷ |záporné PnL|. BE pri |R| < 0,05 sa nepočíta. Bez straty sa ukáže —.",
     tradeCount: "Počet obchodov",
     winningTrades: "Ziskové obchody",
     losingTrades: "Stratové obchody",

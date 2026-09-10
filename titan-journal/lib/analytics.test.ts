@@ -202,7 +202,7 @@ describe("strategy edge", () => {
     expect(stats.winRate).toBe(0.5)
     expect(stats.averageR).toBe(0.5)
     expect(stats.netPnl).toBe(111)
-    expect(stats.profitFactor).toBe(1.56)
+    expect(stats.profitFactor).toBe(1.3)
   })
 
   it("measures max drawdown in R from the equity peak", () => {
