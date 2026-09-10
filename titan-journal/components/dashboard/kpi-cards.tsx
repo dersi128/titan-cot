@@ -1,6 +1,7 @@
 "use client"
 
 import { ArcGauge, OutcomeDots, RingGauge, SplitBar } from "@/components/dashboard/stat-gauges"
+import { MetricLabel } from "@/components/layout/metric-info"
 import {
   formatNumber,
   formatSignedMoney,
@@ -33,10 +34,13 @@ export function KpiCards({
 
   return (
     <div className="grid grid-cols-2 gap-3 lg:grid-cols-4" data-guide="overview">
-      <article title="Podíl ziskových obchodů ze všech uzavřených obchodů." className="titan-kpi titan-kpi--win flex items-center justify-between gap-3 overflow-visible rounded-[12px] px-4 py-3">
+      <article className="titan-kpi titan-kpi--win flex items-center justify-between gap-3 overflow-visible rounded-[12px] px-4 py-3">
         <div className="min-w-0">
           <p className="text-[11px] font-medium tracking-wide text-muted-foreground">
-            {copy.dashboard.winRate}
+            <MetricLabel
+              label={copy.dashboard.winRate}
+              why={copy.dashboard.winRateWhy}
+            />
           </p>
           <p className="mt-1 font-mono text-[22px] font-semibold tabular-nums">
             {compactPercent(wr)}
@@ -46,10 +50,13 @@ export function KpiCards({
         <ArcGauge progress={wr} wins={stats.wins} be={stats.be} losses={stats.losses} />
       </article>
 
-      <article title="Hrubý zisk dělený hrubou ztrátou. Hodnota nad 1 znamená kladný výsledek." className="titan-kpi titan-kpi--pf flex items-center justify-between gap-3 rounded-[12px] px-4 py-3">
+      <article className="titan-kpi titan-kpi--pf flex items-center justify-between gap-3 rounded-[12px] px-4 py-3">
         <div className="min-w-0">
           <p className="text-[11px] font-medium tracking-wide text-muted-foreground">
-            {copy.dashboard.profitFactor}
+            <MetricLabel
+              label={copy.dashboard.profitFactor}
+              why={copy.dashboard.profitFactorWhy}
+            />
           </p>
           <p
             className={cn(
@@ -68,10 +75,13 @@ export function KpiCards({
         />
       </article>
 
-      <article title="Průměrný výsledek jednoho obchodu vyjádřený v násobcích rizika." className="titan-kpi titan-kpi--avg flex items-center justify-between gap-3 overflow-visible rounded-[12px] px-4 py-3">
+      <article className="titan-kpi titan-kpi--avg flex items-center justify-between gap-3 overflow-visible rounded-[12px] px-4 py-3">
         <div className="min-w-0">
           <p className="text-[11px] font-medium tracking-wide text-muted-foreground">
-            {copy.dashboard.averageR}
+            <MetricLabel
+              label={copy.dashboard.averageR}
+              why={copy.dashboard.averageRWhy}
+            />
           </p>
           <p
             className={cn(
@@ -90,7 +100,7 @@ export function KpiCards({
         />
       </article>
 
-      <article title="Čistý výsledek po odečtení ztrát." className="titan-kpi rounded-[12px] px-4 py-3">
+      <article className="titan-kpi rounded-[12px] px-4 py-3">
         <p className="text-[11px] font-medium tracking-wide text-muted-foreground">
           {copy.dashboard.netPnl}
         </p>

@@ -18,6 +18,7 @@ import {
   type CalendarMetric,
 } from "@/components/calendar/pnl-calendar"
 import { EmptyJournal } from "@/components/layout/empty-journal"
+import { MetricLabel } from "@/components/layout/metric-info"
 import { PageFrame } from "@/components/layout/page-header"
 import { SegmentedControl } from "@/components/layout/segmented-control"
 import { TableSkeleton } from "@/components/layout/loading-state"
@@ -75,8 +76,8 @@ function tradeCountLabel(count: number, one: string, many: string) {
 
 function formatValue(
   metric: CalendarMetric,
-  r: number,
-  pnl: number,
+  r: number | null,
+  pnl: number | null,
   currency: string
 ) {
   return metric === "r" ? formatSignedR(r) : formatSignedMoney(pnl, currency)
@@ -87,11 +88,13 @@ function StatCard({
   value,
   icon,
   valueClassName,
+  why,
 }: {
   label: string
   value: string
   icon: ReactNode
   valueClassName?: string
+  why?: string
 }) {
   return (
     <article className="titan-kpi flex items-center gap-3 rounded-[10px] px-3 py-2.5">
@@ -99,7 +102,9 @@ function StatCard({
         {icon}
       </span>
       <div className="min-w-0">
-        <p className="text-[11px] text-muted-foreground">{label}</p>
+        <p className="text-[11px] text-muted-foreground">
+          <MetricLabel label={label} why={why} />
+        </p>
         <p
           className={cn(
             "mt-0.5 font-mono text-[18px] font-medium tabular-nums",
@@ -196,11 +201,14 @@ function DayPanel({
   onNext: () => void
 }) {
   const { copy, language } = useLabels()
-  const totalR = trades.reduce((sum, trade) => sum + (displayResultR(trade) ?? 0), 0)
-  const totalPnl = trades.reduce(
-    (sum, trade) => sum + (trade.pnl != null && Number.isFinite(trade.pnl) ? trade.pnl : 0),
-    0
-  )
+  const knownR = trades
+    .map((trade) => displayResultR(trade))
+    .filter((value): value is number => value != null)
+  const knownPnl = trades
+    .map((trade) => trade.pnl)
+    .filter((value): value is number => value != null && Number.isFinite(value))
+  const totalR = knownR.length === 0 ? null : knownR.reduce((sum, value) => sum + value, 0)
+  const totalPnl = knownPnl.length === 0 ? null : knownPnl.reduce((sum, value) => sum + value, 0)
   const total = metric === "r" ? totalR : totalPnl
 
   return (
@@ -255,8 +263,8 @@ function DayPanel({
           </p>
         ) : (
           trades.map((trade) => {
-            const result = displayResultR(trade) ?? 0
-            const pnl = trade.pnl ?? 0
+            const result = displayResultR(trade)
+            const pnl = trade.pnl
             const value = metric === "r" ? result : pnl
             return (
               <article
@@ -267,7 +275,11 @@ function DayPanel({
                   <span
                     className={cn(
                       "w-1 shrink-0",
-                      value > 0 ? "bg-bull" : value < 0 ? "bg-bear" : "bg-muted-foreground/40"
+                      value != null && value > 0
+                        ? "bg-bull"
+                        : value != null && value < 0
+                          ? "bg-bear"
+                          : "bg-muted-foreground/40"
                     )}
                   />
                   <div className="min-w-0 flex-1 px-3 py-2.5">
@@ -480,6 +492,7 @@ export function CalendarPage() {
                 label={copy.dashboard.winRate}
                 value={formatPercent(edge.winRate)}
                 icon={<PieChart className="size-4" aria-hidden />}
+                why={copy.dashboard.winRateWhy}
               />
               <StatCard
                 label={copy.calendar.bestDay}

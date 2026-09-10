@@ -102,6 +102,10 @@ export function DashboardPage() {
           </div>
         ) : accountTrades.length === 0 ? (
           <EmptyJournal />
+        ) : trades.length === 0 ? (
+          <p className="titan-glass rounded-[10px] px-5 py-7 text-center text-[13px] text-muted-foreground">
+            {copy.journal.empty}
+          </p>
         ) : (
           <>
             <div data-guide="overview-stats">

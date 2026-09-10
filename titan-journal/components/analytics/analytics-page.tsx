@@ -17,6 +17,7 @@ import {
 
 import { EdgeBadge } from "@/components/analytics/edge-badge"
 import { EmptyJournal } from "@/components/layout/empty-journal"
+import { MetricLabel } from "@/components/layout/metric-info"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
 import { useScopedTrades } from "@/components/layout/use-scoped-trades"
 import { useWorkspaceChrome } from "@/components/layout/workspace-chrome"
@@ -74,6 +75,7 @@ function KpiCard({
   valueClassName,
   highlight = false,
   badge,
+  why,
 }: {
   label: string
   value: string
@@ -82,6 +84,7 @@ function KpiCard({
   valueClassName?: string
   highlight?: boolean
   badge?: ReactNode
+  why?: string
 }) {
   return (
     <article
@@ -93,7 +96,7 @@ function KpiCard({
     >
       <div className="flex items-start justify-between gap-2">
         <p className="text-[11px] font-medium tracking-wide text-muted-foreground">
-          {label}
+          <MetricLabel label={label} why={why} />
         </p>
         {icon}
       </div>
@@ -120,6 +123,7 @@ function StatCard({
   valueClassName,
   hintClassName,
   icon,
+  why,
 }: {
   label: string
   value: string
@@ -127,11 +131,14 @@ function StatCard({
   valueClassName?: string
   hintClassName?: string
   icon?: ReactNode
+  why?: string
 }) {
   return (
     <article className="titan-kpi rounded-[10px] px-4 py-3">
       <div className="flex items-start justify-between gap-2">
-        <p className="text-[11px] text-muted-foreground">{label}</p>
+        <p className="text-[11px] text-muted-foreground">
+          <MetricLabel label={label} why={why} />
+        </p>
         {icon}
       </div>
       <p
@@ -207,8 +214,8 @@ function BreakdownTable({
                 <th className="pb-2 font-medium">{column}</th>
                 <th className="pb-2 font-medium">{copy.analytics.trades}</th>
                 <th className="pb-2 font-medium">{copy.dashboard.winRate}</th>
-                <th className="pb-2 font-medium">{copy.analytics.expectancy}</th>
-                <th className="pb-2 font-medium">{copy.analytics.profitFactor}</th>
+                <th className="pb-2 font-medium">{copy.dashboard.averageR}</th>
+                <th className="pb-2 font-medium">{copy.dashboard.profitFactor}</th>
               </tr>
             </thead>
             <tbody>
@@ -351,6 +358,10 @@ export function AnalyticsPage() {
       </div>
       {accountTrades.length === 0 ? (
         <EmptyJournal />
+      ) : trades.length === 0 ? (
+        <p className="titan-glass rounded-[10px] px-5 py-7 text-center text-[13px] text-muted-foreground">
+          {copy.journal.empty}
+        </p>
       ) : (
       <div className="space-y-4 pb-4" data-guide="analytics-board">
         <div className="grid grid-cols-2 gap-3 xl:grid-cols-5">
@@ -372,12 +383,13 @@ export function AnalyticsPage() {
                 : undefined
             }
             icon={<Percent className="size-3.5 text-muted-foreground" />}
+            why={copy.dashboard.winRateWhy}
           />
           <KpiCard
             label={copy.dashboard.profitFactor}
             value={formatNumber(edge.profitFactor)}
-            hint={copy.analytics.profitFactorHint}
             icon={<Scale className="size-3.5 text-muted-foreground" />}
+            why={copy.dashboard.profitFactorWhy}
           />
           <KpiCard
             label={copy.analytics.avgWin}
@@ -442,10 +454,11 @@ export function AnalyticsPage() {
             icon={<TrendingDown className="size-3.5 text-bear" />}
           />
           <StatCard
-            label={`${copy.analytics.expectancy} (R)`}
+            label={copy.dashboard.averageR}
             value={formatSignedR(edge.averageR)}
             valueClassName={signedClassName(edge.averageR)}
             icon={<Sigma className="size-3.5 text-muted-foreground" />}
+            why={copy.dashboard.averageRWhy}
           />
         </div>
 

@@ -23,6 +23,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { EmptyJournal } from "@/components/layout/empty-journal"
+import { MetricLabel } from "@/components/layout/metric-info"
 import { TableSkeleton } from "@/components/layout/loading-state"
 import { PageFrame, PageHeader } from "@/components/layout/page-header"
 import { useScopedTrades } from "@/components/layout/use-scoped-trades"
@@ -83,16 +84,20 @@ function Stat({
   value,
   icon,
   valueClassName,
+  why,
 }: {
   label: string
   value: string
   icon: ReactNode
   valueClassName?: string
+  why?: string
 }) {
   return (
     <article className="titan-kpi rounded-[10px] px-3 py-2.5">
       <div className="flex items-start justify-between gap-2">
-        <p className="text-[11px] text-muted-foreground">{label}</p>
+        <p className="text-[11px] text-muted-foreground">
+          <MetricLabel label={label} why={why} />
+        </p>
         {icon}
       </div>
       <p
@@ -278,16 +283,19 @@ export function JournalPage() {
           value={formatSignedR(stats.averageR)}
           valueClassName={signedClassName(stats.averageR)}
           icon={<Sigma className="size-3.5 text-muted-foreground" />}
+          why={copy.dashboard.averageRWhy}
         />
         <Stat
           label={copy.dashboard.winRate}
           value={formatPercent(stats.winRate)}
           icon={<Percent className="size-3.5 text-muted-foreground" />}
+          why={copy.dashboard.winRateWhy}
         />
         <Stat
           label={copy.dashboard.profitFactor}
           value={formatNumber(stats.profitFactor)}
           icon={<Scale className="size-3.5 text-muted-foreground" />}
+          why={copy.dashboard.profitFactorWhy}
         />
         <Stat
           label={copy.dashboard.netPnl}
@@ -486,7 +494,7 @@ export function JournalPage() {
                   type="button"
                   onClick={() => setSelectedId(null)}
                   className="text-muted-foreground hover:text-foreground"
-                  aria-label="Zavřít"
+                  aria-label={copy.close}
                 >
                   <X className="size-4" />
                 </button>
