@@ -83,12 +83,12 @@ export const copyEn = {
     winRate: "Win Rate",
     profitFactor: "Profit Factor",
     averageR: "Avg R",
-    winRateWhy: "Winning trades ÷ (wins + losses). BE is not included.",
+    winRateWhy:
+      "Share of winning trades. Trades with no profit or loss (BE) are not counted.",
     profitFactorWhy:
-      "Positive PnL ÷ |negative PnL|. Includes BE money. Zero PnL is ignored. No losses → —.",
-    averageRWhy: "Avg R of closed wins and losses. BE is not included.",
-    profitFactorCaption: "Above 1 = gross profit exceeds gross loss.",
-    averageRCaption: "Average of closed wins and losses. BE is not included.",
+      "Compares total profit to total loss. A value above 1 means profit exceeds loss. Trades with no profit or loss (BE) are not counted. With no loss it shows —.",
+    averageRWhy:
+      "Average result by trade risk. +1R is a gain of one risk unit and −1R a loss of one risk unit. BE is not counted.",
     metricInfo: "About {metric}",
     totalTrades: "Trades",
     maxDrawdown: "Max Drawdown",
@@ -601,12 +601,12 @@ export const copyCs: Copy = {
     winRate: "Win Rate",
     profitFactor: "Profit Factor",
     averageR: "Průměrné R",
-    winRateWhy: "Ziskové obchody ÷ (zisky + ztráty). BE se nepočítá.",
+    winRateWhy:
+      "Podíl ziskových obchodů. Obchody bez zisku a ztráty (BE) se nepočítají.",
     profitFactorWhy:
-      "Kladné PnL ÷ |záporné PnL|. Zahrnuje i peněžní BE. Nulové PnL se nepočítá. Bez ztráty se ukáže —.",
-    averageRWhy: "Průměrné R uzavřených zisků a ztrát. BE se nepočítá.",
-    profitFactorCaption: "Nad 1 = hrubý zisk převyšuje hrubou ztrátu.",
-    averageRCaption: "Průměr uzavřených zisků a ztrát. BE se nepočítá.",
+      "Porovnává celkový zisk s celkovou ztrátou. Hodnota nad 1 znamená, že zisk převyšuje ztrátu. Obchody bez zisku a ztráty (BE) se nepočítají. Bez ztráty se zobrazí —.",
+    averageRWhy:
+      "Průměrný výsledek podle rizika obchodu. +1R znamená zisk ve výši jednoho rizika a −1R ztrátu jednoho rizika. BE se nepočítá.",
     metricInfo: "Co je {metric}",
     totalTrades: "Obchody",
     maxDrawdown: "Max Drawdown",
@@ -1117,12 +1117,12 @@ export const copySk: Copy = {
     winRate: "Win Rate",
     profitFactor: "Profit Factor",
     averageR: "Priemerné R",
-    winRateWhy: "Ziskové obchody ÷ (zisky + straty). BE sa nepočíta.",
+    winRateWhy:
+      "Podiel ziskových obchodov. Obchody bez zisku a straty (BE) sa nepočítajú.",
     profitFactorWhy:
-      "Kladné PnL ÷ |záporné PnL|. Zahŕňa aj peňažné BE. Nulové PnL sa nepočíta. Bez straty sa ukáže —.",
-    averageRWhy: "Priemerné R uzavretých ziskov a strát. BE sa nepočíta.",
-    profitFactorCaption: "Nad 1 = hrubý zisk prevyšuje hrubú stratu.",
-    averageRCaption: "Priemer uzavretých ziskov a strát. BE sa nepočíta.",
+      "Porovnáva celkový zisk s celkovou stratou. Hodnota nad 1 znamená, že zisk prevyšuje stratu. Obchody bez zisku a straty (BE) sa nepočítajú. Bez straty sa zobrazí —.",
+    averageRWhy:
+      "Priemerný výsledok podľa rizika obchodu. +1R znamená zisk vo výške jedného rizika a −1R stratu jedného rizika. BE sa nepočíta.",
     metricInfo: "Čo je {metric}",
     totalTrades: "Obchody",
     maxDrawdown: "Max Drawdown",
