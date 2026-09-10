@@ -76,7 +76,6 @@ export function SampleBanner() {
         type="button"
         variant="outline"
         size="sm"
-        className="h-7 text-[12px]"
         onClick={() => replaceAll([])}
       >
         {copy.emptyStart.sampleClear}

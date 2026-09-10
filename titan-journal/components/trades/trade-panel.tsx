@@ -130,7 +130,7 @@ export function TradePanel({
       <CloseTradePanel key={trade.id} trade={trade} compact />
 
       <div className="flex flex-wrap items-center gap-2 pt-1">
-        <Button size="sm" variant="outline" asChild className="h-7 text-[12px]">
+        <Button size="sm" variant="outline" asChild>
           <Link href={`/journal/${trade.id}`}>{copy.detail.edit}</Link>
         </Button>
         {confirmDelete ? (
@@ -139,7 +139,6 @@ export function TradePanel({
               size="sm"
               variant="destructive"
               type="button"
-              className="h-7 text-[12px]"
               onClick={() => deleteTrade(trade.id)}
             >
               {copy.detail.delete}
@@ -148,7 +147,6 @@ export function TradePanel({
               size="sm"
               variant="ghost"
               type="button"
-              className="h-7 text-[12px]"
               onClick={() => setConfirmDelete(false)}
             >
               {copy.detail.cancel}
@@ -157,9 +155,8 @@ export function TradePanel({
         ) : (
           <Button
             size="sm"
-            variant="ghost"
+            variant="destructive"
             type="button"
-            className="h-7 text-[12px]"
             onClick={() => setConfirmDelete(true)}
           >
             {copy.detail.delete}

@@ -508,9 +508,8 @@ export function PlaybookListPage() {
                     ) : (
                       <Button
                         size="sm"
-                        variant="outline"
+                        variant="destructive"
                         type="button"
-                        className="border-destructive/50 bg-destructive/15 text-destructive hover:bg-destructive/25"
                         onClick={() => setConfirmDelete(true)}
                       >
                         {copy.playbook.delete}

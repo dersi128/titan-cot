@@ -278,7 +278,7 @@ export function PlaybookEditor({ playbook }: { playbook?: Playbook }) {
             ) : (
               <Button
                 type="button"
-                variant="ghost"
+                variant="destructive"
                 onClick={() => setConfirmDelete(true)}
               >
                 {copy.playbook.delete}

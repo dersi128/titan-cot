@@ -42,12 +42,12 @@ export function SegmentedControl<T extends string>({
             onClick={() => onChange(option)}
             aria-pressed={selected}
             className={cn(
-              "shrink-0 rounded-[6px] font-medium whitespace-nowrap transition-[color,background-color,box-shadow] duration-200",
+              "shrink-0 rounded-[6px] font-medium whitespace-nowrap transition-[color,background-color,box-shadow] duration-200 touch-manipulation outline-none focus-visible:ring-3 focus-visible:ring-ring/60",
               size === "sm"
-                ? "h-6 px-2 text-[11px]"
+                ? "h-7 min-h-7 px-2.5 text-[11px] max-sm:min-h-9"
                 : strong
-                  ? "h-8 px-3 text-[12px]"
-                  : "h-7 px-2.5 text-[12px]",
+                  ? "h-8 min-h-8 px-3 text-[12px] max-sm:min-h-10"
+                  : "h-8 min-h-8 px-2.5 text-[12px] max-sm:min-h-9",
               selected
                 ? strong
                   ? "bg-primary text-primary-foreground shadow-[0_0_14px_color-mix(in_srgb,var(--primary)_40%,transparent)]"

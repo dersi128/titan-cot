@@ -59,7 +59,7 @@ export function ClearJournal() {
             >
               {copy.journal.clearAllConfirm}
             </button>
-            <Button type="button" variant="secondary" size="sm" onClick={reset}>
+            <Button type="button" variant="outline" size="sm" onClick={reset}>
               {copy.detail.cancel}
             </Button>
           </div>

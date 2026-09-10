@@ -610,10 +610,16 @@ html[data-density="large"] {
     font-weight: 700;
     line-height: 1;
     cursor: pointer;
+    touch-action: manipulation;
   }
 
   .titan-danger-btn:hover {
     filter: brightness(1.08);
+  }
+
+  .titan-danger-btn:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--titan-danger) 55%, transparent);
+    outline-offset: 2px;
   }
 
   .titan-danger-btn:disabled {
@@ -637,6 +643,10 @@ html[data-density="large"] {
     align-items: center;
     gap: 0.5rem;
     margin-top: 0.75rem;
+  }
+
+  .titan-danger-row [data-slot="button"] {
+    min-height: 2.35rem;
   }
 
   .titan-danger-input {
@@ -1157,6 +1167,7 @@ html[data-density="large"] {
     line-height: 1;
     cursor: pointer;
     isolation: isolate;
+    touch-action: manipulation;
     box-shadow:
       0 0 0 2px color-mix(in srgb, var(--titan-clear-fg) 22%, transparent),
       0 8px 20px color-mix(in srgb, var(--background) 45%, transparent);
@@ -1165,6 +1176,11 @@ html[data-density="large"] {
 
   .titan-clear:hover {
     filter: brightness(1.08);
+  }
+
+  .titan-clear:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--ring) 65%, transparent);
+    outline-offset: 2px;
   }
 
   html[data-theme="gold"] .titan-clear {
@@ -1207,14 +1223,37 @@ html[data-density="large"] {
     font-size: 1rem;
   }
 
-  [data-density="compact"] [data-slot="button"]:not([data-size="icon"]) {
+  [data-density="compact"] [data-slot="button"]:not([data-size^="icon"]) {
     height: var(--ui-control);
+    min-height: var(--ui-control);
   }
 
-  [data-density="large"] [data-slot="button"]:not([data-size="icon"]) {
+  [data-density="large"] [data-slot="button"]:not([data-size^="icon"]) {
     height: var(--ui-control);
+    min-height: var(--ui-control);
     font-size: 1rem;
     padding-inline: 1rem;
+  }
+
+  .titan-action-bar [data-slot="button"] {
+    min-height: var(--ui-control);
+  }
+
+  @media (max-width: 639px) {
+    [data-slot="button"][data-size="default"] {
+      min-height: 2.5rem;
+      padding-inline: 0.9rem;
+    }
+
+    [data-slot="button"][data-size="sm"] {
+      min-height: 2.25rem;
+    }
+
+    [data-slot="button"][data-size="icon-sm"],
+    [data-slot="button"][data-size="icon-xs"] {
+      min-width: 2.25rem;
+      min-height: 2.25rem;
+    }
   }
 
   [data-density="large"] h1 {

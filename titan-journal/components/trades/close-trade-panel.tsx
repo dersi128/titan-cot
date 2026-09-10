@@ -72,7 +72,6 @@ export function CloseTradePanel({
       <Button
         type="button"
         size={compact ? "sm" : "default"}
-        className={compact ? "h-7 text-[12px]" : undefined}
         onClick={handleClose}
         disabled={parseOptionalNumber(resultR) == null}
       >
