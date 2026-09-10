@@ -118,9 +118,9 @@ export function MarketDistribution({
                   />
                 </PieChart>
               </ResponsiveContainer>
-              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                <p className="text-[10px] font-medium tracking-wide text-muted-foreground">
-                  {copy.dashboard.totalTradesLabel}
+              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-1">
+                <p className="max-w-full truncate text-center text-[10px] font-medium leading-none tracking-normal text-muted-foreground whitespace-nowrap">
+                  {copy.dashboard.totalTrades}
                 </p>
                 <p className="font-mono text-[15px] font-medium tabular-nums text-foreground">
                   {formatNumber(distribution.totalTrades, 0)}
