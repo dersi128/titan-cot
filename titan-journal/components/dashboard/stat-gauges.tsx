@@ -1,5 +1,8 @@
 "use client"
 
+import { useLabels } from "@/lib/use-labels"
+import { cn } from "@/lib/utils"
+
 function clamp01(value: number): number {
   if (!Number.isFinite(value)) return 0
   return Math.min(1, Math.max(0, value))
@@ -226,28 +229,34 @@ export function SplitBar({
 }
 
 export function FactorScale({ value }: { value: number | null }) {
+  const { language } = useLabels()
   const n = value != null && Number.isFinite(value) ? value : null
   const capped = n == null ? 1 : Math.min(2, Math.max(0, n))
   const left = `${(capped / 2) * 100}%`
   const over = n != null && n >= 1
+  const one = language === "en" ? "1.0" : "1,0"
 
   return (
-    <div className="relative h-4 w-full" aria-hidden>
-      <div className="absolute inset-x-0 top-1/2 flex h-1 -translate-y-1/2 overflow-hidden rounded-full">
-        <span className="h-full w-1/2 bg-bear/20" />
-        <span className="h-full w-1/2 bg-bull/20" />
+    <div className="w-full" aria-hidden>
+      <div className="relative h-2">
+        <div className="flex h-full overflow-hidden rounded-sm border border-foreground/40">
+          <span className="h-full w-1/2 bg-bear/75" />
+          <span className="h-full w-1/2 bg-bull/75" />
+        </div>
+        <span className="absolute -top-0.5 -bottom-0.5 left-1/2 z-10 w-0.5 -translate-x-1/2 bg-foreground" />
+        {n != null ? (
+          <span
+            className={cn(
+              "absolute top-1/2 z-20 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-[0_0_0_1.5px_var(--elevated),0_0_0_2.5px_var(--foreground)]",
+              over ? "bg-bull" : "bg-bear"
+            )}
+            style={{ left }}
+          />
+        ) : null}
       </div>
-      <span className="absolute top-1/2 left-1/2 h-3.5 w-px -translate-x-1/2 -translate-y-1/2 bg-foreground/55" />
-      {n != null ? (
-        <span
-          className={
-            over
-              ? "absolute top-0 size-1.5 -translate-x-1/2 rounded-full bg-bull"
-              : "absolute bottom-0 size-1.5 -translate-x-1/2 rounded-full bg-bear"
-          }
-          style={{ left }}
-        />
-      ) : null}
+      <p className="mt-1 text-center text-[9px] font-semibold tabular-nums text-foreground">
+        {one}
+      </p>
     </div>
   )
 }
@@ -255,22 +264,40 @@ export function FactorScale({ value }: { value: number | null }) {
 export function ZeroBar({ value }: { value: number | null }) {
   const n = value != null && Number.isFinite(value) ? value : null
   const span = n == null || n === 0 ? 0 : Math.min(50, (Math.abs(n) / 2) * 50)
+  const left =
+    n == null || n === 0 ? "50%" : n > 0 ? `calc(50% + ${span}%)` : `calc(50% - ${span}%)`
 
   return (
-    <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-muted/80" aria-hidden>
-      <span className="absolute inset-y-0 left-1/2 z-10 w-px bg-foreground/45" />
-      {n != null && n > 0 ? (
-        <span
-          className="absolute inset-y-0 left-1/2 rounded-r-full bg-bull"
-          style={{ width: `max(0.25rem, ${span}%)` }}
-        />
-      ) : null}
-      {n != null && n < 0 ? (
-        <span
-          className="absolute inset-y-0 rounded-l-full bg-bear"
-          style={{ right: "50%", width: `max(0.25rem, ${span}%)` }}
-        />
-      ) : null}
+    <div className="w-full" aria-hidden>
+      <div className="relative h-2">
+        <div className="relative h-full overflow-hidden rounded-sm border border-foreground/40 bg-muted">
+          {n != null && n > 0 ? (
+            <span
+              className="absolute inset-y-0 left-1/2 bg-bull"
+              style={{ width: `max(0.375rem, ${span}%)` }}
+            />
+          ) : null}
+          {n != null && n < 0 ? (
+            <span
+              className="absolute inset-y-0 bg-bear"
+              style={{ right: "50%", width: `max(0.375rem, ${span}%)` }}
+            />
+          ) : null}
+        </div>
+        <span className="absolute -top-0.5 -bottom-0.5 left-1/2 z-10 w-0.5 -translate-x-1/2 bg-foreground" />
+        {n != null ? (
+          <span
+            className={cn(
+              "absolute top-1/2 z-20 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-[0_0_0_1.5px_var(--elevated),0_0_0_2.5px_var(--foreground)]",
+              n > 0 ? "bg-bull" : n < 0 ? "bg-bear" : "bg-foreground"
+            )}
+            style={{ left }}
+          />
+        ) : null}
+      </div>
+      <p className="mt-1 text-center text-[9px] font-semibold tabular-nums text-foreground">
+        0
+      </p>
     </div>
   )
 }
