@@ -176,6 +176,19 @@ describe("strategy edge", () => {
     expect(stats.be).toBe(0)
   })
 
+  it("counts closed PnL without R in money stats, not win rate", () => {
+    const stats = accountEdge([
+      trade({ id: "r", resultR: 1, pnl: 100 }),
+      trade({ id: "cash", resultR: null, pnl: 40 }),
+      trade({ id: "open", status: "ACTIVE", resultR: 2, pnl: 500 }),
+    ])
+    expect(stats.trades).toBe(2)
+    expect(stats.wins).toBe(1)
+    expect(stats.winRate).toBe(1)
+    expect(stats.netPnl).toBe(140)
+    expect(stats.profitFactor).toBeNull()
+  })
+
   it("treats |R| under 0.05 as BE and keeps it out of win rate", () => {
     const stats = accountEdge([
       trade({ id: "w", resultR: 2, pnl: 260 }),
@@ -189,6 +202,7 @@ describe("strategy edge", () => {
     expect(stats.winRate).toBe(0.5)
     expect(stats.averageR).toBe(0.5)
     expect(stats.netPnl).toBe(111)
+    expect(stats.profitFactor).toBe(1.56)
   })
 
   it("measures max drawdown in R from the equity peak", () => {

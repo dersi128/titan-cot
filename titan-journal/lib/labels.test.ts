@@ -88,6 +88,8 @@ describe("CZ/SK/EN dictionaries", () => {
     expect(labelsFor("en").copy.dashboard.averageR).toBe("Avg R")
     expect(labelsFor("en").copy.analytics.profitFactor).toBe("Profit Factor")
     expect(labelsFor("cs").copy.dashboard.winRateWhy).toContain("BE")
+    expect(labelsFor("en").copy.dashboard.profitFactorWhy).toContain("PnL")
+    expect(labelsFor("cs").copy.dashboard.profitFactorWhy).toContain("BE")
     expect(labelsFor("cs").copy.dashboard.profitFactorCaption).toContain("Nad 1")
     expect(labelsFor("en").copy.dashboard.profitFactorCaption).toContain("Above 1")
     expect(labelsFor("cs").copy.dashboard.averageRCaption).toContain("BE")
