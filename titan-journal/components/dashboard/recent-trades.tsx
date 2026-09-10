@@ -19,6 +19,7 @@ import { tradeRowProps } from "@/components/trades/trade-row"
 import { formatDate, formatSignedUsd, signedClassName } from "@/lib/format"
 import { displayResultR } from "@/lib/trade-outcome"
 import { useLabels } from "@/lib/use-labels"
+import { cn } from "@/lib/utils"
 
 export function RecentTrades({ trades }: { trades: Trade[] }) {
   const { copy } = useLabels()
@@ -51,10 +52,10 @@ export function RecentTrades({ trades }: { trades: Trade[] }) {
               <TableHead className="text-[11px] font-medium text-muted-foreground">
                 {copy.journal.playbook}
               </TableHead>
-              <TableHead className="text-[11px] font-medium text-muted-foreground">
+              <TableHead className="text-right text-[11px] font-medium text-muted-foreground">
                 {copy.dashboard.result}
               </TableHead>
-              <TableHead className="text-[11px] font-medium text-muted-foreground">
+              <TableHead className="text-right text-[11px] font-medium text-muted-foreground">
                 {copy.dashboard.r}
               </TableHead>
               <TableHead className="px-4 text-[11px] font-medium text-muted-foreground">
@@ -70,10 +71,15 @@ export function RecentTrades({ trades }: { trades: Trade[] }) {
                   <DirectionBadge direction={trade.direction} />
                 </TableCell>
                 <TableCell>{trade.strategy}</TableCell>
-                <TableCell className={signedClassName(trade.pnl)}>
+                <TableCell
+                  className={cn(
+                    "text-right font-mono tabular-nums",
+                    signedClassName(trade.pnl)
+                  )}
+                >
                   {formatSignedUsd(trade.pnl)}
                 </TableCell>
-                <TableCell>
+                <TableCell className="text-right">
                   <ResultR value={displayResultR(trade)} />
                 </TableCell>
                 <TableCell className="px-4 text-muted-foreground">

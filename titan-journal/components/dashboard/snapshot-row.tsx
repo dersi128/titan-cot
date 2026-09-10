@@ -54,21 +54,21 @@ export function SnapshotRow({
       ? "—"
       : `${vs > 0 ? "+" : ""}${vs}% ${vs >= 0 ? copy.dashboard.better : copy.dashboard.worse}`
 
+  const card =
+    "titan-kpi flex h-full min-h-[6.75rem] flex-col rounded-[12px] px-4 py-3"
+  const title = "text-[11px] font-medium tracking-wide text-muted-foreground"
+  const value =
+    "font-mono text-[18px] font-medium leading-7 tabular-nums"
+
   return (
-    <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-      <article className="titan-kpi rounded-[10px] px-3 py-2.5">
-        <p className="text-[11px] font-medium text-muted-foreground">
-          {copy.dashboard.profitVsLoss}
-        </p>
-        <div className="mt-2 flex h-2 overflow-hidden rounded-full bg-muted/80">
-          <span
-            className="h-full bg-bull"
-            style={{ width: `${winPct}%` }}
-          />
-          <span
-            className="h-full bg-bear"
-            style={{ width: `${lossPct}%` }}
-          />
+    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <article className={card}>
+        <p className={title}>{copy.dashboard.profitVsLoss}</p>
+        <div className="mt-1 flex min-h-7 items-center">
+          <div className="flex h-2 w-full overflow-hidden rounded-full bg-muted/80">
+            <span className="h-full bg-bull" style={{ width: `${winPct}%` }} />
+            <span className="h-full bg-bear" style={{ width: `${lossPct}%` }} />
+          </div>
         </div>
         <p className="mt-2 text-[12px] text-muted-foreground">
           <span className="text-bull">{winPct}%</span> {copy.dashboard.wins}
@@ -77,35 +77,21 @@ export function SnapshotRow({
         </p>
       </article>
 
-      <article className="titan-kpi flex items-end justify-between gap-3 rounded-[10px] px-3 py-2.5">
-        <div>
-          <p className="text-[11px] font-medium text-muted-foreground">
-            {copy.dashboard.last7Days}
-          </p>
-          <p
-            className={cn(
-              "mt-1 font-mono text-[18px] font-medium tabular-nums",
-              signedClassName(last7Value)
-            )}
-          >
+      <article className={card}>
+        <p className={title}>{copy.dashboard.last7Days}</p>
+        <div className="mt-1 flex min-h-7 items-center justify-between gap-3">
+          <p className={cn(value, signedClassName(last7Value))}>
             {moneyFirst
               ? formatSignedMoney(last7Value, currency)
               : formatSignedR(last7Value)}
           </p>
+          <Sparkline values={snapshots.last7Days.spark} />
         </div>
-        <Sparkline values={snapshots.last7Days.spark} />
       </article>
 
-      <article className="titan-kpi rounded-[10px] px-3 py-2.5">
-        <p className="text-[11px] font-medium text-muted-foreground">
-          {copy.dashboard.thisMonth}
-        </p>
-        <p
-          className={cn(
-            "mt-1 font-mono text-[18px] font-medium tabular-nums",
-            signedClassName(monthPrimary)
-          )}
-        >
+      <article className={card}>
+        <p className={title}>{copy.dashboard.thisMonth}</p>
+        <p className={cn("mt-1 min-h-7", value, signedClassName(monthPrimary))}>
           {moneyFirst
             ? formatSignedMoney(monthPrimary, currency)
             : formatSignedR(monthPrimary)}
@@ -124,16 +110,9 @@ export function SnapshotRow({
         </p>
       </article>
 
-      <article className="titan-kpi rounded-[10px] px-3 py-2.5">
-        <p className="text-[11px] font-medium text-muted-foreground">
-          {copy.dashboard.vsLastMonth}
-        </p>
-        <p
-          className={cn(
-            "mt-1 font-mono text-[18px] font-medium tabular-nums",
-            signedClassName(vs)
-          )}
-        >
+      <article className={card}>
+        <p className={title}>{copy.dashboard.vsLastMonth}</p>
+        <p className={cn("mt-1 min-h-7", value, signedClassName(vs))}>
           {vsLabel}
         </p>
       </article>
