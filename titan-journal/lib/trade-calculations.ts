@@ -58,12 +58,7 @@ export function isFiniteNumber(
   return typeof value === "number" && Number.isFinite(value)
 }
 
-export function monetaryKpis(trades: Trade[]) {
-  const amounts: number[] = []
-  for (const trade of trades) {
-    if (!isRealizedTradeStatus(trade.status) || !isFiniteNumber(trade.pnl)) continue
-    amounts.push(trade.pnl)
-  }
+function pnlTotals(amounts: number[]) {
   const netPnl = amounts.reduce((sum, value) => sum + value, 0)
   const grossProfit = amounts
     .filter((value) => value > 0)
@@ -71,11 +66,22 @@ export function monetaryKpis(trades: Trade[]) {
   const grossLoss = Math.abs(
     amounts.filter((value) => value < 0).reduce((sum, value) => sum + value, 0)
   )
+  return { netPnl, grossProfit, grossLoss }
+}
+
+export function monetaryKpis(trades: Trade[]) {
+  const amounts: number[] = []
+  const pfAmounts: number[] = []
+  for (const trade of trades) {
+    if (!isRealizedTradeStatus(trade.status) || !isFiniteNumber(trade.pnl)) continue
+    amounts.push(trade.pnl)
+    if (tradeOutcome(trade) !== "BE") pfAmounts.push(trade.pnl)
+  }
+  const money = pnlTotals(amounts)
+  const pf = pnlTotals(pfAmounts)
   return {
-    netPnl,
-    grossProfit,
-    grossLoss,
-    profitFactor: grossLoss > 0 ? grossProfit / grossLoss : null,
+    ...money,
+    profitFactor: pf.grossLoss > 0 ? pf.grossProfit / pf.grossLoss : null,
   }
 }
 

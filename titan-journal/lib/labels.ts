@@ -330,7 +330,7 @@ export const copyEn = {
     profitFactor: "Profit Factor",
     expectedPerTrade: "Expected profit per trade",
     profitFactorHint:
-      "Positive PnL ÷ |negative PnL|. Includes BE money. No losses → —.",
+      "Compares total profit to total loss. Trades with no profit or loss (BE) are not counted. No losses → —.",
     tradeCount: "Trade count",
     winningTrades: "Winning trades",
     losingTrades: "Losing trades",
@@ -858,7 +858,7 @@ export const copyCs: Copy = {
     profitFactor: "Profit Factor",
     expectedPerTrade: "Očekávaný zisk na obchod",
     profitFactorHint:
-      "Kladné PnL ÷ |záporné PnL|. Zahrnuje i peněžní BE. Bez ztráty se ukáže —.",
+      "Porovnává celkový zisk s celkovou ztrátou. Obchody bez zisku a ztráty (BE) se nepočítají. Bez ztráty se ukáže —.",
     tradeCount: "Počet obchodů",
     winningTrades: "Ziskové obchody",
     losingTrades: "Ztrátové obchody",
@@ -1384,7 +1384,7 @@ export const copySk: Copy = {
     profitFactor: "Profit Factor",
     expectedPerTrade: "Očakávaný zisk na obchod",
     profitFactorHint:
-      "Kladné PnL ÷ |záporné PnL|. Zahŕňa aj peňažné BE. Bez straty sa ukáže —.",
+      "Porovnáva celkový zisk s celkovou stratou. Obchody bez zisku a straty (BE) sa nepočítajú. Bez straty sa ukáže —.",
     tradeCount: "Počet obchodov",
     winningTrades: "Ziskové obchody",
     losingTrades: "Stratové obchody",

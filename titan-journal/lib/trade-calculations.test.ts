@@ -122,7 +122,7 @@ describe("computeDashboardStats", () => {
     expect(baseline.grossLoss).toBeGreaterThanOrEqual(0)
   })
 
-  it("keeps BE money in PnL and profit factor, not in win rate or avg R", () => {
+  it("keeps BE money in PnL, not in win rate, avg R, or profit factor", () => {
     const stats = computeDashboardStats([
       closed({ id: "w", resultR: 2, pnl: 200 }),
       closed({ id: "l", resultR: -1, pnl: -100 }),
@@ -136,7 +136,7 @@ describe("computeDashboardStats", () => {
     expect(stats.netPnl).toBe(151)
     expect(stats.grossProfit).toBe(251)
     expect(stats.grossLoss).toBe(100)
-    expect(stats.profitFactor).toBe(2.51)
+    expect(stats.profitFactor).toBe(2)
   })
 
   it("counts closed PnL without R in money stats only", () => {
