@@ -16,6 +16,7 @@
     /* UI surface opacity — calmer, more opaque panels */
     --titan-surface-alpha: 0.9;
     --titan-surface-alpha-soft: 0.82;
+    --titan-ui-zoom: 1;
   }
 
   html {
@@ -23,10 +24,15 @@
     font-size: 15px;
   }
   html[data-titan-type="sm"] {
-    font-size: 13.5px;
+    --titan-ui-zoom: 0.9;
   }
   html[data-titan-type="lg"] {
-    font-size: 17.5px;
+    --titan-ui-zoom: 1.2;
+  }
+  #root {
+    zoom: var(--titan-ui-zoom);
+    width: calc(100% / var(--titan-ui-zoom));
+    min-height: calc(100dvh / var(--titan-ui-zoom));
   }
   body {
     @apply bg-titan-black font-sans text-titan-text antialiased;
@@ -3397,7 +3403,12 @@
 }
 
 .titan-season-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   margin-top: 8px;
+  padding: 0;
+  list-style: none;
 }
 
 .titan-season-row {
@@ -3636,8 +3647,8 @@
 
   .titan-page-bg--home-fit,
   .titan-content-layer--home-fit {
-    height: 100dvh;
-    max-height: 100dvh;
+    height: calc(100dvh / var(--titan-ui-zoom));
+    max-height: calc(100dvh / var(--titan-ui-zoom));
     overflow: hidden;
   }
 
@@ -3703,9 +3714,37 @@
   .titan-home-main--fit .titan-season-panel {
     flex: 1 1 auto;
     min-height: 0;
+    padding: 8px 10px;
   }
 
-  .titan-home-main--fit .titan-season-list,
+  .titan-home-main--fit .titan-season-list {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    gap: 3px;
+    margin-top: 6px;
+  }
+
+  .titan-home-main--fit .titan-season-list > li {
+    display: flex;
+    flex: 1 1 0;
+    min-height: 0;
+  }
+
+  .titan-home-main--fit .titan-season-row {
+    flex: 1 1 auto;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    padding: 2px 5px;
+    gap: 6px;
+  }
+
+  .titan-home-main--fit .titan-season-row__bar {
+    margin-top: 2px;
+    height: 3px;
+  }
+
   .titan-home-main--fit .titan-cmd-watch__list,
   .titan-home-main--fit .titan-cmd-shifts__list {
     flex: 1 1 auto;
