@@ -97,10 +97,16 @@ export const enMessages = {
   },
   heatmap: {
     eyebrow: "COT Heatmap",
-    legendColor: "Color = commercial 26W index",
+    legendColor: "Big number = commercial 26W index (0–100). 100 = commercials at the 26-week high.",
     legendRetail: "Amber frame = retail 26W extreme",
     comm26: "Comm 26W",
     retailExtreme: "Retail extreme",
+    group: {
+      forex: "Forex",
+      metals: "Metals",
+      commodities: "Commodities",
+      indices: "Indices",
+    },
     tone: {
       extreme_long: "Extreme long",
       strong_long: "Strong long",

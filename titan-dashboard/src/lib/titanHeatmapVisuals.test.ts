@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import {
-  groupMarketsByCategory,
+  groupMarketsForHeatmap,
   heatmapToneFromComm26,
   isRetailExtreme,
 } from "./titanHeatmapVisuals";
@@ -29,16 +29,25 @@ describe("isRetailExtreme", () => {
   });
 });
 
-describe("groupMarketsByCategory", () => {
-  it("keeps category order and drops empty groups", () => {
+describe("groupMarketsForHeatmap", () => {
+  it("folds energy, grains, softs and livestock into commodities", () => {
     const markets: InstitutionalMarket[] = [
       { id: "GOLD", symbol: "GC1!", shortLabel: "GOLD", subtitle: "Gold", category: "metals" },
       { id: "EUR", symbol: "6E1!", shortLabel: "EUR", subtitle: "Euro", category: "forex" },
       { id: "OIL", symbol: "CL1!", shortLabel: "OIL", subtitle: "WTI", category: "energy" },
+      { id: "CORN", symbol: "ZC1!", shortLabel: "CORN", subtitle: "Corn", category: "grains" },
+      { id: "COCOA", symbol: "CC1!", shortLabel: "COCOA", subtitle: "Cocoa", category: "softs" },
+      { id: "HOGS", symbol: "HE1!", shortLabel: "HOGS", subtitle: "Hogs", category: "livestock" },
+      { id: "ES", symbol: "ES1!", shortLabel: "SP 500", subtitle: "ES", category: "indices" },
     ];
+    const groups = groupMarketsForHeatmap(markets);
     assert.deepEqual(
-      groupMarketsByCategory(markets).map((g) => g.category),
-      ["forex", "metals", "energy"],
+      groups.map((g) => g.group),
+      ["forex", "metals", "commodities", "indices"],
+    );
+    assert.deepEqual(
+      groups.find((g) => g.group === "commodities")?.markets.map((m) => m.id),
+      ["OIL", "CORN", "COCOA", "HOGS"],
     );
   });
 });

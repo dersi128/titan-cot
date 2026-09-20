@@ -3698,7 +3698,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  min-height: 108px;
+  min-height: 118px;
   padding: 10px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
@@ -3812,6 +3812,14 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #7c8998;
+}
+
+.titan-heatmap-cell__score {
+  margin-top: 4px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
 }
 
 .titan-heatmap-cell__retail {

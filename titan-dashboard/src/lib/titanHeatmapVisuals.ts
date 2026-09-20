@@ -1,13 +1,29 @@
 import type { InstitutionalMarket } from "../config/institutionalMarkets";
 
-export const HEATMAP_CATEGORY_ORDER: readonly InstitutionalMarket["category"][] = [
+export type HeatmapGroupId = "forex" | "metals" | "commodities" | "indices";
+
+export const HEATMAP_GROUP_ORDER: readonly HeatmapGroupId[] = [
   "forex",
   "metals",
+  "commodities",
+  "indices",
+];
+
+const CATEGORY_TO_GROUP: Record<InstitutionalMarket["category"], HeatmapGroupId> = {
+  forex: "forex",
+  metals: "metals",
+  energy: "commodities",
+  grains: "commodities",
+  softs: "commodities",
+  livestock: "commodities",
+  indices: "indices",
+};
+
+const COMMODITY_CATEGORY_ORDER: readonly InstitutionalMarket["category"][] = [
   "energy",
   "grains",
   "softs",
   "livestock",
-  "indices",
 ];
 
 export type HeatmapCellTone =
@@ -31,9 +47,19 @@ export function isRetailExtreme(index: number | null | undefined): boolean {
   return index !== null && index !== undefined && Number.isFinite(index) && (index > 80 || index < 20);
 }
 
-export function groupMarketsByCategory(markets: readonly InstitutionalMarket[]) {
-  return HEATMAP_CATEGORY_ORDER.map((category) => ({
-    category,
-    markets: markets.filter((market) => market.category === category),
-  })).filter((group) => group.markets.length > 0);
+export function heatmapGroupForCategory(category: InstitutionalMarket["category"]): HeatmapGroupId {
+  return CATEGORY_TO_GROUP[category];
+}
+
+export function groupMarketsForHeatmap(markets: readonly InstitutionalMarket[]) {
+  return HEATMAP_GROUP_ORDER.map((group) => {
+    const inGroup = markets.filter((market) => CATEGORY_TO_GROUP[market.category] === group);
+    const ordered =
+      group === "commodities"
+        ? COMMODITY_CATEGORY_ORDER.flatMap((category) =>
+            inGroup.filter((market) => market.category === category),
+          )
+        : inGroup;
+    return { group, markets: ordered };
+  }).filter((entry) => entry.markets.length > 0);
 }

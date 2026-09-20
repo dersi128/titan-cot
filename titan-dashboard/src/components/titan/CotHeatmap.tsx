@@ -1,7 +1,7 @@
 import { computeTitanDashboardScore, scoreHeatClass } from "../../lib/titanCotScore";
 import { formatCommercialIndex } from "../../lib/titanCotIndexSettings";
 import {
-  groupMarketsByCategory,
+  groupMarketsForHeatmap,
   heatmapToneFromComm26,
   isRetailExtreme,
   type HeatmapCellTone,
@@ -28,7 +28,7 @@ const LEGEND_TONES: Exclude<HeatmapCellTone, "empty">[] = [
 
 export function CotHeatmap({ markets, bundle, selectedMarket, onSelectMarket }: CotHeatmapProps) {
   const { t } = useTitanI18n();
-  const groups = groupMarketsByCategory(markets);
+  const groups = groupMarketsForHeatmap(markets);
 
   return (
     <div className="titan-heatmap-board">
@@ -47,8 +47,8 @@ export function CotHeatmap({ markets, bundle, selectedMarket, onSelectMarket }: 
       </div>
 
       {groups.map((group) => (
-        <section key={group.category} className="titan-heatmap-group titan-cmd-card">
-          <h3 className="titan-cmd-kicker">{t(`category.${group.category}`)}</h3>
+        <section key={group.group} className="titan-heatmap-group titan-cmd-card">
+          <h3 className="titan-cmd-kicker">{t(`heatmap.group.${group.group}`)}</h3>
           <div className="titan-heatmap-grid">
             {group.markets.map((market) => {
               const data = bundle[market.symbol];
@@ -75,12 +75,13 @@ export function CotHeatmap({ markets, bundle, selectedMarket, onSelectMarket }: 
                   </span>
                   <span className="titan-heatmap-cell__meta">
                     <span>{t("heatmap.comm26")}</span>
-                    {score !== null ? (
-                      <span className={`titan-heatmap-cell__score ${scoreHeatClass(score)}`}>
-                        {score > 0 ? `+${score}` : score}
-                      </span>
-                    ) : null}
+                    {tone !== "empty" ? <span>{t(`heatmap.tone.${tone}`)}</span> : null}
                   </span>
+                  {score !== null ? (
+                    <span className={`titan-heatmap-cell__score ${scoreHeatClass(score)}`}>
+                      TITAN {score > 0 ? `+${score}` : score}
+                    </span>
+                  ) : null}
                   {retail ? (
                     <span className="titan-heatmap-cell__retail">{t("heatmap.retailExtreme")}</span>
                   ) : null}

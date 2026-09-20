@@ -99,10 +99,16 @@ export const csMessages: Messages = {
   },
   heatmap: {
     eyebrow: "COT heatmapa",
-    legendColor: "Barva = commercial 26T index",
+    legendColor: "Velké číslo = commercial 26T index (0–100). 100 = commercials na maximu za 26 týdnů.",
     legendRetail: "Jantarový rámeček = retail 26T extrém",
     comm26: "Comm 26T",
     retailExtreme: "Retail extrém",
+    group: {
+      forex: "Forex",
+      metals: "Kovy",
+      commodities: "Komodity",
+      indices: "Indexy",
+    },
     tone: {
       extreme_long: "Extrémní long",
       strong_long: "Silný long",
