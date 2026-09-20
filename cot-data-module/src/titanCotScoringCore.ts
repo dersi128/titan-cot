@@ -5,6 +5,14 @@
  * Keep conceptual parity with API where applicable.
  */
 
+import {
+  cotBuySellIsBear,
+  cotBuySellIsBull,
+  cotBuySellPositionPoints,
+  evaluateCotBuySellFromHistory,
+  type CotBuySellState,
+} from "./titanCotBuySell.js";
+
 export type CotVerdict =
   | "A+ EXTREME SHORT"
   | "A STRONG SHORT"
@@ -230,25 +238,44 @@ function impactFromPoints(points: number, maxAbs: number): string {
   return "Neutral";
 }
 
-function driverCommercialPositioning(c: TitanCotScoringInput["commercials"]): Omit<TitanBiasDriverDetail, "is_primary"> {
+function driverCommercialPositioning(
+  c: TitanCotScoringInput["commercials"],
+  pine: CotBuySellState | null,
+): Omit<TitanBiasDriverDetail, "is_primary"> {
   const idx = Math.max(0, Math.min(100, c.index26w));
-  const raw = idx - 50;
-  const points = Math.max(-50, Math.min(50, Math.round(raw)));
+  const points = pine
+    ? cotBuySellPositionPoints(pine, c.index26w)
+    : Math.max(-50, Math.min(50, Math.round(idx - 50)));
   const triggers: string[] = [`commercial_index_26w=${idx}`];
+  if (pine) triggers.push(`cot_buy_sell=${pine.action}`);
   if (idx < IDX_LO) triggers.push("commercial_index_below_20_bearish_extreme");
   if (idx > IDX_HI) triggers.push("commercial_index_above_80_bullish_extreme");
+  const explanation = pine
+    ? pine.action === "BUY"
+      ? "COT BUY — commercials left the 20 zone upward (EXIT LOW)."
+      : pine.action === "SELL"
+        ? "COT SELL — commercials left the 80 zone downward (EXIT HIGH)."
+        : pine.action === "TOUCH_0" || pine.action === "ARMED_BUY"
+          ? "COT TOUCH/ARMED BUY — commercials at/near 0, waiting for EXIT 20."
+          : pine.action === "TOUCH_100" || pine.action === "ARMED_SELL"
+            ? "COT TOUCH/ARMED SELL — commercials at/near 100, waiting for EXIT 80."
+            : pine.action === "HOLD_LONG"
+              ? "HOLD LONG until the opposite EXIT 80 turn."
+              : pine.action === "HOLD_SHORT"
+                ? "HOLD SHORT until the opposite EXIT 20 turn."
+                : "No COT BUY/SELL trigger — muted mid-range follow."
+    : points <= -20
+      ? "26W commercial index toward the short side of its range — supports bearish structural bias."
+      : points >= 20
+        ? "26W commercial index toward the long side — supports bullish structural bias."
+        : "26W commercial index near mid-range — suggests limited directional positioning pressure.";
   return {
     id: "commercialPositioning",
     name: "Commercial Positioning",
     importance: 50,
     impact: impactFromPoints(points, 50),
     points,
-    explanation:
-      points <= -20
-        ? "26W commercial index toward the short side of its range — supports bearish structural bias."
-        : points >= 20
-          ? "26W commercial index toward the long side — supports bullish structural bias."
-          : "26W commercial index near mid-range — suggests limited directional positioning pressure.",
+    explanation,
     trigger_conditions: triggers,
   };
 }
@@ -289,8 +316,17 @@ function driverCommercialDeltaFlow(c: TitanCotScoringInput["commercials"]): Omit
 function driverPersistence(
   c: TitanCotScoringInput["commercials"],
   history: CotHistoryPoint[] | undefined,
+  pine: CotBuySellState | null,
 ): Omit<TitanBiasDriverDetail, "is_primary"> & { weeks: number; side: "bull" | "bear" | "none" } {
-  const ap = activeCommercialPersistenceStreak(c, history);
+  const ap = pine
+    ? {
+        weeks: pine.regime !== 0 ? pine.holdWeeks : pine.armedBuy || pine.armedSell ? pine.armedWeeks : 0,
+        side: (cotBuySellIsBull(pine) ? "bull" : cotBuySellIsBear(pine) ? "bear" : "none") as
+          | "bull"
+          | "bear"
+          | "none",
+      }
+    : activeCommercialPersistenceStreak(c, history);
   const w = ap.weeks;
   const sign = ap.side === "bull" ? 1 : ap.side === "bear" ? -1 : 0;
   let mag = 0;
@@ -436,7 +472,34 @@ function computeMarketRegime(
   flowBear: boolean,
   flowBull: boolean,
   flowMixed: boolean,
+  pine: CotBuySellState | null,
 ): { regime: TitanMarketRegime; explanation: string } {
+  if (pine) {
+    if (pine.sigExitBuy || pine.regime === 1) {
+      return {
+        regime: "ACCUMULATION",
+        explanation: "HOLD LONG after COT EXIT 20 (BUY turn).",
+      };
+    }
+    if (pine.sigExitSell || pine.regime === -1) {
+      return {
+        regime: "DISTRIBUTION",
+        explanation: "HOLD SHORT after COT EXIT 80 (SELL turn).",
+      };
+    }
+    if (pine.armedSell || pine.sigTouchSell) {
+      return {
+        regime: "EXHAUSTION",
+        explanation: "TOUCH/ARMED SELL — waiting for EXIT 80.",
+      };
+    }
+    if (pine.armedBuy || pine.sigTouchBuy) {
+      return {
+        regime: "EXHAUSTION",
+        explanation: "TOUCH/ARMED BUY — waiting for EXIT 20.",
+      };
+    }
+  }
   const c = input.commercials;
   const r = input.retail;
   const nc = input.nonCommercials;
@@ -534,9 +597,11 @@ export function computeUnifiedCotScore(input: TitanCotScoringInput): TitanCotSco
   const r = input.retail;
   const nc = input.nonCommercials;
 
-  const d1 = driverCommercialPositioning(c);
+  const pine = evaluateCotBuySellFromHistory(input.history);
+
+  const d1 = driverCommercialPositioning(c, pine);
   const d2 = driverCommercialDeltaFlow(c);
-  const d3full = driverPersistence(c, input.history);
+  const d3full = driverPersistence(c, input.history, pine);
   const { weeks: persistWeeks, side: persistenceSide, ...d3rest } = d3full;
   const d3: Omit<TitanBiasDriverDetail, "is_primary"> = d3rest;
   const d4 = driverNcDivergence(c, nc);
@@ -569,7 +634,16 @@ export function computeUnifiedCotScore(input: TitanCotScoringInput): TitanCotSco
   const flowBull = w1 > 0 && d4w > 0 && d13 > 0;
   const flowMixed = !flowBear && !flowBull;
 
-  const { regime, explanation } = computeMarketRegime(input, score, components, persistWeeks, flowBear, flowBull, flowMixed);
+  const { regime, explanation } = computeMarketRegime(
+    input,
+    score,
+    components,
+    persistWeeks,
+    flowBear,
+    flowBull,
+    flowMixed,
+    pine,
+  );
   const { structural, execution } = buildKeyDrivers(c, persistWeeks, components, score, d5.points);
 
   const partials: Omit<TitanBiasDriverDetail, "is_primary">[] = [d1, d2, d3, d4, d5];

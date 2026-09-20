@@ -459,8 +459,12 @@ function SignalEngine({ read, t }: { read: TitanPositioningRead; t: (k: string) 
   const noFlowCross = !read.smTurnDown && !read.smTurnUp;
 
   let revHeadline = t("positioning.reversal.panelNoConfirm");
-
-  if (read.reversal === "confirmed_top" || read.reversal === "confirmed_bottom") {
+  if (
+    read.reversal === "confirmed_top" ||
+    read.reversal === "confirmed_bottom" ||
+    read.reversal === "potential_top" ||
+    read.reversal === "potential_bottom"
+  ) {
     revHeadline = t(`positioning.reversal.${read.reversal}`);
   }
 
