@@ -414,9 +414,28 @@ h3 {
 
 .section-head,
 .form-intro,
-.contact-layout > div {
+.contact-layout > div,
+.narrow {
   max-width: 42rem;
   margin-bottom: 2.5rem;
+}
+
+.narrow {
+  margin-bottom: 0;
+}
+
+.copy-list {
+  margin: 0.75rem 0 0;
+  padding-left: 1.2rem;
+  color: var(--muted);
+}
+
+.copy-list li {
+  margin: 0.4rem 0;
+}
+
+.copy-list li::marker {
+  color: var(--wood);
 }
 
 .split,
@@ -450,9 +469,12 @@ h3 {
   font-size: 1.1rem;
 }
 
+.service-card p {
+  color: var(--muted);
+}
+
 .service-card p:last-child {
   margin-bottom: 0;
-  color: var(--muted);
 }
 
 .gallery-item {
@@ -614,8 +636,25 @@ h3 {
 .footer-inner {
   display: flex;
   justify-content: space-between;
-  gap: 1rem;
+  align-items: flex-start;
+  gap: 1.5rem;
   color: var(--muted);
+  flex-wrap: wrap;
+}
+
+.footer-copy {
+  max-width: 38rem;
+}
+
+.footer-copy p {
+  margin: 0 0 0.4rem;
+}
+
+.footer-brand {
+  font-family: var(--serif);
+  font-weight: 600;
+  color: var(--ink);
+  font-size: 1.15rem;
 }
 
 .footer-inner a {
