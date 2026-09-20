@@ -99,6 +99,17 @@ export const csMessages: Messages = {
   },
   heatmap: {
     eyebrow: "COT heatmapa",
+    legendColor: "Barva = commercial 26T index",
+    legendRetail: "Jantarový rámeček = retail 26T extrém",
+    comm26: "Comm 26T",
+    retailExtreme: "Retail extrém",
+    tone: {
+      extreme_long: "Extrémní long",
+      strong_long: "Silný long",
+      neutral: "Neutrální",
+      strong_short: "Silný short",
+      extreme_short: "Extrémní short",
+    },
   },
   category: {
     forex: "Forex",
@@ -654,6 +665,7 @@ export const csMessages: Messages = {
     aria: "Hlavní navigace",
     home: "Hlavní panel",
     scanner: "Scanner",
+    heatmap: "Heatmapa",
     seasonality: "Sezónnost",
     dme: "Dollar Macro",
     modules: "Moduly",
@@ -663,6 +675,11 @@ export const csMessages: Messages = {
     scanner: {
       eyebrow: "Legacy COT",
       title: "Global COT Scanner",
+    },
+    heatmap: {
+      eyebrow: "Legacy COT",
+      title: "COT Heatmapa",
+      description: "Commercial 26T positioning napříč všemi mapovanými trhy. Klikni na buňku a otevře se detail.",
     },
     seasonality: {
       eyebrow: "Quant research",

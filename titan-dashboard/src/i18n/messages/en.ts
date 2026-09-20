@@ -97,6 +97,17 @@ export const enMessages = {
   },
   heatmap: {
     eyebrow: "COT Heatmap",
+    legendColor: "Color = commercial 26W index",
+    legendRetail: "Amber frame = retail 26W extreme",
+    comm26: "Comm 26W",
+    retailExtreme: "Retail extreme",
+    tone: {
+      extreme_long: "Extreme long",
+      strong_long: "Strong long",
+      neutral: "Neutral",
+      strong_short: "Strong short",
+      extreme_short: "Extreme short",
+    },
   },
   category: {
     forex: "Forex",
@@ -652,6 +663,7 @@ export const enMessages = {
     aria: "Main navigation",
     home: "Command Center",
     scanner: "Scanner",
+    heatmap: "Heatmap",
     seasonality: "Seasonality",
     dme: "Dollar Macro",
     modules: "Modules",
@@ -661,6 +673,11 @@ export const enMessages = {
     scanner: {
       eyebrow: "Legacy COT",
       title: "Global COT Scanner",
+    },
+    heatmap: {
+      eyebrow: "Legacy COT",
+      title: "COT Heatmap",
+      description: "Commercial 26W positioning across all mapped markets. Click a cell to open the market detail.",
     },
     seasonality: {
       eyebrow: "Quant research",

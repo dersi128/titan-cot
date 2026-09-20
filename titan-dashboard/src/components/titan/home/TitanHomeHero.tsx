@@ -14,6 +14,8 @@ function sectionEyebrow(section: AppSection, t: (key: string) => string): string
   switch (section) {
     case "scanner":
       return t("nav.scanner");
+    case "heatmap":
+      return t("nav.heatmap");
     case "seasonality":
       return t("nav.seasonality");
     case "dme":

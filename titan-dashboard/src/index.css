@@ -3632,3 +3632,194 @@
     object-position: 80% center;
   }
 }
+
+.titan-heatmap-board {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.titan-heatmap-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 174, 239, 0.22);
+  background: rgba(5, 11, 18, 0.55);
+}
+
+.titan-heatmap-legend__label {
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8ba3b8;
+}
+
+.titan-heatmap-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  color: #c5d0da;
+}
+
+.titan-heatmap-legend__swatch,
+.titan-heatmap-legend__ring {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.titan-heatmap-legend__ring {
+  border: 1.5px solid rgba(245, 185, 66, 0.85);
+  background: transparent;
+}
+
+.titan-heatmap-group {
+  padding: 12px !important;
+}
+
+.titan-heatmap-group .titan-cmd-kicker {
+  margin: 0 0 10px;
+}
+
+.titan-heatmap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(138px, 1fr));
+  gap: 8px;
+}
+
+.titan-heatmap-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 108px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(8, 12, 18, 0.72);
+  text-align: left;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+
+.titan-heatmap-cell:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.titan-heatmap-cell:disabled {
+  cursor: not-allowed;
+  opacity: 0.38;
+}
+
+.titan-heatmap-cell--active {
+  box-shadow:
+    0 0 0 1px rgba(46, 168, 255, 0.45),
+    0 0 18px -6px rgba(46, 168, 255, 0.45);
+}
+
+.titan-heatmap-cell--retail {
+  box-shadow: inset 0 0 0 1.5px rgba(245, 185, 66, 0.75);
+}
+
+.titan-heatmap-cell--retail.titan-heatmap-cell--active {
+  box-shadow:
+    inset 0 0 0 1.5px rgba(245, 185, 66, 0.75),
+    0 0 0 1px rgba(46, 168, 255, 0.45),
+    0 0 18px -6px rgba(46, 168, 255, 0.45);
+}
+
+.titan-heatmap-cell--extreme_long,
+.titan-heatmap-swatch--extreme_long {
+  border-color: rgba(16, 217, 154, 0.58);
+  background: linear-gradient(180deg, rgba(16, 217, 154, 0.24), rgba(5, 14, 12, 0.9));
+}
+
+.titan-heatmap-cell--strong_long,
+.titan-heatmap-swatch--strong_long {
+  border-color: rgba(16, 217, 154, 0.32);
+  background: linear-gradient(180deg, rgba(16, 217, 154, 0.12), rgba(5, 12, 16, 0.88));
+}
+
+.titan-heatmap-cell--neutral,
+.titan-heatmap-swatch--neutral {
+  border-color: rgba(125, 211, 252, 0.2);
+  background: linear-gradient(180deg, rgba(8, 16, 26, 0.72), rgba(5, 11, 18, 0.88));
+}
+
+.titan-heatmap-cell--strong_short,
+.titan-heatmap-swatch--strong_short {
+  border-color: rgba(255, 69, 103, 0.32);
+  background: linear-gradient(180deg, rgba(255, 69, 103, 0.12), rgba(16, 7, 12, 0.88));
+}
+
+.titan-heatmap-cell--extreme_short,
+.titan-heatmap-swatch--extreme_short {
+  border-color: rgba(255, 69, 103, 0.58);
+  background: linear-gradient(180deg, rgba(255, 69, 103, 0.24), rgba(16, 7, 12, 0.9));
+}
+
+.titan-heatmap-cell--empty,
+.titan-heatmap-swatch--empty {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(8, 12, 18, 0.45);
+}
+
+.titan-heatmap-cell__head {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 8px;
+}
+
+.titan-heatmap-cell__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #f4f7fb;
+}
+
+.titan-heatmap-cell__index {
+  margin-top: 8px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  color: #f4f7fb;
+}
+
+.titan-heatmap-cell__meta {
+  display: flex;
+  width: 100%;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 9px;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #7c8998;
+}
+
+.titan-heatmap-cell__retail {
+  margin-top: auto;
+  padding-top: 6px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #f5b942;
+}

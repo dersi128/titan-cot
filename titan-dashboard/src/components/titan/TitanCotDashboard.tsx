@@ -30,6 +30,8 @@ import { TitanScannerPage } from "./pages/TitanScannerPage";
 
 import { TitanSeasonalityPage } from "./pages/TitanSeasonalityPage";
 
+import { TitanHeatmapPage } from "./pages/TitanHeatmapPage";
+
 import { MarketDetailPanel } from "./MarketDetailPanel";
 
 import { TitanDetailErrorBoundary } from "./TitanDetailErrorBoundary";
@@ -468,6 +470,22 @@ export function TitanCotDashboard() {
                   <GlobalCotScanner rows={rows} selectedMarket={selectedMarket} onSelectMarket={openMarket} />
 
                 }
+
+              />
+
+            ) : null}
+
+            {section === "heatmap" ? (
+
+              <TitanHeatmapPage
+
+                liveCount={liveCount}
+
+                bundle={bundle}
+
+                selectedMarket={selectedMarket}
+
+                onSelectMarket={openMarket}
 
               />
 
