@@ -6,6 +6,15 @@ export const csMessages: Messages = {
     cs: "Čeština",
     en: "English",
   },
+  settings: {
+    aria: "Nastavení zobrazení",
+    title: "Velikost písma",
+    type: {
+      sm: "Malé",
+      md: "Normální",
+      lg: "Větší",
+    },
+  },
   brand: {
     name: "TITAN FUSION",
     wordmarkLead: "TITAN",
@@ -99,6 +108,23 @@ export const csMessages: Messages = {
   },
   heatmap: {
     eyebrow: "COT heatmapa",
+    legendColor: "Velké číslo = commercial 26T index (0–100). 100 = commercials na maximu za 26 týdnů.",
+    legendRetail: "Jantarový rámeček = retail 26T extrém",
+    comm26: "Comm 26T",
+    retailExtreme: "Retail extrém",
+    group: {
+      forex: "Forex",
+      metals: "Kovy",
+      commodities: "Komodity",
+      indices: "Indexy",
+    },
+    tone: {
+      extreme_long: "Extrémní long",
+      strong_long: "Silný long",
+      neutral: "Neutrální",
+      strong_short: "Silný short",
+      extreme_short: "Extrémní short",
+    },
   },
   category: {
     forex: "Forex",
@@ -654,6 +680,7 @@ export const csMessages: Messages = {
     aria: "Hlavní navigace",
     home: "Hlavní panel",
     scanner: "Scanner",
+    heatmap: "Heatmapa",
     seasonality: "Sezónnost",
     dme: "Dollar Macro",
     modules: "Moduly",
@@ -663,6 +690,11 @@ export const csMessages: Messages = {
     scanner: {
       eyebrow: "Legacy COT",
       title: "Global COT Scanner",
+    },
+    heatmap: {
+      eyebrow: "Legacy COT",
+      title: "COT Heatmapa",
+      description: "Commercial 26T positioning napříč všemi mapovanými trhy. Klikni na buňku a otevře se detail.",
     },
     seasonality: {
       eyebrow: "Quant research",

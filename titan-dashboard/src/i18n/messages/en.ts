@@ -4,6 +4,15 @@ export const enMessages = {
     cs: "Čeština",
     en: "English",
   },
+  settings: {
+    aria: "Display settings",
+    title: "Type size",
+    type: {
+      sm: "Small",
+      md: "Normal",
+      lg: "Larger",
+    },
+  },
   brand: {
     name: "TITAN FUSION",
     wordmarkLead: "TITAN",
@@ -97,6 +106,23 @@ export const enMessages = {
   },
   heatmap: {
     eyebrow: "COT Heatmap",
+    legendColor: "Big number = commercial 26W index (0–100). 100 = commercials at the 26-week high.",
+    legendRetail: "Amber frame = retail 26W extreme",
+    comm26: "Comm 26W",
+    retailExtreme: "Retail extreme",
+    group: {
+      forex: "Forex",
+      metals: "Metals",
+      commodities: "Commodities",
+      indices: "Indices",
+    },
+    tone: {
+      extreme_long: "Extreme long",
+      strong_long: "Strong long",
+      neutral: "Neutral",
+      strong_short: "Strong short",
+      extreme_short: "Extreme short",
+    },
   },
   category: {
     forex: "Forex",
@@ -652,6 +678,7 @@ export const enMessages = {
     aria: "Main navigation",
     home: "Command Center",
     scanner: "Scanner",
+    heatmap: "Heatmap",
     seasonality: "Seasonality",
     dme: "Dollar Macro",
     modules: "Modules",
@@ -661,6 +688,11 @@ export const enMessages = {
     scanner: {
       eyebrow: "Legacy COT",
       title: "Global COT Scanner",
+    },
+    heatmap: {
+      eyebrow: "Legacy COT",
+      title: "COT Heatmap",
+      description: "Commercial 26W positioning across all mapped markets. Click a cell to open the market detail.",
     },
     seasonality: {
       eyebrow: "Quant research",

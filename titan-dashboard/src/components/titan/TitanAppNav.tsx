@@ -6,7 +6,7 @@ type TitanAppNavProps = {
   onNavigate: (section: AppSection) => void;
 };
 
-const NAV_ORDER: AppSection[] = ["home", "scanner", "seasonality", "dme"];
+const NAV_ORDER: AppSection[] = ["home", "scanner", "heatmap", "seasonality", "dme"];
 
 function NavIcon({ section }: { section: AppSection }) {
   switch (section) {
@@ -22,6 +22,15 @@ function NavIcon({ section }: { section: AppSection }) {
           <path
             fill="currentColor"
             d="M7.1 2.2a4.9 4.9 0 1 0 3.1 8.7l2.6 2.6 1.1-1.1-2.6-2.6A4.9 4.9 0 0 0 7.1 2.2Zm0 1.5a3.4 3.4 0 1 1 0 6.8 3.4 3.4 0 0 1 0-6.8Z"
+          />
+        </svg>
+      );
+    case "heatmap":
+      return (
+        <svg viewBox="0 0 16 16" className="titan-app-nav__icon" aria-hidden>
+          <path
+            fill="currentColor"
+            d="M2 2h3.5v3.5H2V2Zm4.25 0h3.5v3.5h-3.5V2ZM10.5 2H14v3.5h-3.5V2ZM2 6.25h3.5v3.5H2v-3.5Zm4.25 0h3.5v3.5h-3.5v-3.5Zm4.25 0H14v3.5h-3.5v-3.5ZM2 10.5h3.5V14H2v-3.5Zm4.25 0h3.5V14h-3.5v-3.5Zm4.25 0H14V14h-3.5v-3.5Z"
           />
         </svg>
       );
@@ -52,6 +61,8 @@ export function TitanAppNav({ active, onNavigate }: TitanAppNavProps) {
         return t("nav.home");
       case "scanner":
         return t("nav.scanner");
+      case "heatmap":
+        return t("nav.heatmap");
       case "seasonality":
         return t("nav.seasonality");
       case "dme":

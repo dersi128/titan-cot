@@ -2,16 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .text-stone-500 {
+    color: #c5cdd6;
+  }
+  .text-stone-600 {
+    color: #aeb8c3;
+  }
+}
+
 @layer base {
   :root {
     /* UI surface opacity — calmer, more opaque panels */
     --titan-surface-alpha: 0.9;
     --titan-surface-alpha-soft: 0.82;
+    --titan-type-font: 1;
   }
 
   html {
     scroll-behavior: auto;
-    font-size: 15px;
+    font-size: calc(15px * var(--titan-type-font, 1));
+  }
+  html[data-titan-type="sm"] {
+    --titan-type-font: 0.88;
+  }
+  html[data-titan-type="lg"] {
+    --titan-type-font: 1.16;
   }
   body {
     @apply bg-titan-black font-sans text-titan-text antialiased;
@@ -713,7 +729,7 @@
 
   .titan-home-hero-v2__eyebrow {
     margin: 0;
-    font-size: 10px;
+    font-size: calc(10px * var(--titan-type-font, 1));
     font-weight: 650;
     letter-spacing: 0.22em;
     text-transform: uppercase;
@@ -724,7 +740,7 @@
   .titan-home-hero-v2__title {
     margin: 3px 0 0;
     font-family: Outfit, system-ui, sans-serif;
-    font-size: 18px;
+    font-size: calc(18px * var(--titan-type-font, 1));
     font-weight: 700;
     letter-spacing: 0.12em;
     line-height: 1.1;
@@ -735,16 +751,16 @@
 
   @media (min-width: 1280px) {
     .titan-home-hero-v2__title {
-      font-size: 22px;
+      font-size: calc(22px * var(--titan-type-font, 1));
     }
   }
 
   .titan-home-hero-v2__sub {
     margin: 3px 0 0;
-    font-size: 11px;
+    font-size: calc(11px * var(--titan-type-font, 1));
     font-weight: 500;
     letter-spacing: 0.04em;
-    color: #8b9aaa;
+    color: #c2ced9;
   }
 
   .titan-home-hero-v2__meta {
@@ -757,7 +773,7 @@
 
   .titan-home-hero-v2__meta .inline-flex {
     padding: 4px 8px;
-    font-size: 10px;
+    font-size: calc(10px * var(--titan-type-font, 1));
   }
 
   .titan-home-hero-v2__live {
@@ -777,7 +793,7 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    font-size: 10px;
+    font-size: calc(10px * var(--titan-type-font, 1));
     font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -805,7 +821,7 @@
   }
 
   .titan-home-hero-v2__clock-kicker {
-    font-size: 10px;
+    font-size: calc(10px * var(--titan-type-font, 1));
     font-weight: 700;
     letter-spacing: 0.16em;
     text-transform: uppercase;
@@ -817,7 +833,7 @@
     align-items: center;
     gap: 6px;
     font-family: "JetBrains Mono", ui-monospace, monospace;
-    font-size: 12px;
+    font-size: calc(12px * var(--titan-type-font, 1));
     font-weight: 600;
     color: #38bdf8;
   }
@@ -829,8 +845,8 @@
   }
 
   .titan-home-hero-v2__clock-sub {
-    font-size: 10px;
-    color: #7c8998;
+    font-size: calc(10px * var(--titan-type-font, 1));
+    color: #b8c5d2;
   }
 
   .titan-lang-switch {
@@ -846,11 +862,11 @@
   .titan-lang-switch__btn {
     border-radius: 6px;
     padding: 5px 9px;
-    font-size: 10px;
+    font-size: calc(10px * var(--titan-type-font, 1));
     font-weight: 700;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: #7c8998;
+    color: #b8c5d2;
     transition:
       color 0.2s ease,
       background 0.2s ease,
@@ -865,6 +881,88 @@
     background: linear-gradient(180deg, rgba(0, 174, 239, 0.42), rgba(0, 174, 239, 0.18));
     color: #e8f6ff;
     box-shadow: 0 0 12px rgba(0, 174, 239, 0.35);
+  }
+
+  .titan-header-tools {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .titan-display-settings {
+    position: relative;
+  }
+
+  .titan-display-settings__gear {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid rgba(40, 150, 210, 0.28);
+    background: rgba(7, 17, 28, 0.88);
+    color: #d7e3ee;
+    transition:
+      color 0.2s ease,
+      border-color 0.2s ease,
+      background 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .titan-display-settings__gear:hover,
+  .titan-display-settings__gear--open {
+    border-color: rgba(0, 174, 239, 0.7);
+    color: #f4f7fb;
+    background: rgba(0, 174, 239, 0.14);
+    box-shadow: 0 0 12px rgba(0, 174, 239, 0.28);
+  }
+
+  .titan-display-settings__icon {
+    width: 15px;
+    height: 15px;
+  }
+
+  .titan-display-settings__menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 40;
+    min-width: 10.5rem;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid rgba(40, 150, 210, 0.35);
+    background: rgba(7, 17, 28, 0.96);
+    box-shadow: 0 12px 28px -18px rgba(0, 0, 0, 0.85);
+  }
+
+  .titan-display-settings__title {
+    margin: 0 4px 6px;
+    font-size: calc(10px * var(--titan-type-font, 1));
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #c5d4e0;
+  }
+
+  .titan-display-settings__option {
+    display: block;
+    width: 100%;
+    border-radius: 6px;
+    padding: 7px 8px;
+    text-align: left;
+    font-size: calc(12px * var(--titan-type-font, 1));
+    font-weight: 650;
+    color: #d7e3ee;
+  }
+
+  .titan-display-settings__option:hover {
+    background: rgba(0, 174, 239, 0.12);
+    color: #f4f7fb;
+  }
+
+  .titan-display-settings__option--active {
+    background: linear-gradient(180deg, rgba(0, 174, 239, 0.42), rgba(0, 174, 239, 0.18));
+    color: #e8f6ff;
   }
 
   .titan-home-main {
@@ -889,11 +987,11 @@
   }
 
   .titan-cmd-kicker {
-    font-size: 11px;
+    font-size: calc(11px * var(--titan-type-font, 1));
     font-weight: 650;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: #8ba3b8;
+    color: #c5d4e0;
     text-shadow: 0 0 10px rgba(0, 174, 239, 0.18);
   }
 
@@ -921,7 +1019,7 @@
   }
 
   .titan-cmd-sub {
-    font-size: 10px;
+    font-size: calc(10px * var(--titan-type-font, 1));
     line-height: 1.4;
     color: #78716c;
   }
@@ -1154,21 +1252,21 @@
 
   .titan-cmd-watch--bull .titan-cmd-kicker {
     color: #19e6a2;
-    font-size: 12px;
+    font-size: calc(12px * var(--titan-type-font, 1));
     letter-spacing: 0.16em;
     text-shadow: 0 0 12px rgba(16, 217, 154, 0.45);
   }
 
   .titan-cmd-watch--bear .titan-cmd-kicker {
     color: #ff4567;
-    font-size: 12px;
+    font-size: calc(12px * var(--titan-type-font, 1));
     letter-spacing: 0.16em;
     text-shadow: 0 0 12px rgba(255, 69, 103, 0.45);
   }
 
   .titan-conviction-stars {
     letter-spacing: 0.04em;
-    font-size: 12px;
+    font-size: calc(12px * var(--titan-type-font, 1));
   }
 
   .titan-conviction-stars__on {
@@ -1217,7 +1315,7 @@
     background: rgba(46, 168, 255, 0.06);
     padding: 0.5rem 0.75rem;
     text-align: left;
-    font-size: 10px;
+    font-size: calc(10px * var(--titan-type-font, 1));
     font-weight: 600;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -1270,11 +1368,11 @@
     border: 1px solid rgba(40, 150, 210, 0.22);
     background: rgba(5, 11, 18, 0.72);
     padding: 5px 10px;
-    font-size: 10px;
+    font-size: calc(10px * var(--titan-type-font, 1));
     font-weight: 650;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: #7c8998;
+    color: #b8c5d2;
     transition:
       border-color 0.2s ease,
       color 0.2s ease,
@@ -1332,11 +1430,11 @@
   .titan-app-nav__slogan {
     display: none;
     margin: 0 0 0 auto;
-    font-size: 9px;
+    font-size: calc(9px * var(--titan-type-font, 1));
     font-weight: 600;
     letter-spacing: 0.28em;
     text-transform: uppercase;
-    color: #8b9aaa;
+    color: #c2ced9;
     white-space: nowrap;
   }
 
@@ -1438,7 +1536,7 @@
     border: 1px solid rgba(255, 255, 255, 0.12);
     background: rgba(0, 0, 0, 0.35);
     padding: 0.35rem 0.6rem;
-    font-size: 9px;
+    font-size: calc(9px * var(--titan-type-font, 1));
     font-weight: 600;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -1458,7 +1556,7 @@
     border: 1px solid rgba(46, 168, 255, 0.22);
     background: rgba(8, 12, 18, 0.92);
     padding: 0.4rem 0.75rem;
-    font-size: 10px;
+    font-size: calc(10px * var(--titan-type-font, 1));
     font-weight: 600;
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -1502,7 +1600,7 @@
     border-right: 1px solid rgba(255, 255, 255, 0.08);
     background: transparent;
     padding: 0.45rem 0.65rem;
-    font-size: 10px;
+    font-size: calc(10px * var(--titan-type-font, 1));
     font-weight: 600;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -1545,7 +1643,7 @@
 
   .titan-seasonality-table thead {
     background: rgba(0, 0, 0, 0.35);
-    font-size: 9px;
+    font-size: calc(9px * var(--titan-type-font, 1));
     font-weight: 600;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -1586,7 +1684,7 @@
 
   .titan-seasonality-alignment__value {
     font-family: var(--font-display, "Cinzel", serif);
-    font-size: 11px;
+    font-size: calc(11px * var(--titan-type-font, 1));
     font-weight: 700;
     letter-spacing: 0.16em;
   }
@@ -1698,7 +1796,7 @@
     gap: 0.5rem;
     border-radius: 2px;
     padding: 0.28rem 0.35rem;
-    font-size: 10px;
+    font-size: calc(10px * var(--titan-type-font, 1));
   }
 
   .titan-seasonality-year-panel__row--current {
@@ -1745,7 +1843,7 @@
 
   .titan-seasonality-year-panel__vs10y {
     font-family: var(--font-mono, ui-monospace, monospace);
-    font-size: 8px;
+    font-size: calc(8px * var(--titan-type-font, 1));
     font-weight: 600;
     letter-spacing: 0.04em;
     color: rgba(46, 168, 255, 0.75);
@@ -1856,7 +1954,7 @@
   }
 
   .titan-seasonality-legend-item__label {
-    font-size: 10px;
+    font-size: calc(10px * var(--titan-type-font, 1));
     font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -1879,7 +1977,7 @@
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    font-size: 9px;
+    font-size: calc(9px * var(--titan-type-font, 1));
     font-weight: 600;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -1917,7 +2015,7 @@
     border: 1px solid rgba(46, 168, 255, 0.22);
     background: rgba(0, 0, 0, 0.35);
     padding: 0.35rem 0.6rem;
-    font-size: 9px;
+    font-size: calc(9px * var(--titan-type-font, 1));
     font-weight: 700;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -2037,7 +2135,7 @@
     background: rgba(8, 12, 18, 0.95);
     padding: 0.5rem 0.8rem;
     color: #f5f5f4;
-    font-size: 12px;
+    font-size: calc(12px * var(--titan-type-font, 1));
     font-weight: 600;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -2055,7 +2153,7 @@
     background: rgba(8, 12, 18, 0.95);
     padding: 0.5rem 0.8rem;
     text-align: left;
-    font-size: 13px;
+    font-size: calc(13px * var(--titan-type-font, 1));
     font-weight: 600;
     color: #ffffff;
     letter-spacing: 0.02em;
@@ -2070,7 +2168,7 @@
 
   .titan-filter-select-btn__caret {
     flex-shrink: 0;
-    font-size: 10px;
+    font-size: calc(10px * var(--titan-type-font, 1));
     color: #a8a29e;
   }
 
@@ -2093,7 +2191,7 @@
     width: 100%;
     padding: 0.6rem 1rem;
     text-align: left;
-    font-size: 13px;
+    font-size: calc(13px * var(--titan-type-font, 1));
     font-weight: 500;
     line-height: 1.4;
     color: #f5f5f4;
@@ -2121,7 +2219,7 @@
     border-radius: 0.35rem;
     background: rgba(12, 16, 24, 0.95);
     padding: 0.5rem 0.75rem;
-    font-size: 13px;
+    font-size: calc(13px * var(--titan-type-font, 1));
     color: #fafaf9;
     outline: none;
     box-shadow: 0 0 12px -6px rgba(46, 168, 255, 0.16);
@@ -2921,7 +3019,7 @@
   border-radius: 0.65rem;
   background: rgba(8, 10, 14, 0.45);
   color: #a8a29e;
-  font-size: 12.5px;
+  font-size: calc(12.5px * var(--titan-type-font, 1));
   line-height: 1.45;
   backdrop-filter: blur(8px);
 }
@@ -2966,7 +3064,7 @@
   flex: 1;
   border-radius: 0.4rem;
   padding: 0.55rem 0.65rem;
-  font-size: 10px;
+  font-size: calc(10px * var(--titan-type-font, 1));
   font-weight: 650;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -3074,7 +3172,7 @@
 .titan-cmd-flow-card .titan-cmd-kicker {
   flex-shrink: 0;
   margin: 0;
-  font-size: 9px;
+  font-size: calc(9px * var(--titan-type-font, 1));
   line-height: 1;
   color: #e8eef5;
   letter-spacing: 0.16em;
@@ -3112,7 +3210,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 9px;
+  font-size: calc(9px * var(--titan-type-font, 1));
   font-weight: 650;
   letter-spacing: 0.12em;
   line-height: 1;
@@ -3132,7 +3230,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   padding: 0 5px;
-  font-size: 8px;
+  font-size: calc(8px * var(--titan-type-font, 1));
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -3141,7 +3239,7 @@
 
 .titan-cmd-flow__dir {
   flex-shrink: 0;
-  font-size: 9px;
+  font-size: calc(9px * var(--titan-type-font, 1));
   font-weight: 650;
   letter-spacing: 0.08em;
   line-height: 1;
@@ -3149,8 +3247,8 @@
 }
 
 .titan-cmd-flow__empty {
-  font-size: 11px;
-  color: #7c8998;
+  font-size: calc(11px * var(--titan-type-font, 1));
+  color: #b8c5d2;
 }
 
 .titan-cmd-watch__list {
@@ -3168,7 +3266,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 12px;
+  font-size: calc(12px * var(--titan-type-font, 1));
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -3179,7 +3277,7 @@
 .titan-cmd-watch__conv {
   flex-shrink: 0;
   font-family: "JetBrains Mono", ui-monospace, monospace;
-  font-size: 12px;
+  font-size: calc(12px * var(--titan-type-font, 1));
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
@@ -3194,8 +3292,8 @@
 
 .titan-cmd-watch__empty {
   padding: 12px 0;
-  font-size: 11px;
-  color: #7c8998;
+  font-size: calc(11px * var(--titan-type-font, 1));
+  color: #b8c5d2;
 }
 
 .titan-cmd-conviction {
@@ -3218,7 +3316,7 @@
 
 .titan-cmd-shifts .titan-cmd-kicker,
 .titan-cmd-conviction .titan-cmd-kicker {
-  font-size: 12px;
+  font-size: calc(12px * var(--titan-type-font, 1));
   letter-spacing: 0.12em;
   white-space: nowrap;
 }
@@ -3241,7 +3339,7 @@
   justify-content: flex-end;
   gap: 6px;
   overflow: hidden;
-  font-size: 12px;
+  font-size: calc(12px * var(--titan-type-font, 1));
   font-weight: 650;
   letter-spacing: 0.02em;
   color: #9aa8b5;
@@ -3287,20 +3385,25 @@
 
 .titan-season-panel__score-label {
   font-family: "JetBrains Mono", ui-monospace, monospace;
-  font-size: 10px;
+  font-size: calc(10px * var(--titan-type-font, 1));
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #7c8998;
+  color: #b8c5d2;
 }
 
 .titan-season-panel__empty {
   margin-top: 8px;
-  font-size: 11px;
-  color: #7c8998;
+  font-size: calc(11px * var(--titan-type-font, 1));
+  color: #b8c5d2;
 }
 
 .titan-season-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   margin-top: 8px;
+  padding: 0;
+  list-style: none;
 }
 
 .titan-season-row {
@@ -3321,8 +3424,8 @@
 
 .titan-season-row__idx {
   font-family: "JetBrains Mono", ui-monospace, monospace;
-  font-size: 10px;
-  color: #7c8998;
+  font-size: calc(10px * var(--titan-type-font, 1));
+  color: #b8c5d2;
 }
 
 .titan-season-row__body {
@@ -3340,7 +3443,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 13px;
+  font-size: calc(13px * var(--titan-type-font, 1));
   font-weight: 650;
 }
 
@@ -3348,8 +3451,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 10px;
-  color: #7c8998;
+  font-size: calc(10px * var(--titan-type-font, 1));
+  color: #b8c5d2;
 }
 
 .titan-season-row__bar {
@@ -3368,7 +3471,7 @@
 .titan-season-row__score {
   text-align: right;
   font-family: "JetBrains Mono", ui-monospace, monospace;
-  font-size: 13px;
+  font-size: calc(13px * var(--titan-type-font, 1));
   font-weight: 700;
   color: #f4f7fb;
 }
@@ -3464,7 +3567,7 @@
 .titan-usd-macro__kicker {
   margin: 0;
   color: var(--usd-accent);
-  font-size: 11px;
+  font-size: calc(11px * var(--titan-type-font, 1));
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -3473,7 +3576,7 @@
 .titan-usd-macro__bias {
   margin: 4px 0 4px;
   font-family: Outfit, system-ui, sans-serif;
-  font-size: clamp(20px, 2.1vw, 28px);
+  font-size: clamp(calc(20px * var(--titan-type-font, 1)), 2.1vw, calc(28px * var(--titan-type-font, 1)));
   font-weight: 700;
   letter-spacing: 0.04em;
   line-height: 1.1;
@@ -3484,8 +3587,8 @@
 
 .titan-usd-macro__sub {
   margin: 0;
-  color: #7c8998;
-  font-size: 11px;
+  color: #b8c5d2;
+  font-size: calc(11px * var(--titan-type-font, 1));
 }
 
 .titan-usd-macro__ring {
@@ -3495,16 +3598,16 @@
 }
 
 .titan-usd-macro__ring figcaption span:first-child {
-  font-size: 22px;
+  font-size: calc(22px * var(--titan-type-font, 1));
   line-height: 1;
   color: #f4f7fb;
 }
 
 .titan-usd-macro__ring figcaption span:last-child {
   margin-top: 2px;
-  font-size: 10px;
+  font-size: calc(10px * var(--titan-type-font, 1));
   letter-spacing: 0.16em;
-  color: #7c8998;
+  color: #b8c5d2;
 }
 
 .titan-usd-macro--bullish .titan-score-ring-100__arc {
@@ -3606,9 +3709,37 @@
   .titan-home-main--fit .titan-season-panel {
     flex: 1 1 auto;
     min-height: 0;
+    padding: 8px 10px;
   }
 
-  .titan-home-main--fit .titan-season-list,
+  .titan-home-main--fit .titan-season-list {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    gap: 3px;
+    margin-top: 6px;
+  }
+
+  .titan-home-main--fit .titan-season-list > li {
+    display: flex;
+    flex: 1 1 0;
+    min-height: 0;
+  }
+
+  .titan-home-main--fit .titan-season-row {
+    flex: 1 1 auto;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    padding: 2px 5px;
+    gap: 6px;
+  }
+
+  .titan-home-main--fit .titan-season-row__bar {
+    margin-top: 2px;
+    height: 3px;
+  }
+
   .titan-home-main--fit .titan-cmd-watch__list,
   .titan-home-main--fit .titan-cmd-shifts__list {
     flex: 1 1 auto;
@@ -3631,4 +3762,203 @@
   .titan-usd-macro__art {
     object-position: 80% center;
   }
+}
+
+.titan-heatmap-board {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.titan-heatmap-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 174, 239, 0.22);
+  background: rgba(5, 11, 18, 0.55);
+}
+
+.titan-heatmap-legend__label {
+  font-size: calc(10px * var(--titan-type-font, 1));
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #c5d4e0;
+}
+
+.titan-heatmap-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: calc(10px * var(--titan-type-font, 1));
+  color: #c5d0da;
+}
+
+.titan-heatmap-legend__swatch,
+.titan-heatmap-legend__ring {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.titan-heatmap-legend__ring {
+  border: 1.5px solid rgba(245, 185, 66, 0.85);
+  background: transparent;
+}
+
+.titan-heatmap-group {
+  padding: 12px !important;
+}
+
+.titan-heatmap-group .titan-cmd-kicker {
+  margin: 0 0 10px;
+}
+
+.titan-heatmap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(138px, 1fr));
+  gap: 8px;
+}
+
+.titan-heatmap-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 118px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(8, 12, 18, 0.72);
+  text-align: left;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+
+.titan-heatmap-cell:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.titan-heatmap-cell:disabled {
+  cursor: not-allowed;
+  opacity: 0.38;
+}
+
+.titan-heatmap-cell--active {
+  box-shadow:
+    0 0 0 1px rgba(46, 168, 255, 0.45),
+    0 0 18px -6px rgba(46, 168, 255, 0.45);
+}
+
+.titan-heatmap-cell--retail {
+  box-shadow: inset 0 0 0 1.5px rgba(245, 185, 66, 0.75);
+}
+
+.titan-heatmap-cell--retail.titan-heatmap-cell--active {
+  box-shadow:
+    inset 0 0 0 1.5px rgba(245, 185, 66, 0.75),
+    0 0 0 1px rgba(46, 168, 255, 0.45),
+    0 0 18px -6px rgba(46, 168, 255, 0.45);
+}
+
+.titan-heatmap-cell--extreme_long,
+.titan-heatmap-swatch--extreme_long {
+  border-color: rgba(16, 217, 154, 0.58);
+  background: linear-gradient(180deg, rgba(16, 217, 154, 0.24), rgba(5, 14, 12, 0.9));
+}
+
+.titan-heatmap-cell--strong_long,
+.titan-heatmap-swatch--strong_long {
+  border-color: rgba(16, 217, 154, 0.32);
+  background: linear-gradient(180deg, rgba(16, 217, 154, 0.12), rgba(5, 12, 16, 0.88));
+}
+
+.titan-heatmap-cell--neutral,
+.titan-heatmap-swatch--neutral {
+  border-color: rgba(125, 211, 252, 0.2);
+  background: linear-gradient(180deg, rgba(8, 16, 26, 0.72), rgba(5, 11, 18, 0.88));
+}
+
+.titan-heatmap-cell--strong_short,
+.titan-heatmap-swatch--strong_short {
+  border-color: rgba(255, 69, 103, 0.32);
+  background: linear-gradient(180deg, rgba(255, 69, 103, 0.12), rgba(16, 7, 12, 0.88));
+}
+
+.titan-heatmap-cell--extreme_short,
+.titan-heatmap-swatch--extreme_short {
+  border-color: rgba(255, 69, 103, 0.58);
+  background: linear-gradient(180deg, rgba(255, 69, 103, 0.24), rgba(16, 7, 12, 0.9));
+}
+
+.titan-heatmap-cell--empty,
+.titan-heatmap-swatch--empty {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(8, 12, 18, 0.45);
+}
+
+.titan-heatmap-cell__head {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 8px;
+}
+
+.titan-heatmap-cell__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: calc(12px * var(--titan-type-font, 1));
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #f4f7fb;
+}
+
+.titan-heatmap-cell__index {
+  margin-top: 8px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: calc(22px * var(--titan-type-font, 1));
+  font-weight: 700;
+  line-height: 1;
+  color: #f4f7fb;
+}
+
+.titan-heatmap-cell__meta {
+  display: flex;
+  width: 100%;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: calc(9px * var(--titan-type-font, 1));
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #b8c5d2;
+}
+
+.titan-heatmap-cell__score {
+  margin-top: 4px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: calc(10px * var(--titan-type-font, 1));
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.titan-heatmap-cell__retail {
+  margin-top: auto;
+  padding-top: 6px;
+  font-size: calc(8px * var(--titan-type-font, 1));
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #f5b942;
 }

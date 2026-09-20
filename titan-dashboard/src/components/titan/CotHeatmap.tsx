@@ -1,9 +1,15 @@
-import type { CotDashboardData } from "../../types";
 import { computeTitanDashboardScore, scoreHeatClass } from "../../lib/titanCotScore";
+import { formatCommercialIndex } from "../../lib/titanCotIndexSettings";
+import {
+  groupMarketsForHeatmap,
+  heatmapToneFromComm26,
+  isRetailExtreme,
+  type HeatmapCellTone,
+} from "../../lib/titanHeatmapVisuals";
+import type { CotDashboardData } from "../../types";
 import type { InstitutionalMarket } from "../../config/institutionalMarkets";
 import { useTitanI18n } from "../../i18n";
 import { TitanMarketIcon } from "./TitanMarketIcon";
-import { TitanPanel, TitanPanelHeader } from "./ui/TitanPrimitives";
 
 type CotHeatmapProps = {
   markets: readonly InstitutionalMarket[];
@@ -12,88 +18,79 @@ type CotHeatmapProps = {
   onSelectMarket: (market: InstitutionalMarket) => void;
 };
 
-function cellVisuals(data: CotDashboardData | undefined): {
-  bg: string;
-  border: string;
-  ring: string;
-  score: number | null;
-} {
-  if (!data) {
-    return { bg: "bg-titan-elevated/40", border: "border-titan-line/60", ring: "", score: null };
-  }
-  const c = data.commercials;
-  const r = data.retail;
-  const score = computeTitanDashboardScore(data);
-
-  let bg = "bg-titan-elevated/70";
-  let border = "border-titan-line/70";
-  if (c.index26w > 80) {
-    bg = "bg-emerald-950/80";
-    border = "border-emerald-600/30";
-  } else if (c.index26w < 20) {
-    bg = "bg-rose-950/80";
-    border = "border-rose-600/30";
-  } else if (c.index26w > 60) {
-    bg = "bg-emerald-950/45";
-    border = "border-emerald-800/25";
-  } else if (c.index26w < 40) {
-    bg = "bg-rose-950/45";
-    border = "border-rose-800/25";
-  }
-
-  let ring = "";
-  if (r.index26w > 80 || r.index26w < 20) {
-    ring = "ring-1 ring-amber-400/45 ring-offset-1 ring-offset-titan-panel";
-  }
-
-  return { bg, border, ring, score };
-}
+const LEGEND_TONES: Exclude<HeatmapCellTone, "empty">[] = [
+  "extreme_long",
+  "strong_long",
+  "neutral",
+  "strong_short",
+  "extreme_short",
+];
 
 export function CotHeatmap({ markets, bundle, selectedMarket, onSelectMarket }: CotHeatmapProps) {
   const { t } = useTitanI18n();
+  const groups = groupMarketsForHeatmap(markets);
 
   return (
-    <TitanPanel delayMs={80}>
-      <TitanPanelHeader eyebrow={t("heatmap.eyebrow")} />
-      <div className="grid grid-cols-2 gap-2.5 p-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-        {markets.map((m) => {
-          const data = bundle[m.symbol];
-          const { bg, border, ring, score } = cellVisuals(data);
-          const active = m.symbol === selectedMarket.symbol;
-          return (
-            <button
-              key={m.id}
-              type="button"
-              aria-pressed={active}
-              disabled={!data}
-              onClick={() => data && onSelectMarket(m)}
-              className={`titan-heatmap-cell group relative flex flex-col rounded-xl border px-3 py-3.5 text-left transition-all duration-300 ${bg} ${border} ${ring} ${
-                active
-                  ? "z-10 border-titan-gold/45 shadow-[0_0_0_1px_rgba(46, 168, 255,0.28)]"
-                  : ""
-              } ${data ? "hover:border-titan-gold/35 hover:shadow-card active:scale-[0.99]" : "cursor-not-allowed opacity-35"}`}
-            >
-              <div className="flex items-center gap-2.5">
-                <TitanMarketIcon market={m} size="sm" score={score ?? undefined} />
-                <span className="font-display text-sm font-semibold text-stone-100">{m.shortLabel}</span>
-              </div>
-              <span className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-stone-500">
-                {m.symbol}
-              </span>
-              {score !== null ? (
-                <span className={`mt-3 font-mono text-xl font-semibold tabular-nums ${scoreHeatClass(score)}`}>
-                  {score}
-                </span>
-              ) : (
-                <span className="mt-3 font-mono text-sm text-stone-600 animate-pulse-soft">…</span>
-              )}
-              <span className="mt-0.5 text-[9px] uppercase tracking-widest text-stone-600 group-hover:text-titan-goldDim">
-                TITAN
-              </span>
-            </button>
-          );
-        })}
+    <div className="titan-heatmap-board">
+      <div className="titan-heatmap-legend" aria-label={t("heatmap.legendColor")}>
+        <span className="titan-heatmap-legend__label">{t("heatmap.legendColor")}</span>
+        {LEGEND_TONES.map((tone) => (
+          <span key={tone} className="titan-heatmap-legend__item">
+            <i className={`titan-heatmap-legend__swatch titan-heatmap-swatch--${tone}`} aria-hidden />
+            {t(`heatmap.tone.${tone}`)}
+          </span>
+        ))}
+        <span className="titan-heatmap-legend__item">
+          <i className="titan-heatmap-legend__ring" aria-hidden />
+          {t("heatmap.legendRetail")}
+        </span>
       </div>
-    </TitanPanel>
+
+      {groups.map((group) => (
+        <section key={group.group} className="titan-heatmap-group titan-cmd-card">
+          <h3 className="titan-cmd-kicker">{t(`heatmap.group.${group.group}`)}</h3>
+          <div className="titan-heatmap-grid">
+            {group.markets.map((market) => {
+              const data = bundle[market.symbol];
+              const comm26 = data?.commercials.index26w;
+              const tone = heatmapToneFromComm26(comm26);
+              const retail = isRetailExtreme(data?.retail.index26w);
+              const score = data ? computeTitanDashboardScore(data) : null;
+              const active = market.symbol === selectedMarket.symbol;
+              return (
+                <button
+                  key={market.id}
+                  type="button"
+                  aria-pressed={active}
+                  disabled={!data}
+                  onClick={() => data && onSelectMarket(market)}
+                  className={`titan-heatmap-cell titan-heatmap-cell--${tone}${retail ? " titan-heatmap-cell--retail" : ""}${active ? " titan-heatmap-cell--active" : ""}`}
+                >
+                  <span className="titan-heatmap-cell__head">
+                    <TitanMarketIcon market={market} size="sm" score={score ?? undefined} />
+                    <span className="titan-heatmap-cell__name">{market.shortLabel}</span>
+                  </span>
+                  <span className="titan-heatmap-cell__index">
+                    {data ? formatCommercialIndex(comm26) : "…"}
+                  </span>
+                  <span className="titan-heatmap-cell__meta">
+                    <span>{t("heatmap.comm26")}</span>
+                    {tone !== "empty" ? <span>{t(`heatmap.tone.${tone}`)}</span> : null}
+                  </span>
+                  {score !== null ? (
+                    <span className={`titan-heatmap-cell__score ${scoreHeatClass(score)}`}>
+                      TITAN {score > 0 ? `+${score}` : score}
+                    </span>
+                  ) : null}
+                  {retail ? (
+                    <span className="titan-heatmap-cell__retail">{t("heatmap.retailExtreme")}</span>
+                  ) : null}
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      ))}
+    </div>
   );
 }

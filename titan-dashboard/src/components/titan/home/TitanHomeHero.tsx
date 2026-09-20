@@ -1,6 +1,7 @@
 import { TitanLogo } from "../../TitanLogo";
-import { LanguageSwitcher, useTitanI18n } from "../../../i18n";
+import { useTitanI18n } from "../../../i18n";
 import { TitanUserButton } from "../../../auth/TitanUserButton";
+import { TitanHeaderTools } from "../ui/TitanHeaderTools";
 import type { AppSection } from "../../../lib/titanAppRoute";
 
 type TitanHomeHeroProps = {
@@ -14,6 +15,8 @@ function sectionEyebrow(section: AppSection, t: (key: string) => string): string
   switch (section) {
     case "scanner":
       return t("nav.scanner");
+    case "heatmap":
+      return t("nav.heatmap");
     case "seasonality":
       return t("nav.seasonality");
     case "dme":
@@ -46,7 +49,7 @@ export function TitanHomeHero({
       </div>
 
       <div className="titan-home-hero-v2__meta">
-        <LanguageSwitcher />
+        <TitanHeaderTools />
         <TitanUserButton />
         <div className="titan-home-hero-v2__live">
           <span className="titan-home-hero-v2__live-row">

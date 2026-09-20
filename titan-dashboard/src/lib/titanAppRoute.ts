@@ -3,7 +3,7 @@ import {
   type PresidentialCyclePhase,
 } from "../seasonality/utils/presidentialCycle";
 
-export type AppSection = "home" | "scanner" | "seasonality" | "dme";
+export type AppSection = "home" | "scanner" | "heatmap" | "seasonality" | "dme";
 
 export type DashboardView = AppSection | "market";
 
@@ -14,7 +14,7 @@ export type NavigateSectionOptions = {
   seasonalityCycles?: PresidentialCyclePhase[];
 };
 
-const SECTIONS: AppSection[] = ["home", "scanner", "seasonality", "dme"];
+const SECTIONS: AppSection[] = ["home", "scanner", "heatmap", "seasonality", "dme"];
 
 function hashPathAndQuery(): { path: string; query: string } {
   const raw = window.location.hash.replace(/^#\/?/, "");

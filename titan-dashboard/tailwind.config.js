@@ -16,7 +16,7 @@ export default {
           bull: "#10D99A",
           bear: "#FF4567",
           text: "#F4F7FB",
-          muted: "#7C8998",
+          muted: "#C5D0DA",
         },
       },
       fontFamily: {

@@ -10,6 +10,7 @@ import {
 import { TitanInstitutionalBackdrop } from "../components/TitanInstitutionalBackdrop";
 import { TitanLogo } from "../components/TitanLogo";
 import { LanguageSwitcher, useTitanI18n } from "../i18n";
+import { TitanDisplaySettings } from "../components/titan/ui/TitanDisplaySettings";
 import { titanClerkAppearance } from "./clerkAppearance";
 
 type TitanAuthGateProps = {
@@ -313,8 +314,9 @@ function AuthLanding() {
 
   return (
     <AuthShell>
-      <div className="absolute right-4 top-4 z-20 sm:right-6 sm:top-6">
+      <div className="absolute right-4 top-4 z-20 flex items-center gap-2 sm:right-6 sm:top-6">
         <LanguageSwitcher />
+        <TitanDisplaySettings />
       </div>
 
       <div className="mx-auto grid min-h-screen w-full max-w-[1120px] items-center gap-10 px-5 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 lg:px-8 lg:py-10">
