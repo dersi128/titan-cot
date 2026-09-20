@@ -16,7 +16,6 @@
     /* UI surface opacity — calmer, more opaque panels */
     --titan-surface-alpha: 0.9;
     --titan-surface-alpha-soft: 0.82;
-    --titan-ui-zoom: 1;
     --titan-type-font: 1;
   }
 
@@ -25,15 +24,10 @@
     font-size: calc(15px * var(--titan-type-font, 1));
   }
   html[data-titan-type="sm"] {
-    --titan-ui-zoom: 0.9;
+    --titan-type-font: 0.88;
   }
   html[data-titan-type="lg"] {
     --titan-type-font: 1.16;
-  }
-  #root {
-    zoom: var(--titan-ui-zoom);
-    width: calc(100% / var(--titan-ui-zoom));
-    min-height: calc(100dvh / var(--titan-ui-zoom));
   }
   body {
     @apply bg-titan-black font-sans text-titan-text antialiased;
@@ -3648,8 +3642,8 @@
 
   .titan-page-bg--home-fit,
   .titan-content-layer--home-fit {
-    height: calc(100dvh / var(--titan-ui-zoom));
-    max-height: calc(100dvh / var(--titan-ui-zoom));
+    height: 100dvh;
+    max-height: 100dvh;
     overflow: hidden;
   }
 
