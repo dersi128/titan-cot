@@ -4,14 +4,15 @@
 
 import type { CotDashboardData, CotHistoryPoint } from "../types";
 import { calculateCotIndex, computeUnifiedCotScore, IDX_HI, IDX_LO } from "./titanCotScoringCore";
+import { evaluateCotBuySellFromHistory } from "./titanCotBuySell";
 import {
   commercialIndexBand,
   getCotIndexZoneThresholds,
   type CotIndexBandId,
 } from "./titanCotIndexSettings";
 
-export const THR_HIGH = 75;
-export const THR_LOW = 25;
+export const THR_HIGH = 80;
+export const THR_LOW = 20;
 
 export type CommercialZoneId =
   | "extreme_short"
@@ -365,20 +366,19 @@ function evaluateTitanPositioningCore(data: CotDashboardData): TitanPositioningR
   const commSeries = buildCommercialIndexSeries(history);
   const retailSeries = buildRetailIndexSeries(history);
   const prevCommercialIndex = commSeries.length >= 2 ? commSeries[commSeries.length - 2]! : null;
+  const pine = evaluateCotBuySellFromHistory(history);
 
-  const smTurnDown =
-    prevCommercialIndex !== null && crossunder(prevCommercialIndex, commercialIndex, THR_HIGH);
-  const smTurnUp =
-    prevCommercialIndex !== null && crossover(prevCommercialIndex, commercialIndex, THR_LOW);
+  const smTurnDown = pine?.sigExitSell ?? (prevCommercialIndex !== null && crossunder(prevCommercialIndex, commercialIndex, THR_HIGH));
+  const smTurnUp = pine?.sigExitBuy ?? (prevCommercialIndex !== null && crossover(prevCommercialIndex, commercialIndex, THR_LOW));
 
   const retailConfirmsTop = smTurnDown && retailIndex <= THR_LOW;
   const retailConfirmsBottom = smTurnUp && retailIndex >= THR_HIGH;
 
   let reversal: ReversalStateId = "none";
-  if (retailConfirmsTop) reversal = "confirmed_top";
-  else if (retailConfirmsBottom) reversal = "confirmed_bottom";
-  else if (smTurnDown) reversal = "potential_top";
-  else if (smTurnUp) reversal = "potential_bottom";
+  if (pine?.sigExitSell || retailConfirmsTop) reversal = "confirmed_top";
+  else if (pine?.sigExitBuy || retailConfirmsBottom) reversal = "confirmed_bottom";
+  else if (pine?.armedSell || pine?.sigTouchSell || smTurnDown) reversal = "potential_top";
+  else if (pine?.armedBuy || pine?.sigTouchBuy || smTurnUp) reversal = "potential_bottom";
   const divergence = evaluateInstitutionalDivergence(data);
   const retailContrarianExtreme =
     (commercialIndex <= THR_LOW && retailIndex >= THR_HIGH) ||

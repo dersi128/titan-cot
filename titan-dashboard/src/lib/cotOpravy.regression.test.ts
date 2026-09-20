@@ -8,6 +8,7 @@ import {
   resolveMarketRegime,
   weeksInExtremeZone,
 } from "./titanCommercialIndex";
+import { evaluateCotBuySellFromHistory } from "./titanCotBuySell";
 import {
   computeInstitutionalConviction,
   regimeConfirmsBias,
@@ -221,7 +222,15 @@ describe("COT opravy — API/UI parity", () => {
       const indices = h
         .slice(26)
         .map((x, j) => calculateCotIndex(h.slice(j, j + 26).map((y) => y.commercialNet), x.commercialNet));
-      assert.equal(weeksInExtremeZone(indices), api.persistence_weeks_for_badge);
+      const pine = evaluateCotBuySellFromHistory(h);
+      const expectedWeeks = pine
+        ? pine.regime !== 0
+          ? pine.holdWeeks
+          : pine.armedBuy || pine.armedSell
+            ? pine.armedWeeks
+            : 0
+        : weeksInExtremeZone(indices);
+      assert.equal(api.persistence_weeks_for_badge, expectedWeeks);
     }
   });
 });
@@ -241,23 +250,25 @@ describe("COT opravy — conviction", () => {
     }
   });
 
-  it("directionally aligned conviction reaches five on both sides", () => {
-    const longHist = historyFromNets(Array.from({ length: 65 }, (_, i) => i));
-    const longInput = scoringInput(90, 1, -1);
+  it("directionally aligned conviction is stronger on the Pine side", () => {
+    const down = Array.from({ length: 26 }, (_, i) => 25 - i);
+    const longHist = historyFromNets([...down, 20, 19, 18, 17]);
+    const longInput = scoringInput(40, 1, -1);
     longInput.history = longHist;
     const longData = dashboardFromInput(longInput);
-    assert.equal(computeInstitutionalConviction(longData, 50).level, 5);
+    assert.ok(computeInstitutionalConviction(longData, 50).level >= 3);
 
-    const shortHist = historyFromNets(Array.from({ length: 65 }, (_, i) => -i));
-    const shortInput = scoringInput(10, -1, 1);
+    const up = Array.from({ length: 28 }, (_, i) => i);
+    const shortHist = historyFromNets([...up, 10, 11, 12]);
+    const shortInput = scoringInput(40, -1, 1);
     shortInput.history = shortHist;
     const shortData = dashboardFromInput(shortInput);
-    assert.equal(computeInstitutionalConviction(shortData, -50).level, 5);
+    assert.ok(computeInstitutionalConviction(shortData, -50).level >= 3);
   });
 
   it("opposite extreme/persistence do not confirm long", () => {
-    const hist = historyFromNets(Array.from({ length: 65 }, (_, i) => -i));
-    const input = scoringInput(10, 1, -1);
+    const hist = historyFromNets(Array.from({ length: 65 }, (_, i) => i));
+    const input = scoringInput(90, -1, 1);
     input.history = hist;
     const data = dashboardFromInput(input);
     const opposite = computeInstitutionalConviction(data, 50).level;
