@@ -4,6 +4,15 @@ export const enMessages = {
     cs: "Čeština",
     en: "English",
   },
+  settings: {
+    aria: "Display settings",
+    title: "Type size",
+    type: {
+      sm: "Small",
+      md: "Normal",
+      lg: "Larger",
+    },
+  },
   brand: {
     name: "TITAN FUSION",
     wordmarkLead: "TITAN",

@@ -6,6 +6,15 @@ export const csMessages: Messages = {
     cs: "Čeština",
     en: "English",
   },
+  settings: {
+    aria: "Nastavení zobrazení",
+    title: "Velikost písma",
+    type: {
+      sm: "Malé",
+      md: "Normální",
+      lg: "Větší",
+    },
+  },
   brand: {
     name: "TITAN FUSION",
     wordmarkLead: "TITAN",

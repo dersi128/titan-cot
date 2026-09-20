@@ -1,6 +1,7 @@
 import { TitanLogo } from "../../TitanLogo";
-import { LanguageSwitcher, useTitanI18n } from "../../../i18n";
+import { useTitanI18n } from "../../../i18n";
 import { TitanUserButton } from "../../../auth/TitanUserButton";
+import { TitanHeaderTools } from "../ui/TitanHeaderTools";
 import type { AppSection } from "../../../lib/titanAppRoute";
 
 type TitanHomeHeroProps = {
@@ -48,7 +49,7 @@ export function TitanHomeHero({
       </div>
 
       <div className="titan-home-hero-v2__meta">
-        <LanguageSwitcher />
+        <TitanHeaderTools />
         <TitanUserButton />
         <div className="titan-home-hero-v2__live">
           <span className="titan-home-hero-v2__live-row">

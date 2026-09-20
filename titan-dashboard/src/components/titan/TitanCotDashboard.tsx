@@ -36,9 +36,11 @@ import { MarketDetailPanel } from "./MarketDetailPanel";
 
 import { TitanDetailErrorBoundary } from "./TitanDetailErrorBoundary";
 
-import { LanguageSwitcher, useTitanI18n } from "../../i18n";
+import { useTitanI18n } from "../../i18n";
 
 import { TitanLivePill } from "./ui/TitanPrimitives";
+
+import { TitanHeaderTools } from "./ui/TitanHeaderTools";
 
 import { TitanUserButton } from "../../auth/TitanUserButton";
 
@@ -382,7 +384,7 @@ export function TitanCotDashboard() {
 
                 <div className="flex flex-wrap items-center gap-3 lg:justify-end">
 
-                  <LanguageSwitcher />
+                  <TitanHeaderTools />
 
                   <TitanUserButton />
 
