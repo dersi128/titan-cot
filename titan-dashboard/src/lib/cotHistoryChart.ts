@@ -7,6 +7,8 @@ export type CotChartMode = "net" | "index26w" | "delta1w";
 export const COT_CHART_RANGE_OPTIONS: CotChartRangeWeeks[] = [13, 26, 52, 156, 260];
 export const DEFAULT_COT_CHART_RANGE: CotChartRangeWeeks = 52;
 export const DEFAULT_COT_CHART_MODE: CotChartMode = "net";
+/** Commercial / retail COT index axis. TITAN score uses −100…+100 separately. */
+export const COT_INDEX_AXIS: [number, number] = [0, 100];
 
 export type CotHistoryChartPoint = {
   reportDate: string;

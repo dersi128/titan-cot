@@ -110,7 +110,7 @@ export const enMessages = {
     legendColor:
       "Big number = relative commercial 26W index (0–100), not net contracts. 100 = window high (can still be net short; not a buy). TITAN extremes 20/80 (Max often uses 25/75).",
     legendRetail: "Amber frame = retail 26W extreme (20/80)",
-    comm26: "Comm 26W",
+    comm26: "Comm 26W · 0–100",
     retailExtreme: "Retail extreme",
     group: {
       forex: "Forex",
@@ -194,7 +194,7 @@ export const enMessages = {
     },
     chartModeHint: {
       net: "Commercial, non-commercial, and retail net contracts",
-      index26w: "26-week COT index (commercial + retail)",
+      index26w: "26-week COT index 0–100 (commercial + retail). TITAN score is separate (−100…+100).",
       delta1w: "Week-over-week change in net contracts",
     },
     chartAsOfMarker: "as of",
@@ -205,6 +205,7 @@ export const enMessages = {
     chartRetailDelta: "Retail Δ1W",
     indexPanel: {
       title: "Commercial COT Index",
+      scale: "Scale 0–100. Overall TITAN score is separate (−100…+100).",
       comm26: "Commercial 26W",
       comm52: "Commercial 52W",
       delta1w: "Δ1W",
@@ -490,7 +491,7 @@ export const enMessages = {
     subtitle: "Deterministic institutional COT bias — not an execution signal",
     unavailable: "COT bias data unavailable.",
     totalScore: "Total score",
-    totalScoreLabel: "TOTAL SCORE",
+    totalScoreLabel: "TOTAL TITAN SCORE (−100…+100)",
     rawScoreLabel: "RAW SCORE",
     clampedScoreLabel: "CLAMPED SCORE",
     clampNote: "TOTAL SCORE uses the clamped value (−100…+100). Raw driver sum before clamp: {{raw}}.",

@@ -2,6 +2,7 @@ import type { CotDashboardOutput } from "./cotGold.js";
 import { fetchCotDashboardData } from "./cotGold.js";
 
 const TTL_MS = Number(process.env.COT_CACHE_TTL_MS ?? 15 * 60 * 1000);
+const CACHE_VERSION = "inclusive-0-100";
 
 type CacheEntry = {
   expiresAt: number;
@@ -15,7 +16,7 @@ export function clearCotCache(): void {
 }
 
 export async function getCachedCotDashboard(symbol: string): Promise<CotDashboardOutput> {
-  const key = symbol.toUpperCase();
+  const key = `${CACHE_VERSION}:${symbol.toUpperCase()}`;
   const hit = cache.get(key);
   if (hit && hit.expiresAt > Date.now()) {
     return hit.data;

@@ -3,6 +3,12 @@
   "buildCommand": "cd titan-dashboard && npm run build",
   "outputDirectory": "titan-dashboard/dist",
   "framework": "vite",
+  "functions": {
+    "api/cot/[...path].ts": {
+      "maxDuration": 60,
+      "includeFiles": "titan-dashboard/src/lib/**"
+    }
+  },
   "rewrites": [
     {
       "source": "/__clerk",
@@ -14,6 +20,12 @@
     },
     {
       "source": "/api/cot/:match*",
+      "has": [{ "type": "host", "value": "titan-cot.vercel.app" }],
+      "destination": "https://titan-cot.onrender.com/api/cot/:match*"
+    },
+    {
+      "source": "/api/cot/:match*",
+      "has": [{ "type": "host", "value": "titan-cot-dersisvan-s-projects.vercel.app" }],
       "destination": "https://titan-cot.onrender.com/api/cot/:match*"
     },
     {
