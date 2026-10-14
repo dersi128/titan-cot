@@ -25,7 +25,6 @@ export function TitanHeatmapPage({
       <TitanPageHeader
         eyebrow={t("pages.heatmap.eyebrow")}
         title={t("pages.heatmap.title")}
-        description={t("pages.heatmap.description")}
         aside={
           <span className="rounded border border-[#2ea8ff]/40 bg-[#070b12]/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#7dd3fc] shadow-[0_0_18px_-6px_rgba(46,168,255,0.3)]">
             {t("header.marketsLive", { count: liveCount })}

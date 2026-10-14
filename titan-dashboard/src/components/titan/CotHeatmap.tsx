@@ -1,4 +1,3 @@
-import { computeTitanDashboardScore, scoreHeatClass } from "../../lib/titanCotScore";
 import { formatCommercialIndex } from "../../lib/titanCotIndexSettings";
 import {
   groupMarketsForHeatmap,
@@ -55,36 +54,32 @@ export function CotHeatmap({ markets, bundle, selectedMarket, onSelectMarket }: 
               const comm26 = data?.commercials.index26w;
               const tone = heatmapToneFromComm26(comm26);
               const retail = isRetailExtreme(data?.retail.index26w);
-              const score = data ? computeTitanDashboardScore(data) : null;
               const active = market.symbol === selectedMarket.symbol;
+              const indexLabel = data ? formatCommercialIndex(comm26) : "…";
+              const aria = [
+                market.shortLabel,
+                data ? `${t("heatmap.comm26")} ${indexLabel}` : null,
+                tone !== "empty" ? t(`heatmap.tone.${tone}`) : null,
+                retail ? t("heatmap.retailExtreme") : null,
+              ]
+                .filter(Boolean)
+                .join(" · ");
               return (
                 <button
                   key={market.id}
                   type="button"
+                  title={aria}
+                  aria-label={aria}
                   aria-pressed={active}
                   disabled={!data}
                   onClick={() => data && onSelectMarket(market)}
                   className={`titan-heatmap-cell titan-heatmap-cell--${tone}${retail ? " titan-heatmap-cell--retail" : ""}${active ? " titan-heatmap-cell--active" : ""}`}
                 >
                   <span className="titan-heatmap-cell__head">
-                    <TitanMarketIcon market={market} size="sm" score={score ?? undefined} />
+                    <TitanMarketIcon market={market} size="sm" />
                     <span className="titan-heatmap-cell__name">{market.shortLabel}</span>
                   </span>
-                  <span className="titan-heatmap-cell__index">
-                    {data ? formatCommercialIndex(comm26) : "…"}
-                  </span>
-                  <span className="titan-heatmap-cell__meta">
-                    <span>{t("heatmap.comm26")}</span>
-                    {tone !== "empty" ? <span>{t(`heatmap.tone.${tone}`)}</span> : null}
-                  </span>
-                  {score !== null ? (
-                    <span className={`titan-heatmap-cell__score ${scoreHeatClass(score)}`}>
-                      TITAN {score > 0 ? `+${score}` : score}
-                    </span>
-                  ) : null}
-                  {retail ? (
-                    <span className="titan-heatmap-cell__retail">{t("heatmap.retailExtreme")}</span>
-                  ) : null}
+                  <span className="titan-heatmap-cell__index">{indexLabel}</span>
                 </button>
               );
             })}
