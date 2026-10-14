@@ -129,6 +129,19 @@ export function FlagCa({ className }: FlagProps) {
   );
 }
 
+export function FlagMx({ className }: FlagProps) {
+  return (
+    <span className={className}>
+      <CircleClip>
+        <rect width="21.5" height="64" fill="#006847" />
+        <rect x="21.5" width="21" height="64" fill="#fff" />
+        <rect x="42.5" width="21.5" height="64" fill="#CE1126" />
+        <circle cx="32" cy="32" r="5.5" fill="#006847" opacity="0.85" />
+      </CircleClip>
+    </span>
+  );
+}
+
 export function FlagCh({ className }: FlagProps) {
   return (
     <span className={className}>

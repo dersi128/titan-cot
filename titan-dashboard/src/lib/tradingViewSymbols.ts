@@ -24,6 +24,8 @@ const MAPPINGS: TradingViewSymbolMapping[] = [
   { futuresRoot: "6A1!", futuresTv: "CME:6A1!", embedTv: "FX:AUDUSD", embedNote: "Embed: AUD/USD spot. Futures 6A → Otevřít v TV." },
   { futuresRoot: "6C1!", futuresTv: "CME:6C1!", embedTv: "FX:USDCAD", embedNote: "Embed: USD/CAD spot. Futures 6C → Otevřít v TV." },
   { futuresRoot: "6S1!", futuresTv: "CME:6S1!", embedTv: "FX:USDCHF", embedNote: "Embed: USD/CHF spot. Futures 6S → Otevřít v TV." },
+  { futuresRoot: "6N1!", futuresTv: "CME:6N1!", embedTv: "FX:NZDUSD", embedNote: "Embed: NZD/USD spot. Futures 6N → Otevřít v TV." },
+  { futuresRoot: "6M1!", futuresTv: "CME:6M1!", embedTv: "FX:USDMXN", embedNote: "Embed: USD/MXN spot. Futures 6M → Otevřít v TV." },
   // Metals
   { futuresRoot: "GC1!", futuresTv: "COMEX:GC1!", embedTv: "TVC:GOLD", embedNote: "Embed: gold spot index. Futures GC → Otevřít v TV." },
   { futuresRoot: "SI1!", futuresTv: "COMEX:SI1!", embedTv: "TVC:SILVER", embedNote: "Embed: silver spot index. Futures SI → Otevřít v TV." },
@@ -33,23 +35,38 @@ const MAPPINGS: TradingViewSymbolMapping[] = [
   // Energy
   { futuresRoot: "CL1!", futuresTv: "NYMEX:CL1!", embedTv: "TVC:USOIL", embedNote: "Embed: WTI oil benchmark. Futures CL → Otevřít v TV." },
   { futuresRoot: "NG1!", futuresTv: "NYMEX:NG1!", embedTv: "TVC:NATURALGAS", embedNote: "Embed: nat gas benchmark. Futures NG → Otevřít v TV." },
+  { futuresRoot: "RB1!", futuresTv: "NYMEX:RB1!", embedTv: "NYMEX:RB1!", embedNote: "RBOB gasoline — pokud embed selže, použij Otevřít v TV." },
+  { futuresRoot: "HO1!", futuresTv: "NYMEX:HO1!", embedTv: "NYMEX:HO1!", embedNote: "NY Harbor ULSD — pokud embed selže, použij Otevřít v TV." },
   // Grains
   { futuresRoot: "ZC1!", futuresTv: "CBOT:ZC1!", embedTv: "CBOT:CORN1!", embedNote: "Embed může omezit data. Futures ZC → Otevřít v TV." },
   { futuresRoot: "ZS1!", futuresTv: "CBOT:ZS1!", embedTv: "CBOT:ZS1!", embedNote: "Futures soybeans — pokud embed selže, použij Otevřít v TV." },
   { futuresRoot: "ZW1!", futuresTv: "CBOT:ZW1!", embedTv: "CBOT:ZW1!", embedNote: "Futures wheat — pokud embed selže, použij Otevřít v TV." },
+  { futuresRoot: "ZM1!", futuresTv: "CBOT:ZM1!", embedTv: "CBOT:ZM1!", embedNote: "Soybean meal — pokud embed selže, použij Otevřít v TV." },
+  { futuresRoot: "ZL1!", futuresTv: "CBOT:ZL1!", embedTv: "CBOT:ZL1!", embedNote: "Soybean oil — pokud embed selže, použij Otevřít v TV." },
+  { futuresRoot: "ZR1!", futuresTv: "CBOT:ZR1!", embedTv: "CBOT:ZR1!", embedNote: "Rough rice — pokud embed selže, použij Otevřít v TV." },
   // Softs
   { futuresRoot: "KC1!", futuresTv: "ICEUS:KC1!", embedTv: "ICEUS:KC1!", embedNote: "Coffee futures — pokud embed selže, použij Otevřít v TV." },
   { futuresRoot: "CC1!", futuresTv: "ICEUS:CC1!", embedTv: "ICEUS:CC1!", embedNote: "Cocoa futures — pokud embed selže, použij Otevřít v TV." },
   { futuresRoot: "SB1!", futuresTv: "ICEUS:SB1!", embedTv: "ICEUS:SB1!", embedNote: "Sugar futures — pokud embed selže, použij Otevřít v TV." },
   { futuresRoot: "CT1!", futuresTv: "ICEUS:CT1!", embedTv: "ICEUS:CT1!", embedNote: "Cotton futures — pokud embed selže, použij Otevřít v TV." },
+  { futuresRoot: "OJ1!", futuresTv: "ICEUS:OJ1!", embedTv: "ICEUS:OJ1!", embedNote: "Orange juice — pokud embed selže, použij Otevřít v TV." },
   // Livestock
   { futuresRoot: "LE1!", futuresTv: "CME:LE1!", embedTv: "CME:LE1!", embedNote: "Live cattle — pokud embed selže, použij Otevřít v TV." },
+  { futuresRoot: "GF1!", futuresTv: "CME:GF1!", embedTv: "CME:GF1!", embedNote: "Feeder cattle — pokud embed selže, použij Otevřít v TV." },
   { futuresRoot: "HE1!", futuresTv: "CME:HE1!", embedTv: "CME:HE1!", embedNote: "Lean hogs — pokud embed selže, použij Otevřít v TV." },
+  // Bonds
+  { futuresRoot: "ZF1!", futuresTv: "CBOT:ZF1!", embedTv: "TVC:US05Y", embedNote: "Embed: 5Y yield. Futures ZF → Otevřít v TV." },
+  { futuresRoot: "ZN1!", futuresTv: "CBOT:ZN1!", embedTv: "TVC:US10Y", embedNote: "Embed: 10Y yield. Futures ZN → Otevřít v TV." },
+  { futuresRoot: "ZB1!", futuresTv: "CBOT:ZB1!", embedTv: "TVC:US30Y", embedNote: "Embed: 30Y yield. Futures ZB → Otevřít v TV." },
   // Indices
   { futuresRoot: "ES1!", futuresTv: "CME_MINI:ES1!", embedTv: "SP:SPX", embedNote: "Embed: S&P 500 cash. Futures ES → Otevřít v TV." },
   { futuresRoot: "NQ1!", futuresTv: "CME_MINI:NQ1!", embedTv: "NASDAQ:NDX", embedNote: "Embed: Nasdaq 100 index. Futures NQ → Otevřít v TV." },
   { futuresRoot: "YM1!", futuresTv: "CBOT_MINI:YM1!", embedTv: "DJ:DJI", embedNote: "Embed: Dow Jones. Futures YM → Otevřít v TV." },
   { futuresRoot: "RTY1!", futuresTv: "CME_MINI:RTY1!", embedTv: "RUSSELL:RUT", embedNote: "Embed: Russell 2000. Futures RTY → Otevřít v TV." },
+  // Other
+  { futuresRoot: "BTC1!", futuresTv: "CME:BTC1!", embedTv: "BITSTAMP:BTCUSD", embedNote: "Embed: BTC spot. Futures BTC → Otevřít v TV." },
+  { futuresRoot: "ETH1!", futuresTv: "CME:ETH1!", embedTv: "BITSTAMP:ETHUSD", embedNote: "Embed: ETH spot. Futures ETH → Otevřít v TV." },
+  { futuresRoot: "VX1!", futuresTv: "CBOE:VX1!", embedTv: "TVC:VIX", embedNote: "Embed: VIX index. Futures VX → Otevřít v TV." },
 ];
 
 const BY_ROOT = new Map(MAPPINGS.map((m) => [m.futuresRoot, m]));

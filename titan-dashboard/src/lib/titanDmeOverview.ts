@@ -9,6 +9,7 @@ import {
   type CommercialZoneId,
   type MarketRegimeId,
 } from "./titanCommercialIndex";
+import { isFiniteCotIndex } from "./titanCotScoringCore";
 import { computeTitanDashboardScore, resolveTitanVerdict } from "./titanCotScore";
 import type { TitanBiasVerdict } from "./titanCotScore";
 
@@ -157,18 +158,20 @@ function buildHistoryChart(history: CotHistoryPoint[]): DmeChartPoint[] {
   if (history.length < 2) return [];
   const series26 = buildCommercialIndexSeries(history);
   const series52 = buildCommercialIndex52Series(history);
-  const start26 = 26;
-  const start52 = 52;
+  const start26 = 25;
+  const start52 = 51;
   const out: DmeChartPoint[] = [];
 
   for (let i = 0; i < history.length; i += 1) {
     const point = history[i]!;
     const net = point.commercialNet;
     const prev4 = i >= 4 ? history[i - 4]!.commercialNet : null;
+    const idx26 = i >= start26 ? series26[i - start26] : undefined;
+    const idx52 = i >= start52 ? series52[i - start52] : undefined;
     out.push({
       date: point.reportDate.slice(0, 10),
-      index26w: i >= start26 ? Math.round(series26[i - start26]!) : null,
-      index52w: i >= start52 ? Math.round(series52[i - start52]!) : null,
+      index26w: idx26 !== undefined && Number.isFinite(idx26) ? Math.round(idx26) : null,
+      index52w: idx52 !== undefined && Number.isFinite(idx52) ? Math.round(idx52) : null,
       net: Math.round(net),
       delta4w: prev4 === null ? null : Math.round(net - prev4),
     });
@@ -182,10 +185,12 @@ export function buildDmeOverview(bundle: Record<string, CotDashboardData>): DmeO
   const dxyAvailable = Boolean(dxy);
   const dxyRead = dxy ? evaluateTitanPositioning(dxy) : null;
   const dxyScore = dxy && Number.isFinite(dxy.cotScore) ? Math.round(computeTitanDashboardScore(dxy)) : null;
-  const dxyCommercial26w =
-    dxy && Number.isFinite(dxy.commercials.index26w) ? Math.round(dxy.commercials.index26w) : null;
-  const dxyCommercial52w =
-    dxy && Number.isFinite(dxy.commercials.index52w) ? Math.round(dxy.commercials.index52w) : null;
+  const dxyCommercial26w = dxy && isFiniteCotIndex(dxy.commercials.index26w)
+    ? Math.round(dxy.commercials.index26w)
+    : null;
+  const dxyCommercial52w = dxy && isFiniteCotIndex(dxy.commercials.index52w)
+    ? Math.round(dxy.commercials.index52w)
+    : null;
   const dxyWeeklyChange =
     dxy && Number.isFinite(dxy.commercials.weeklyChange) ? dxy.commercials.weeklyChange : null;
   const dxyDelta4w = dxy && Number.isFinite(dxy.commercials.delta4w) ? dxy.commercials.delta4w : null;

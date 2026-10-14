@@ -1,10 +1,12 @@
 import type { CotDashboardData, CotHistoryPoint, CotVerdict } from "../types";
 import {
   buildPlainEnglishExplanation,
-  calculateCotIndexAgainstPrior,
+  calculateRollingCotIndex,
   computeUnifiedCotScore,
   IDX_HI,
   IDX_LO,
+  isFiniteCotIndex,
+  uniqueSortedNetHistory,
   type CommercialBias,
   type InstitutionalDivergence,
   type RetailContrarian,
@@ -17,7 +19,7 @@ export type CotWeekSnapshotRow = {
   reportDate: string;
   commercialNet: number;
   weeklyChange: number;
-  index26w: number;
+  index26w: number | null;
   score: number;
   verdict: CotVerdict;
   isLatest: boolean;
@@ -28,15 +30,14 @@ function normalizeReportDate(value: string): string {
 }
 
 function sortHistoryAsc(history: CotHistoryPoint[]): CotHistoryPoint[] {
-  return history
-    .map((point) => ({
+  return uniqueSortedNetHistory(
+    history.map((point) => ({
       reportDate: normalizeReportDate(point.reportDate),
       commercialNet: Number(point.commercialNet),
       nonCommercialNet: Number(point.nonCommercialNet),
       retailNet: Number(point.retailNet),
-    }))
-    .filter((point) => point.reportDate.length >= 10)
-    .sort((a, b) => a.reportDate.localeCompare(b.reportDate));
+    })),
+  );
 }
 
 function lagDelta(
@@ -48,7 +49,8 @@ function lagDelta(
   return history[history.length - 1]![key] - history[history.length - 1 - lagWeeks]![key];
 }
 
-function getCommercialBias(index26w: number): CommercialBias {
+function getCommercialBias(index26w: number | null): CommercialBias {
+  if (!isFiniteCotIndex(index26w)) return "neutral";
   if (index26w > IDX_HI) return "bullish";
   if (index26w < IDX_LO) return "bearish";
   return "neutral";
@@ -65,8 +67,9 @@ function getInstitutionalDivergence(
 
 function getRetailContrarianSignal(
   commercialBias: CommercialBias,
-  retailIndex26w: number,
+  retailIndex26w: number | null,
 ): RetailContrarian {
+  if (!isFiniteCotIndex(retailIndex26w)) return "none";
   if (commercialBias === "bullish" && retailIndex26w < IDX_LO) return "bullish";
   if (commercialBias === "bearish" && retailIndex26w > IDX_HI) return "bearish";
   return "none";
@@ -80,8 +83,8 @@ function groupSnapshot(
   const nets = history.map((point) => point[key]);
   return {
     net: latest[key],
-    index26w: calculateCotIndexAgainstPrior(nets, 26),
-    index52w: calculateCotIndexAgainstPrior(nets, 52),
+    index26w: calculateRollingCotIndex(nets, 26),
+    index52w: calculateRollingCotIndex(nets, 52),
     weeklyChange: lagDelta(history, key, 1),
     delta4w: lagDelta(history, key, 4),
     delta13w: lagDelta(history, key, 13),

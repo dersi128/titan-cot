@@ -8,13 +8,12 @@ import {
   resolveMarketRegime,
   weeksInExtremeZone,
 } from "./titanCommercialIndex";
-import { evaluateCotBuySellFromHistory } from "./titanCotBuySell";
 import {
   computeInstitutionalConviction,
   regimeConfirmsBias,
 } from "./titanConviction";
 import {
-  calculateCotIndex,
+  calculateRollingCotIndex,
   computeUnifiedCotScore,
   type TitanCotScoringInput,
 } from "./titanCotScoringCore";
@@ -27,8 +26,8 @@ import {
   DME_FX_MARKETS,
 } from "./titanDmeOverview";
 
-function scoringInput(idx = 50, w1 = 0, ncw1 = 0): TitanCotScoringInput {
-  const bias = idx > 80 ? "bullish" : idx < 20 ? "bearish" : "neutral";
+function scoringInput(idx: number | null = 50, w1 = 0, ncw1 = 0): TitanCotScoringInput {
+  const bias = idx !== null && idx > 80 ? "bullish" : idx !== null && idx < 20 ? "bearish" : "neutral";
   return {
     commercials: {
       index26w: idx,
@@ -177,6 +176,7 @@ describe("COT opravy — near max/min with negative nets", () => {
     const nets = Array.from({ length: 27 }, (_, i) => -200 + i);
     nets.push(-174.5);
     const data = dashboardFromInput(scoringInput(90, -10, 10));
+    data.nonCommercials.index26w = 70;
     data.history = historyFromNets(nets);
     assert.equal(evaluateInstitutionalDivergence(data), "bearish");
   });
@@ -185,14 +185,17 @@ describe("COT opravy — near max/min with negative nets", () => {
     const nets = Array.from({ length: 27 }, (_, i) => -i);
     nets.push(-25.5);
     const data = dashboardFromInput(scoringInput(10, 10, -10));
+    data.nonCommercials.index26w = 30;
     data.history = historyFromNets(nets);
     assert.equal(evaluateInstitutionalDivergence(data), "bullish");
   });
 
   it("translated positive ranges yield the same divergence sides", () => {
     const high = dashboardFromInput(scoringInput(90, -10, 10));
+    high.nonCommercials.index26w = 70;
     high.history = historyFromNets([...Array.from({ length: 27 }, (_, i) => 800 + i), 825.5]);
     const low = dashboardFromInput(scoringInput(10, 10, -10));
+    low.nonCommercials.index26w = 30;
     low.history = historyFromNets([...Array.from({ length: 27 }, (_, i) => 900 - i), 874.5]);
     assert.equal(evaluateInstitutionalDivergence(high), "bearish");
     assert.equal(evaluateInstitutionalDivergence(low), "bullish");
@@ -203,9 +206,9 @@ describe("COT opravy — API/UI parity", () => {
   it("matches regime and persistence across rising, falling, and flat histories", () => {
     for (const sign of [-1, 0, 1] as const) {
       const h = historyFromNets(Array.from({ length: 65 }, (_, i) => i * sign));
-      const idx = calculateCotIndex(
-        h.slice(-27, -1).map((x) => x.commercialNet),
-        h.at(-1)!.commercialNet,
+      const idx = calculateRollingCotIndex(
+        h.map((x) => x.commercialNet),
+        26,
       );
       const input = scoringInput(idx, sign, -sign);
       input.commercials.delta4w = 4 * sign;
@@ -220,17 +223,9 @@ describe("COT opravy — API/UI parity", () => {
       assert.equal(resolveMarketRegime(data), api.market_regime.toLowerCase());
       assert.equal(evaluateTitanCot(data).market_regime.toLowerCase(), api.market_regime.toLowerCase());
       const indices = h
-        .slice(26)
-        .map((x, j) => calculateCotIndex(h.slice(j, j + 26).map((y) => y.commercialNet), x.commercialNet));
-      const pine = evaluateCotBuySellFromHistory(h);
-      const expectedWeeks = pine
-        ? pine.regime !== 0
-          ? pine.holdWeeks
-          : pine.armedBuy || pine.armedSell
-            ? pine.armedWeeks
-            : 0
-        : weeksInExtremeZone(indices);
-      assert.equal(api.persistence_weeks_for_badge, expectedWeeks);
+        .map((_, i) => calculateRollingCotIndex(h.map((y) => y.commercialNet), 26, i))
+        .filter((n): n is number => n !== null);
+      assert.equal(api.persistence_weeks_for_badge, weeksInExtremeZone(indices));
     }
   });
 });
@@ -250,17 +245,15 @@ describe("COT opravy — conviction", () => {
     }
   });
 
-  it("directionally aligned conviction is stronger on the Pine side", () => {
-    const down = Array.from({ length: 26 }, (_, i) => 25 - i);
-    const longHist = historyFromNets([...down, 20, 19, 18, 17]);
-    const longInput = scoringInput(40, 1, -1);
+  it("directionally aligned conviction is stronger on the positioning side", () => {
+    const longHist = historyFromNets(Array.from({ length: 30 }, (_, i) => i));
+    const longInput = scoringInput(100, 1, -1);
     longInput.history = longHist;
     const longData = dashboardFromInput(longInput);
     assert.ok(computeInstitutionalConviction(longData, 50).level >= 3);
 
-    const up = Array.from({ length: 28 }, (_, i) => i);
-    const shortHist = historyFromNets([...up, 10, 11, 12]);
-    const shortInput = scoringInput(40, -1, 1);
+    const shortHist = historyFromNets(Array.from({ length: 30 }, (_, i) => 30 - i));
+    const shortInput = scoringInput(0, -1, 1);
     shortInput.history = shortHist;
     const shortData = dashboardFromInput(shortInput);
     assert.ok(computeInstitutionalConviction(shortData, -50).level >= 3);
@@ -271,9 +264,9 @@ describe("COT opravy — conviction", () => {
     const input = scoringInput(90, -1, 1);
     input.history = hist;
     const data = dashboardFromInput(input);
-    const opposite = computeInstitutionalConviction(data, 50).level;
-    const alignedShort = computeInstitutionalConviction(data, -50).level;
-    assert.ok(opposite < alignedShort);
-    assert.ok(opposite <= 3);
+    const alignedLong = computeInstitutionalConviction(data, 50).level;
+    const oppositeShort = computeInstitutionalConviction(data, -50).level;
+    assert.ok(oppositeShort < alignedLong);
+    assert.ok(oppositeShort <= 3);
   });
 });

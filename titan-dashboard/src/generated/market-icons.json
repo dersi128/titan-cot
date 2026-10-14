@@ -11,8 +11,11 @@
   "DOW",
   "DXY",
   "EUR",
+  "FEEDERCATTLE",
+  "GASOLINE",
   "GBP",
   "GOLD",
+  "HEATOIL",
   "HOGS",
   "JPY",
   "NAS100",
@@ -24,7 +27,10 @@
   "RUSSELL",
   "SILVER",
   "SOYBEANS",
+  "SOYMEAL",
+  "SOYOIL",
   "SP500",
   "SUGAR",
+  "VIX",
   "WHEAT"
 ]

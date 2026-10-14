@@ -1,5 +1,5 @@
 import type { CotHistoryPoint } from "../types";
-import { calculateCotIndex } from "./titanCotScoringCore";
+import { calculateRollingCotIndex, uniqueSortedNetHistory } from "./titanCotScoringCore";
 
 export type CotChartRangeWeeks = 13 | 26 | 52 | 156 | 260;
 export type CotChartMode = "net" | "index26w" | "delta1w";
@@ -21,15 +21,14 @@ export type CotHistoryChartPoint = {
 };
 
 function sortHistoryAsc(history: CotHistoryPoint[]): CotHistoryPoint[] {
-  return [...history]
-    .map((point) => ({
+  return uniqueSortedNetHistory(
+    history.map((point) => ({
       reportDate: String(point.reportDate ?? "").slice(0, 10),
       commercialNet: Number(point.commercialNet),
       nonCommercialNet: Number(point.nonCommercialNet),
       retailNet: Number(point.retailNet),
-    }))
-    .filter((point) => point.reportDate.length >= 10)
-    .sort((a, b) => a.reportDate.localeCompare(b.reportDate));
+    })),
+  );
 }
 
 function indexAt(
@@ -37,11 +36,11 @@ function indexAt(
   index: number,
   key: "commercialNet" | "retailNet",
 ): number | null {
-  if (index < 26) return null;
-  const prior = history.slice(index - 26, index).map((point) => point[key]);
-  const current = history[index]![key];
-  if (!Number.isFinite(current) || prior.some((value) => !Number.isFinite(value))) return null;
-  return calculateCotIndex(prior, current);
+  return calculateRollingCotIndex(
+    history.map((point) => point[key]),
+    26,
+    index,
+  );
 }
 
 function buildFullSeries(history: CotHistoryPoint[], mode: CotChartMode): CotHistoryChartPoint[] {
@@ -70,7 +69,7 @@ function buildFullSeries(history: CotHistoryPoint[], mode: CotChartMode): CotHis
   }
 
   const out: CotHistoryChartPoint[] = [];
-  for (let i = 26; i < history.length; i += 1) {
+  for (let i = 25; i < history.length; i += 1) {
     const commercialIndex = indexAt(history, i, "commercialNet");
     const retailIndex = indexAt(history, i, "retailNet");
     if (commercialIndex === null && retailIndex === null) continue;

@@ -14,20 +14,20 @@ export type GptCotReport = {
   summary: string;
   commercials: {
     net: number;
-    index26w: number;
-    index52w: number;
+    index26w: number | null;
+    index52w: number | null;
     bias: string;
   };
   nonCommercials: {
     net: number;
-    index26w: number;
-    index52w: number;
+    index26w: number | null;
+    index52w: number | null;
     divergence: string;
   };
   retail: {
     net: number;
-    index26w: number;
-    index52w: number;
+    index26w: number | null;
+    index52w: number | null;
     contrarianSignal: string;
   };
   scoreComponents: CotDashboardOutput["scoreComponents"];

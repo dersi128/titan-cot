@@ -384,12 +384,16 @@ function PositioningContext({
         <TerminalCard accent={commTone === "bear" ? "red" : commTone === "bull" ? "green" : "gold"} icon={<IconBuilding />} title={t("positioning.cards.commercial.title")}>
           <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-stone-500">{t("positioning.cards.commercial.subtitle")}</p>
           <div className="mt-3">
-            <p className="titan-terminal-metric">{fmtBipolar(indexToBipolar(read.commercialIndex))}</p>
+            <p className="titan-terminal-metric">
+              {read.commercialIndex == null ? "—" : fmtBipolar(indexToBipolar(read.commercialIndex))}
+            </p>
             <p className={`titan-terminal-state titan-terminal-state--${commTone}`}>{t(commercialStateKey(read.commercialZone))}</p>
           </div>
-          <div className="mt-4">
-            <BipolarRangeBar index0to100={read.commercialIndex} glow={read.commercialGlow} />
-          </div>
+          {read.commercialIndex != null ? (
+            <div className="mt-4">
+              <BipolarRangeBar index0to100={read.commercialIndex} glow={read.commercialGlow} />
+            </div>
+          ) : null}
           <div className="mt-3">
             <BipolarIndexTrajectoryChart values={read.commercialSparkline} label={t("positioning.trajectory")} />
           </div>
@@ -414,14 +418,18 @@ function PositioningContext({
         <TerminalCard accent={retailTone === "bull" ? "green" : retailTone === "bear" ? "red" : "gold"} icon={<IconCrowd />} title={t("positioning.cards.retail.title")}>
           <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-stone-500">{t("positioning.cards.retail.subtitle")}</p>
           <div className="mt-3">
-            <p className="titan-terminal-metric">{fmtBipolar(indexToBipolar(read.retailIndex))}</p>
+            <p className="titan-terminal-metric">
+              {read.retailIndex == null ? "—" : fmtBipolar(indexToBipolar(read.retailIndex))}
+            </p>
             <p className={`titan-terminal-state titan-terminal-state--${retailTone}`}>
               {t(`positioning.retailState.${retailPositioningLabel(read.retailZone)}`)}
             </p>
           </div>
-          <div className="mt-4">
-            <BipolarRangeBar index0to100={read.retailIndex} glow={read.commercialGlow} />
-          </div>
+          {read.retailIndex != null ? (
+            <div className="mt-4">
+              <BipolarRangeBar index0to100={read.retailIndex} glow={read.commercialGlow} />
+            </div>
+          ) : null}
           <div className="mt-3">
             <BipolarIndexTrajectoryChart values={read.retailSparkline} label={t("positioning.trajectory")} />
           </div>
@@ -459,7 +467,9 @@ function SignalEngine({ read, t }: { read: TitanPositioningRead; t: (k: string) 
   const noFlowCross = !read.smTurnDown && !read.smTurnUp;
 
   let revHeadline = t("positioning.reversal.panelNoConfirm");
-  if (
+  if (read.reversalModelLabel && read.reversalModelLabel !== "WAIT") {
+    revHeadline = read.reversalModelLabel;
+  } else if (
     read.reversal === "confirmed_top" ||
     read.reversal === "confirmed_bottom" ||
     read.reversal === "potential_top" ||
@@ -474,6 +484,9 @@ function SignalEngine({ read, t }: { read: TitanPositioningRead; t: (k: string) 
       <div className="titan-terminal-grid titan-terminal-grid--3 mt-3">
         <TerminalCard accent="gold" icon={<IconReversal />} title={t("positioning.cards.reversal.title")} className="titan-terminal-card--secondary">
           <p className="titan-terminal-headline">{revHeadline}</p>
+          <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-stone-500">
+            {t("positioning.cards.reversal.subtitle")}
+          </p>
           <ul className="mt-5 space-y-2.5">
             <CheckItem checked={commExtreme} label={t("positioning.checklist.commercialExtreme")} />
             <CheckItem checked={read.checklist.retailContrarian} label={t("positioning.checklist.retailCrowd")} />

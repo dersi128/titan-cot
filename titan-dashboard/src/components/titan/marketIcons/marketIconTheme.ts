@@ -10,7 +10,9 @@ export const MARKET_ICON_FRAME: Record<InstitutionalMarket["category"], MarketIc
   grains: "shield",
   softs: "shield",
   livestock: "circle",
+  bonds: "shield",
   indices: "shield",
+  other: "circle",
 };
 
 export type MarketCategoryTheme = {
@@ -64,12 +66,26 @@ export const MARKET_CATEGORY_THEME: Record<InstitutionalMarket["category"], Mark
     ring: "rgba(248, 113, 113, 0.52)",
     glyph: "text-rose-200",
   },
+  bonds: {
+    frame: "shield",
+    accent: "212, 175, 55",
+    glow: "rgba(212, 175, 55, 0.4)",
+    ring: "rgba(234, 179, 8, 0.5)",
+    glyph: "text-amber-200",
+  },
   indices: {
     frame: "shield",
     accent: "168, 85, 247",
     glow: "rgba(168, 85, 247, 0.42)",
     ring: "rgba(192, 132, 252, 0.52)",
     glyph: "text-violet-200",
+  },
+  other: {
+    frame: "circle",
+    accent: "56, 189, 248",
+    glow: "rgba(56, 189, 248, 0.42)",
+    ring: "rgba(125, 211, 252, 0.52)",
+    glyph: "text-sky-200",
   },
 };
 

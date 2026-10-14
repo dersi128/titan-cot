@@ -312,6 +312,14 @@ export function TitanCotDashboard() {
 
     : "—";
 
+  const positionsDate = useMemo(() => {
+    const dates = Object.values(bundle)
+      .map((row) => String(row.reportDate ?? "").slice(0, 10))
+      .filter((date) => date.length >= 10)
+      .sort();
+    return dates[dates.length - 1] ?? selectedData?.reportDate?.slice(0, 10) ?? null;
+  }, [bundle, selectedData]);
+
 
 
   const isMarketView = view === "market";
@@ -404,7 +412,9 @@ export function TitanCotDashboard() {
 
                     </p>
 
-                    <p className="mt-1 text-[10px] text-stone-600">{t("header.updated", { time: refreshLabel })}</p>
+                    <p className="mt-1 text-[10px] text-stone-600">
+                      {t("header.updated", { time: refreshLabel })} · {t("header.refreshNotCot")}
+                    </p>
 
                   </div>
 
@@ -421,6 +431,7 @@ export function TitanCotDashboard() {
                   liveCount={liveCount}
                   refreshSec={REFRESH_MS / 1000}
                   refreshLabel={refreshLabel}
+                  positionsDate={positionsDate}
                 />
 
                 <TitanAppNav active={section} onNavigate={navigateSection} />

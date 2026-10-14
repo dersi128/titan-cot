@@ -13,9 +13,13 @@ describe("heatmapToneFromComm26", () => {
     assert.equal(heatmapToneFromComm26(undefined), "empty");
     assert.equal(heatmapToneFromComm26(Number.NaN), "empty");
     assert.equal(heatmapToneFromComm26(95), "extreme_long");
+    assert.equal(heatmapToneFromComm26(81), "extreme_long");
+    assert.equal(heatmapToneFromComm26(80), "strong_long");
     assert.equal(heatmapToneFromComm26(70), "strong_long");
     assert.equal(heatmapToneFromComm26(50), "neutral");
     assert.equal(heatmapToneFromComm26(30), "strong_short");
+    assert.equal(heatmapToneFromComm26(20), "strong_short");
+    assert.equal(heatmapToneFromComm26(19), "extreme_short");
     assert.equal(heatmapToneFromComm26(10), "extreme_short");
   });
 });
@@ -38,16 +42,26 @@ describe("groupMarketsForHeatmap", () => {
       { id: "CORN", symbol: "ZC1!", shortLabel: "CORN", subtitle: "Corn", category: "grains" },
       { id: "COCOA", symbol: "CC1!", shortLabel: "COCOA", subtitle: "Cocoa", category: "softs" },
       { id: "HOGS", symbol: "HE1!", shortLabel: "HOGS", subtitle: "Hogs", category: "livestock" },
+      { id: "US10Y", symbol: "ZN1!", shortLabel: "10Y", subtitle: "10Y", category: "bonds" },
       { id: "ES", symbol: "ES1!", shortLabel: "SP 500", subtitle: "ES", category: "indices" },
+      { id: "BTC", symbol: "BTC1!", shortLabel: "BTC", subtitle: "Bitcoin", category: "other" },
     ];
     const groups = groupMarketsForHeatmap(markets);
     assert.deepEqual(
       groups.map((g) => g.group),
-      ["forex", "metals", "commodities", "indices"],
+      ["forex", "metals", "commodities", "bonds", "indices", "other"],
     );
     assert.deepEqual(
       groups.find((g) => g.group === "commodities")?.markets.map((m) => m.id),
       ["OIL", "CORN", "COCOA", "HOGS"],
+    );
+    assert.deepEqual(
+      groups.find((g) => g.group === "bonds")?.markets.map((m) => m.id),
+      ["US10Y"],
+    );
+    assert.deepEqual(
+      groups.find((g) => g.group === "other")?.markets.map((m) => m.id),
+      ["BTC"],
     );
   });
 });

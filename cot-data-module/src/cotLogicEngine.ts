@@ -17,11 +17,14 @@ export {
   buildPlainEnglishExplanation,
   calculateCotIndex,
   calculateCotIndexAgainstPrior,
+  calculateRollingCotIndex,
   clampScore,
   computeUnifiedCotScore,
   countCommercialExtremePersistence,
+  isFiniteCotIndex,
   normalizeLegacyVerdict,
   scoreToCotVerdict,
+  uniqueSortedNetHistory,
 } from "./titanCotScoringCore.js";
 
 import type { CommercialBias, InstitutionalDivergence, RetailContrarian } from "./titanCotScoringCore.js";
@@ -35,8 +38,8 @@ const IDX_LO = 20;
 
 export type GroupIndexSnapshot = {
   net: number;
-  index26w: number;
-  index52w: number;
+  index26w: number | null;
+  index52w: number | null;
   weeklyChange: number;
   delta4w: number;
   delta13w: number;
@@ -52,7 +55,11 @@ export type CotEngineInput = {
 };
 
 /** 26W-only bias label (52W ignored — display field only). */
-export function getCommercialBias(index26w: number, _index52w?: number): CommercialBias {
+export function getCommercialBias(
+  index26w: number | null | undefined,
+  _index52w?: number | null,
+): CommercialBias {
+  if (index26w === null || index26w === undefined || !Number.isFinite(index26w)) return "neutral";
   if (index26w > IDX_HI) return "bullish";
   if (index26w < IDX_LO) return "bearish";
   return "neutral";
@@ -69,9 +76,12 @@ export function getInstitutionalDivergence(
 
 export function getRetailContrarianSignal(
   commercialBias: CommercialBias,
-  retailIndex26w: number,
-  _retailIndex52w?: number,
+  retailIndex26w: number | null | undefined,
+  _retailIndex52w?: number | null,
 ): RetailContrarian {
+  if (retailIndex26w === null || retailIndex26w === undefined || !Number.isFinite(retailIndex26w)) {
+    return "none";
+  }
   if (commercialBias === "bullish" && retailIndex26w < IDX_LO) return "bullish";
   if (commercialBias === "bearish" && retailIndex26w > IDX_HI) return "bearish";
   return "none";

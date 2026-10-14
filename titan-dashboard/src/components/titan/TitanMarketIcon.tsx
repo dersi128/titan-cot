@@ -12,6 +12,7 @@ import {
   FlagEu,
   FlagGb,
   FlagJp,
+  FlagMx,
   FlagUs,
 } from "./marketIcons/forexFlags";
 
@@ -41,6 +42,7 @@ const FOREX_FLAGS: Record<string, ComponentType<FlagProps>> = {
   AUD: FlagAu,
   CAD: FlagCa,
   CHF: FlagCh,
+  MXN: FlagMx,
 };
 
 type TitanMarketIconProps = {

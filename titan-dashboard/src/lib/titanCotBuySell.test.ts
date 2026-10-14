@@ -1,6 +1,8 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import {
+  cotBuySellHeadline,
+  cotBuySellHoldArmedConflict,
   evaluateCotBuySell,
   pineCotIndex,
 } from "./titanCotBuySell";
@@ -52,5 +54,15 @@ describe("evaluateCotBuySell", () => {
     const held = evaluateCotBuySell([...down, 20, 19, 18]);
     assert.equal(held?.action, "HOLD_LONG");
     assert.equal(held?.regime, 1);
+  });
+
+  it("keeps HOLD LONG when an opposite ARMED SELL appears", () => {
+    const down = Array.from({ length: 26 }, (_, i) => 25 - i);
+    const afterBuy = [...down, 20, ...Array.from({ length: 30 }, (_, i) => 21 + i)];
+    const state = evaluateCotBuySell(afterBuy);
+    assert.equal(state?.regime, 1);
+    assert.equal(state?.armedSell, true);
+    assert.equal(cotBuySellHoldArmedConflict(state!), true);
+    assert.equal(cotBuySellHeadline(state!), "HOLD LONG · ARMED SELL");
   });
 });

@@ -5,13 +5,7 @@
  * Keep conceptual parity with API where applicable.
  */
 
-import {
-  cotBuySellIsBear,
-  cotBuySellIsBull,
-  cotBuySellPositionPoints,
-  evaluateCotBuySellFromHistory,
-  type CotBuySellState,
-} from "./titanCotBuySell.js";
+export type CotIndexLookback = 26 | 52;
 
 export type CotVerdict =
   | "A+ EXTREME SHORT"
@@ -42,8 +36,8 @@ export type OpenInterestSnapshot = {
 
 export type TitanCotScoringInput = {
   commercials: {
-    index26w: number;
-    index52w: number;
+    index26w: number | null;
+    index52w: number | null;
     weeklyChange: number;
     delta4w: number;
     delta13w: number;
@@ -54,8 +48,8 @@ export type TitanCotScoringInput = {
     divergence: InstitutionalDivergence;
   };
   retail: {
-    index26w: number;
-    index52w: number;
+    index26w: number | null;
+    index52w: number | null;
     contrarianSignal: RetailContrarian;
   };
   history?: CotHistoryPoint[];
@@ -130,22 +124,54 @@ export const IDX_HI = 80;
 export const IDX_LO = 20;
 const BIAS_DISCLAIMER = "Bias only, not execution.";
 
-export function calculateCotIndex(priorNets: number[], currentNet: number): number {
-  if (priorNets.length === 0) return 50;
-  const min = Math.min(...priorNets);
-  const max = Math.max(...priorNets);
-  if (max === min) return 50;
-  return Math.round(((currentNet - min) / (max - min)) * 10000) / 100;
+export function isFiniteCotIndex(value: number | null | undefined): value is number {
+  return value !== null && value !== undefined && Number.isFinite(value);
 }
 
-export function calculateCotIndexAgainstPrior(
+/**
+ * Standard COT index on a window that **includes** the current (last) net:
+ * `100 × (current − min) / (max − min)`. Missing history or a flat range → null (not 50).
+ */
+export function calculateCotIndex(windowIncludingCurrent: number[]): number | null {
+  if (windowIncludingCurrent.length === 0) return null;
+  if (windowIncludingCurrent.some((net) => !Number.isFinite(net))) return null;
+  const current = windowIncludingCurrent[windowIncludingCurrent.length - 1]!;
+  const min = Math.min(...windowIncludingCurrent);
+  const max = Math.max(...windowIncludingCurrent);
+  if (max === min) return null;
+  return Math.round(((current - min) / (max - min)) * 10000) / 100;
+}
+
+/** Inclusive lookback window ending at `endIndex` (default: latest report). */
+export function calculateRollingCotIndex(
   series: number[],
   lookback: number,
-): number {
-  if (series.length < lookback + 1) return 50;
-  const current = series[series.length - 1]!;
-  const prior = series.slice(-(lookback + 1), -1);
-  return calculateCotIndex(prior, current);
+  endIndex: number = series.length - 1,
+): number | null {
+  if (!Number.isInteger(lookback) || lookback < 1) return null;
+  if (endIndex < lookback - 1 || endIndex >= series.length) return null;
+  return calculateCotIndex(series.slice(endIndex - lookback + 1, endIndex + 1));
+}
+
+/** Same as `calculateRollingCotIndex(series, lookback)` — inclusive window, not prior-only. */
+export function calculateCotIndexAgainstPrior(series: number[], lookback: number): number | null {
+  return calculateRollingCotIndex(series, lookback);
+}
+
+export function uniqueSortedNetHistory<T extends { reportDate: string }>(rows: readonly T[]): T[] {
+  const cleaned = rows
+    .map((row) => {
+      const reportDate = String(row.reportDate ?? "").slice(0, 10);
+      return { row, reportDate };
+    })
+    .filter(({ reportDate }) => reportDate.length >= 10)
+    .sort((a, b) => a.reportDate.localeCompare(b.reportDate));
+
+  const byDate = new Map<string, T>();
+  for (const { row, reportDate } of cleaned) {
+    byDate.set(reportDate, { ...row, reportDate });
+  }
+  return [...byDate.values()];
 }
 
 export function clampScore(score: number): number {
@@ -179,13 +205,13 @@ export function countCommercialExtremePersistence(
   history: CotHistoryPoint[] | undefined,
   side: "bull" | "bear",
 ): number {
-  if (!history || history.length < 27) return 0;
+  if (!history || history.length < 26) return 0;
+  const nets = history.map((h) => h.commercialNet);
 
   let streak = 0;
-  for (let i = history.length - 1; i >= 26; i--) {
-    const prior = history.slice(i - 26, i).map((h) => h.commercialNet);
-    const current = history[i]!.commercialNet;
-    const idx = calculateCotIndex(prior, current);
+  for (let i = nets.length - 1; i >= 25; i--) {
+    const idx = calculateRollingCotIndex(nets, 26, i);
+    if (!isFiniteCotIndex(idx)) break;
     const inExtreme = side === "bull" ? idx > IDX_HI : idx < IDX_LO;
     if (inExtreme) streak += 1;
     else break;
@@ -197,14 +223,14 @@ export function activeCommercialPersistenceStreak(
   commercials: TitanCotScoringInput["commercials"],
   history: CotHistoryPoint[] | undefined,
 ): { weeks: number; side: "bull" | "bear" | "none" } {
-  const c = commercials;
+  const idx = commercials.index26w;
   const bullStreak = countCommercialExtremePersistence(history, "bull");
   const bearStreak = countCommercialExtremePersistence(history, "bear");
 
-  if (c.index26w > IDX_HI) {
+  if (isFiniteCotIndex(idx) && idx > IDX_HI) {
     return { weeks: bullStreak, side: "bull" };
   }
-  if (c.index26w < IDX_LO) {
+  if (isFiniteCotIndex(idx) && idx < IDX_LO) {
     return { weeks: bearStreak, side: "bear" };
   }
   return { weeks: 0, side: "none" };
@@ -240,31 +266,27 @@ function impactFromPoints(points: number, maxAbs: number): string {
 
 function driverCommercialPositioning(
   c: TitanCotScoringInput["commercials"],
-  pine: CotBuySellState | null,
 ): Omit<TitanBiasDriverDetail, "is_primary"> {
-  const idx = Math.max(0, Math.min(100, c.index26w));
-  const points = pine
-    ? cotBuySellPositionPoints(pine, c.index26w)
-    : Math.max(-50, Math.min(50, Math.round(idx - 50)));
+  const raw = c.index26w;
+  if (!isFiniteCotIndex(raw)) {
+    return {
+      id: "commercialPositioning",
+      name: "Commercial Positioning",
+      importance: 50,
+      impact: "Neutral",
+      points: 0,
+      explanation:
+        "Commercial 26W index unavailable (not enough reports or a flat window) — no positioning points.",
+      trigger_conditions: ["commercial_index_26w=unavailable"],
+    };
+  }
+  const idx = Math.max(0, Math.min(100, raw));
+  const points = Math.max(-50, Math.min(50, Math.round(idx - 50)));
   const triggers: string[] = [`commercial_index_26w=${idx}`];
-  if (pine) triggers.push(`cot_buy_sell=${pine.action}`);
   if (idx < IDX_LO) triggers.push("commercial_index_below_20_bearish_extreme");
   if (idx > IDX_HI) triggers.push("commercial_index_above_80_bullish_extreme");
-  const explanation = pine
-    ? pine.action === "BUY"
-      ? "COT BUY — commercials left the 20 zone upward (EXIT LOW)."
-      : pine.action === "SELL"
-        ? "COT SELL — commercials left the 80 zone downward (EXIT HIGH)."
-        : pine.action === "TOUCH_0" || pine.action === "ARMED_BUY"
-          ? "COT TOUCH/ARMED BUY — commercials at/near 0, waiting for EXIT 20."
-          : pine.action === "TOUCH_100" || pine.action === "ARMED_SELL"
-            ? "COT TOUCH/ARMED SELL — commercials at/near 100, waiting for EXIT 80."
-            : pine.action === "HOLD_LONG"
-              ? "HOLD LONG until the opposite EXIT 80 turn."
-              : pine.action === "HOLD_SHORT"
-                ? "HOLD SHORT until the opposite EXIT 20 turn."
-                : "No COT BUY/SELL trigger — muted mid-range follow."
-    : points <= -20
+  const explanation =
+    points <= -20
       ? "26W commercial index toward the short side of its range — supports bearish structural bias."
       : points >= 20
         ? "26W commercial index toward the long side — supports bullish structural bias."
@@ -316,17 +338,8 @@ function driverCommercialDeltaFlow(c: TitanCotScoringInput["commercials"]): Omit
 function driverPersistence(
   c: TitanCotScoringInput["commercials"],
   history: CotHistoryPoint[] | undefined,
-  pine: CotBuySellState | null,
 ): Omit<TitanBiasDriverDetail, "is_primary"> & { weeks: number; side: "bull" | "bear" | "none" } {
-  const ap = pine
-    ? {
-        weeks: pine.regime !== 0 ? pine.holdWeeks : pine.armedBuy || pine.armedSell ? pine.armedWeeks : 0,
-        side: (cotBuySellIsBull(pine) ? "bull" : cotBuySellIsBear(pine) ? "bear" : "none") as
-          | "bull"
-          | "bear"
-          | "none",
-      }
-    : activeCommercialPersistenceStreak(c, history);
+  const ap = activeCommercialPersistenceStreak(c, history);
   const w = ap.weeks;
   const sign = ap.side === "bull" ? 1 : ap.side === "bear" ? -1 : 0;
   let mag = 0;
@@ -366,10 +379,11 @@ function driverNcDivergence(
   c: TitanCotScoringInput["commercials"],
   nc: TitanCotScoringInput["nonCommercials"],
 ): Omit<TitanBiasDriverDetail, "is_primary"> {
-  const commBear = c.index26w < 45;
-  const commBull = c.index26w > 55;
+  const idx = c.index26w;
+  const commBear = isFiniteCotIndex(idx) && idx < 45;
+  const commBull = isFiniteCotIndex(idx) && idx > 55;
   let points = 0;
-  const triggers: string[] = [`nc_divergence=${nc.divergence}`, `commercial_index_26w=${c.index26w}`];
+  const triggers: string[] = [`nc_divergence=${nc.divergence}`, `commercial_index_26w=${idx}`];
   if (commBear && nc.divergence === "bullish") {
     points = 10;
     triggers.push("bullish_flow_divergence_against_low_commercial_index");
@@ -399,12 +413,15 @@ function driverRetailCrowding(
   c: TitanCotScoringInput["commercials"],
   r: TitanCotScoringInput["retail"],
 ): Omit<TitanBiasDriverDetail, "is_primary"> {
-  const dualShort = c.index26w < IDX_LO && c.index52w < IDX_LO;
-  const dualLong = c.index26w > IDX_HI && c.index52w > IDX_HI;
-  const s26Short = c.index26w < IDX_LO;
-  const s26Long = c.index26w > IDX_HI;
-  const retailLong = r.index26w > IDX_HI;
-  const retailShort = r.index26w < IDX_LO;
+  const c26 = c.index26w;
+  const c52 = c.index52w;
+  const r26 = r.index26w;
+  const dualShort = isFiniteCotIndex(c26) && isFiniteCotIndex(c52) && c26 < IDX_LO && c52 < IDX_LO;
+  const dualLong = isFiniteCotIndex(c26) && isFiniteCotIndex(c52) && c26 > IDX_HI && c52 > IDX_HI;
+  const s26Short = isFiniteCotIndex(c26) && c26 < IDX_LO;
+  const s26Long = isFiniteCotIndex(c26) && c26 > IDX_HI;
+  const retailLong = isFiniteCotIndex(r26) && r26 > IDX_HI;
+  const retailShort = isFiniteCotIndex(r26) && r26 < IDX_LO;
   let points = 0;
   const triggers: string[] = [
     `commercial_26w=${c.index26w}`,
@@ -472,43 +489,18 @@ function computeMarketRegime(
   flowBear: boolean,
   flowBull: boolean,
   flowMixed: boolean,
-  pine: CotBuySellState | null,
 ): { regime: TitanMarketRegime; explanation: string } {
-  if (pine) {
-    if (pine.sigExitBuy || pine.regime === 1) {
-      return {
-        regime: "ACCUMULATION",
-        explanation: "HOLD LONG after COT EXIT 20 (BUY turn).",
-      };
-    }
-    if (pine.sigExitSell || pine.regime === -1) {
-      return {
-        regime: "DISTRIBUTION",
-        explanation: "HOLD SHORT after COT EXIT 80 (SELL turn).",
-      };
-    }
-    if (pine.armedSell || pine.sigTouchSell) {
-      return {
-        regime: "EXHAUSTION",
-        explanation: "TOUCH/ARMED SELL — waiting for EXIT 80.",
-      };
-    }
-    if (pine.armedBuy || pine.sigTouchBuy) {
-      return {
-        regime: "EXHAUSTION",
-        explanation: "TOUCH/ARMED BUY — waiting for EXIT 20.",
-      };
-    }
-  }
   const c = input.commercials;
   const r = input.retail;
   const nc = input.nonCommercials;
-  const commBearExt = c.index26w < IDX_LO;
-  const commBullExt = c.index26w > IDX_HI;
-  const retailLong = r.index26w > IDX_HI;
-  const retailCrowdedLong = r.index26w > 60;
-  const retailShort = r.index26w < IDX_LO;
-  const retailCrowdedShort = r.index26w < 40;
+  const c26 = c.index26w;
+  const r26 = r.index26w;
+  const commBearExt = isFiniteCotIndex(c26) && c26 < IDX_LO;
+  const commBullExt = isFiniteCotIndex(c26) && c26 > IDX_HI;
+  const retailLong = isFiniteCotIndex(r26) && r26 > IDX_HI;
+  const retailCrowdedLong = isFiniteCotIndex(r26) && r26 > 60;
+  const retailShort = isFiniteCotIndex(r26) && r26 < IDX_LO;
+  const retailCrowdedShort = isFiniteCotIndex(r26) && r26 < 40;
 
   if (
     commBearExt &&
@@ -576,9 +568,10 @@ function buildKeyDrivers(
   _retailPoints: number,
 ): { structural: StructuralBulletId[]; execution: string[] } {
   const structural: StructuralBulletId[] = [];
-  if (c.index26w < 35) structural.push("commercials_heavy_short");
-  if (c.index26w > 65) structural.push("commercials_heavy_long");
-  if (c.index26w < IDX_LO || c.index26w > IDX_HI) {
+  const c26 = c.index26w;
+  if (isFiniteCotIndex(c26) && c26 < 35) structural.push("commercials_heavy_short");
+  if (isFiniteCotIndex(c26) && c26 > 65) structural.push("commercials_heavy_long");
+  if (isFiniteCotIndex(c26) && (c26 < IDX_LO || c26 > IDX_HI)) {
     structural.push("extreme_territory");
   }
   if (components.commercialDeltaFlow < -10) structural.push("flow_negative");
@@ -596,12 +589,9 @@ export function computeUnifiedCotScore(input: TitanCotScoringInput): TitanCotSco
   const c = input.commercials;
   const r = input.retail;
   const nc = input.nonCommercials;
-
-  const pine = evaluateCotBuySellFromHistory(input.history);
-
-  const d1 = driverCommercialPositioning(c, pine);
+  const d1 = driverCommercialPositioning(c);
   const d2 = driverCommercialDeltaFlow(c);
-  const d3full = driverPersistence(c, input.history, pine);
+  const d3full = driverPersistence(c, input.history);
   const { weeks: persistWeeks, side: persistenceSide, ...d3rest } = d3full;
   const d3: Omit<TitanBiasDriverDetail, "is_primary"> = d3rest;
   const d4 = driverNcDivergence(c, nc);
@@ -642,7 +632,6 @@ export function computeUnifiedCotScore(input: TitanCotScoringInput): TitanCotSco
     flowBear,
     flowBull,
     flowMixed,
-    pine,
   );
   const { structural, execution } = buildKeyDrivers(c, persistWeeks, components, score, d5.points);
 

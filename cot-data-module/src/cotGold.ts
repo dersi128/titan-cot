@@ -11,7 +11,11 @@ import {
   type InstitutionalDivergence,
   type RetailContrarian,
 } from "./cotLogicEngine.js";
-import { calculateCotIndexAgainstPrior, computeUnifiedCotScore } from "./titanCotScoringCore.js";
+import {
+  calculateRollingCotIndex,
+  computeUnifiedCotScore,
+  uniqueSortedNetHistory,
+} from "./titanCotScoringCore.js";
 
 const CFTC_LEGACY_FUTURES_ONLY_URL =
   "https://publicreporting.cftc.gov/resource/6dca-aqww.json";
@@ -32,8 +36,8 @@ type RawCotRow = {
 
 type CotGroupSnapshot = {
   net: number;
-  index26w: number;
-  index52w: number;
+  index26w: number | null;
+  index52w: number | null;
   weeklyChange: number;
   delta4w: number;
   delta13w: number;
@@ -139,7 +143,7 @@ export async function fetchCotDashboardData(
 
   const weeks = options.weeks ?? DEFAULT_HISTORY_WEEKS;
   const rows = await fetchLegacyFuturesOnlyRows(mapping, weeks, options.fetchImpl ?? fetch);
-  const series = rows.map(toNetSeriesPoint).sort(sortByReportDateAsc);
+  const series = uniqueSortedNetHistory(rows.map(toNetSeriesPoint));
 
   if (series.length === 0) {
     throw new Error(`No CFTC Legacy Futures Only rows found for ${mapping.displayName}.`);
@@ -319,8 +323,8 @@ function buildGroupSnapshot(
 
   return {
     net: latest[key],
-    index26w: calculateCotIndexAgainstPrior(nets, 26),
-    index52w: calculateCotIndexAgainstPrior(nets, 52),
+    index26w: calculateRollingCotIndex(nets, 26),
+    index52w: calculateRollingCotIndex(nets, 52),
     weeklyChange: 0,
     delta4w: netLagDelta(series, key, 4),
     delta13w: netLagDelta(series, key, 13),
@@ -350,9 +354,6 @@ function normalizeSocrataDate(value: string): string {
   return value.slice(0, 10);
 }
 
-function sortByReportDateAsc(a: NetSeriesPoint, b: NetSeriesPoint): number {
-  return a.reportDate.localeCompare(b.reportDate);
-}
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   fetchGoldCotDashboardData()

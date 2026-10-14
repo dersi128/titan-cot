@@ -9,6 +9,7 @@ type TitanHomeHeroProps = {
   liveCount: number;
   refreshSec: number;
   refreshLabel: string;
+  positionsDate: string | null;
 };
 
 function sectionEyebrow(section: AppSection, t: (key: string) => string): string {
@@ -31,6 +32,7 @@ export function TitanHomeHero({
   liveCount,
   refreshSec,
   refreshLabel,
+  positionsDate,
 }: TitanHomeHeroProps) {
   const { t } = useTitanI18n();
 
@@ -62,17 +64,12 @@ export function TitanHomeHero({
           </span>
         </div>
         <div className="titan-home-hero-v2__clock">
-          <span className="titan-home-hero-v2__clock-kicker">{t("header.data")}</span>
-          <span className="titan-home-hero-v2__clock-value">
-            <svg className="titan-home-hero-v2__refresh" viewBox="0 0 16 16" aria-hidden>
-              <path
-                fill="currentColor"
-                d="M13.6 8a5.6 5.6 0 1 1-1.7-4.05l.9.9H10v1.4h4.4V2H13v2.05A7 7 0 1 0 15 8h-1.4Z"
-              />
-            </svg>
-            {t("header.refreshSec", { sec: refreshSec })}
+          <span className="titan-home-hero-v2__clock-kicker">{t("header.report")}</span>
+          <span className="titan-home-hero-v2__clock-value">{positionsDate ?? "—"}</span>
+          <span className="titan-home-hero-v2__clock-sub">
+            {t("header.updated", { time: refreshLabel })} · {t("header.refreshSec", { sec: refreshSec })} ·{" "}
+            {t("header.refreshNotCot")}
           </span>
-          <span className="titan-home-hero-v2__clock-sub">{t("header.updated", { time: refreshLabel })}</span>
         </div>
       </div>
     </div>

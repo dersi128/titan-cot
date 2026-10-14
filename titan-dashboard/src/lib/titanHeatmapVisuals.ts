@@ -1,12 +1,14 @@
 import type { InstitutionalMarket } from "../config/institutionalMarkets";
 
-export type HeatmapGroupId = "forex" | "metals" | "commodities" | "indices";
+export type HeatmapGroupId = "forex" | "metals" | "commodities" | "bonds" | "indices" | "other";
 
 export const HEATMAP_GROUP_ORDER: readonly HeatmapGroupId[] = [
   "forex",
   "metals",
   "commodities",
+  "bonds",
   "indices",
+  "other",
 ];
 
 const CATEGORY_TO_GROUP: Record<InstitutionalMarket["category"], HeatmapGroupId> = {
@@ -16,7 +18,9 @@ const CATEGORY_TO_GROUP: Record<InstitutionalMarket["category"], HeatmapGroupId>
   grains: "commodities",
   softs: "commodities",
   livestock: "commodities",
+  bonds: "bonds",
   indices: "indices",
+  other: "other",
 };
 
 const COMMODITY_CATEGORY_ORDER: readonly InstitutionalMarket["category"][] = [

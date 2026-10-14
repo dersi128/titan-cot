@@ -200,11 +200,17 @@ function Metric({
 }: {
   label: string;
   value: string;
-  heat?: number;
+  heat?: number | null;
   emphasize?: boolean;
 }) {
   const cls =
-    heat !== undefined ? (heat >= 80 ? "bull" : heat <= 20 ? "bear" : "neutral") : "neutral";
+    heat !== undefined && heat !== null && Number.isFinite(heat)
+      ? heat >= 80
+        ? "bull"
+        : heat <= 20
+          ? "bear"
+          : "neutral"
+      : "neutral";
 
   return (
     <div className={`cot-detail-metric ${emphasize ? "emphasize" : ""}`}>
@@ -214,7 +220,8 @@ function Metric({
   );
 }
 
-function fmt(n: number): string {
+function fmt(n: number | null | undefined): string {
+  if (n === null || n === undefined || !Number.isFinite(n)) return "—";
   return n.toFixed(1);
 }
 

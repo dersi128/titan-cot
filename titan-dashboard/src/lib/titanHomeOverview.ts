@@ -109,9 +109,10 @@ function emptyBreadth(liveCount = 0): HomeBreadthSnapshot {
   };
 }
 
-function isCommercial26wExtreme(index26w: number): boolean {
+function isCommercial26wExtreme(index26w: number | null | undefined): boolean {
+  if (index26w === null || index26w === undefined || !Number.isFinite(index26w)) return false;
   const z = commercialIndexZone(index26w);
-  return z === "extreme_short" || z === "extreme_long" || index26w <= 20 || index26w >= 80;
+  return z === "extreme_short" || z === "extreme_long" || index26w < 20 || index26w > 80;
 }
 
 function zoneSide(zone: CommercialZoneId): "bull" | "bear" | "mid" {
@@ -140,9 +141,10 @@ function buildDmeSnapshot(bundle: Record<string, CotDashboardData>): HomeDmeSnap
     available: true,
     regime: read?.regime ?? "neutral",
     score: Number.isFinite(dxy.cotScore) ? Math.round(dxy.cotScore) : null,
-    commercial26w: Number.isFinite(dxy.commercials.index26w)
-      ? Math.round(dxy.commercials.index26w)
-      : null,
+    commercial26w:
+      dxy.commercials.index26w !== null && Number.isFinite(dxy.commercials.index26w)
+        ? Math.round(dxy.commercials.index26w)
+        : null,
   };
 }
 
