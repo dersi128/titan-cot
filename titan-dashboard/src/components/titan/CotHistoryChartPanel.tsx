@@ -13,6 +13,7 @@ import type { CotHistoryPoint } from "../../types";
 import {
   buildCotHistoryChart,
   COT_CHART_RANGE_OPTIONS,
+  COT_INDEX_AXIS,
   type CotChartMode,
   type CotChartRangeWeeks,
   type CotHistoryChartPoint,
@@ -167,11 +168,19 @@ export function CotHistoryChartPanel({
                   height={52}
                 />
                 <YAxis
+                  domain={chartMode === "index26w" ? COT_INDEX_AXIS : ["auto", "auto"]}
+                  ticks={chartMode === "index26w" ? [0, 20, 80, 100] : undefined}
                   tick={{ fill: "#78716c", fontSize: 10, fontFamily: "JetBrains Mono" }}
                   tickLine={false}
                   axisLine={{ stroke: "rgba(37,37,45,0.8)" }}
                   tickFormatter={(value) => yTick(chartMode, Number(value))}
                 />
+                {chartMode === "index26w" ? (
+                  <>
+                    <ReferenceLine y={80} stroke="rgba(16,185,129,0.22)" strokeDasharray="3 4" />
+                    <ReferenceLine y={20} stroke="rgba(244,63,94,0.22)" strokeDasharray="3 4" />
+                  </>
+                ) : null}
                 <Tooltip contentStyle={CHART_TOOLTIP_STYLE} labelStyle={{ color: "#a8a29e" }} />
                 <Legend wrapperStyle={{ fontSize: 11, paddingTop: 8 }} />
                 {marker ? (
@@ -198,7 +207,7 @@ export function CotHistoryChartPanel({
                     dot={false}
                     activeDot={{ r: 4 }}
                     animationDuration={400}
-                    connectNulls
+                    connectNulls={chartMode !== "index26w"}
                   />
                 ))}
               </LineChart>

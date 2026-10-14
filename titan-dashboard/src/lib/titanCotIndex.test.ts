@@ -9,7 +9,10 @@ import {
   type TitanCotScoringInput,
 } from "./titanCotScoringCore";
 import { cotBuySellHeadline, cotBuySellHoldArmedConflict, evaluateCotBuySell } from "./titanCotBuySell";
-import { evaluateTitanCot } from "./titanCotScore";
+import { evaluateTitanCot, normalizeCotDashboardData } from "./titanCotScore";
+import { CFTC_LEGACY_CONTRACT_CODES, cftcLegacyCodeForSymbol } from "./cftcLegacyCodes";
+import { COT_MARKET_MAPPINGS as dashboardMap } from "./cotMarketMap";
+import { COT_INDEX_AXIS } from "./cotHistoryChart";
 import type { CotDashboardData, CotHistoryPoint } from "../types";
 import { rebuildCotDashboardFromHistory } from "./cotAsOfSnapshot";
 import {
@@ -17,7 +20,7 @@ import {
   COT_MARKET_MAPPINGS,
   getCotMarketMapping,
 } from "../../../cot-data-module/src/cotMarketMap";
-import { commercialIndexBand } from "./titanCotIndexSettings";
+import { commercialIndexBand, formatCommercialIndex } from "./titanCotIndexSettings";
 import { heatmapToneFromComm26 } from "./titanHeatmapVisuals";
 
 /** CFTC Legacy commercial nets as of 2026-10-06 (26 inclusive reports). Verification only. */
@@ -240,5 +243,50 @@ describe("main score vs reversal model", () => {
     assert.equal(snap.commercials.index26w, idx);
     assert.equal(evaluateTitanCot(snap).score, api.score);
     assert.equal(evaluateTitanCot(snap).components.commercialPositioning, api.components.commercialPositioning);
+  });
+});
+
+describe("preview Legacy codes and client index rebuild", () => {
+  it("uses NYMEX WTI and Natural Gas codes on the dashboard backend map", () => {
+    assert.equal(cftcLegacyCodeForSymbol("CL1!"), "067651");
+    assert.equal(cftcLegacyCodeForSymbol("NG1!"), "023651");
+    assert.equal(CFTC_LEGACY_CONTRACT_CODES["CL1!"] === "067411", false);
+    assert.equal(CFTC_LEGACY_CONTRACT_CODES["NG1!"] === "03565B", false);
+    for (const mapping of dashboardMap) {
+      assert.equal(typeof CFTC_LEGACY_CONTRACT_CODES[mapping.futuresSymbol], "string", mapping.futuresSymbol);
+    }
+  });
+
+  it("rebuilds a stale exclusive-window API index from history instead of clipping", () => {
+    const nets = Array.from({ length: 25 }, () => 10).concat([50]);
+    const history: CotHistoryPoint[] = nets.map((commercialNet, i) => ({
+      reportDate: `2026-04-${String(i + 1).padStart(2, "0")}`,
+      commercialNet,
+      nonCommercialNet: 0,
+      retailNet: 0,
+    }));
+    const stale = template();
+    stale.commercials.index26w = 125;
+    stale.retail.index26w = -10;
+    stale.cotScore = 999;
+    stale.history = history;
+    const normalized = normalizeCotDashboardData(stale);
+    assert.equal(normalized.commercials.index26w, 100);
+    assert.equal(normalized.retail.index26w, null);
+    assert.notEqual(normalized.cotScore, 999);
+    assert.ok(normalized.cotScore <= 100);
+    assert.ok(normalized.cotScore >= -100);
+  });
+
+  it("keeps the commercial index chart on a 0–100 axis, not ±100", () => {
+    assert.deepEqual(COT_INDEX_AXIS, [0, 100]);
+  });
+
+  it("formats commercial and retail index on 0–100 without a ±100 remap", () => {
+    assert.equal(formatCommercialIndex(100), "100");
+    assert.equal(formatCommercialIndex(0), "0");
+    assert.equal(formatCommercialIndex(74.44), "74");
+    assert.equal(formatCommercialIndex(null), "—");
+    assert.equal(formatCommercialIndex(undefined), "—");
   });
 });

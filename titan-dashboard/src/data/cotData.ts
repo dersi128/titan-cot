@@ -61,6 +61,7 @@ export type CotLoadResult =
 export async function loadCotDataForMarket(futuresSymbol: string): Promise<CotLoadResult> {
   const response = await fetch(
     `${getCotApiBase()}/api/cot/${encodeURIComponent(futuresSymbol)}`,
+    { cache: "no-store" },
   );
 
   if (response.status === 404 || response.status === 501) {
@@ -93,7 +94,8 @@ export async function loadAllMappedCotData(
 }> {
   const symbols = mappings.map((m) => m.futuresSymbol).join(",");
   const response = await fetch(
-    `${getCotApiBase()}/api/cot/bundle?symbols=${encodeURIComponent(symbols)}`,
+    `${getCotApiBase()}/api/cot/bundle?symbols=${encodeURIComponent(symbols)}&index=inclusive`,
+    { cache: "no-store" },
   );
 
   if (!response.ok) {

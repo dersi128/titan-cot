@@ -24,6 +24,7 @@ import {
   type RatesLeanId,
   type UsdStanceId,
 } from "../../../lib/titanDmeOverview";
+import { COT_INDEX_AXIS } from "../../../lib/cotHistoryChart";
 import {
   commercialIndexToneClass,
   DEFAULT_COT_INDEX_ZONE_THRESHOLDS,
@@ -567,14 +568,8 @@ Final alignment: ${t(`pages.dme.alignment.${alignment}`)}`}
                   minTickGap={48}
                 />
                 <YAxis
-                  domain={
-                    chartIsIndex
-                      ? [
-                          (dataMin: number) => Math.min(dataMin, zones.extremeLow) - 5,
-                          (dataMax: number) => Math.max(dataMax, zones.extremeHigh) + 5,
-                        ]
-                      : ["auto", "auto"]
-                  }
+                  domain={chartIsIndex ? COT_INDEX_AXIS : ["auto", "auto"]}
+                  ticks={chartIsIndex ? [0, 20, 80, 100] : undefined}
                   tick={{ fill: "#78716c", fontSize: 10 }}
                   tickLine={false}
                   axisLine={false}

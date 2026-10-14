@@ -112,7 +112,7 @@ export const csMessages: Messages = {
     legendColor:
       "Velké číslo = relativní commercial 26T index (0–100), ne čistý net. 100 = maximum okna (může zůstat net short; není nákup). Extrém TITAN 20/80 (Max často 25/75).",
     legendRetail: "Jantarový rámeček = retail 26T extrém (20/80)",
-    comm26: "Comm 26T",
+    comm26: "Comm 26T · 0–100",
     retailExtreme: "Retail extrém",
     group: {
       forex: "Forex",
@@ -196,7 +196,7 @@ export const csMessages: Messages = {
     },
     chartModeHint: {
       net: "Commercial, non-commercial a retail net kontrakty",
-      index26w: "26týdenní COT index (commercial + retail)",
+      index26w: "26týdenní COT index 0–100 (commercial + retail). TITAN skóre je zvlášť −100…+100.",
       delta1w: "Týdenní změna net kontraktů",
     },
     chartAsOfMarker: "k datu",
@@ -207,6 +207,7 @@ export const csMessages: Messages = {
     chartRetailDelta: "Retail Δ1T",
     indexPanel: {
       title: "Commercial COT Index",
+      scale: "Stupnice 0–100. Celkové TITAN skóre je zvlášť −100…+100.",
       comm26: "Commercial 26T",
       comm52: "Commercial 52T",
       delta1w: "Δ1T",
@@ -422,11 +423,11 @@ export const csMessages: Messages = {
     cards: {
       commercial: {
         title: "COMMERCIAL INDEX",
-        subtitle: "Smart Money positioning",
+        subtitle: "26T index 0–100 · ne TITAN skóre",
       },
       retail: {
         title: "RETAIL INDEX",
-        subtitle: "Retail crowd positioning",
+        subtitle: "26T index 0–100 · ne TITAN skóre",
       },
       delta: {
         title: "DELTA FLOW",
@@ -492,7 +493,7 @@ export const csMessages: Messages = {
     subtitle: "Deterministický institucionální COT bias — není execution signál",
     unavailable: "COT bias data nejsou k dispozici.",
     totalScore: "Total score",
-    totalScoreLabel: "CELKOVÉ SKÓRE",
+    totalScoreLabel: "CELKOVÉ TITAN SKÓRE (−100…+100)",
     rawScoreLabel: "RAW SKÓRE",
     clampedScoreLabel: "OMEZENÉ SKÓRE",
     clampNote: "CELKOVÉ SKÓRE je oříznuté na rozsah −100…+100. Součet driverů před oříznutím: {{raw}}.",

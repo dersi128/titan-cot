@@ -1,4 +1,5 @@
 # Přesné názvy souborů PNG (= market id v kódu)
+# 42 ikon, 128 × 128 px, průhledné okolí; vhodné pro UI 40–52 px.
 
 DXY.png
 EUR.png
@@ -8,6 +9,7 @@ AUD.png
 CAD.png
 CHF.png
 NZD.png
+MXN.png
 GOLD.png
 SILVER.png
 PLATINUM.png
@@ -15,16 +17,29 @@ PALLADIUM.png
 COPPER.png
 OIL.png
 NATGAS.png
+GASOLINE.png
+HEATOIL.png
 CORN.png
 SOYBEANS.png
+SOYMEAL.png
+SOYOIL.png
 WHEAT.png
+RICE.png
 COFFEE.png
 COCOA.png
 SUGAR.png
 COTTON.png
+OJ.png
 CATTLE.png
+FEEDERCATTLE.png
 HOGS.png
+US5Y.png
+US10Y.png
+US30Y.png
 SP500.png
 NAS100.png
 DOW.png
 RUSSELL.png
+BTC.png
+ETH.png
+VIX.png

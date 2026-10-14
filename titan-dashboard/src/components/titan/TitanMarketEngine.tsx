@@ -8,6 +8,7 @@ import {
   type DeltaFlowRow,
   type TitanPositioningRead,
 } from "../../lib/titanCommercialIndex";
+import { formatCommercialIndex } from "../../lib/titanCotIndexSettings";
 import { useTitanI18n } from "../../i18n";
 import { DeltaFlowHorizonChart } from "./DeltaFlowHorizonChart";
 
@@ -83,81 +84,30 @@ function clampIdx(v: number): number {
   return Math.max(0, Math.min(100, v));
 }
 
-/** Map legacy 0–100 index (short→long) to symmetric −100…+100 with 0 = neutral mid-range. */
-function indexToBipolar(index0to100: number): number {
-  return 2 * clampIdx(index0to100) - 100;
+function indexY(index: number, padY: number, plotH: number): number {
+  return padY + (1 - clampIdx(index) / 100) * plotH;
 }
 
-function fmtBipolar(b: number): string {
-  const r = Math.round(b);
-  return r > 0 ? `+${r}` : `${r}`;
-}
+type TrajPt = { x: number; y: number };
 
-function bipolarY(b: number, padY: number, plotH: number): number {
-  return padY + (1 - (b + 100) / 200) * plotH;
-}
-
-type TrajPt = { x: number; y: number; b: number };
-
-function expandTrajectoryWithZeroCrossings(
-  values: number[],
-  padX: number,
-  plotW: number,
-  padY: number,
-  plotH: number,
-): TrajPt[] {
+function trajectoryPoints(values: number[], padX: number, plotW: number, padY: number, plotH: number): TrajPt[] {
   const n = values.length;
   if (n < 2) return [];
-  const bs = values.map((v) => indexToBipolar(v));
-  const out: TrajPt[] = [];
-  for (let i = 0; i < n; i++) {
-    const x = padX + (i / (n - 1)) * plotW;
-    const b = bs[i]!;
-    out.push({ x, y: bipolarY(b, padY, plotH), b });
-    if (i < n - 1) {
-      const b2 = bs[i + 1]!;
-      if ((b < 0 && b2 > 0) || (b > 0 && b2 < 0)) {
-        const t = b / (b - b2);
-        const x2 = padX + ((i + 1) / (n - 1)) * plotW;
-        const xCross = x + t * (x2 - x);
-        out.push({ x: xCross, y: bipolarY(0, padY, plotH), b: 0 });
-      }
-    }
-  }
-  return out;
+  return values.map((value, i) => ({
+    x: padX + (i / (n - 1)) * plotW,
+    y: indexY(value, padY, plotH),
+  }));
 }
 
-function smoothLinePath(pts: TrajPt[]): string {
+function linePath(pts: TrajPt[]): string {
   return pts
-    .map((p, i) => {
-      if (i === 0) return `M ${p.x} ${p.y}`;
-      const prev = pts[i - 1]!;
-      const cx = (prev.x + p.x) / 2;
-      return `Q ${cx} ${prev.y} ${p.x} ${p.y}`;
-    })
+    .map((p, i) => (i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`))
     .join(" ");
 }
 
-function chunkTrajectoryBySign(expanded: TrajPt[]): TrajPt[][] {
-  const chunks: TrajPt[][] = [];
-  let buf: TrajPt[] = [];
-  for (const p of expanded) {
-    if (p.b === 0 && buf.length > 0) {
-      buf.push(p);
-      chunks.push(buf);
-      buf = [p];
-    } else {
-      buf.push(p);
-    }
-  }
-  if (buf.length) chunks.push(buf);
-  return chunks;
-}
-
-/** Index path: −100 bottom (short), 0 center, +100 top (long); line red when ≤0, green when ≥0. */
-function BipolarIndexTrajectoryChart({ values, label }: { values: number[]; label: string }) {
+/** Commercial / retail COT index path on 0–100. TITAN score stays −100…+100 elsewhere. */
+function CotIndexTrajectoryChart({ values, label }: { values: number[]; label: string }) {
   const uid = useId().replace(/:/g, "");
-
   if (values.length < 2) return null;
 
   const w = 320;
@@ -166,111 +116,58 @@ function BipolarIndexTrajectoryChart({ values, label }: { values: number[]; labe
   const padY = 5;
   const plotW = w - padX * 2;
   const plotH = h - padY * 2;
+  const pts = trajectoryPoints(values, padX, plotW, padY, plotH);
+  if (pts.length < 2) return null;
 
-  const expanded = expandTrajectoryWithZeroCrossings(values, padX, plotW, padY, plotH);
-  const chunks = chunkTrajectoryBySign(expanded).filter((c) => c.length >= 2);
-  const yMid = bipolarY(0, padY, plotH);
-  const yBandHi = bipolarY(50, padY, plotH);
-  const yBandLo = bipolarY(-50, padY, plotH);
-  const last = expanded[expanded.length - 1]!;
+  const lastValue = values[values.length - 1]!;
+  const last = pts[pts.length - 1]!;
+  const first = pts[0]!;
+  const d = linePath(pts);
+  const areaD = `${d} L ${last.x} ${padY + plotH} L ${first.x} ${padY + plotH} Z`;
+  const tone = lastValue > 80 ? "bull" : lastValue < 20 ? "bear" : "gold";
 
   return (
-    <div className="titan-index-trajectory titan-index-trajectory--bipolar">
+    <div className={`titan-index-trajectory titan-index-trajectory--${tone}`}>
       <p className="titan-index-trajectory__label">{label}</p>
       <svg viewBox={`0 0 ${w} ${h}`} className="titan-index-trajectory__svg" preserveAspectRatio="none" aria-hidden>
         <defs>
-          <linearGradient id={`titan-traj-neg-${uid}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="rgba(255, 95, 115, 0.35)" />
-            <stop offset="100%" stopColor="rgba(255, 95, 115, 0)" />
-          </linearGradient>
-          <linearGradient id={`titan-traj-pos-${uid}`} x1="0" y1="1" x2="0" y2="0">
-            <stop offset="0%" stopColor="rgba(0, 208, 132, 0)" />
-            <stop offset="100%" stopColor="rgba(0, 208, 132, 0.32)" />
+          <linearGradient id={`titan-idx-fill-${uid}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="currentColor" stopOpacity="0.28" />
+            <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
           </linearGradient>
         </defs>
-        <line x1={padX} y1={yMid} x2={w - padX} y2={yMid} className="titan-index-trajectory__guide titan-index-trajectory__guide--zero" />
-        <line x1={padX} y1={yBandHi} x2={w - padX} y2={yBandHi} className="titan-index-trajectory__guide" />
-        <line x1={padX} y1={yBandLo} x2={w - padX} y2={yBandLo} className="titan-index-trajectory__guide" />
-        {chunks.map((chunk, idx) => {
-          const signs = chunk.map((pt) => pt.b).filter((b) => b !== 0);
-          if (signs.length === 0) return null;
-          const neg = signs[0]! < 0;
-          if (!signs.every((s) => (neg ? s < 0 : s > 0))) return null;
-          const d = smoothLinePath(chunk);
-          const first = chunk[0]!;
-          const end = chunk[chunk.length - 1]!;
-          const areaD = `${d} L ${end.x} ${yMid} L ${first.x} ${yMid} Z`;
-          return (
-            <g key={idx}>
-              <path
-                d={areaD}
-                fill={neg ? `url(#titan-traj-neg-${uid})` : `url(#titan-traj-pos-${uid})`}
-                className="titan-index-trajectory__area-bipolar"
-              />
-              <path d={d} fill="none" className={neg ? "titan-index-trajectory__line--neg" : "titan-index-trajectory__line--pos"} />
-            </g>
-          );
-        })}
-        <circle
-          cx={last.x}
-          cy={last.y}
-          r="3.2"
-          className={
-            last.b < 0
-              ? "titan-index-trajectory__dot-bipolar titan-index-trajectory__dot-bipolar--neg"
-              : last.b > 0
-                ? "titan-index-trajectory__dot-bipolar titan-index-trajectory__dot-bipolar--pos"
-                : "titan-index-trajectory__dot-bipolar titan-index-trajectory__dot-bipolar--mid"
-          }
-        />
-        <circle
-          cx={last.x}
-          cy={last.y}
-          r="6"
-          className={
-            last.b < 0
-              ? "titan-index-trajectory__dot-halo-bipolar titan-index-trajectory__dot-halo-bipolar--neg"
-              : last.b > 0
-                ? "titan-index-trajectory__dot-halo-bipolar titan-index-trajectory__dot-halo-bipolar--pos"
-                : "titan-index-trajectory__dot-halo-bipolar"
-          }
-        />
+        <line x1={padX} y1={indexY(80, padY, plotH)} x2={w - padX} y2={indexY(80, padY, plotH)} className="titan-index-trajectory__guide" />
+        <line x1={padX} y1={indexY(50, padY, plotH)} x2={w - padX} y2={indexY(50, padY, plotH)} className="titan-index-trajectory__guide titan-index-trajectory__guide--zero" />
+        <line x1={padX} y1={indexY(20, padY, plotH)} x2={w - padX} y2={indexY(20, padY, plotH)} className="titan-index-trajectory__guide" />
+        <path d={areaD} fill={`url(#titan-idx-fill-${uid})`} />
+        <path d={d} fill="none" className="titan-index-trajectory__line" />
+        <circle cx={last.x} cy={last.y} r="3.2" className="titan-index-trajectory__dot" />
+        <circle cx={last.x} cy={last.y} r="6" className="titan-index-trajectory__dot-halo" />
       </svg>
     </div>
   );
 }
 
-/** 0 = center (−100…+100); red fill left of center, green right; keeps same COT index math, new UI scale. */
-function BipolarRangeBar({ index0to100, glow }: { index0to100: number; glow: number }) {
-  const b = indexToBipolar(index0to100);
-  const markerPct = 50 + (b / 100) * 50;
+/** 0 left, 100 right. Unavailable indexes are not rendered. */
+function CotIndexRangeBar({ index0to100, glow }: { index0to100: number; glow: number }) {
+  const pct = clampIdx(index0to100);
   const glowAlpha = Math.min(1, glow / 100);
+  const tone = pct > 80 ? "bull" : pct < 20 ? "bear" : "";
 
   return (
     <div
-      className="titan-engine-meter titan-engine-meter--bipolar"
+      className={`titan-engine-meter titan-engine-meter--range${tone ? ` titan-engine-meter--${tone}` : ""}`}
       style={{ "--zone-glow": glowAlpha } as CSSProperties}
     >
-      <div className="titan-engine-meter__track titan-engine-meter__track--bipolar relative h-2">
-        <span className="titan-engine-meter__mid" aria-hidden />
-        {b < 0 ? (
-          <span
-            className="titan-engine-meter__fill titan-engine-meter__fill--neg-bipolar absolute bottom-0 top-0 rounded-full"
-            style={{ left: `${markerPct}%`, width: `${50 - markerPct}%` }}
-          />
-        ) : null}
-        {b > 0 ? (
-          <span
-            className="titan-engine-meter__fill titan-engine-meter__fill--pos-bipolar absolute bottom-0 top-0 rounded-full"
-            style={{ left: "50%", width: `${markerPct - 50}%` }}
-          />
-        ) : null}
-        <span className="titan-engine-meter__marker" style={{ left: `${markerPct}%` }} aria-hidden />
+      <div className="titan-engine-meter__track relative h-2 overflow-visible">
+        <span className="titan-engine-meter__fill absolute bottom-0 left-0 top-0 rounded-full" style={{ width: `${pct}%` }} />
+        <span className="titan-engine-meter__marker" style={{ left: `${pct}%` }} aria-hidden />
       </div>
       <div className="mt-1.5 flex justify-between font-mono text-[9px] text-stone-600">
-        <span>−100</span>
         <span>0</span>
-        <span>+100</span>
+        <span>20</span>
+        <span>80</span>
+        <span>100</span>
       </div>
     </div>
   );
@@ -385,17 +282,17 @@ function PositioningContext({
           <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-stone-500">{t("positioning.cards.commercial.subtitle")}</p>
           <div className="mt-3">
             <p className="titan-terminal-metric">
-              {read.commercialIndex == null ? "—" : fmtBipolar(indexToBipolar(read.commercialIndex))}
+              {formatCommercialIndex(read.commercialIndex)}
             </p>
             <p className={`titan-terminal-state titan-terminal-state--${commTone}`}>{t(commercialStateKey(read.commercialZone))}</p>
           </div>
           {read.commercialIndex != null ? (
             <div className="mt-4">
-              <BipolarRangeBar index0to100={read.commercialIndex} glow={read.commercialGlow} />
+              <CotIndexRangeBar index0to100={read.commercialIndex} glow={read.commercialGlow} />
             </div>
           ) : null}
           <div className="mt-3">
-            <BipolarIndexTrajectoryChart values={read.commercialSparkline} label={t("positioning.trajectory")} />
+            <CotIndexTrajectoryChart values={read.commercialSparkline} label={t("positioning.trajectory")} />
           </div>
           <footer className="mt-4 grid gap-2 border-t border-white/[0.06] pt-3 sm:grid-cols-2">
             <div>
@@ -419,7 +316,7 @@ function PositioningContext({
           <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-stone-500">{t("positioning.cards.retail.subtitle")}</p>
           <div className="mt-3">
             <p className="titan-terminal-metric">
-              {read.retailIndex == null ? "—" : fmtBipolar(indexToBipolar(read.retailIndex))}
+              {formatCommercialIndex(read.retailIndex)}
             </p>
             <p className={`titan-terminal-state titan-terminal-state--${retailTone}`}>
               {t(`positioning.retailState.${retailPositioningLabel(read.retailZone)}`)}
@@ -427,11 +324,11 @@ function PositioningContext({
           </div>
           {read.retailIndex != null ? (
             <div className="mt-4">
-              <BipolarRangeBar index0to100={read.retailIndex} glow={read.commercialGlow} />
+              <CotIndexRangeBar index0to100={read.retailIndex} glow={read.commercialGlow} />
             </div>
           ) : null}
           <div className="mt-3">
-            <BipolarIndexTrajectoryChart values={read.retailSparkline} label={t("positioning.trajectory")} />
+            <CotIndexTrajectoryChart values={read.retailSparkline} label={t("positioning.trajectory")} />
           </div>
           <footer className="mt-4 grid gap-2 border-t border-white/[0.06] pt-3 sm:grid-cols-2">
             <div>

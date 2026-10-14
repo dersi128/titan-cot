@@ -1,4 +1,5 @@
 import type { CotDashboardData } from "../types";
+import { rebuildCotDashboardFromHistory } from "./cotAsOfSnapshot";
 import {
   buildInstitutionalNarrative as buildInstitutionalNarrativeCore,
   computeUnifiedCotScore,
@@ -46,9 +47,13 @@ export function evaluateTitanCot(data: CotDashboardData): TitanCotScoringResult 
   return computeUnifiedCotScore(dashboardToScoringInput(data));
 }
 
-/** Reconcile API payload so score, verdict, and breakdown always match. */
+/** Rebuild 0–100 COT indexes from history, then score. Never keep an out-of-range API index. */
 export function normalizeCotDashboardData(data: CotDashboardData): CotDashboardData {
   try {
+    if (data.history && data.history.length > 0) {
+      const rebuilt = rebuildCotDashboardFromHistory(data, data.history);
+      if (rebuilt) return rebuilt;
+    }
     const read = evaluateTitanCot(data);
     return {
       ...data,
