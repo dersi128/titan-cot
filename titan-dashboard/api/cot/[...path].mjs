@@ -1,6 +1,6 @@
 /* Generated from titan-dashboard/src/lib/cotVercelHandler.ts. Do not edit. */
 
-// titan-dashboard/src/lib/cftcLegacyCodes.ts
+// src/lib/cftcLegacyCodes.ts
 var CFTC_LEGACY_CONTRACT_CODES = {
   "GC1!": "088691",
   "SI1!": "084691",
@@ -49,7 +49,7 @@ function cftcLegacyCodeForSymbol(futuresSymbol) {
   return CFTC_LEGACY_CONTRACT_CODES[futuresSymbol];
 }
 
-// titan-dashboard/src/lib/cotMarketMap.ts
+// src/lib/cotMarketMap.ts
 var COT_MARKET_MAPPINGS = [
   { futuresSymbol: "GC1!", displayName: "GOLD", apiSlug: "gold" },
   { futuresSymbol: "SI1!", displayName: "SILVER", apiSlug: "silver" },
@@ -192,7 +192,7 @@ function getCotMarketMapping(symbolOrSlug) {
   });
 }
 
-// titan-dashboard/src/lib/titanCotScoringCore.ts
+// src/lib/titanCotScoringCore.ts
 var IDX_HI = 80;
 var IDX_LO = 20;
 var BIAS_DISCLAIMER = "Bias only, not execution.";
@@ -588,7 +588,7 @@ function buildPlainEnglishExplanation(input) {
   return `${input.marketLabel} (${input.futuresSymbol}), CFTC Legacy Futures, report ${input.reportDate}. Deterministic COT bias only \u2014 not an execution signal. ${result.regime_explanation} TITAN score ${result.score} (raw ${result.raw_score}) \u2192 ${result.verdict}. ${BIAS_DISCLAIMER}`;
 }
 
-// titan-dashboard/src/lib/cotAsOfSnapshot.ts
+// src/lib/cotAsOfSnapshot.ts
 function normalizeReportDate(value) {
   return value.slice(0, 10);
 }
@@ -704,7 +704,7 @@ function rebuildCotDashboardFromHistory(template, history) {
   };
 }
 
-// titan-dashboard/src/lib/cotPreviewBackend.ts
+// src/lib/cotPreviewBackend.ts
 var CFTC_LEGACY_FUTURES_ONLY_URL = "https://publicreporting.cftc.gov/resource/6dca-aqww.json";
 var DEFAULT_HISTORY_WEEKS = 300;
 var CONCURRENCY = 4;
@@ -857,7 +857,7 @@ function listBranchCotMappings() {
 }
 var RENDER_COT_ORIGIN = "https://titan-cot.onrender.com";
 
-// titan-dashboard/src/lib/cotVercelHandler.ts
+// src/lib/cotVercelHandler.ts
 var config = { runtime: "nodejs", maxDuration: 60 };
 var JSON_HEADERS = {
   "content-type": "application/json; charset=utf-8",
@@ -929,7 +929,7 @@ async function handlePreview(request) {
   }
   return json(200, await loadBranchCotDashboard(mapping.futuresSymbol), "branch-preview");
 }
-async function handler(request) {
+async function handleCotRequest(request) {
   try {
     if (isVercelProduction()) return await proxyProduction(request);
     return await handlePreview(request);
@@ -938,7 +938,39 @@ async function handler(request) {
     return json(500, { error: message }, "branch-preview");
   }
 }
+function isNodeResponse(value) {
+  return Boolean(value && typeof value === "object" && typeof value.end === "function");
+}
+function requestFromNode(req) {
+  const host = String(req.headers.host ?? "localhost");
+  const proto = String(req.headers["x-forwarded-proto"] ?? "https");
+  const headers = new Headers();
+  for (const [key, value] of Object.entries(req.headers)) {
+    if (typeof value === "string") headers.set(key, value);
+    else if (Array.isArray(value)) headers.set(key, value.join(", "));
+  }
+  return new Request(`${proto}://${host}${req.url ?? "/"}`, {
+    method: req.method ?? "GET",
+    headers
+  });
+}
+async function writeNodeResponse(res, response) {
+  res.statusCode = response.status;
+  response.headers.forEach((value, key) => res.setHeader(key, value));
+  res.end(await response.text());
+}
+async function GET(request) {
+  return handleCotRequest(request);
+}
+async function handler(req, res) {
+  if (isNodeResponse(res)) {
+    await writeNodeResponse(res, await handleCotRequest(requestFromNode(req)));
+    return;
+  }
+  return handleCotRequest(req);
+}
 export {
+  GET,
   config,
   handler as default
 };

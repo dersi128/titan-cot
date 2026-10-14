@@ -92,7 +92,7 @@ async function handlePreview(request: Request): Promise<Response> {
   return json(200, await loadBranchCotDashboard(mapping.futuresSymbol), "branch-preview");
 }
 
-export default async function handler(request: Request): Promise<Response> {
+async function handleCotRequest(request: Request): Promise<Response> {
   try {
     if (isVercelProduction()) return await proxyProduction(request);
     return await handlePreview(request);
@@ -100,4 +100,57 @@ export default async function handler(request: Request): Promise<Response> {
     const message = error instanceof Error ? error.message : "COT preview backend failed.";
     return json(500, { error: message }, "branch-preview");
   }
+}
+
+type NodeReq = {
+  url?: string;
+  method?: string;
+  headers: Record<string, string | string[] | undefined>;
+};
+
+type NodeRes = {
+  statusCode: number;
+  setHeader: (name: string, value: string) => void;
+  end: (body?: unknown) => void;
+};
+
+function isNodeResponse(value: unknown): value is NodeRes {
+  return Boolean(value && typeof value === "object" && typeof (value as NodeRes).end === "function");
+}
+
+function requestFromNode(req: NodeReq): Request {
+  const host = String(req.headers.host ?? "localhost");
+  const proto = String(req.headers["x-forwarded-proto"] ?? "https");
+  const headers = new Headers();
+  for (const [key, value] of Object.entries(req.headers)) {
+    if (typeof value === "string") headers.set(key, value);
+    else if (Array.isArray(value)) headers.set(key, value.join(", "));
+  }
+  return new Request(`${proto}://${host}${req.url ?? "/"}`, {
+    method: req.method ?? "GET",
+    headers,
+  });
+}
+
+async function writeNodeResponse(res: NodeRes, response: Response): Promise<void> {
+  res.statusCode = response.status;
+  response.headers.forEach((value, key) => res.setHeader(key, value));
+  res.end(await response.text());
+}
+
+/** Web handler (fetch / GET). */
+export async function GET(request: Request): Promise<Response> {
+  return handleCotRequest(request);
+}
+
+/**
+ * Vercel Node functions call `export default (req, res)`.
+ * A returned `Response` is ignored, so preview hung until the 60s timeout.
+ */
+export default async function handler(req: Request | NodeReq, res?: NodeRes): Promise<Response | void> {
+  if (isNodeResponse(res)) {
+    await writeNodeResponse(res, await handleCotRequest(requestFromNode(req as NodeReq)));
+    return;
+  }
+  return handleCotRequest(req as Request);
 }
