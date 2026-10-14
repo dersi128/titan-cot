@@ -421,11 +421,11 @@ export const enMessages = {
     cards: {
       commercial: {
         title: "COMMERCIAL INDEX",
-        subtitle: "Smart Money positioning",
+        subtitle: "26W index 0–100 · not TITAN score",
       },
       retail: {
         title: "RETAIL INDEX",
-        subtitle: "Retail crowd positioning",
+        subtitle: "26W index 0–100 · not TITAN score",
       },
       delta: {
         title: "DELTA FLOW",

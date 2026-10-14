@@ -423,11 +423,11 @@ export const csMessages: Messages = {
     cards: {
       commercial: {
         title: "COMMERCIAL INDEX",
-        subtitle: "Smart Money positioning",
+        subtitle: "26T index 0–100 · ne TITAN skóre",
       },
       retail: {
         title: "RETAIL INDEX",
-        subtitle: "Retail crowd positioning",
+        subtitle: "26T index 0–100 · ne TITAN skóre",
       },
       delta: {
         title: "DELTA FLOW",

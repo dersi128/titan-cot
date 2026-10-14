@@ -20,7 +20,7 @@ import {
   COT_MARKET_MAPPINGS,
   getCotMarketMapping,
 } from "../../../cot-data-module/src/cotMarketMap";
-import { commercialIndexBand } from "./titanCotIndexSettings";
+import { commercialIndexBand, formatCommercialIndex } from "./titanCotIndexSettings";
 import { heatmapToneFromComm26 } from "./titanHeatmapVisuals";
 
 /** CFTC Legacy commercial nets as of 2026-10-06 (26 inclusive reports). Verification only. */
@@ -280,5 +280,13 @@ describe("preview Legacy codes and client index rebuild", () => {
 
   it("keeps the commercial index chart on a 0–100 axis, not ±100", () => {
     assert.deepEqual(COT_INDEX_AXIS, [0, 100]);
+  });
+
+  it("formats commercial and retail index on 0–100 without a ±100 remap", () => {
+    assert.equal(formatCommercialIndex(100), "100");
+    assert.equal(formatCommercialIndex(0), "0");
+    assert.equal(formatCommercialIndex(74.44), "74");
+    assert.equal(formatCommercialIndex(null), "—");
+    assert.equal(formatCommercialIndex(undefined), "—");
   });
 });
