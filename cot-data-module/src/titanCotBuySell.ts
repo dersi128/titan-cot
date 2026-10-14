@@ -185,6 +185,40 @@ export function cotBuySellIsBear(state: CotBuySellState): boolean {
   );
 }
 
+export function cotBuySellHoldArmedConflict(state: CotBuySellState): boolean {
+  const holdLong = state.regime === 1;
+  const holdShort = state.regime === -1;
+  const armedSell = state.armedSell || state.sigTouchSell || state.action === "ARMED_SELL" || state.action === "TOUCH_100";
+  const armedBuy = state.armedBuy || state.sigTouchBuy || state.action === "ARMED_BUY" || state.action === "TOUCH_0";
+  return (holdLong && armedSell) || (holdShort && armedBuy);
+}
+
+/** Separate reversal-model headline. Does not describe main COT bias. */
+export function cotBuySellHeadline(state: CotBuySellState): string {
+  if (cotBuySellHoldArmedConflict(state)) {
+    if (state.regime === 1) return "HOLD LONG · ARMED SELL";
+    return "HOLD SHORT · ARMED BUY";
+  }
+  switch (state.action) {
+    case "BUY":
+      return "BUY · EXIT 20";
+    case "SELL":
+      return "SELL · EXIT 80";
+    case "TOUCH_0":
+    case "ARMED_BUY":
+      return "TOUCH 0 · ARMED BUY";
+    case "TOUCH_100":
+    case "ARMED_SELL":
+      return "TOUCH 100 · ARMED SELL";
+    case "HOLD_LONG":
+      return "HOLD LONG";
+    case "HOLD_SHORT":
+      return "HOLD SHORT";
+    default:
+      return "WAIT";
+  }
+}
+
 export function cotBuySellPositionPoints(state: CotBuySellState, index26w: number): number {
   switch (state.action) {
     case "BUY":

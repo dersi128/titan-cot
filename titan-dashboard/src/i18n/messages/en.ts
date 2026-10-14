@@ -29,10 +29,11 @@ export const enMessages = {
     heroBadge: "LIVE • CFTC LEGACY",
     cftcTv: "CFTC legacy futures",
     marketsLive: "{{count}} markets live",
-    report: "Report",
-    data: "Data",
-    refreshSec: "Refresh {{sec}}s",
-    updated: "Updated {{time}}",
+    report: "CFTC positions",
+    data: "App refresh",
+    refreshSec: "App refresh {{sec}}s",
+    updated: "App refresh {{time}}",
+    refreshNotCot: "Not a new COT report",
     connection: "Connection",
   },
   auth: {
@@ -106,8 +107,9 @@ export const enMessages = {
   },
   heatmap: {
     eyebrow: "COT Heatmap",
-    legendColor: "Big number = commercial 26W index (0–100). 100 = commercials at the 26-week high.",
-    legendRetail: "Amber frame = retail 26W extreme",
+    legendColor:
+      "Big number = relative commercial 26W index (0–100), not net contracts. 100 = window high (can still be net short; not a buy). TITAN extremes 20/80 (Max often uses 25/75).",
+    legendRetail: "Amber frame = retail 26W extreme (20/80)",
     comm26: "Comm 26W",
     retailExtreme: "Retail extreme",
     group: {
@@ -424,7 +426,8 @@ export const enMessages = {
         title: "DELTA FLOW",
       },
       reversal: {
-        title: "REVERSAL STATE",
+        title: "REVERSAL MODEL",
+        subtitle: "BUY/SELL turn model — not the main COT bias",
         stateLabel: "Flow cross",
       },
       divergence: {
@@ -446,11 +449,11 @@ export const enMessages = {
     items: {
       score: {
         title: "Score & verdict",
-        body: "Institutional bias −100…+100. Verdict = campaign tilt, not a trigger.",
+        body: "Main COT bias −100…+100 from positioning, flow, persistence, and crowding. High commercial index adds plus points. BUY/SELL is a separate reversal model and does not rewrite this score.",
       },
       comm26: {
         title: "Commercial index",
-        body: "Smart money vs its 26-week range.",
+        body: "Relative 26W index 0–100 (current net vs the window min/max, including this report). 100 = window high, not necessarily net long or a buy. TITAN extremes 20/80 (Max often 25/75).",
       },
       delta: {
         title: "Commercial delta",
@@ -692,7 +695,8 @@ export const enMessages = {
     heatmap: {
       eyebrow: "Legacy COT",
       title: "COT Heatmap",
-      description: "Commercial 26W positioning across all mapped markets. Click a cell to open the market detail.",
+      description:
+        "Relative commercial 26W index (0–100) across mapped markets. 100 is the window high, not necessarily net long. Click a cell for the market detail.",
     },
     seasonality: {
       eyebrow: "Quant research",

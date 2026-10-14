@@ -27,9 +27,10 @@ export type ScannerRowModel = {
   errorMessage?: string;
 };
 
-function isExtremeCommercial(index26w: number): boolean {
+function isExtremeCommercial(index26w: number | null | undefined): boolean {
+  if (index26w === null || index26w === undefined || !Number.isFinite(index26w)) return false;
   const z = commercialIndexZone(index26w);
-  return z === "extreme_short" || z === "extreme_long" || index26w <= 20 || index26w >= 80;
+  return z === "extreme_short" || z === "extreme_long" || index26w < 20 || index26w > 80;
 }
 
 function errorRow(

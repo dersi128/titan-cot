@@ -3,8 +3,14 @@
  */
 
 import type { CotDashboardData, CotHistoryPoint } from "../types";
-import { calculateCotIndex, computeUnifiedCotScore, IDX_HI, IDX_LO } from "./titanCotScoringCore";
-import { evaluateCotBuySellFromHistory } from "./titanCotBuySell";
+import {
+  calculateRollingCotIndex,
+  computeUnifiedCotScore,
+  IDX_HI,
+  IDX_LO,
+  isFiniteCotIndex,
+} from "./titanCotScoringCore";
+import { cotBuySellHeadline, evaluateCotBuySellFromHistory } from "./titanCotBuySell";
 import {
   commercialIndexBand,
   getCotIndexZoneThresholds,
@@ -68,13 +74,13 @@ export type DivergenceContext = {
 };
 
 export type TitanPositioningRead = {
-  commercialIndex: number;
+  commercialIndex: number | null;
   commercialZone: CommercialZoneId;
   commercialGlow: number;
   commercialPersistenceWeeks: number;
   commercialRange26w: NetRange26w;
   commercialSparkline: number[];
-  retailIndex: number;
+  retailIndex: number | null;
   retailZone: CommercialZoneId;
   retailPersistenceWeeks: number;
   retailRange26w: NetRange26w;
@@ -91,6 +97,8 @@ export type TitanPositioningRead = {
   regime: MarketRegimeId;
   prevCommercialIndex: number | null;
   extremePositioning: boolean;
+  /** Independent BUY/SELL reversal model — not the main COT bias. */
+  reversalModelLabel: string | null;
 };
 
 export function commercialIndexZone(index: number): CommercialZoneId {
@@ -121,37 +129,30 @@ export function commercialGlowIntensity(index: number): number {
   return Math.round(Math.min(60, Math.abs(index - 50) * 0.8 + 16));
 }
 
-export function buildCommercialIndexSeries(history: CotHistoryPoint[]): number[] {
-  if (history.length < 27) return [];
+function buildIndexSeries(
+  history: CotHistoryPoint[],
+  key: "commercialNet" | "retailNet",
+  lookback: number,
+): number[] {
+  const nets = history.map((h) => h[key]);
   const out: number[] = [];
-  for (let i = 26; i < history.length; i++) {
-    const prior = history.slice(i - 26, i).map((h) => h.commercialNet);
-    const current = history[i]!.commercialNet;
-    out.push(calculateCotIndex(prior, current));
+  for (let i = lookback - 1; i < nets.length; i++) {
+    const idx = calculateRollingCotIndex(nets, lookback, i);
+    out.push(idx ?? Number.NaN);
   }
   return out;
+}
+
+export function buildCommercialIndexSeries(history: CotHistoryPoint[]): number[] {
+  return buildIndexSeries(history, "commercialNet", 26);
 }
 
 export function buildRetailIndexSeries(history: CotHistoryPoint[]): number[] {
-  if (history.length < 27) return [];
-  const out: number[] = [];
-  for (let i = 26; i < history.length; i++) {
-    const prior = history.slice(i - 26, i).map((h) => h.retailNet);
-    const current = history[i]!.retailNet;
-    out.push(calculateCotIndex(prior, current));
-  }
-  return out;
+  return buildIndexSeries(history, "retailNet", 26);
 }
 
 export function buildCommercialIndex52Series(history: CotHistoryPoint[]): number[] {
-  if (history.length < 53) return [];
-  const out: number[] = [];
-  for (let i = 52; i < history.length; i++) {
-    const prior = history.slice(i - 52, i).map((h) => h.commercialNet);
-    const current = history[i]!.commercialNet;
-    out.push(calculateCotIndex(prior, current));
-  }
-  return out;
+  return buildIndexSeries(history, "commercialNet", 52);
 }
 
 function crossunder(prev: number, curr: number, level: number): boolean {
@@ -184,34 +185,42 @@ export function evaluateInstitutionalDivergence(data: CotDashboardData): Diverge
   const minNet = Math.min(...nets);
   const currNet = nets[nets.length - 1]!;
 
-  const ncIdx26 = clampIndex(nc.index26w ?? 50);
+  const ncIdx26 = isFiniteCotIndex(nc.index26w) ? clampIndex(nc.index26w) : Number.NaN;
   const ncW1 = nc.weeklyChange ?? 0;
   const ncD4 = nc.delta4w ?? 0;
   const w1 = c.weeklyChange;
   const d4 = c.delta4w;
 
   const netTolerance = Math.max((maxNet - minNet) * 0.02, 1);
+  const idx26 = c.index26w;
   const structuralBear =
-    currNet >= maxNet - netTolerance && currIdx < prevIdx - 3 && c.index26w >= 52;
+    currNet >= maxNet - netTolerance &&
+    currIdx < prevIdx - 3 &&
+    isFiniteCotIndex(idx26) &&
+    idx26 >= 52;
 
   const ncChasingLong =
     ncIdx26 >= 62 &&
     ncW1 > 0 &&
     ((w1 < 0 && d4 <= 0) || (w1 < 0 && currIdx < prevIdx - 1));
 
-  const commAddsShort = w1 < 0 && d4 < 0 && c.index26w > 38;
+  const commAddsShort = w1 < 0 && d4 < 0 && isFiniteCotIndex(idx26) && idx26 > 38;
   const bearish =
     structuralBear ||
     ncChasingLong ||
     (commAddsShort && ncIdx26 >= 58 && (ncD4 >= 0 || ncW1 > 0));
 
   const structuralBull =
-    currNet <= minNet + netTolerance && currIdx > prevIdx + 3 && c.index26w <= 48;
+    currNet <= minNet + netTolerance &&
+    currIdx > prevIdx + 3 &&
+    isFiniteCotIndex(idx26) &&
+    idx26 <= 48;
 
   const ncStaysBearish = ncIdx26 <= 42 && ncW1 <= 0 && ncD4 <= 0;
 
   const commAccumulating = w1 > 0 && d4 > 0;
-  const bullish = structuralBull || (ncStaysBearish && commAccumulating && c.index26w < 58);
+  const bullish =
+    structuralBull || (ncStaysBearish && commAccumulating && isFiniteCotIndex(idx26) && idx26 < 58);
 
   if (bearish && bullish) {
     if (structuralBear && !structuralBull) return "bearish";
@@ -324,12 +333,21 @@ export function evaluatePositioningMarketRegime(
   const c = data.commercials;
   const nc = data.nonCommercials;
   const r = data.retail;
-  const bias = c.index26w > IDX_HI ? "bullish" : c.index26w < IDX_LO ? "bearish" : "neutral";
+  const bias =
+    isFiniteCotIndex(c.index26w) && c.index26w > IDX_HI
+      ? "bullish"
+      : isFiniteCotIndex(c.index26w) && c.index26w < IDX_LO
+        ? "bearish"
+        : "neutral";
   // Rebuild these labels from the same inputs/rules as cotLogicEngine.
   const divergence = c.weeklyChange > 0 && nc.weeklyChange < 0 ? "bullish"
     : c.weeklyChange < 0 && nc.weeklyChange > 0 ? "bearish" : "none";
-  const contrarianSignal = bias === "bullish" && r.index26w < IDX_LO ? "bullish"
-    : bias === "bearish" && r.index26w > IDX_HI ? "bearish" : "none";
+  const contrarianSignal =
+    bias === "bullish" && isFiniteCotIndex(r.index26w) && r.index26w < IDX_LO
+      ? "bullish"
+      : bias === "bearish" && isFiniteCotIndex(r.index26w) && r.index26w > IDX_HI
+        ? "bearish"
+        : "none";
   const result = computeUnifiedCotScore({
     commercials: { ...c, bias },
     nonCommercials: { weeklyChange: nc.weeklyChange, divergence },
@@ -359,8 +377,8 @@ export function evaluateTitanPositioning(data: CotDashboardData): TitanPositioni
 
 function evaluateTitanPositioningCore(data: CotDashboardData): TitanPositioningRead | null {
 
-  const commercialIndex = Number.isFinite(data.commercials.index26w) ? data.commercials.index26w : 50;
-  const retailIndex = Number.isFinite(data.retail.index26w) ? data.retail.index26w : 50;
+  const commercialIndex = isFiniteCotIndex(data.commercials.index26w) ? data.commercials.index26w : null;
+  const retailIndex = isFiniteCotIndex(data.retail.index26w) ? data.retail.index26w : null;
   const history = data.history ?? [];
 
   const commSeries = buildCommercialIndexSeries(history);
@@ -368,11 +386,21 @@ function evaluateTitanPositioningCore(data: CotDashboardData): TitanPositioningR
   const prevCommercialIndex = commSeries.length >= 2 ? commSeries[commSeries.length - 2]! : null;
   const pine = evaluateCotBuySellFromHistory(history);
 
-  const smTurnDown = pine?.sigExitSell ?? (prevCommercialIndex !== null && crossunder(prevCommercialIndex, commercialIndex, THR_HIGH));
-  const smTurnUp = pine?.sigExitBuy ?? (prevCommercialIndex !== null && crossover(prevCommercialIndex, commercialIndex, THR_LOW));
+  const smTurnDown =
+    pine?.sigExitSell ??
+    (prevCommercialIndex !== null &&
+      commercialIndex !== null &&
+      Number.isFinite(prevCommercialIndex) &&
+      crossunder(prevCommercialIndex, commercialIndex, THR_HIGH));
+  const smTurnUp =
+    pine?.sigExitBuy ??
+    (prevCommercialIndex !== null &&
+      commercialIndex !== null &&
+      Number.isFinite(prevCommercialIndex) &&
+      crossover(prevCommercialIndex, commercialIndex, THR_LOW));
 
-  const retailConfirmsTop = smTurnDown && retailIndex <= THR_LOW;
-  const retailConfirmsBottom = smTurnUp && retailIndex >= THR_HIGH;
+  const retailConfirmsTop = smTurnDown && retailIndex !== null && retailIndex <= THR_LOW;
+  const retailConfirmsBottom = smTurnUp && retailIndex !== null && retailIndex >= THR_HIGH;
 
   let reversal: ReversalStateId = "none";
   if (pine?.sigExitSell || retailConfirmsTop) reversal = "confirmed_top";
@@ -381,8 +409,10 @@ function evaluateTitanPositioningCore(data: CotDashboardData): TitanPositioningR
   else if (pine?.armedBuy || pine?.sigTouchBuy || smTurnUp) reversal = "potential_bottom";
   const divergence = evaluateInstitutionalDivergence(data);
   const retailContrarianExtreme =
-    (commercialIndex <= THR_LOW && retailIndex >= THR_HIGH) ||
-    (commercialIndex >= THR_HIGH && retailIndex <= THR_LOW);
+    commercialIndex !== null &&
+    retailIndex !== null &&
+    ((commercialIndex <= THR_LOW && retailIndex >= THR_HIGH) ||
+      (commercialIndex >= THR_HIGH && retailIndex <= THR_LOW));
 
   const checklist: ReversalChecklist = {
     crossBelow75: smTurnDown,
@@ -392,21 +422,21 @@ function evaluateTitanPositioningCore(data: CotDashboardData): TitanPositioningR
   };
 
   const extremePositioning =
-    commercialZoneIsExtreme(commercialIndexZone(commercialIndex)) ||
-    commercialZoneIsExtreme(commercialIndexZone(retailIndex));
+    (commercialIndex !== null && commercialZoneIsExtreme(commercialIndexZone(commercialIndex))) ||
+    (retailIndex !== null && commercialZoneIsExtreme(commercialIndexZone(retailIndex)));
 
   return {
     commercialIndex,
-    commercialZone: commercialIndexZone(commercialIndex),
-    commercialGlow: commercialGlowIntensity(commercialIndex),
+    commercialZone: commercialIndex === null ? "neutral" : commercialIndexZone(commercialIndex),
+    commercialGlow: commercialIndex === null ? 24 : commercialGlowIntensity(commercialIndex),
     commercialPersistenceWeeks: weeksInExtremeZone(commSeries),
     commercialRange26w: netRange26w(history, "commercialNet"),
-    commercialSparkline: commSeries.slice(-16),
+    commercialSparkline: commSeries.filter((n) => Number.isFinite(n)).slice(-16),
     retailIndex,
-    retailZone: commercialIndexZone(retailIndex),
+    retailZone: retailIndex === null ? "neutral" : commercialIndexZone(retailIndex),
     retailPersistenceWeeks: weeksInExtremeZone(retailSeries),
     retailRange26w: netRange26w(history, "retailNet"),
-    retailSparkline: retailSeries.slice(-16),
+    retailSparkline: retailSeries.filter((n) => Number.isFinite(n)).slice(-16),
     deltaFlow: buildDeltaFlow(data),
     reversal,
     smTurnDown,
@@ -418,13 +448,14 @@ function evaluateTitanPositioningCore(data: CotDashboardData): TitanPositioningR
     divergenceContext: evaluateDivergenceContext(history, divergence),
     regime: evaluatePositioningMarketRegime(
       data,
-      commercialIndexZone(commercialIndex),
-      commercialIndexZone(retailIndex),
+      commercialIndex === null ? "neutral" : commercialIndexZone(commercialIndex),
+      retailIndex === null ? "neutral" : commercialIndexZone(retailIndex),
       weeksInExtremeZone(commSeries),
       divergence,
     ),
-    prevCommercialIndex,
+    prevCommercialIndex: prevCommercialIndex !== null && Number.isFinite(prevCommercialIndex) ? prevCommercialIndex : null,
     extremePositioning,
+    reversalModelLabel: pine ? cotBuySellHeadline(pine) : null,
   };
 }
 

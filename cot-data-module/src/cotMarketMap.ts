@@ -6,26 +6,25 @@ export type CotMarketMapping = {
   /** Path aliases, e.g. `/api/cot/nq` → NQ1! */
   aliases?: readonly string[];
   /**
-   * Exact `commodity_name` + `contract_market_name` in Legacy Futures Only (`6dca-aqww`).
-   * Omit when using `cftcContractMarketCode` only (e.g. Nasdaq).
+   * Exact CFTC Legacy Futures Only `cftc_contract_market_code`.
+   * This is the query key — names on Socrata can drift.
    */
-  socrataCommodityName?: string;
+  cftcContractMarketCode: string;
+  /** CFTC `contract_market_name` for display only. */
   socrataContractMarketName?: string;
-  /**
-   * When set, `$where` is **only** `cftc_contract_market_code='…'` (no commodity/contract filter).
-   */
-  cftcContractMarketCode?: string;
+  /** CFTC `commodity_name` for display only. */
+  socrataCommodityName?: string;
 };
 
 /**
- * Futures roots map to Legacy Futures Only rows. Use `cftcContractMarketCode` when CFTC
- * names are unstable (e.g. Nasdaq); otherwise use the Socrata name pair.
+ * Futures roots → CFTC Legacy Futures Only (`6dca-aqww`) by unique contract code.
  */
 export const COT_MARKET_MAPPINGS: CotMarketMapping[] = [
   {
     futuresSymbol: "GC1!",
     displayName: "GOLD",
     apiSlug: "gold",
+    cftcContractMarketCode: "088691",
     socrataCommodityName: "GOLD",
     socrataContractMarketName: "GOLD",
   },
@@ -33,6 +32,7 @@ export const COT_MARKET_MAPPINGS: CotMarketMapping[] = [
     futuresSymbol: "SI1!",
     displayName: "SILVER",
     apiSlug: "silver",
+    cftcContractMarketCode: "084691",
     socrataCommodityName: "SILVER",
     socrataContractMarketName: "SILVER",
   },
@@ -40,6 +40,7 @@ export const COT_MARKET_MAPPINGS: CotMarketMapping[] = [
     futuresSymbol: "HG1!",
     displayName: "COPPER-GRADE #1",
     apiSlug: "copper",
+    cftcContractMarketCode: "085692",
     socrataCommodityName: "COPPER",
     socrataContractMarketName: "COPPER- #1",
   },
@@ -47,20 +48,23 @@ export const COT_MARKET_MAPPINGS: CotMarketMapping[] = [
     futuresSymbol: "CL1!",
     displayName: "CRUDE OIL, LIGHT SWEET",
     apiSlug: "crude-oil",
+    cftcContractMarketCode: "067651",
     socrataCommodityName: "CRUDE OIL",
-    socrataContractMarketName: "CRUDE OIL, LIGHT SWEET-WTI",
+    socrataContractMarketName: "WTI-PHYSICAL",
   },
   {
     futuresSymbol: "NG1!",
-    displayName: "NATURAL GAS (HENRY HUB)",
+    displayName: "NATURAL GAS",
     apiSlug: "natural-gas",
+    cftcContractMarketCode: "023651",
     socrataCommodityName: "NATURAL GAS",
-    socrataContractMarketName: "HENRY HUB",
+    socrataContractMarketName: "NAT GAS NYME",
   },
   {
     futuresSymbol: "ZW1!",
     displayName: "WHEAT SRW (CBOT)",
     apiSlug: "wheat-srw",
+    cftcContractMarketCode: "001602",
     socrataCommodityName: "WHEAT",
     socrataContractMarketName: "WHEAT-SRW",
   },
@@ -70,12 +74,15 @@ export const COT_MARKET_MAPPINGS: CotMarketMapping[] = [
     apiSlug: "nasdaq",
     aliases: ["nq", "nq1", "nq1!", "nas100", "nas-100", "nasdaq100", "ndx"],
     cftcContractMarketCode: "209742",
+    socrataCommodityName: "NASDAQ  BROADBASED INDICES",
+    socrataContractMarketName: "NASDAQ MINI",
   },
   {
     futuresSymbol: "ES1!",
     displayName: "E-MINI S&P 500",
     apiSlug: "sp500",
     aliases: ["es", "es1", "es1!", "sp-500", "sp500", "s&p500"],
+    cftcContractMarketCode: "13874A",
     socrataCommodityName: "S&P BROAD BASED STOCK INDICES",
     socrataContractMarketName: "E-MINI S&P 500",
   },
@@ -83,6 +90,7 @@ export const COT_MARKET_MAPPINGS: CotMarketMapping[] = [
     futuresSymbol: "YM1!",
     displayName: "E-MINI DOW ($5)",
     apiSlug: "e-mini-dow",
+    cftcContractMarketCode: "124603",
     socrataCommodityName: "DOW JONES BROAD BASED INDICES",
     socrataContractMarketName: "DJIA x $5",
   },
@@ -90,6 +98,7 @@ export const COT_MARKET_MAPPINGS: CotMarketMapping[] = [
     futuresSymbol: "RTY1!",
     displayName: "E-MINI RUSSELL 2000",
     apiSlug: "russell-2000",
+    cftcContractMarketCode: "239742",
     socrataCommodityName: "RUSSELL INDEX",
     socrataContractMarketName: "RUSSELL E-MINI",
   },
@@ -97,6 +106,7 @@ export const COT_MARKET_MAPPINGS: CotMarketMapping[] = [
     futuresSymbol: "DX1!",
     displayName: "U.S. DOLLAR INDEX",
     apiSlug: "usd-index",
+    cftcContractMarketCode: "098662",
     socrataCommodityName: "U.S. DOLLAR INDEX",
     socrataContractMarketName: "USD INDEX",
   },
@@ -104,6 +114,7 @@ export const COT_MARKET_MAPPINGS: CotMarketMapping[] = [
     futuresSymbol: "6J1!",
     displayName: "JAPANESE YEN",
     apiSlug: "japanese-yen",
+    cftcContractMarketCode: "097741",
     socrataCommodityName: "JAPANESE YEN",
     socrataContractMarketName: "JAPANESE YEN",
   },
@@ -111,6 +122,7 @@ export const COT_MARKET_MAPPINGS: CotMarketMapping[] = [
     futuresSymbol: "6E1!",
     displayName: "EURO FX",
     apiSlug: "euro-fx",
+    cftcContractMarketCode: "099741",
     socrataCommodityName: "EUROPEAN CURRENCY UNIT",
     socrataContractMarketName: "EURO FX",
   },
@@ -118,6 +130,7 @@ export const COT_MARKET_MAPPINGS: CotMarketMapping[] = [
     futuresSymbol: "6B1!",
     displayName: "BRITISH POUND",
     apiSlug: "british-pound",
+    cftcContractMarketCode: "096742",
     socrataCommodityName: "POUND STERLING",
     socrataContractMarketName: "BRITISH POUND",
   },
@@ -125,6 +138,7 @@ export const COT_MARKET_MAPPINGS: CotMarketMapping[] = [
     futuresSymbol: "6A1!",
     displayName: "AUSTRALIAN DOLLAR",
     apiSlug: "australian-dollar",
+    cftcContractMarketCode: "232741",
     socrataCommodityName: "AUSTRALIAN DOLLAR",
     socrataContractMarketName: "AUSTRALIAN DOLLAR",
   },
@@ -132,6 +146,7 @@ export const COT_MARKET_MAPPINGS: CotMarketMapping[] = [
     futuresSymbol: "6C1!",
     displayName: "CANADIAN DOLLAR",
     apiSlug: "canadian-dollar",
+    cftcContractMarketCode: "090741",
     socrataCommodityName: "CANADIAN DOLLAR",
     socrataContractMarketName: "CANADIAN DOLLAR",
   },
@@ -140,6 +155,8 @@ export const COT_MARKET_MAPPINGS: CotMarketMapping[] = [
     displayName: "SWISS FRANC",
     apiSlug: "swiss-franc",
     cftcContractMarketCode: "092741",
+    socrataCommodityName: "SWISS FRANC",
+    socrataContractMarketName: "SWISS FRANC",
   },
   {
     futuresSymbol: "6N1!",
@@ -147,11 +164,14 @@ export const COT_MARKET_MAPPINGS: CotMarketMapping[] = [
     apiSlug: "new-zealand-dollar",
     aliases: ["nzd", "6n", "6n1", "6n1!"],
     cftcContractMarketCode: "112741",
+    socrataCommodityName: "NEW ZEALAND DOLLAR",
+    socrataContractMarketName: "NZ DOLLAR",
   },
   {
     futuresSymbol: "CC1!",
     displayName: "COCOA",
     apiSlug: "cocoa",
+    cftcContractMarketCode: "073732",
     socrataCommodityName: "COCOA",
     socrataContractMarketName: "COCOA",
   },
@@ -159,6 +179,7 @@ export const COT_MARKET_MAPPINGS: CotMarketMapping[] = [
     futuresSymbol: "SB1!",
     displayName: "SUGAR NO. 11",
     apiSlug: "sugar",
+    cftcContractMarketCode: "080732",
     socrataCommodityName: "SUGAR",
     socrataContractMarketName: "SUGAR NO. 11",
   },
@@ -167,48 +188,64 @@ export const COT_MARKET_MAPPINGS: CotMarketMapping[] = [
     displayName: "PLATINUM",
     apiSlug: "platinum",
     cftcContractMarketCode: "076651",
+    socrataCommodityName: "PLATINUM",
+    socrataContractMarketName: "PLATINUM",
   },
   {
     futuresSymbol: "PA1!",
     displayName: "PALLADIUM",
     apiSlug: "palladium",
     cftcContractMarketCode: "075651",
+    socrataCommodityName: "PALLADIUM",
+    socrataContractMarketName: "PALLADIUM",
   },
   {
     futuresSymbol: "ZC1!",
     displayName: "CORN",
     apiSlug: "corn",
     cftcContractMarketCode: "002602",
+    socrataCommodityName: "CORN",
+    socrataContractMarketName: "CORN",
   },
   {
     futuresSymbol: "ZS1!",
     displayName: "SOYBEANS",
     apiSlug: "soybeans",
     cftcContractMarketCode: "005602",
+    socrataCommodityName: "SOYBEANS",
+    socrataContractMarketName: "SOYBEANS",
   },
   {
     futuresSymbol: "KC1!",
     displayName: "COFFEE C",
     apiSlug: "coffee",
     cftcContractMarketCode: "083731",
+    socrataCommodityName: "COFFEE",
+    socrataContractMarketName: "COFFEE C",
   },
   {
     futuresSymbol: "CT1!",
     displayName: "COTTON NO. 2",
     apiSlug: "cotton",
     cftcContractMarketCode: "033661",
+    socrataCommodityName: "COTTON",
+    socrataContractMarketName: "COTTON NO. 2",
   },
   {
     futuresSymbol: "LE1!",
     displayName: "LIVE CATTLE",
     apiSlug: "live-cattle",
     cftcContractMarketCode: "057642",
+    socrataCommodityName: "LIVE CATTLE",
+    socrataContractMarketName: "LIVE CATTLE",
   },
   {
     futuresSymbol: "HE1!",
     displayName: "LEAN HOGS",
     apiSlug: "lean-hogs",
     cftcContractMarketCode: "054642",
+    socrataCommodityName: "LEAN HOGS",
+    socrataContractMarketName: "LEAN HOGS",
   },
 ];
 
@@ -217,18 +254,8 @@ function escapeSoqlString(value: string): string {
 }
 
 export function buildLegacyFuturesWhereClause(mapping: CotMarketMapping): string {
-  if (mapping.cftcContractMarketCode) {
-    const code = escapeSoqlString(mapping.cftcContractMarketCode);
-    return `cftc_contract_market_code='${code}'`;
-  }
-
-  const commodity = mapping.socrataCommodityName;
-  const contract = mapping.socrataContractMarketName;
-  if (!commodity || !contract) {
-    throw new Error(`Missing Socrata commodity/contract for ${mapping.displayName}.`);
-  }
-
-  return `commodity_name = '${escapeSoqlString(commodity)}' AND contract_market_name = '${escapeSoqlString(contract)}'`;
+  const code = escapeSoqlString(mapping.cftcContractMarketCode);
+  return `cftc_contract_market_code='${code}'`;
 }
 
 export function getCotMarketMapping(symbolOrSlug: string): CotMarketMapping | undefined {
@@ -241,6 +268,7 @@ export function getCotMarketMapping(symbolOrSlug: string): CotMarketMapping | un
     if (mapping.apiSlug.toLowerCase() === slug) return true;
     if (mapping.aliases?.some((a) => a.toLowerCase() === slug)) return true;
     if (mapping.displayName.toUpperCase() === upper) return true;
+    if (mapping.cftcContractMarketCode === raw) return true;
     if (mapping.socrataCommodityName?.toUpperCase() === upper) return true;
     if (mapping.socrataContractMarketName?.toUpperCase() === upper) return true;
     return false;

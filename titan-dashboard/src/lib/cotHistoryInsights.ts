@@ -11,6 +11,9 @@ export type CotHistoryInsights = {
 function classifyRetailVsCommercial(data: CotDashboardData): string {
   const r = data.retail.index52w;
   const c = data.commercials.index52w;
+  if (r == null || c == null || !Number.isFinite(r) || !Number.isFinite(c)) {
+    return "Retail vs commercial 52w index unavailable.";
+  }
   if (r >= 70 && c <= 35) return "Retail stretched long vs commercials lean short — classic contrarian setup.";
   if (r <= 30 && c >= 65) return "Retail stretched short vs commercials lean long.";
   return "Retail and commercials not at extreme opposition on 52w positioning.";
@@ -28,9 +31,14 @@ function formatDivergence(d: "bullish" | "bearish" | "none"): string {
 
 export function buildCotHistoryInsights(cotData: CotDashboardData): CotHistoryInsights {
   const c52 = cotData.commercials.index52w;
-  let commercialPctileNote = `Commercials 52w index at ${c52.toFixed(0)}.`;
-  if (c52 >= 80) commercialPctileNote += " Upper historical zone.";
-  else if (c52 <= 20) commercialPctileNote += " Lower historical zone.";
+  let commercialPctileNote =
+    c52 == null || !Number.isFinite(c52)
+      ? "Commercial 52w index unavailable."
+      : `Commercials 52w index at ${c52.toFixed(0)}.`;
+  if (c52 != null && Number.isFinite(c52)) {
+    if (c52 > 80) commercialPctileNote += " Upper historical zone.";
+    else if (c52 < 20) commercialPctileNote += " Lower historical zone.";
+  }
 
   return {
     commercialPctileNote,

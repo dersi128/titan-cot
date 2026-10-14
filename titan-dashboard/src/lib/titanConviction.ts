@@ -4,8 +4,7 @@ import {
   evaluateTitanPositioning,
   type MarketRegimeId,
 } from "./titanCommercialIndex";
-import { cotBuySellIsBear, cotBuySellIsBull, evaluateCotBuySellFromHistory } from "./titanCotBuySell";
-import { IDX_HI, IDX_LO } from "./titanCotScoringCore";
+import { IDX_HI, IDX_LO, isFiniteCotIndex } from "./titanCotScoringCore";
 import { horizonDeltas, horizonFlowTone } from "../components/titan/deltaFlowHorizon";
 
 export const CONVICTION_MAX = 5;
@@ -31,14 +30,11 @@ export function computeInstitutionalConviction(data: CotDashboardData, score: nu
   if (!Number.isFinite(score) || Math.abs(score) < 20) return { level: 0, max: CONVICTION_MAX };
   const read = evaluateTitanPositioning(data);
   if (!read) return { level: 0, max: CONVICTION_MAX };
-  const pine = evaluateCotBuySellFromHistory(data.history);
-  const extremeAligned = pine
+  const extremeAligned = isFiniteCotIndex(read.commercialIndex)
     ? score > 0
-      ? cotBuySellIsBull(pine)
-      : cotBuySellIsBear(pine)
-    : score > 0
       ? read.commercialIndex > IDX_HI
-      : read.commercialIndex < IDX_LO;
+      : read.commercialIndex < IDX_LO
+    : false;
   let level = 0;
   if (extremeAligned && read.commercialPersistenceWeeks >= 3) level += 1;
   if (deltaAlignsWithScore(data, score)) level += 1;

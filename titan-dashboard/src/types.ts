@@ -25,8 +25,8 @@ export type CotDashboardData = {
   reportDate: string;
   commercials: {
     net: number;
-    index26w: number;
-    index52w: number;
+    index26w: number | null;
+    index52w: number | null;
     weeklyChange: number;
     delta4w: number;
     delta13w: number;
@@ -34,8 +34,8 @@ export type CotDashboardData = {
   };
   nonCommercials: {
     net: number;
-    index26w: number;
-    index52w: number;
+    index26w: number | null;
+    index52w: number | null;
     weeklyChange: number;
     delta4w: number;
     delta13w: number;
@@ -43,8 +43,8 @@ export type CotDashboardData = {
   };
   retail: {
     net: number;
-    index26w: number;
-    index52w: number;
+    index26w: number | null;
+    index52w: number | null;
     weeklyChange: number;
     delta4w: number;
     delta13w: number;

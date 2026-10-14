@@ -31,10 +31,11 @@ export const csMessages: Messages = {
     heroBadge: "LIVE • CFTC LEGACY",
     cftcTv: "CFTC legacy futures",
     marketsLive: "{{count}} trhů live",
-    report: "Report",
-    data: "Data",
-    refreshSec: "Obnova {{sec}}s",
-    updated: "Aktualizováno {{time}}",
+    report: "Pozice CFTC",
+    data: "Obnova aplikace",
+    refreshSec: "Obnova aplikace {{sec}}s",
+    updated: "Obnova aplikace {{time}}",
+    refreshNotCot: "Ne nový COT report",
     connection: "Připojení",
   },
   auth: {
@@ -108,8 +109,9 @@ export const csMessages: Messages = {
   },
   heatmap: {
     eyebrow: "COT heatmapa",
-    legendColor: "Velké číslo = commercial 26T index (0–100). 100 = commercials na maximu za 26 týdnů.",
-    legendRetail: "Jantarový rámeček = retail 26T extrém",
+    legendColor:
+      "Velké číslo = relativní commercial 26T index (0–100), ne čistý net. 100 = maximum okna (může zůstat net short; není nákup). Extrém TITAN 20/80 (Max často 25/75).",
+    legendRetail: "Jantarový rámeček = retail 26T extrém (20/80)",
     comm26: "Comm 26T",
     retailExtreme: "Retail extrém",
     group: {
@@ -426,7 +428,8 @@ export const csMessages: Messages = {
         title: "DELTA FLOW",
       },
       reversal: {
-        title: "REVERSAL STATE",
+        title: "OBRATOVÝ MODEL",
+        subtitle: "BUY/SELL model — ne hlavní COT bias",
         stateLabel: "Flow cross",
       },
       divergence: {
@@ -448,11 +451,11 @@ export const csMessages: Messages = {
     items: {
       score: {
         title: "Skóre a verdict",
-        body: "Institucionální bias −100…+100. Verdict = směr kampaně, ne spoušť.",
+        body: "Hlavní COT bias −100…+100 z positioningu, flow, persistence a crowding. Vysoký commercial index přidává plus body. BUY/SELL je samostatný obratový model a toto skóre nepřepisuje.",
       },
       comm26: {
         title: "Commercial index",
-        body: "Smart money vs 26týdenní rozsah.",
+        body: "Relativní 26T index 0–100 (aktuální net vs min/max okna včetně tohoto reportu). 100 = maximum okna, ne nutně net long ani nákup. Extrém TITAN 20/80 (Max často 25/75).",
       },
       delta: {
         title: "Commercial delta",
@@ -694,7 +697,8 @@ export const csMessages: Messages = {
     heatmap: {
       eyebrow: "Legacy COT",
       title: "COT Heatmapa",
-      description: "Commercial 26T positioning napříč všemi mapovanými trhy. Klikni na buňku a otevře se detail.",
+      description:
+        "Relativní commercial 26T index (0–100) napříč mapovanými trhy. 100 je maximum okna, ne nutně net long. Klikni na buňku pro detail.",
     },
     seasonality: {
       eyebrow: "Quant research",

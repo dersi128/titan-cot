@@ -13,9 +13,13 @@ describe("heatmapToneFromComm26", () => {
     assert.equal(heatmapToneFromComm26(undefined), "empty");
     assert.equal(heatmapToneFromComm26(Number.NaN), "empty");
     assert.equal(heatmapToneFromComm26(95), "extreme_long");
+    assert.equal(heatmapToneFromComm26(81), "extreme_long");
+    assert.equal(heatmapToneFromComm26(80), "strong_long");
     assert.equal(heatmapToneFromComm26(70), "strong_long");
     assert.equal(heatmapToneFromComm26(50), "neutral");
     assert.equal(heatmapToneFromComm26(30), "strong_short");
+    assert.equal(heatmapToneFromComm26(20), "strong_short");
+    assert.equal(heatmapToneFromComm26(19), "extreme_short");
     assert.equal(heatmapToneFromComm26(10), "extreme_short");
   });
 });

@@ -26,7 +26,7 @@ export const INSTITUTIONAL_MARKETS: readonly InstitutionalMarket[] = [
   { id: "COPPER", symbol: "HG1!", shortLabel: "COPPER", subtitle: "Copper", category: "metals" },
   // Energy
   { id: "OIL", symbol: "CL1!", shortLabel: "OIL", subtitle: "WTI Crude", category: "energy" },
-  { id: "NATGAS", symbol: "NG1!", shortLabel: "NG", subtitle: "Natural Gas (Henry Hub)", category: "energy" },
+  { id: "NATGAS", symbol: "NG1!", shortLabel: "NG", subtitle: "Natural Gas · NYMEX", category: "energy" },
   // Grains
   { id: "CORN", symbol: "ZC1!", shortLabel: "CORN", subtitle: "Corn", category: "grains" },
   { id: "SOYBEANS", symbol: "ZS1!", shortLabel: "SOY", subtitle: "Soybeans", category: "grains" },

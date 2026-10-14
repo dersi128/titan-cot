@@ -13,7 +13,7 @@ export const COT_MARKET_MAPPINGS: CotMarketMapping[] = [
   { futuresSymbol: "PA1!", displayName: "PALLADIUM", apiSlug: "palladium" },
   { futuresSymbol: "HG1!", displayName: "COPPER-GRADE #1", apiSlug: "copper" },
   { futuresSymbol: "CL1!", displayName: "CRUDE OIL, LIGHT SWEET", apiSlug: "crude-oil" },
-  { futuresSymbol: "NG1!", displayName: "NATURAL GAS (HENRY HUB)", apiSlug: "natural-gas" },
+  { futuresSymbol: "NG1!", displayName: "NATURAL GAS", apiSlug: "natural-gas" },
   { futuresSymbol: "ZC1!", displayName: "CORN", apiSlug: "corn" },
   { futuresSymbol: "ZS1!", displayName: "SOYBEANS", apiSlug: "soybeans" },
   { futuresSymbol: "ZW1!", displayName: "WHEAT SRW (CBOT)", apiSlug: "wheat-srw" },
@@ -44,6 +44,12 @@ export const COT_MARKET_MAPPINGS: CotMarketMapping[] = [
   { futuresSymbol: "6A1!", displayName: "AUSTRALIAN DOLLAR", apiSlug: "australian-dollar" },
   { futuresSymbol: "6C1!", displayName: "CANADIAN DOLLAR", apiSlug: "canadian-dollar" },
   { futuresSymbol: "6S1!", displayName: "SWISS FRANC", apiSlug: "swiss-franc" },
+  {
+    futuresSymbol: "6N1!",
+    displayName: "NEW ZEALAND DOLLAR",
+    apiSlug: "new-zealand-dollar",
+    aliases: ["nzd", "6n", "6n1", "6n1!"],
+  },
 ];
 
 export function getCotMarketMapping(symbolOrSlug: string): CotMarketMapping | undefined {

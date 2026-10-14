@@ -9,13 +9,14 @@ export type CotIndexZoneThresholds = {
   extremeHigh: number;
 };
 
+/** 0–100 standard COT index. TITAN extremes are 20/80 (Max/InsiderWeek often 25/75). */
 export const DEFAULT_COT_INDEX_ZONE_THRESHOLDS: CotIndexZoneThresholds = {
-  extremeLow: -20,
-  lowExtreme: 0,
+  extremeLow: 0,
+  lowExtreme: 20,
   neutralLow: 20,
   neutralHigh: 80,
   highExtreme: 100,
-  extremeHigh: 120,
+  extremeHigh: 100,
 };
 
 export type CotIndexBandId =
@@ -29,15 +30,16 @@ export function getCotIndexZoneThresholds(): CotIndexZoneThresholds {
   return { ...DEFAULT_COT_INDEX_ZONE_THRESHOLDS };
 }
 
+/** Heatmap and positioning share 20/40/60/80 on the 0–100 index. */
 export function commercialIndexBand(
   index: number,
-  thresholds: CotIndexZoneThresholds = DEFAULT_COT_INDEX_ZONE_THRESHOLDS,
+  _thresholds: CotIndexZoneThresholds = DEFAULT_COT_INDEX_ZONE_THRESHOLDS,
 ): CotIndexBandId {
   if (!Number.isFinite(index)) return "neutral";
-  if (index <= thresholds.extremeLow) return "extreme_low";
-  if (index < thresholds.neutralLow) return "bearish_extreme";
-  if (index <= thresholds.neutralHigh) return "neutral";
-  if (index < thresholds.extremeHigh) return "bullish_extreme";
+  if (index < 20) return "extreme_low";
+  if (index < 40) return "bearish_extreme";
+  if (index <= 60) return "neutral";
+  if (index <= 80) return "bullish_extreme";
   return "extreme_high";
 }
 
