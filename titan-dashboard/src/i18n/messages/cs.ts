@@ -118,7 +118,9 @@ export const csMessages: Messages = {
       forex: "Forex",
       metals: "Kovy",
       commodities: "Komodity",
+      bonds: "Dluhopisy",
       indices: "Indexy",
+      other: "Ostatní",
     },
     tone: {
       extreme_long: "Extrémní long",
@@ -135,7 +137,9 @@ export const csMessages: Messages = {
     grains: "Obilí",
     softs: "Soft commodities",
     livestock: "Dobytek",
+    bonds: "Dluhopisy",
     indices: "Indexy",
+    other: "Ostatní",
   },
   detail: {
     eyebrow: "Detail trhu",

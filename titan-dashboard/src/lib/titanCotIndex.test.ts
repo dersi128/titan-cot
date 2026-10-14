@@ -142,7 +142,7 @@ describe("CFTC Legacy contract codes", () => {
     assert.equal(buildLegacyFuturesWhereClause(wti!), "cftc_contract_market_code='067651'");
     assert.equal(buildLegacyFuturesWhereClause(ng!), "cftc_contract_market_code='023651'");
     assert.equal(
-      COT_MARKET_MAPPINGS.every((m) => /^\d{5}[\dA-Z]$/.test(m.cftcContractMarketCode)),
+      COT_MARKET_MAPPINGS.every((m) => /^[0-9A-Z]{6}$/.test(m.cftcContractMarketCode)),
       true,
     );
     assert.equal(

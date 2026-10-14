@@ -42,16 +42,26 @@ describe("groupMarketsForHeatmap", () => {
       { id: "CORN", symbol: "ZC1!", shortLabel: "CORN", subtitle: "Corn", category: "grains" },
       { id: "COCOA", symbol: "CC1!", shortLabel: "COCOA", subtitle: "Cocoa", category: "softs" },
       { id: "HOGS", symbol: "HE1!", shortLabel: "HOGS", subtitle: "Hogs", category: "livestock" },
+      { id: "US10Y", symbol: "ZN1!", shortLabel: "10Y", subtitle: "10Y", category: "bonds" },
       { id: "ES", symbol: "ES1!", shortLabel: "SP 500", subtitle: "ES", category: "indices" },
+      { id: "BTC", symbol: "BTC1!", shortLabel: "BTC", subtitle: "Bitcoin", category: "other" },
     ];
     const groups = groupMarketsForHeatmap(markets);
     assert.deepEqual(
       groups.map((g) => g.group),
-      ["forex", "metals", "commodities", "indices"],
+      ["forex", "metals", "commodities", "bonds", "indices", "other"],
     );
     assert.deepEqual(
       groups.find((g) => g.group === "commodities")?.markets.map((m) => m.id),
       ["OIL", "CORN", "COCOA", "HOGS"],
+    );
+    assert.deepEqual(
+      groups.find((g) => g.group === "bonds")?.markets.map((m) => m.id),
+      ["US10Y"],
+    );
+    assert.deepEqual(
+      groups.find((g) => g.group === "other")?.markets.map((m) => m.id),
+      ["BTC"],
     );
   });
 });

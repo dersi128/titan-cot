@@ -116,7 +116,9 @@ export const enMessages = {
       forex: "Forex",
       metals: "Metals",
       commodities: "Commodities",
+      bonds: "Bonds",
       indices: "Indices",
+      other: "Other",
     },
     tone: {
       extreme_long: "Extreme long",
@@ -133,7 +135,9 @@ export const enMessages = {
     grains: "Grains",
     softs: "Softs",
     livestock: "Livestock",
+    bonds: "Bonds",
     indices: "Indices",
+    other: "Other",
   },
   detail: {
     eyebrow: "Market Detail",

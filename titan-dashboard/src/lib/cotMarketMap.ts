@@ -50,6 +50,90 @@ export const COT_MARKET_MAPPINGS: CotMarketMapping[] = [
     apiSlug: "new-zealand-dollar",
     aliases: ["nzd", "6n", "6n1", "6n1!"],
   },
+  {
+    futuresSymbol: "6M1!",
+    displayName: "MEXICAN PESO",
+    apiSlug: "mexican-peso",
+    aliases: ["mxn", "6m", "6m1", "6m1!", "peso"],
+  },
+  {
+    futuresSymbol: "ZF1!",
+    displayName: "UST 5Y NOTE",
+    apiSlug: "ust-5y",
+    aliases: ["5y", "zf", "zf1", "zf1!", "us5y", "fv"],
+  },
+  {
+    futuresSymbol: "ZN1!",
+    displayName: "UST 10Y NOTE",
+    apiSlug: "ust-10y",
+    aliases: ["10y", "zn", "zn1", "zn1!", "us10y", "ty"],
+  },
+  {
+    futuresSymbol: "ZB1!",
+    displayName: "UST BOND",
+    apiSlug: "ust-30y",
+    aliases: ["30y", "zb", "zb1", "zb1!", "us30y", "us-bond", "t-bond"],
+  },
+  {
+    futuresSymbol: "RB1!",
+    displayName: "GASOLINE RBOB",
+    apiSlug: "gasoline",
+    aliases: ["rb", "rb1", "rb1!", "rbob"],
+  },
+  {
+    futuresSymbol: "HO1!",
+    displayName: "NY HARBOR ULSD",
+    apiSlug: "heating-oil",
+    aliases: ["ho", "ho1", "ho1!", "ulsd", "heatingoil"],
+  },
+  {
+    futuresSymbol: "ZM1!",
+    displayName: "SOYBEAN MEAL",
+    apiSlug: "soybean-meal",
+    aliases: ["zm", "zm1", "zm1!", "meal", "soymeal"],
+  },
+  {
+    futuresSymbol: "ZL1!",
+    displayName: "SOYBEAN OIL",
+    apiSlug: "soybean-oil",
+    aliases: ["zl", "zl1", "zl1!", "soyoil", "boil"],
+  },
+  {
+    futuresSymbol: "ZR1!",
+    displayName: "ROUGH RICE",
+    apiSlug: "rough-rice",
+    aliases: ["zr", "zr1", "zr1!", "rice"],
+  },
+  {
+    futuresSymbol: "OJ1!",
+    displayName: "FRZN CONCENTRATED ORANGE JUICE",
+    apiSlug: "orange-juice",
+    aliases: ["oj", "oj1", "oj1!", "fcoj"],
+  },
+  {
+    futuresSymbol: "GF1!",
+    displayName: "FEEDER CATTLE",
+    apiSlug: "feeder-cattle",
+    aliases: ["gf", "gf1", "gf1!", "feeder"],
+  },
+  {
+    futuresSymbol: "BTC1!",
+    displayName: "BITCOIN",
+    apiSlug: "bitcoin",
+    aliases: ["btc", "btc1", "btc1!"],
+  },
+  {
+    futuresSymbol: "ETH1!",
+    displayName: "ETHER CASH SETTLED",
+    apiSlug: "ether",
+    aliases: ["eth", "eth1", "eth1!", "ethereum"],
+  },
+  {
+    futuresSymbol: "VX1!",
+    displayName: "VIX FUTURES",
+    apiSlug: "vix",
+    aliases: ["vx", "vx1", "vx1!", "vix-futures"],
+  },
 ];
 
 export function getCotMarketMapping(symbolOrSlug: string): CotMarketMapping | undefined {
