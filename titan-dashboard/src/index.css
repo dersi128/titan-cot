@@ -3764,18 +3764,23 @@
   }
 }
 
+.titan-heatmap-page .titan-page-header {
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+}
+
 .titan-heatmap-board {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .titan-heatmap-legend {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 10px 14px;
-  padding: 8px 12px;
+  gap: 8px 12px;
+  padding: 6px 10px;
   border-radius: 8px;
   border: 1px solid rgba(0, 174, 239, 0.22);
   background: rgba(5, 11, 18, 0.55);
@@ -3812,25 +3817,29 @@
 }
 
 .titan-heatmap-group {
-  padding: 12px !important;
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr);
+  align-items: center;
+  gap: 10px 12px;
+  padding: 8px 10px !important;
 }
 
 .titan-heatmap-group .titan-cmd-kicker {
-  margin: 0 0 10px;
+  margin: 0;
 }
 
 .titan-heatmap-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(138px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: 6px;
 }
 
 .titan-heatmap-cell {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  min-height: 118px;
-  padding: 10px;
+  min-height: 0;
+  padding: 8px 8px 9px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
   background: rgba(8, 12, 18, 0.72);
@@ -3907,7 +3916,7 @@
   display: flex;
   width: 100%;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .titan-heatmap-cell__name {
@@ -3915,7 +3924,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: calc(12px * var(--titan-type-font, 1));
+  font-size: calc(11px * var(--titan-type-font, 1));
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -3923,42 +3932,17 @@
 }
 
 .titan-heatmap-cell__index {
-  margin-top: 8px;
+  margin-top: 6px;
   font-family: "JetBrains Mono", ui-monospace, monospace;
-  font-size: calc(22px * var(--titan-type-font, 1));
+  font-size: calc(26px * var(--titan-type-font, 1));
   font-weight: 700;
   line-height: 1;
   color: #f4f7fb;
 }
 
-.titan-heatmap-cell__meta {
-  display: flex;
-  width: 100%;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 6px;
-  margin-top: 4px;
-  font-size: calc(9px * var(--titan-type-font, 1));
-  font-weight: 650;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #b8c5d2;
-}
-
-.titan-heatmap-cell__score {
-  margin-top: 4px;
-  font-family: "JetBrains Mono", ui-monospace, monospace;
-  font-size: calc(10px * var(--titan-type-font, 1));
-  font-weight: 700;
-  letter-spacing: 0.04em;
-}
-
-.titan-heatmap-cell__retail {
-  margin-top: auto;
-  padding-top: 6px;
-  font-size: calc(8px * var(--titan-type-font, 1));
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #f5b942;
+@media (max-width: 720px) {
+  .titan-heatmap-group {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
 }
