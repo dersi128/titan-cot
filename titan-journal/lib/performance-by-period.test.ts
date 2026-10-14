@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest"
 
-import { MOCK_TRADES } from "@/lib/mock-data"
+import { MOCK_TRADES, sortTrades } from "@/lib/mock-data"
 import {
   aggregationForRange,
   getPerformanceByPeriod,
   isoWeekNumber,
   isoWeekStart,
+  performanceAxisTickKeys,
   performanceRangeLabel,
   performanceTickLabel,
 } from "@/lib/performance-by-period"
@@ -170,5 +171,40 @@ describe("getPerformanceByPeriod", () => {
     expect(result.buckets.some((bucket) => bucket.key === "2026-03")).toBe(true)
     expect(result.buckets.some((bucket) => bucket.key === "2026-09")).toBe(true)
     expect(result.buckets.map((bucket) => bucket.key)).toContain("2026-05")
+    expect(result.totals.trades).toBe(2)
+  })
+
+  it("on ALL still spans the first year when trades are newest-first", () => {
+    const result = getPerformanceByPeriod(sortTrades(MOCK_TRADES), "ALL", NOW)
+    expect(result.buckets[0]?.key).toBe("2026-01")
+    expect(result.buckets.at(-1)?.key).toBe("2026-09")
+    expect(result.totals.trades).toBe(
+      MOCK_TRADES.filter(
+        (item) =>
+          (item.status === "CLOSED" || item.status === "REVIEWED") &&
+          item.resultR != null &&
+          item.date <= "2026-09-03"
+      ).length
+    )
+  })
+})
+
+describe("performanceAxisTickKeys", () => {
+  it("always keeps the first and last bucket on a dense axis", () => {
+    const buckets = Array.from({ length: 9 }, (_, index) => ({
+      key: `2026-${String(index + 1).padStart(2, "0")}`,
+    }))
+    expect(performanceAxisTickKeys(buckets, 5)).toEqual([
+      "2026-01",
+      "2026-03",
+      "2026-05",
+      "2026-07",
+      "2026-09",
+    ])
+    expect(performanceAxisTickKeys(buckets.slice(0, 3), 5)).toEqual([
+      "2026-01",
+      "2026-02",
+      "2026-03",
+    ])
   })
 })

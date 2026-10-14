@@ -30,6 +30,7 @@ import { LOCALE, prefersMoneyMetrics } from "@/lib/locale"
 import { formatMonthTitle, parseIsoDate } from "@/lib/pnl-calendar"
 import {
   getPerformanceByPeriod,
+  performanceAxisTickKeys,
   performanceRangeLabel,
   performanceTickLabel,
   type PerformanceAggregation,
@@ -127,12 +128,15 @@ export function PerformanceBars({
   const { range, custom } = useWorkspaceChrome()
   const preferredMetric: Metric = prefersMoneyMetrics(language) ? "pnl" : "r"
   const [pickedMetric, setPickedMetric] = useState<Metric | null>(null)
+  const [selectedKey, setSelectedKey] = useState<string | null>(null)
   const metric = pickedMetric ?? preferredMetric
   const result = useMemo(
     () => getPerformanceByPeriod(trades, range, new Date(), custom),
     [trades, range, custom]
   )
   const compact = result.buckets.length > 8
+  const tickKeys = performanceAxisTickKeys(result.buckets, compact ? 5 : 8)
+  const selected = result.buckets.find((bucket) => bucket.key === selectedKey) ?? null
   const rows = useMemo<ChartRow[]>(() => {
     const values = result.buckets.map((bucket) =>
       metric === "r" ? bucket.netR : bucket.pnl
@@ -151,7 +155,6 @@ export function PerformanceBars({
     r: copy.dashboard.r,
     pnl: copy.dashboard.pnl,
   }
-  const tickEvery = Math.max(1, Math.ceil(result.buckets.length / 8))
   const { totals } = result
   const summaryParts = [
     metric === "r" ? formatSignedR(totals.netR) : formatSignedMoney(totals.pnl, currency),
@@ -189,7 +192,8 @@ export function PerformanceBars({
             {copy.dashboard.performanceEmpty}
           </p>
         ) : (
-          <div className="h-[220px] w-full">
+          <div>
+            <div className="h-[220px] w-full">
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={rows} margin={{ top: 8, right: 8, left: 0, bottom: 4 }}>
                 <CartesianGrid
@@ -198,18 +202,22 @@ export function PerformanceBars({
                 />
                 <XAxis
                   dataKey="key"
+                  ticks={tickKeys}
+                  interval={0}
                   tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
                   tickLine={false}
                   axisLine={false}
-                  interval={tickEvery - 1}
-                  tickFormatter={(_, index) =>
-                    performanceTickLabel(
-                      result.buckets[index]!,
-                      result.aggregation,
-                      language,
-                      compact
-                    )
-                  }
+                  tickFormatter={(key: string) => {
+                    const bucket = result.buckets.find((item) => item.key === key)
+                    return bucket
+                      ? performanceTickLabel(
+                          bucket,
+                          result.aggregation,
+                          language,
+                          compact
+                        )
+                      : ""
+                  }}
                 />
                 <YAxis
                   tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
@@ -227,6 +235,7 @@ export function PerformanceBars({
                   stroke="color-mix(in srgb, var(--muted-foreground) 45%, transparent)"
                 />
                 <Tooltip
+                  trigger="click"
                   cursor={{ fill: "color-mix(in srgb, var(--foreground) 6%, transparent)" }}
                   content={<BarTooltip currency={currency} aggregation={result.aggregation} />}
                 />
@@ -236,6 +245,11 @@ export function PerformanceBars({
                   radius={[3, 3, 0, 0]}
                   isAnimationActive
                   animationDuration={200}
+                  onClick={(item) => {
+                    const key = String(item.payload?.key ?? "")
+                    if (!key) return
+                    setSelectedKey((current) => (current === key ? null : key))
+                  }}
                 >
                   {rows.map((row) => {
                     const value = metric === "r" ? row.netR : row.pnl
@@ -249,13 +263,37 @@ export function PerformanceBars({
                       <Cell
                         key={row.key}
                         fill={fill}
-                        fillOpacity={row.incomplete ? 0.55 : 1}
+                        fillOpacity={
+                          row.key === selectedKey
+                            ? 1
+                            : row.incomplete
+                              ? 0.55
+                              : 0.92
+                        }
                       />
                     )
                   })}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
+            </div>
+            {selected ? (
+              <p className="mt-2 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 text-[12px]">
+                <span className="text-muted-foreground">
+                  {rangeHeading(selected, result.aggregation, language)}
+                </span>
+                <span
+                  className={cn(
+                    "font-mono tabular-nums",
+                    signedClassName(metric === "r" ? selected.netR : selected.pnl)
+                  )}
+                >
+                  {metric === "r"
+                    ? formatSignedR(selected.netR)
+                    : formatSignedMoney(selected.pnl, currency)}
+                </span>
+              </p>
+            ) : null}
           </div>
         )}
       </CardContent>

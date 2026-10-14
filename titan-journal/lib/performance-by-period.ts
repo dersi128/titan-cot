@@ -335,3 +335,20 @@ export function performanceRangeLabel(bucket: PerformanceBucket): string {
   }
   return `${start.day}. ${start.month}. ${start.year} – ${end.day}. ${end.month}. ${end.year}`
 }
+
+export function performanceAxisTickKeys(
+  buckets: Array<{ key: string }>,
+  maxTicks = 6
+): string[] {
+  const count = buckets.length
+  if (count === 0) return []
+  const limit = Math.max(2, maxTicks)
+  if (count <= limit) return buckets.map((bucket) => bucket.key)
+  const keys: string[] = []
+  for (let i = 0; i < limit; i += 1) {
+    const index = Math.round((i * (count - 1)) / (limit - 1))
+    const key = buckets[index]?.key
+    if (key && keys[keys.length - 1] !== key) keys.push(key)
+  }
+  return keys
+}

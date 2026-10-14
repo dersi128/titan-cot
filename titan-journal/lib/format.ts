@@ -57,18 +57,40 @@ export function formatSignedR(value: number | null | undefined): string {
   return `0R`
 }
 
+function compactNumber(abs: number): string {
+  if (abs >= 10_000) {
+    return `${Math.round(abs / 1000).toLocaleString(LOCALE)}k`
+  }
+  if (abs >= 1000) {
+    const scaled = Math.round(abs / 100) / 10
+    return `${scaled.toLocaleString(LOCALE, {
+      maximumFractionDigits: 1,
+      minimumFractionDigits: 0,
+    })}k`
+  }
+  return Math.round(abs).toLocaleString(LOCALE)
+}
+
 export function formatCompactSigned(value: number | null | undefined): string {
   if (value == null || !Number.isFinite(value)) return "—"
   if (value === 0) return "0"
   const sign = value > 0 ? "+" : "-"
+  return `${sign}${compactNumber(Math.abs(value))}`
+}
+
+export function formatCompactSignedR(value: number | null | undefined): string {
+  if (value == null || !Number.isFinite(value)) return "—"
+  if (value === 0) return "0R"
+  const sign = value > 0 ? "+" : "-"
   const abs = Math.abs(value)
   const body =
-    abs >= 10_000
-      ? `${Math.round(abs / 1000)}k`
-      : abs >= 1000
-        ? `${(Math.round(abs / 100) / 10).toFixed(1).replace(/\.0$/, "")}k`
-        : String(Math.round(abs))
-  return `${sign}${body}`
+    abs >= 10
+      ? Math.round(abs).toLocaleString(LOCALE)
+      : abs.toLocaleString(LOCALE, {
+          maximumFractionDigits: 1,
+          minimumFractionDigits: 0,
+        })
+  return `${sign}${body}R`
 }
 
 export function formatPercent(value: number | null | undefined): string {

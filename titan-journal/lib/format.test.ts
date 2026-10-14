@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import {
   formatCompactSigned,
+  formatCompactSignedR,
   formatDate,
   formatMoney,
   formatPercent,
@@ -38,12 +39,17 @@ describe("cs-CZ locale", () => {
     expect(formatSignedMoney(-180, "EUR")).toMatch(/^-/)
   })
 
-  it("compacts calendar-sized PnL", () => {
+  it("compacts calendar-sized PnL with a locale decimal", () => {
     expect(formatCompactSigned(0)).toBe("0")
+    expect(formatCompactSigned(null)).toBe("—")
     expect(formatCompactSigned(240)).toBe("+240")
     expect(formatCompactSigned(-180)).toBe("-180")
-    expect(formatCompactSigned(1240)).toBe("+1.2k")
-    expect(formatCompactSigned(15000)).toBe("+15k")
+    expect(formatCompactSigned(1240)).toBe("+1,2k")
+    expect(formatCompactSigned(-15000)).toBe("-15k")
+    expect(formatCompactSignedR(0)).toBe("0R")
+    expect(formatCompactSignedR(1.95)).toBe("+2R")
+    expect(formatCompactSignedR(-1.3)).toBe("-1,3R")
+    expect(formatCompactSignedR(12.4)).toBe("+12R")
   })
 
   it("formats signed percent points", () => {
