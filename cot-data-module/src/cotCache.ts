@@ -2,7 +2,7 @@ import type { CotDashboardOutput } from "./cotGold.js";
 import { fetchCotDashboardData } from "./cotGold.js";
 
 const TTL_MS = Number(process.env.COT_CACHE_TTL_MS ?? 15 * 60 * 1000);
-const CACHE_VERSION = "inclusive-0-100";
+const CACHE_VERSION = "inclusive-0-100-v3";
 
 type CacheEntry = {
   expiresAt: number;

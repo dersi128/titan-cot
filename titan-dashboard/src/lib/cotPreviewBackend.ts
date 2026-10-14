@@ -7,7 +7,7 @@ const CFTC_LEGACY_FUTURES_ONLY_URL = "https://publicreporting.cftc.gov/resource/
 const DEFAULT_HISTORY_WEEKS = 300;
 const CONCURRENCY = 4;
 const CACHE_TTL_MS = 15 * 60 * 1000;
-const CACHE_VERSION = "inclusive-0-100";
+const CACHE_VERSION = "inclusive-0-100-v3";
 
 const CFTC_FIELDS = [
   "report_date_as_yyyy_mm_dd",
@@ -142,9 +142,10 @@ export async function loadBranchCotDashboard(symbolOrSlug: string): Promise<CotD
   const { history, contractName } = await fetchLegacyHistory(code, DEFAULT_HISTORY_WEEKS);
   const rebuilt = rebuildCotDashboardFromHistory(emptyTemplate(mapping, contractName || mapping.displayName), history);
   if (!rebuilt) throw new Error(`No CFTC Legacy Futures Only rows found for ${mapping.displayName}.`);
+  const data = { ...rebuilt, cftcContractMarketCode: code };
 
-  cacheStore().set(key, { data: rebuilt, expiresAt: Date.now() + CACHE_TTL_MS });
-  return rebuilt;
+  cacheStore().set(key, { data, expiresAt: Date.now() + CACHE_TTL_MS });
+  return data;
 }
 
 export async function loadBranchCotBundle(symbols: string[]): Promise<{

@@ -20,6 +20,8 @@ export type CotDashboardData = {
   market: string;
   futuresSymbol: string;
   cftcMarketName: string;
+  /** Official CFTC Legacy Futures Only `cftc_contract_market_code`. */
+  cftcContractMarketCode?: string;
   /** Same as futuresSymbol; kept for older UI paths. */
   symbol: string;
   reportDate: string;

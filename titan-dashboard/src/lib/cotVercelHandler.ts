@@ -3,12 +3,8 @@ import {
   loadBranchCotBundle,
   loadBranchCotDashboard,
   RENDER_COT_ORIGIN,
-} from "../../src/lib/cotPreviewBackend";
-
-function isVercelProduction(): boolean {
-  return process.env.VERCEL_ENV === "production";
-}
-import { COT_MARKET_MAPPINGS, getCotMarketMapping } from "../../src/lib/cotMarketMap";
+} from "./cotPreviewBackend";
+import { COT_MARKET_MAPPINGS, getCotMarketMapping } from "./cotMarketMap";
 
 export const config = { runtime: "nodejs", maxDuration: 60 };
 
@@ -17,8 +13,19 @@ const JSON_HEADERS = {
   "cache-control": "no-store",
 };
 
-function json(status: number, body: unknown): Response {
-  return new Response(JSON.stringify(body), { status, headers: JSON_HEADERS });
+function vercelEnv(): string | undefined {
+  return (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.VERCEL_ENV;
+}
+
+function isVercelProduction(): boolean {
+  return vercelEnv() === "production";
+}
+
+function json(status: number, body: unknown, backend: "branch-preview" | "render"): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...JSON_HEADERS, "x-titan-cot-backend": backend },
+  });
 }
 
 function cotPath(pathname: string): string {
@@ -41,6 +48,7 @@ async function proxyProduction(request: Request): Promise<Response> {
   const headers = new Headers(JSON_HEADERS);
   const contentType = upstream.headers.get("content-type");
   if (contentType) headers.set("content-type", contentType);
+  headers.set("x-titan-cot-backend", "render");
   return new Response(body, { status: upstream.status, headers });
 }
 
@@ -50,34 +58,38 @@ async function handlePreview(request: Request): Promise<Response> {
   const head = path.split("/")[0] ?? "";
 
   if (head === "mappings") {
-    return json(200, { mappings: listBranchCotMappings() });
+    return json(200, { mappings: listBranchCotMappings() }, "branch-preview");
   }
 
   if (head === "bundle") {
     const raw = url.searchParams.get("symbols");
     const symbols =
       raw && raw.length > 0 ? raw.split(",").map((s) => s.trim()) : COT_MARKET_MAPPINGS.map((m) => m.futuresSymbol);
-    return json(200, await loadBranchCotBundle(symbols));
+    return json(200, await loadBranchCotBundle(symbols), "branch-preview");
   }
 
   if (head === "gold") {
-    return json(200, await loadBranchCotDashboard("GC1!"));
+    return json(200, await loadBranchCotDashboard("GC1!"), "branch-preview");
   }
 
   if (!head) {
-    return json(404, { error: "Missing COT symbol." });
+    return json(404, { error: "Missing COT symbol." }, "branch-preview");
   }
 
   const mapping = getCotMarketMapping(head);
   if (!mapping) {
-    return json(404, {
-      status: "unsupported",
-      error: "No COT mapping exists for this futures market.",
-      mappings: listBranchCotMappings(),
-    });
+    return json(
+      404,
+      {
+        status: "unsupported",
+        error: "No COT mapping exists for this futures market.",
+        mappings: listBranchCotMappings(),
+      },
+      "branch-preview",
+    );
   }
 
-  return json(200, await loadBranchCotDashboard(mapping.futuresSymbol));
+  return json(200, await loadBranchCotDashboard(mapping.futuresSymbol), "branch-preview");
 }
 
 export default async function handler(request: Request): Promise<Response> {
@@ -86,6 +98,6 @@ export default async function handler(request: Request): Promise<Response> {
     return await handlePreview(request);
   } catch (error) {
     const message = error instanceof Error ? error.message : "COT preview backend failed.";
-    return json(500, { error: message });
+    return json(500, { error: message }, "branch-preview");
   }
 }

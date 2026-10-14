@@ -4,9 +4,8 @@
   "outputDirectory": "titan-dashboard/dist",
   "framework": "vite",
   "functions": {
-    "api/cot/[...path].ts": {
-      "maxDuration": 60,
-      "includeFiles": "titan-dashboard/src/lib/**"
+    "api/cot/[...path].mjs": {
+      "maxDuration": 60
     }
   },
   "rewrites": [
