@@ -1,0 +1,433 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// @version=6
+indicator(title='TITAN COT Index — BUY / SELL', shorttitle='COT BUY/SELL', format=format.price, precision=1, max_labels_count=50, max_lines_count=50)
+
+import TradingView/LibraryCOT/2
+
+// TITAN dashboard 42 futures. Inclusive 26-week COT index 0–100.
+// CFTC Legacy Futures Only codes match titan-dashboard (WTI 067651, NG 023651, NZD 112741).
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 1) NASTAVENÍ
+// ─────────────────────────────────────────────────────────────────────────────
+grp_data = "Data"
+i_lookback = input.int(26, "Lookback (týdny)", minval=1, group=grp_data, tooltip="Okno pro COT Index 0–100 včetně aktuálního reportu. Standard: 26 týdnů.")
+i_src      = input.string('Futures Only', 'Zdroj Dat', ['Futures Only', 'Futures and Options'], group=grp_data)
+i_market   = input.string("AUTO", "Trh (42 TITAN)", ["AUTO", "DXY", "EUR", "JPY", "GBP", "AUD", "CAD", "CHF", "NZD", "MXN", "GOLD", "SILVER", "PLATINUM", "PALLADIUM", "COPPER", "OIL", "NATGAS", "GASOLINE", "HEATOIL", "CORN", "SOYBEANS", "WHEAT", "SOYMEAL", "SOYOIL", "RICE", "COFFEE", "COCOA", "SUGAR", "COTTON", "OJ", "CATTLE", "FEEDERCATTLE", "HOGS", "US5Y", "US10Y", "US30Y", "SP500", "NAS100", "DOW", "RUSSELL", "BTC", "ETH", "VIX"], group=grp_data, tooltip="AUTO čte kontrakt z grafu. Jinak vynutí stejný trh jako dashboard.")
+
+grp_thr = "Signální prahy (testuj libovolně)"
+THR_TOUCH_HIGH = input.float(100.0, "1) TOUCH HIGH → SELL setup", minval=70, maxval=100, step=1, group=grp_thr, tooltip="Hned jak Smart Money dosáhne tuto hodnotu → první SELL signál.")
+THR_EXIT_HIGH  = input.float(80.0, "2) EXIT HIGH → SELL", minval=50, maxval=95, step=1, group=grp_thr, tooltip="Hned jak Smart Money opustí tuto úroveň DOLŮ → SELL.")
+THR_TOUCH_LOW  = input.float(0.0, "1) TOUCH LOW → BUY setup", minval=0, maxval=30, step=1, group=grp_thr, tooltip="Hned jak Smart Money dosáhne tuto hodnotu → první BUY signál.")
+THR_EXIT_LOW   = input.float(20.0, "2) EXIT LOW → BUY", minval=5, maxval=50, step=1, group=grp_thr, tooltip="Hned jak Smart Money opustí tuto úroveň NAHORU → BUY.")
+THR_MID = 50.0
+
+grp_lbl = "Vzhled"
+i_showEndLabels = input.bool(true, "Popisky na konci křivek", group=grp_lbl)
+i_showTable     = input.bool(true, "Status panel", group=grp_lbl)
+i_tablePos      = input.string(position.top_right, "Pozice panelu", [position.top_left, position.top_right, position.bottom_left, position.bottom_right], group=grp_lbl)
+i_showBgZones   = input.bool(true, "Zvýraznit BUY/SELL zóny", group=grp_lbl)
+i_showHistFill  = input.bool(true, "Fill Commercials vs 50", group=grp_lbl)
+
+grp_rev = "Filtry signálů"
+i_useRetailConfirm = input.bool(false, "Vyžadovat Retail potvrzení", group=grp_rev, tooltip="OFF = stejné jako dashboard. BUY: Retail HIGH. SELL: Retail LOW.")
+i_useDivergence    = input.bool(false, "Vyžadovat divergenci ceny", group=grp_rev)
+i_divLookback      = input.int(26, "Divergence lookback (týdny)", minval=5, group=grp_rev)
+i_signalCooldown   = input.int(2, "Cooldown (týdny)", minval=0, maxval=26, group=grp_rev)
+
+grp_ov = "Overlay do grafu"
+i_showOverlaySignals = input.bool(true, "Šipky do grafu", group=grp_ov)
+i_showTouchSignals   = input.bool(true, "Zobrazit TOUCH (1. signál)", group=grp_ov)
+i_showExitSignals    = input.bool(true, "Zobrazit EXIT/TURN (2. signál)", group=grp_ov)
+i_usePriceConfirm    = input.bool(false, "3. stupeň: CONFIRM + price pivot", group=grp_ov)
+i_pivotLen           = input.int(3, "Pivot length", minval=1, group=grp_ov)
+i_holdUntilOpposite  = input.bool(true, "Držet režim do opačného TURN", group=grp_ov)
+i_spineTF            = input.timeframe("W", "TF pro režim + CONFIRM", group=grp_ov)
+
+colComm   = #42A5F5
+colRetail = #FFB74D
+colBuy    = #00C853
+colSell   = #FF1744
+colTouchBuy  = #69F0AE
+colTouchSell = #FF8A80
+colConfirmBuy  = #00B0FF
+colConfirmSell = #FF5252
+colBgCell = #0D1117
+colText   = #C9D1D9
+colMuted  = #8B949E
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 2) 42 TITAN TRHŮ — stejné CFTC Legacy kódy jako dashboard
+// ─────────────────────────────────────────────────────────────────────────────
+f_cftc(id) =>
+    switch id
+        "DXY" => "098662"
+        "EUR" => "099741"
+        "JPY" => "097741"
+        "GBP" => "096742"
+        "AUD" => "232741"
+        "CAD" => "090741"
+        "CHF" => "092741"
+        "NZD" => "112741"
+        "MXN" => "095741"
+        "GOLD" => "088691"
+        "SILVER" => "084691"
+        "PLATINUM" => "076651"
+        "PALLADIUM" => "075651"
+        "COPPER" => "085692"
+        "OIL" => "067651"
+        "NATGAS" => "023651"
+        "GASOLINE" => "111659"
+        "HEATOIL" => "022651"
+        "CORN" => "002602"
+        "SOYBEANS" => "005602"
+        "WHEAT" => "001602"
+        "SOYMEAL" => "026603"
+        "SOYOIL" => "007601"
+        "RICE" => "039601"
+        "COFFEE" => "083731"
+        "COCOA" => "073732"
+        "SUGAR" => "080732"
+        "COTTON" => "033661"
+        "OJ" => "040701"
+        "CATTLE" => "057642"
+        "FEEDERCATTLE" => "061641"
+        "HOGS" => "054642"
+        "US5Y" => "044601"
+        "US10Y" => "043602"
+        "US30Y" => "020601"
+        "SP500" => "13874A"
+        "NAS100" => "209742"
+        "DOW" => "124603"
+        "RUSSELL" => "239742"
+        "BTC" => "133741"
+        "ETH" => "146021"
+        "VIX" => "1170E1"
+        => ""
+
+// TradingView COT ticker uses + instead of trailing A (ES / 13874A).
+f_tvCftc(code) =>
+    code == "13874A" ? "13874+" : code
+
+f_idFromChart() =>
+    string r = str.upper(syminfo.root)
+    string s = str.upper(syminfo.ticker)
+    string bc = str.upper(syminfo.basecurrency)
+    string qc = str.upper(syminfo.currency)
+    string id = ""
+    if r == "DX" or s == "DXY" or s == "DX1!" or r == "DXY"
+        id := "DXY"
+    else if r == "6E" or r == "EUR" or s == "6E1!" or s == "EURUSD"
+        id := "EUR"
+    else if r == "6J" or r == "JPY" or s == "6J1!" or s == "USDJPY" or s == "JPYUSD"
+        id := "JPY"
+    else if r == "6B" or r == "GBP" or s == "6B1!" or s == "GBPUSD"
+        id := "GBP"
+    else if r == "6A" or r == "AUD" or s == "6A1!" or s == "AUDUSD"
+        id := "AUD"
+    else if r == "6C" or r == "CAD" or s == "6C1!" or s == "USDCAD"
+        id := "CAD"
+    else if r == "6S" or r == "CHF" or s == "6S1!" or s == "USDCHF"
+        id := "CHF"
+    else if r == "6N" or r == "NZD" or s == "6N1!" or s == "NZDUSD"
+        id := "NZD"
+    else if r == "6M" or r == "MXN" or s == "6M1!" or s == "USDMXN"
+        id := "MXN"
+    else if r == "GC" or bc == "XAU" or r == "XAU" or s == "XAUUSD"
+        id := "GOLD"
+    else if r == "SI" or bc == "XAG" or r == "XAG" or s == "XAGUSD"
+        id := "SILVER"
+    else if r == "PL" or r == "XPT"
+        id := "PLATINUM"
+    else if r == "PA" or r == "XPD"
+        id := "PALLADIUM"
+    else if r == "HG"
+        id := "COPPER"
+    else if r == "CL" or r == "QM"
+        id := "OIL"
+    else if r == "NG"
+        id := "NATGAS"
+    else if r == "RB"
+        id := "GASOLINE"
+    else if r == "HO"
+        id := "HEATOIL"
+    else if r == "ZC"
+        id := "CORN"
+    else if r == "ZS"
+        id := "SOYBEANS"
+    else if r == "ZW"
+        id := "WHEAT"
+    else if r == "ZM"
+        id := "SOYMEAL"
+    else if r == "ZL"
+        id := "SOYOIL"
+    else if r == "ZR"
+        id := "RICE"
+    else if r == "KC"
+        id := "COFFEE"
+    else if r == "CC"
+        id := "COCOA"
+    else if r == "SB"
+        id := "SUGAR"
+    else if r == "CT"
+        id := "COTTON"
+    else if r == "OJ"
+        id := "OJ"
+    else if r == "LE"
+        id := "CATTLE"
+    else if r == "GF"
+        id := "FEEDERCATTLE"
+    else if r == "HE"
+        id := "HOGS"
+    else if r == "ZF" or r == "FV"
+        id := "US5Y"
+    else if r == "ZN" or r == "TY"
+        id := "US10Y"
+    else if r == "ZB" or s == "ZB1!"
+        id := "US30Y"
+    else if r == "ES" or s == "ES1!" or s == "SPX"
+        id := "SP500"
+    else if r == "NQ" or s == "NQ1!" or s == "NDX"
+        id := "NAS100"
+    else if r == "YM" or s == "YM1!" or s == "DJI"
+        id := "DOW"
+    else if r == "RTY" or s == "RTY1!" or s == "RUT"
+        id := "RUSSELL"
+    else if r == "BTC" or s == "BTC1!" or s == "BTCUSD"
+        id := "BTC"
+    else if r == "ETH" or s == "ETH1!" or s == "ETHUSD"
+        id := "ETH"
+    else if r == "VX" or r == "VIX" or s == "VX1!" or s == "VIX"
+        id := "VIX"
+    else if f_cftc(bc) != "" and bc != "USD"
+        id := bc
+    else if f_cftc(qc) != "" and qc != "USD"
+        id := qc
+    id
+
+f_cotIndex0100(netPos, len) =>
+    float hh = ta.highest(netPos, len)
+    float ll = ta.lowest(netPos, len)
+    float den = hh - ll
+    den == 0 ? na : (netPos - ll) / den * 100.0
+
+f_fmt1(v) =>
+    na(v) ? "—" : str.tostring(v, "#.0")
+
+f_zoneShort(v) =>
+    na(v) ? "—" : v >= THR_EXIT_HIGH ? "HIGH" : v <= THR_EXIT_LOW ? "LOW" : v >= THR_MID ? "↑ mid" : "↓ mid"
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 5) DATA — týdenní index, okno včetně aktuálního baru
+// ─────────────────────────────────────────────────────────────────────────────
+pair = i_market == "AUTO" ? f_idFromChart() : i_market
+code = f_cftc(pair)
+tvCode = f_tvCftc(code)
+incl = i_src == 'Futures and Options'
+
+float idxSM = na
+float idxRT = na
+float netSM = na
+float netRT = na
+
+if tvCode != ''
+    sL = request.security(LibraryCOT.COTTickerid("Legacy", tvCode, incl, "Commercial Positions", "Long", "All"),  'W', close, lookahead=barmerge.lookahead_off, ignore_invalid_symbol=true)
+    sS = request.security(LibraryCOT.COTTickerid("Legacy", tvCode, incl, "Commercial Positions", "Short", "All"), 'W', close, lookahead=barmerge.lookahead_off, ignore_invalid_symbol=true)
+    netSM := sL - sS
+    idxSM := request.security(syminfo.tickerid, "W", f_cotIndex0100(netSM, i_lookback), lookahead=barmerge.lookahead_off)
+
+    rL = request.security(LibraryCOT.COTTickerid("Legacy", tvCode, incl, "Nonreportable Positions", "Long", "All"),  'W', close, lookahead=barmerge.lookahead_off, ignore_invalid_symbol=true)
+    rS = request.security(LibraryCOT.COTTickerid("Legacy", tvCode, incl, "Nonreportable Positions", "Short", "All"), 'W', close, lookahead=barmerge.lookahead_off, ignore_invalid_symbol=true)
+    netRT := rL - rS
+    idxRT := request.security(syminfo.tickerid, "W", f_cotIndex0100(netRT, i_lookback), lookahead=barmerge.lookahead_off)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 6) SIGNÁLY — 2 stupně (stejné jako dashboard)
+//    1) TOUCH 100 / 0  → okamžitý setup
+//    2) EXIT  80 / 20  → směr (turn) po opuštění zóny
+// ─────────────────────────────────────────────────────────────────────────────
+inHighZone = not na(idxSM) and idxSM >= THR_EXIT_HIGH
+inLowZone  = not na(idxSM) and idxSM <= THR_EXIT_LOW
+
+rtConfBuy  = (not i_useRetailConfirm) or (not na(idxRT) and idxRT >= THR_EXIT_HIGH)
+rtConfSell = (not i_useRetailConfirm) or (not na(idxRT) and idxRT <= THR_EXIT_LOW)
+
+touchHighRaw = not na(idxSM) and idxSM >= THR_TOUCH_HIGH and (na(idxSM[1]) or idxSM[1] < THR_TOUCH_HIGH)
+touchLowRaw  = not na(idxSM) and idxSM <= THR_TOUCH_LOW  and (na(idxSM[1]) or idxSM[1] > THR_TOUCH_LOW)
+
+var bool armedSell = false
+var bool armedBuy  = false
+if touchHighRaw
+    armedSell := true
+    armedBuy  := false
+if touchLowRaw
+    armedBuy  := true
+    armedSell := false
+
+exitHighRaw = ta.crossunder(idxSM, THR_EXIT_HIGH)
+exitLowRaw  = ta.crossover(idxSM, THR_EXIT_LOW)
+
+if exitHighRaw
+    armedSell := false
+if exitLowRaw
+    armedBuy := false
+
+priceW = request.security(syminfo.tickerid, 'W', close, lookahead=barmerge.lookahead_off)
+ph  = ta.highest(priceW, i_divLookback)
+pl  = ta.lowest(priceW, i_divLookback)
+smh = ta.highest(netSM, i_divLookback)
+sml = ta.lowest(netSM, i_divLookback)
+divBuy  = not na(netSM) and priceW <= pl and netSM > sml
+divSell = not na(netSM) and priceW >= ph and netSM < smh
+divOKBuy  = (not i_useDivergence) or divBuy
+divOKSell = (not i_useDivergence) or divSell
+
+touchSellRaw = touchHighRaw and rtConfSell and divOKSell
+touchBuyRaw  = touchLowRaw  and rtConfBuy  and divOKBuy
+exitSellRaw  = exitHighRaw  and rtConfSell and divOKSell
+exitBuyRaw   = exitLowRaw   and rtConfBuy  and divOKBuy
+
+var int barsSinceTouchSell = 999
+var int barsSinceTouchBuy  = 999
+var int barsSinceExitSell  = 999
+var int barsSinceExitBuy   = 999
+barsSinceTouchSell := touchSellRaw ? 0 : barsSinceTouchSell + 1
+barsSinceTouchBuy  := touchBuyRaw  ? 0 : barsSinceTouchBuy + 1
+barsSinceExitSell  := exitSellRaw  ? 0 : barsSinceExitSell + 1
+barsSinceExitBuy   := exitBuyRaw   ? 0 : barsSinceExitBuy + 1
+
+sigTouchSell = touchSellRaw and (i_signalCooldown == 0 or barsSinceTouchSell[1] >= i_signalCooldown)
+sigTouchBuy  = touchBuyRaw  and (i_signalCooldown == 0 or barsSinceTouchBuy[1]  >= i_signalCooldown)
+sigExitSell  = exitSellRaw  and (i_signalCooldown == 0 or barsSinceExitSell[1]  >= i_signalCooldown)
+sigExitBuy   = exitBuyRaw   and (i_signalCooldown == 0 or barsSinceExitBuy[1]   >= i_signalCooldown)
+
+alignBuy  = inLowZone  and rtConfBuy  and not na(idxRT)
+alignSell = inHighZone and rtConfSell and not na(idxRT)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 7) OVERLAY — režim z EXIT (turn), volitelně CONFIRM cenou
+// ─────────────────────────────────────────────────────────────────────────────
+f_regimeOnTF() =>
+    ph_tf = ta.pivothigh(high, i_pivotLen, i_pivotLen)
+    pl_tf = ta.pivotlow(low, i_pivotLen, i_pivotLen)
+    lastPH = ta.valuewhen(not na(ph_tf), ph_tf, 0)
+    lastPL = ta.valuewhen(not na(pl_tf), pl_tf, 0)
+
+    buyTurn_tf  = sigExitBuy
+    sellTurn_tf = sigExitSell
+    buyConfirm_tf  = buyTurn_tf  and (not i_usePriceConfirm or (not na(lastPH) and close > lastPH))
+    sellConfirm_tf = sellTurn_tf and (not i_usePriceConfirm or (not na(lastPL) and close < lastPL))
+
+    var int reg = 0
+    if buyTurn_tf
+        reg := 1
+    else if sellTurn_tf
+        reg := -1
+    else if not i_holdUntilOpposite
+        reg := 0
+
+    [reg, buyConfirm_tf, sellConfirm_tf, buyTurn_tf, sellTurn_tf]
+
+[regimeTF, buyConfirmTF, sellConfirmTF, buyTurnTF, sellTurnTF] = request.security(syminfo.tickerid, i_spineTF, f_regimeOnTF(), lookahead=barmerge.lookahead_off)
+
+plotshape(i_showOverlaySignals and i_showTouchSignals and sigTouchBuy, title="TOUCH BUY", style=shape.circle, location=location.belowbar, color=color.new(colTouchBuy, 0), text="0", size=size.tiny, force_overlay=true)
+plotshape(i_showOverlaySignals and i_showTouchSignals and sigTouchSell, title="TOUCH SELL", style=shape.circle, location=location.abovebar, color=color.new(colTouchSell, 0), text="100", size=size.tiny, force_overlay=true)
+
+plotshape(i_showOverlaySignals and i_showExitSignals and sigExitBuy, title="BUY TURN", style=shape.labelup, location=location.belowbar, color=color.new(colBuy, 0), text="BUY", textcolor=color.white, size=size.normal, force_overlay=true)
+plotshape(i_showOverlaySignals and i_showExitSignals and sigExitSell, title="SELL TURN", style=shape.labeldown, location=location.abovebar, color=color.new(colSell, 0), text="SELL", textcolor=color.white, size=size.normal, force_overlay=true)
+
+plotshape(i_showOverlaySignals and i_usePriceConfirm and buyConfirmTF, title="BUY CONFIRM", style=shape.labelup, location=location.belowbar, color=color.new(colConfirmBuy, 0), text="BUY ✓", textcolor=color.white, size=size.small, force_overlay=true)
+plotshape(i_showOverlaySignals and i_usePriceConfirm and sellConfirmTF, title="SELL CONFIRM", style=shape.labeldown, location=location.abovebar, color=color.new(colConfirmSell, 0), text="SELL ✓", textcolor=color.white, size=size.small, force_overlay=true)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 8) PANEL 0–100
+// ─────────────────────────────────────────────────────────────────────────────
+h100  = hline(100, "100", color.new(#546E7A, 55), hline.style_solid, linewidth=1)
+hTouchH = hline(THR_TOUCH_HIGH, "TOUCH HIGH", color.new(colSell, 20), hline.style_solid, linewidth=1)
+hExitH  = hline(THR_EXIT_HIGH, "EXIT HIGH", color.new(colSell, 35), hline.style_dashed, linewidth=1)
+h50   = hline(THR_MID, "50", color.new(#546E7A, 45), hline.style_dotted, linewidth=1)
+hExitL  = hline(THR_EXIT_LOW, "EXIT LOW", color.new(colBuy, 35), hline.style_dashed, linewidth=1)
+hTouchL = hline(THR_TOUCH_LOW, "TOUCH LOW", color.new(colBuy, 20), hline.style_solid, linewidth=1)
+h0    = hline(0, "0", color.new(#546E7A, 55), hline.style_solid, linewidth=1)
+
+fill(hExitH, h100, color.new(colSell, 88), title="SELL zóna")
+fill(h0, hExitL, color.new(colBuy, 88), title="BUY zóna")
+fill(hExitL, hExitH, color.new(#263238, 94), title="Neutrál")
+
+bgcolor(i_showBgZones and inHighZone ? color.new(colSell, 92) : i_showBgZones and inLowZone ? color.new(colBuy, 92) : na, title="Zóna BG")
+
+pSM  = plot(idxSM, "Commercials (Smart Money)", color=colComm, linewidth=3)
+pMid = plot(THR_MID, display=display.none)
+fill(pSM, pMid, color=i_showHistFill and not na(idxSM) ? (idxSM >= THR_MID ? color.new(colBuy, 88) : color.new(colSell, 88)) : na, title="Bias vs 50")
+plot(idxRT, "Retail (Nonreportables)", color=color.new(colRetail, 0), linewidth=2)
+
+plotshape(sigTouchBuy,  title="TOUCH BUY",  style=shape.circle,     location=location.bottom, color=color.new(colTouchBuy, 0),  text="0", size=size.tiny)
+plotshape(sigTouchSell, title="TOUCH SELL", style=shape.circle,     location=location.top,    color=color.new(colTouchSell, 0), text="100", size=size.tiny)
+plotshape(sigExitBuy,   title="BUY",        style=shape.labelup,    location=location.bottom, color=color.new(colBuy, 0),  text="BUY",  textcolor=color.white, size=size.small)
+plotshape(sigExitSell,  title="SELL",       style=shape.labeldown,  location=location.top,    color=color.new(colSell, 0), text="SELL", textcolor=color.white, size=size.small)
+
+plotchar(code == '' ? 1 : na, title="No COT mapping", char="!", location=location.top, size=size.small, color=color.red)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 9) END LABELS
+// ─────────────────────────────────────────────────────────────────────────────
+var label lblSM = na
+var label lblRT = na
+
+if barstate.islast and i_showEndLabels
+    label.delete(lblSM)
+    label.delete(lblRT)
+    if not na(idxSM)
+        lblSM := label.new(bar_index + 2, idxSM, "SMART  " + f_fmt1(idxSM), style=label.style_label_left, textcolor=color.white, color=colComm, size=size.small)
+    if not na(idxRT)
+        lblRT := label.new(bar_index + 2, idxRT, "RETAIL  " + f_fmt1(idxRT), style=label.style_label_left, textcolor=#1A1A1A, color=colRetail, size=size.small)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 10) STATUS PANEL
+// ─────────────────────────────────────────────────────────────────────────────
+var table tbl = table.new(i_tablePos, 2, 8, bgcolor=colBgCell, border_width=1, border_color=color.new(color.black, 100), frame_color=color.new(#30363D, 0), frame_width=1)
+
+f_cell(c, r, txt, bg, tc, align) =>
+    table.cell(tbl, c, r, txt, text_color=tc, bgcolor=bg, text_halign=align, text_size=size.small)
+
+if i_showTable and barstate.islast
+    bool holdArmed = (regimeTF == 1 and (armedSell or sigTouchSell)) or (regimeTF == -1 and (armedBuy or sigTouchBuy))
+    string actionTxt = code == '' ? "NO MAPPING" : sigExitBuy ? "BUY · EXIT 20" : sigExitSell ? "SELL · EXIT 80" : holdArmed and regimeTF == 1 ? "HOLD LONG · ARMED SELL" : holdArmed and regimeTF == -1 ? "HOLD SHORT · ARMED BUY" : sigTouchBuy or armedBuy ? "TOUCH 0 · ARMED BUY" : sigTouchSell or armedSell ? "TOUCH 100 · ARMED SELL" : regimeTF == 1 ? "HOLD LONG" : regimeTF == -1 ? "HOLD SHORT" : "WAIT"
+    color actionBg = code == '' ? color.new(colSell, 40) : sigExitBuy or sigTouchBuy or armedBuy or regimeTF == 1 ? color.new(colBuy, 55) : sigExitSell or sigTouchSell or armedSell or regimeTF == -1 ? color.new(colSell, 55) : color.new(#30363D, 0)
+
+    string regimeTxt = regimeTF == 1 ? "LONG" : regimeTF == -1 ? "SHORT" : "FLAT"
+    color regimeCol = regimeTF == 1 ? colBuy : regimeTF == -1 ? colSell : colMuted
+
+    string howTxt = sigExitBuy or sigExitSell ? "EXIT turn (2. signál)" : sigTouchBuy or sigTouchSell ? "TOUCH extrém (1. signál)" : armedBuy or armedSell ? "Čeká opuštění zóny" : "Žádný trigger"
+
+    f_cell(0, 0, "AKCE", color.new(#161B22, 0), color.white, text.align_center)
+    f_cell(1, 0, actionTxt, actionBg, color.white, text.align_center)
+
+    f_cell(0, 1, "Trh", colBgCell, colMuted, text.align_left)
+    f_cell(1, 1, pair == '' ? "—" : pair, colBgCell, color.white, text.align_right)
+
+    f_cell(0, 2, "Smart Money", colBgCell, colMuted, text.align_left)
+    f_cell(1, 2, f_fmt1(idxSM) + "  " + f_zoneShort(idxSM), colBgCell, colComm, text.align_right)
+
+    f_cell(0, 3, "Retail", colBgCell, colMuted, text.align_left)
+    f_cell(1, 3, f_fmt1(idxRT) + "  " + f_zoneShort(idxRT), colBgCell, colRetail, text.align_right)
+
+    f_cell(0, 4, "Režim", colBgCell, colMuted, text.align_left)
+    f_cell(1, 4, regimeTxt, color.new(regimeCol, 70), color.white, text.align_right)
+
+    f_cell(0, 5, "Armed", colBgCell, colMuted, text.align_left)
+    f_cell(1, 5, armedBuy ? "BUY" : armedSell ? "SELL" : "—", colBgCell, armedBuy ? colBuy : armedSell ? colSell : colMuted, text.align_right)
+
+    f_cell(0, 6, "Proč", colBgCell, colMuted, text.align_left)
+    f_cell(1, 6, howTxt, colBgCell, colText, text.align_right)
+
+    f_cell(0, 7, "CFTC", colBgCell, color.new(colMuted, 20), text.align_left)
+    f_cell(1, 7, code == '' ? "NENÍ MAPOVÁNÍ" : code, colBgCell, code == '' ? colSell : color.new(colMuted, 20), text.align_right)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 11) ALERTS
+// ─────────────────────────────────────────────────────────────────────────────
+alertcondition(sigTouchBuy, title="COT TOUCH BUY (0)", message="COT: TOUCH LOW — Smart Money na 0")
+alertcondition(sigTouchSell, title="COT TOUCH SELL (100)", message="COT: TOUCH HIGH — Smart Money na 100")
+alertcondition(sigExitBuy, title="COT BUY (EXIT)", message="COT: BUY — opustil EXIT LOW nahoru")
+alertcondition(sigExitSell, title="COT SELL (EXIT)", message="COT: SELL — opustil EXIT HIGH dolů")
